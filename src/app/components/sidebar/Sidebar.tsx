@@ -27,7 +27,7 @@ export default function Sidebar() {
       {/* 모바일 햄버거 버튼 (플로팅) */}
       <button
         onClick={toggleSidebar}
-        className={`fixed top-4 left-4 z-50 lg:hidden p-3 bg-white rounded-lg shadow-lg border border-gray-200 transition-opacity ${
+        className={`fixed top-4 left-4 z-overlay lg:hidden p-3 bg-white rounded-lg shadow-lg border border-gray-200 transition-opacity ${
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
         aria-label="메뉴 열기"
@@ -37,7 +37,7 @@ export default function Sidebar() {
 
       {/* 모바일 오버레이 */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black bg-opacity-50 z-header lg:hidden transition-opacity duration-300 ${
           isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setExpanded(false)}
@@ -45,7 +45,7 @@ export default function Sidebar() {
 
       {/* 사이드바 */}
       <aside
-        className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-40 transition-all duration-300 ease-in-out flex flex-col
+        className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-sidebar transition-all duration-300 ease-in-out flex flex-col
           lg:translate-x-0 ${
             isExpanded ? 'w-64 translate-x-0' : 'w-16 lg:translate-x-0 -translate-x-full'
           }`}

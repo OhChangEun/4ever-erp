@@ -84,7 +84,7 @@ export default function CalendarButton({
             <div
               ref={refs.setFloating}
               style={floatingStyles}
-              className="z-[9999] bg-white rounded-md shadow-lg border border-gray-200 pb-6 animate-fadeIn"
+              className="z-popover bg-white rounded-md shadow-lg border border-gray-200 pb-6 animate-fadeIn"
             >
               <StaticDatePicker
                 displayStaticWrapperAs="desktop"

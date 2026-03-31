@@ -40,7 +40,7 @@ export default function SlidingNavBar({ items, selectedKey, onSelect }: SlidingN
               navRefs.current[index] = el;
             }}
             onClick={() => onSelect(item.key)}
-            className={`relative z-10 whitespace-nowrap cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
+            className={`relative z-local whitespace-nowrap cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
               selectedKey === item.key ? 'text-white' : 'text-gray-500 hover:text-gray-700'
             }`}
           >

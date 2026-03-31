@@ -119,7 +119,7 @@ export default function MrpPurchaseRequestModal({
         {/* 테이블 영역 */}
         <div className="overflow-x-auto overflow-y-auto max-h-[252px] rounded shadow-xs">
           <table className="min-w-full divide-y divide-gray-100 border-b border-gray-100">
-            <thead className="sticky top-0 z-10 bg-gray-100">
+            <thead className="sticky top-0 z-local bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   참조 견적서

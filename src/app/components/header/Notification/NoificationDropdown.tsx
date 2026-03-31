@@ -123,7 +123,7 @@ export default function NotificationDropdown() {
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden"
+              className="w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-overlay overflow-hidden"
             >
               <NotificationHeader notificationCount={unreadCount} onReadAll={handleReadAll} />
               <NotificationList

@@ -258,11 +258,11 @@ export default function MesTab() {
                                   {/* 아이콘 + 라인 */}
                                   <div className="relative flex flex-col items-center justify-start min-w-4">
                                     <i
-                                      className={`${status.icon} ${status.class} ${status.size} z-10`}
+                                      className={`${status.icon} ${status.class} ${status.size} z-local`}
                                     ></i>
                                     {!isLast && nextStatus && (
                                       <div
-                                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 w-0.5 h-7 z-0 ${nextStatus.lineClass}`}
+                                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 w-0.5 h-7 z-base ${nextStatus.lineClass}`}
                                       ></div>
                                     )}
                                   </div>

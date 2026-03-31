@@ -106,7 +106,7 @@ export default function Dropdown<T extends string = string>({
           <ul
             ref={refs.setFloating}
             style={floatingStyles}
-            className="z-[9999] max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg max-w-[160px] min-w-[96px] animate-fadeIn overscroll-contain"
+            className="z-popover max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg max-w-[160px] min-w-[96px] animate-fadeIn overscroll-contain"
           >
             {items.length > 0 ? (
               items.map((item, index) => {

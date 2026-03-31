@@ -61,6 +61,15 @@
   --color-gray-700: #434a55;
   --color-gray-800: #2d3139; /* 본문 텍스트 */
   --color-gray-900: #181b21; /* 제목 */
+
+  /* ===== Z-Index Scale (우선순위 낮음 → 높음) ===== */
+  --z-index-base: 0;        /* 기본 스택 기준선 (타임라인 등) */
+  --z-index-local: 10;      /* 컴포넌트 내부 로컬 스태킹 (탭, 뱃지, sticky thead) */
+  --z-index-header: 30;     /* 고정 헤더, 모바일 백드롭 */
+  --z-index-sidebar: 40;    /* 사이드바 패널 */
+  --z-index-overlay: 50;    /* 인라인 오버레이 · 드롭다운 · 간이 모달 */
+  --z-index-modal: 1000;    /* Portal 전역 모달 (ModalContainer) */
+  --z-index-popover: 9999;  /* Floating UI 팝오버 (모달 위 드롭다운 · 캘린더) */
 }
 /* 
 html {

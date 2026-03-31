@@ -103,13 +103,13 @@ const WarehouseVisualizer = ({
             <button
               type="button"
               onClick={() => setFreeMode((prev) => !prev)}
-              className="absolute right-4 bottom-4 z-10 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow hover:bg-blue-50"
+              className="absolute right-4 bottom-4 z-local rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow hover:bg-blue-50"
             >
               {freeMode ? '마우스 탐색 종료' : '자유 시점 이동'}
             </button>
           )}
           {viewMode === 'warehouse' && activeCluster && (
-            <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow">
+            <div className="absolute left-4 top-4 z-local flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow">
               <i className="ri-home-5-line text-base text-blue-600"></i>
               <span>{activeCluster.name}</span>
             </div>
@@ -119,7 +119,7 @@ const WarehouseVisualizer = ({
             <button
               type="button"
               onClick={handleExitWarehouse}
-              className="absolute right-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold text-blue-700 shadow transition hover:bg-blue-50"
+              className="absolute right-4 top-4 z-local inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold text-blue-700 shadow transition hover:bg-blue-50"
             >
               <i className="ri-arrow-left-line text-sm"></i>
               <span>창고 목록으로</span>
@@ -127,7 +127,7 @@ const WarehouseVisualizer = ({
           )}
 
           {allowWarehouseNavigation && viewMode === 'overview' && (
-            <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-lg bg-white/85 px-3 py-2 text-xs text-gray-600 shadow">
+            <div className="pointer-events-none absolute left-4 top-4 z-local rounded-lg bg-white/85 px-3 py-2 text-xs text-gray-600 shadow">
               창고 바닥을 더블 클릭하거나 창고 요약 카드에서 이동해 내부를 확인하세요.
             </div>
           )}
@@ -165,7 +165,7 @@ const WarehouseVisualizer = ({
             )}
           </Canvas>
           {freeMode && (
-            <div className="pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 z-overlay -translate-x-1/2 -translate-y-1/2">
               <div className="h-4 w-4 rounded-full border-2 border-blue-500 shadow-md" />
             </div>
           )}

@@ -74,7 +74,7 @@ export default function DropdownInputModal({
           <div
             ref={refs.setFloating} // floating-ui가 위치 제어
             style={floatingStyles} // 계산된 위치 적용
-            className="z-[9999] bg-white border border-gray-200 rounded-xl shadow-3xl p-4 pt-5 pb-2 w-60 animate-fadeIn"
+            className="z-popover bg-white border border-gray-200 rounded-xl shadow-3xl p-4 pt-5 pb-2 w-60 animate-fadeIn"
           >
             {/* 입력 textarea */}
             <textarea

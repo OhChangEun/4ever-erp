@@ -66,7 +66,7 @@ export default function DropdownInputListModal<T extends string>({
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="z-[9999] bg-white border border-gray-200 rounded-xl shadow-3xl p-4 py-6 w-72 animate-fadeIn"
+            className="z-popover bg-white border border-gray-200 rounded-xl shadow-3xl p-4 py-6 w-72 animate-fadeIn"
           >
             <div className="w-full overflow-y-auto">
               <InputList initialItems={items} onChange={(newItems) => setItems(newItems)} />

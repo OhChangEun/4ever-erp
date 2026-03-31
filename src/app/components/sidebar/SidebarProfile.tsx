@@ -94,7 +94,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
       {/* 드롭다운 메뉴 */}
       {isOpen && (
         <div
-          className={`absolute ${isExpanded ? 'left-4 right-4' : 'left-full ml-2'} bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in`}
+          className={`absolute ${isExpanded ? 'left-4 right-4' : 'left-full ml-2'} bottom-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-overlay animate-fade-in`}
           style={{ minWidth: isExpanded ? 'auto' : '200px' }}
         >
           {/* 프로필 정보 (축소 상태일 때만) */}

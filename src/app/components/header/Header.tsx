@@ -30,7 +30,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 right-0 z-30 transition-all duration-300 border-b border-gray-200 ${
+      className={`fixed top-0 right-0 z-header transition-all duration-300 border-b border-gray-200 ${
         isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-white/80 backdrop-blur-sm'
       } lg:left-auto`}
       style={{

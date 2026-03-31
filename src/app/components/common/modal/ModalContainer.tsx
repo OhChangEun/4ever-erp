@@ -17,7 +17,7 @@ const ModalContainer = ({ children, title, width, height, onClose }: ModalContai
 
   return (
     <AnimatePresence>
-      <div className="fixed z-[1000] inset-0 flex items-center justify-center pointer-events-auto">
+      <div className="fixed z-modal inset-0 flex items-center justify-center pointer-events-auto">
         <motion.div
           className=" overflow-auto custom-scroll border border-gray-200 shadow-2xl bg-white rounded-2xl p-6 relative pointer-events-auto"
           style={{

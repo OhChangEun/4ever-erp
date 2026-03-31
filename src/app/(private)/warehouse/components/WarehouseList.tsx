@@ -19,7 +19,7 @@ const Warehouse3DModal = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 text-white">
+      <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/40 text-white">
         3D 뷰어를 준비하는 중...
       </div>
     ),
