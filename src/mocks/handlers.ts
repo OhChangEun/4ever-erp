@@ -167,6 +167,18 @@ const mockProductionStats = statResponse({
   bom_count: stat,
 });
 
+// ---- 낙관적 락 시뮬레이션: BOM 서버 측 버전 상태 ----
+// 실제 백엔드라면 DB의 version 컬럼이 이 역할을 함
+// MSW에서는 모듈 레벨 변수로 서버 버전을 흉내냄
+const bomServerVersions: Record<string, string> = {};
+const getBomVersion = (bomId: string) => bomServerVersions[bomId] ?? 'v1';
+const bumpBomVersion = (bomId: string): string => {
+  const current = getBomVersion(bomId);
+  const next = `v${parseInt(current.replace('v', ''), 10) + 1}`;
+  bomServerVersions[bomId] = next;
+  return next;
+};
+
 const mockHrmStats = statResponse({
   totalEmployeeCount: stat,
   newEmployeeCount: stat,
@@ -1447,13 +1459,14 @@ export const handlers = [
   }),
   http.get(`${PRODUCTION_BASE_PATH}/boms/:bomId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load BOM detail', 500);
+    const bomId = params.bomId as string;
     return ok({
-      bomId: params.bomId,
+      bomId,
       bomNumber: 'BOM-2026-001',
       productId: 'prod-001',
       productNumber: 'PRD-001',
       productName: '모터 A',
-      version: 'v1',
+      version: getBomVersion(bomId), // 서버 현재 버전을 동적으로 반환
       statusCode: '활성',
       lastModifiedAt: isoNow,
       components: [
@@ -1489,6 +1502,43 @@ export const handlers = [
           runTime: 30,
         },
       ],
+    });
+  }),
+  // BOM 상태 수정 요청 — 낙관적 락 버전 검증
+  http.patch(`${PRODUCTION_BASE_PATH}/boms/:bomId`, async ({ request, params }) => {
+    if (shouldError(request)) return error('Failed to update BOM', 500);
+    const bomId = params.bomId as string;
+    const body = (await request.json()) as { version: string; statusCode?: string };
+    const serverVersion = getBomVersion(bomId);
+
+    // 클라이언트가 보낸 version이 서버 version과 다르면 409 반환
+    // → 다른 사용자가 먼저 수정한 상황을 의미
+    if (body.version !== serverVersion) {
+      return HttpResponse.json(
+        {
+          status: 409,
+          success: false,
+          message: `다른 사용자가 이미 이 BOM을 수정했습니다. (서버: ${serverVersion} / 요청: ${body.version})`,
+        },
+        { status: 409 },
+      );
+    }
+
+    // 버전 일치 → 수정 성공, 서버 버전 증가
+    const newVersion = bumpBomVersion(bomId);
+    return HttpResponse.json({
+      status: 200,
+      success: true,
+      message: `BOM이 수정되었습니다. (버전: ${newVersion})`,
+    });
+  }),
+  // [개발 테스트 전용] 서버 버전을 강제로 올려서 충돌 상황 시뮬레이션
+  // 이 엔드포인트를 호출하면 "다른 사용자가 먼저 수정했다"는 시나리오가 됨
+  http.post(`${PRODUCTION_BASE_PATH}/boms/:bomId/simulate-conflict`, ({ params }) => {
+    const bomId = params.bomId as string;
+    const newVersion = bumpBomVersion(bomId);
+    return HttpResponse.json({
+      message: `[테스트] 서버 버전이 ${newVersion}로 변경되었습니다. 다음 수정 요청은 409를 반환합니다.`,
     });
   }),
   http.post(PRODUCTION_ENDPOINTS.BOMS, ({ request }) => {

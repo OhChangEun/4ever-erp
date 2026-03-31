@@ -137,6 +137,32 @@ export const deletBomItem = async (bomId: string): Promise<ApiResponseNoData> =>
   return res.data;
 };
 
+// BOM 상태 수정 (낙관적 락)
+// version 필드를 함께 전송해서 서버에서 충돌 여부를 검증
+export interface PatchBomStatusRequest {
+  statusCode: string;
+  version: string; // 마지막으로 클라이언트가 읽은 버전 (서버 버전과 다르면 409)
+}
+export const patchBomStatus = async (
+  bomId: string,
+  body: PatchBomStatusRequest,
+): Promise<{ status: number; message: string }> => {
+  const res = await axios.patch<{ status: number; message: string }>(
+    `${PRODUCTION_ENDPOINTS.BOM_DETAIL(bomId)}`,
+    body,
+  );
+  return res.data;
+};
+
+// [개발 테스트 전용] 다른 사용자가 BOM을 먼저 수정한 상황 시뮬레이션
+// 이 함수를 호출하면 MSW 서버 측 버전이 올라가서, 다음 patch 시 409 발생
+export const simulateBomConflict = async (bomId: string): Promise<{ message: string }> => {
+  const res = await axios.post<{ message: string }>(
+    `${PRODUCTION_ENDPOINTS.BOM_DETAIL(bomId)}/simulate-conflict`,
+  );
+  return res.data;
+};
+
 // --- MRP ---
 // MRP 순소요 목록 조회
 export const fetchMrpOrdersList = async (
