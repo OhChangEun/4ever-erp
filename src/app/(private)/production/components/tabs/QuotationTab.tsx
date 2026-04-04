@@ -250,27 +250,25 @@ export default function QuotationTab() {
           onStartDateChange={handleStartDateChange}
           onEndDateChange={handleEndDateChange}
         />
-        <div className="flex items-end">
-          <div className="flex gap-3 pr-5">
-            <Dropdown
-              placeholder="전체 가용재고"
-              items={availableStatusOptions}
-              value={selectedStockStatus}
-              onChange={(status: AvailableStockStatus) => {
-                setSelectedStockStatus(status);
-                setCurrentPage(1); // 필터 변경 시 첫 페이지로
-              }}
-            />
-            <Dropdown
-              placeholder="전체 상태"
-              items={quotationsStatusOptions}
-              value={selectedQuotationsStatus}
-              onChange={(status: QuotationStatus) => {
-                setSelectedQuotationsStatus(status);
-                setCurrentPage(1); // 필터 변경 시 첫 페이지로
-              }}
-            />
-          </div>
+        <div className="flex items-center gap-3">
+          <Dropdown
+            placeholder="전체 가용재고"
+            items={availableStatusOptions}
+            value={selectedStockStatus}
+            onChange={(status: AvailableStockStatus) => {
+              setSelectedStockStatus(status);
+              setCurrentPage(1); // 필터 변경 시 첫 페이지로
+            }}
+          />
+          <Dropdown
+            placeholder="전체 상태"
+            items={quotationsStatusOptions}
+            value={selectedQuotationsStatus}
+            onChange={(status: QuotationStatus) => {
+              setSelectedQuotationsStatus(status);
+              setCurrentPage(1); // 필터 변경 시 첫 페이지로
+            }}
+          />
           <IconButton
             label={simulationPending ? '시뮬레이션 중...' : '시뮬레이션'}
             icon={simulationPending ? 'ri-loader-4-line animate-spin' : 'ri-play-line'}
@@ -279,29 +277,27 @@ export default function QuotationTab() {
           />
         </div>
       </div>
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {isQuotationListLoading ? (
-          <TableStatusBox $type="loading" $message="견적 목록을 불러오는 중입니다..." />
-        ) : isQuotationListError ? (
-          <TableStatusBox $type="error" $message="견적 목록을 불러오는 중 오류가 발생했습니다." />
-        ) : (
-          <Table
-            columns={columns}
-            data={quotationDataList}
-            keyExtractor={(row) => row.quotationId}
-            emptyMessage="조회된 견적 데이터가 없습니다."
-            className="flex-1 min-h-0"
-          />
-        )}
-        {!isQuotationListLoading && !isQuotationListError && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalElements={totalElements}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </div>
+      {isQuotationListLoading ? (
+        <TableStatusBox $type="loading" $message="견적 목록을 불러오는 중입니다..." />
+      ) : isQuotationListError ? (
+        <TableStatusBox $type="error" $message="견적 목록을 불러오는 중 오류가 발생했습니다." />
+      ) : (
+        <Table
+          columns={columns}
+          data={quotationDataList}
+          keyExtractor={(row) => row.quotationId}
+          emptyMessage="조회된 견적 데이터가 없습니다."
+          className="flex-1 min-h-0"
+        />
+      )}
+      {!isQuotationListLoading && !isQuotationListError && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }

@@ -153,30 +153,28 @@ export default function EmployeesTab() {
         />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {isLoading ? (
-          <TableStatusBox $type="loading" $message="직원 정보를 불러오는 중입니다..." />
-        ) : isError ? (
-          <TableStatusBox $type="error" $message="직원 정보를 불러오는 중 오류가 발생했습니다." />
-        ) : (
-          <Table
-            columns={columns}
-            data={employees}
-            keyExtractor={(row) => row.employeeId}
-            emptyMessage="등록된 직원이 없습니다."
-            className="flex-1 min-h-0"
-          />
-        )}
+      {isLoading ? (
+        <TableStatusBox $type="loading" $message="직원 정보를 불러오는 중입니다..." />
+      ) : isError ? (
+        <TableStatusBox $type="error" $message="직원 정보를 불러오는 중 오류가 발생했습니다." />
+      ) : (
+        <Table
+          columns={columns}
+          data={employees}
+          keyExtractor={(row) => row.employeeId}
+          emptyMessage="등록된 직원이 없습니다."
+          className="flex-1 min-h-0"
+        />
+      )}
 
-        {isError || isLoading ? null : (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={pageInfo?.totalPages ?? 1}
-            totalElements={pageInfo?.totalElements}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        )}
-      </div>
+      {isError || isLoading ? null : (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pageInfo?.totalPages ?? 1}
+          totalElements={pageInfo?.totalElements}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 }

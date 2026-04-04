@@ -214,8 +214,8 @@ export default function OrdersTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
-      <div className="flex justify-end items-center p-4 border-b border-gray-200 shrink-0">
+    <div className="flex flex-col h-full">
+      <div className="flex justify-end items-center p-4 shrink-0">
         <div className="flex gap-4 items-center">
           <Dropdown
             placeholder="견적 선택"

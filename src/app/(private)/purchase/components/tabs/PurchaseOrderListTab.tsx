@@ -180,30 +180,28 @@ export default function PurchaseOrderListTab() {
         {/* 상태 필터 */}
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {isLoading ? (
-          <TableStatusBox $type="loading" $message="발주서 목록을 불러오는 중입니다..." />
-        ) : isError ? (
-          <TableStatusBox $type="error" $message="발주서 목록을 불러오는 중 오류가 발생했습니다." />
-        ) : (
-          <PurchaseOrderTable
-            currentOrders={orders}
-            handleViewDetail={handleViewDetail}
-            handleApprove={handleApprove}
-            handleReject={handleReject}
-            handleDelivery={handleDelivery}
-            className="flex-1 min-h-0"
-          />
-        )}
-        {isError || isLoading ? null : (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalElements={pageInfo?.totalElements}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <TableStatusBox $type="loading" $message="발주서 목록을 불러오는 중입니다..." />
+      ) : isError ? (
+        <TableStatusBox $type="error" $message="발주서 목록을 불러오는 중 오류가 발생했습니다." />
+      ) : (
+        <PurchaseOrderTable
+          currentOrders={orders}
+          handleViewDetail={handleViewDetail}
+          handleApprove={handleApprove}
+          handleReject={handleReject}
+          handleDelivery={handleDelivery}
+          className="flex-1 min-h-0"
+        />
+      )}
+      {isError || isLoading ? null : (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={pageInfo?.totalElements}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 }

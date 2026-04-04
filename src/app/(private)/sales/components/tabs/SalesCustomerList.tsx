@@ -170,30 +170,28 @@ const CustomerList = () => {
       </div>
 
       {/* 테이블 */}
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {isLoading ? (
-          <TableStatusBox $type="loading" $message="고객 목록을 불러오는 중입니다..." />
-        ) : isError ? (
-          <TableStatusBox $type="error" $message="고객 목록을 불러오는 중 오류가 발생했습니다." />
-        ) : (
-          <Table
-            columns={columns}
-            data={customers}
-            keyExtractor={(row) => row.customerId}
-            emptyMessage="고객 정보가 없습니다."
-            className="flex-1 min-h-0"
-          />
-        )}
-        {/* 페이지네이션 */}
-        {!isLoading && !isError && customers.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalElements={pageInfo?.totalElements}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <TableStatusBox $type="loading" $message="고객 목록을 불러오는 중입니다..." />
+      ) : isError ? (
+        <TableStatusBox $type="error" $message="고객 목록을 불러오는 중 오류가 발생했습니다." />
+      ) : (
+        <Table
+          columns={columns}
+          data={customers}
+          keyExtractor={(row) => row.customerId}
+          emptyMessage="고객 정보가 없습니다."
+          className="flex-1 min-h-0"
+        />
+      )}
+      {/* 페이지네이션 */}
+      {!isLoading && !isError && customers.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={pageInfo?.totalElements}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 };

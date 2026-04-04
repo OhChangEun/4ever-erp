@@ -173,21 +173,19 @@ export default function EmployeeTrainingTab() {
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <Table
-          columns={columns}
-          data={trainingList}
-          keyExtractor={(row) => row.employeeId}
-          emptyMessage="교육 기록이 없습니다."
-          className="flex-1 min-h-0"
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={pageInfo?.totalPages ?? 1}
-          totalElements={pageInfo?.totalElements}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-      </div>
+      <Table
+        columns={columns}
+        data={trainingList}
+        keyExtractor={(row) => row.employeeId}
+        emptyMessage="교육 기록이 없습니다."
+        className="flex-1 min-h-0"
+      />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={pageInfo?.totalPages ?? 1}
+        totalElements={pageInfo?.totalElements}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 }

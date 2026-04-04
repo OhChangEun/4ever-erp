@@ -207,7 +207,7 @@ export default function PurchaseRequestListTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full">
       {/* 필터 헤더 */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center shrink-0">
         {/* <CalendarButton /> */}

@@ -190,24 +190,22 @@ export default function SupplierListTab() {
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <Table
-          columns={columns}
-          data={suppliers}
-          keyExtractor={(row) => row.supplierInfo.supplierId}
-          emptyMessage="공급업체가 없습니다."
-          className="flex-1 min-h-0"
+      <Table
+        columns={columns}
+        data={suppliers}
+        keyExtractor={(row) => row.supplierInfo.supplierId}
+        emptyMessage="공급업체가 없습니다."
+        className="flex-1 min-h-0"
+      />
+      {/* 페이지네이션 */}
+      {isError || isLoading ? null : (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={pageInfo?.totalElements}
+          onPageChange={(page) => setCurrentPage(page)}
         />
-        {/* 페이지네이션 */}
-        {isError || isLoading ? null : (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalElements={pageInfo?.totalElements}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 }

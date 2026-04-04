@@ -167,7 +167,7 @@ export default function PlannedOrdersTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full">
       <div className="p-4 border-b border-gray-200 flex items-center justify-end shrink-0">
         <div className="flex items-center gap-3">
           <Dropdown
