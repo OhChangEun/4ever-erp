@@ -53,18 +53,16 @@ export default function Table<T = Record<string, unknown>>({
     >
       <div className="overflow-auto flex-1 min-h-0">
         <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={`px-4 py-3 text-sm font-semibold text-gray-700 ${getAlignClass(column.align)}`}
-                  style={{ width: column.width }}
-                >
-                  {column.headerRender ? column.headerRender() : column.label}
-                </th>
-              ))}
-            </tr>
+          <thead className="sticky top-0 z-10 shadow-sm bg-gray-50">
+            {columns.map((column) => (
+              <th
+                key={column.key}
+                className={`px-4 py-3 text-sm font-medium text-gray-700 ${getAlignClass(column.align)}`}
+                style={{ width: column.width }}
+              >
+                {column.headerRender ? column.headerRender() : column.label}
+              </th>
+            ))}
           </thead>
           <tbody>
             {data.length === 0 ? (
@@ -81,8 +79,8 @@ export default function Table<T = Record<string, unknown>>({
                 <tr
                   key={keyExtractor ? keyExtractor(row, index) : index}
                   className={`border-b border-gray-50 last:border-0 ${
-                    hoverable ? 'hover:bg-gray-50 transition-colors' : ''
-                  } ${onRowClick ? 'cursor-pointer' : ''}`}
+                    hoverable ? 'hover:bg-blue-100/70 transition-colors cursor-pointer' : ''
+                  }`}
                   onClick={() => onRowClick?.(row, index)}
                 >
                   {columns.map((column) => (

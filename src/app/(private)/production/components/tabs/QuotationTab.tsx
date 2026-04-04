@@ -191,7 +191,8 @@ export default function QuotationTab() {
       headerRender: () => (
         <input
           type="checkbox"
-          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
             if (e.target.checked) {
               setSelectedQuotes(quotationDataList.map((q) => q.quotationId));
@@ -211,8 +212,9 @@ export default function QuotationTab() {
         ) : (
           <input
             type="checkbox"
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
             checked={selectedQuotes.includes(quote.quotationId)}
+            onClick={(e) => e.stopPropagation()}
             onChange={() => handleQuoteSelect(quote.quotationId)}
           />
         ),
@@ -288,6 +290,9 @@ export default function QuotationTab() {
           keyExtractor={(row) => row.quotationId}
           emptyMessage="조회된 견적 데이터가 없습니다."
           className="flex-1 min-h-0"
+          onRowClick={(row) => {
+            if (row.availableStatus !== 'CHECKED') handleQuoteSelect(row.quotationId);
+          }}
         />
       )}
       {!isQuotationListLoading && !isQuotationListError && (
