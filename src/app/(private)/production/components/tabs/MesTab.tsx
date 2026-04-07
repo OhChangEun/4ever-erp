@@ -17,7 +17,8 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import ProcessDetailModal from '../modals/ProcessDetailModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import Pagination from '@/app/components/common/Pagination';
-import IconButton from '@/app/components/common/IconButton';
+import Table, { TableColumn } from '@/app/components/common/Table';
+import TableStatusBox from '@/app/components/common/TableStatusBox';
 
 export default function MesTab() {
   const [selectedMesQuote, setSelectedMesQuote] = useState('');
@@ -27,7 +28,6 @@ export default function MesTab() {
   const pageSize = 10;
 
   const { openModal } = useModal();
-  // mrp 순소요 - 견적 드롭다운
   const { options: mrpQuotationOptions } = useDropdown(
     'mrpQuotationsDropdown',
     fetchMrpQuotationsDropdown,
@@ -35,10 +35,6 @@ export default function MesTab() {
 
   const { options: mesStatusOptions } = useDropdown('mesStatusDropdown', fetchMesStatusDropdown);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const currentStepRef = useRef<HTMLDivElement>(null);
-
-  // 쿼리 파라미터 객체 생성
   const queryParams = useMemo(
     () => ({
       quotationId: selectedMesQuote,
@@ -49,7 +45,6 @@ export default function MesTab() {
     [selectedMesQuote, selectedMesStatus, currentPage],
   );
 
-  // API 호출 with query parameters
   const {
     data: mesResponse,
     isLoading,
@@ -60,261 +55,223 @@ export default function MesTab() {
     staleTime: 1000,
   });
 
-  // content 배열만 추출
-  const mesListData: MesSummaryItem[] = mesResponse?.content || [];
+  const mesListData: MesSummaryItem[] = useMemo(() => mesResponse?.content || [], [mesResponse]);
   const pageInfo = mesResponse?.page;
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; class: string }> = {
-      PLANNED: { label: '대기', class: 'bg-gray-100 text-gray-600' },
-      IN_PROGRESS: { label: '진행중', class: 'bg-blue-100 text-blue-800' },
-      COMPLETED: { label: '완료', class: 'bg-green-100 text-green-800' },
-      ON_HOLD: { label: '보류', class: 'bg-yellow-100 text-yellow-800' },
-    };
-    const config = statusConfig[status] || { label: status, class: 'bg-gray-100 text-gray-600' };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.class}`}>
-        {config.label}
-      </span>
-    );
-  };
 
   const handleShowProcessDetail = (mesId: string) => {
     openModal(ProcessDetailModal, { title: 'MES 현황', mesId: mesId, height: '800px' });
   };
 
-  const getOperationStatus = (
+  const getStepState = (
     operationIndex: number,
     currentOperationNumber: number,
     status: string,
-  ) => {
-    // 모든 공정이 아직 시작 전일 때 (대기 상태)
-    if (status === 'PLANNED' || status === 'PENDING') {
-      return {
-        icon: 'ri-circle-fill',
-        class: 'text-gray-300',
-        size: 'text-xs',
-        lineClass: 'bg-gray-300',
-      };
-    }
-
-    const operationNum = operationIndex + 1; // 1-based index
-
-    // 현재 진행 중인 공정
-    if (operationNum === currentOperationNumber) {
-      return {
-        icon: 'ri-play-circle-fill',
-        class: 'text-blue-600',
-        size: 'text-[16px]',
-        lineClass: 'bg-blue-500',
-      };
-    }
-
-    // 완료된 공정 (현재보다 이전)
-    if (operationNum < currentOperationNumber) {
-      return {
-        icon: 'ri-checkbox-circle-fill',
-        class: 'text-blue-400',
-        size: 'text-[13px]',
-        lineClass: 'bg-blue-400',
-      };
-    }
-
-    // 아직 진행되지 않은 공정
-    return {
-      icon: 'ri-circle-fill',
-      class: 'text-gray-300',
-      size: 'text-[10px]',
-      lineClass: 'bg-gray-300',
-    };
+  ): 'done' | 'active' | 'pending' => {
+    if (status === 'PLANNED' || status === 'PENDING') return 'pending';
+    const operationNum = operationIndex + 1;
+    if (operationNum < currentOperationNumber) return 'done';
+    if (operationNum === currentOperationNumber) return 'active';
+    return 'pending';
   };
 
+  const stepperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    const currentStep = currentStepRef.current;
-
-    if (container && currentStep) {
-      const containerHeight = container.clientHeight;
-      const currentStepTop = currentStep.offsetTop - container.offsetTop; // 현재 공정의 상대적 위치
-      const currentStepHeight = currentStep.clientHeight;
-
-      // 중앙 정렬: (현재 공정의 중심) - (컨테이너의 절반)
-      const scrollPosition = currentStepTop - containerHeight / 2 + currentStepHeight / 2;
-
-      container.scrollTo({
-        top: scrollPosition,
-        behavior: 'smooth',
-      });
-    }
+    stepperRefs.current.forEach((el) => {
+      const activeStep = el.querySelector('[data-active="true"]') as HTMLElement | null;
+      if (activeStep) {
+        const containerWidth = el.clientWidth;
+        const stepLeft = activeStep.offsetLeft;
+        const stepWidth = activeStep.clientWidth;
+        el.scrollTo({
+          left: stepLeft - containerWidth / 2 + stepWidth / 2,
+          behavior: 'smooth',
+        });
+      }
+    });
   }, [mesListData]);
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-end">
-        <div className="flex gap-3">
-          <Dropdown
-            placeholder="견적 선택"
-            items={mrpQuotationOptions}
-            value={selectedMesQuote}
-            onChange={(quote: string) => {
-              setSelectedMesQuote(quote);
-              setCurrentPage(1);
+  const columns: TableColumn<MesSummaryItem>[] = [
+    {
+      key: 'status',
+      label: '상태',
+      align: 'center',
+      render: (_, row) => {
+        const statusConfig: Record<string, { label: string; dot: string; class: string }> = {
+          WAITING: { label: '대기중', dot: 'bg-gray-400', class: 'text-gray-500' },
+          IN_PROGRESS: { label: '진행중', dot: 'bg-blue-500', class: 'text-blue-600' },
+          COMPLETED: { label: '완료', dot: 'bg-green-500', class: 'text-green-600' },
+        };
+        const config = statusConfig[row.status] ?? {
+          label: row.status,
+          dot: 'bg-gray-400',
+          class: 'text-gray-400',
+        };
+        return (
+          <span className={`flex items-center justify-center gap-1.5 ${config.class}`}>
+            <span className={`w-1 h-1 rounded-full shrink-0 ${config.dot}`} />
+            {config.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'quotationNumber',
+      label: '견적번호',
+      align: 'center',
+      render: (_, row) => <span className="font-medium text-gray-700">{row.quotationNumber}</span>,
+    },
+    {
+      key: 'productName',
+      label: '제품명',
+      align: 'center',
+    },
+    {
+      key: 'quantity',
+      label: '수량',
+      align: 'center',
+      render: (_, row) => (
+        <span className="text-gray-600">
+          {row.quantity} <span className="text-gray-400">{row.uomName}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'startDate',
+      label: '시작일',
+      align: 'center',
+      render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.startDate}</span>,
+    },
+    {
+      key: 'endDate',
+      label: '종료일',
+      align: 'center',
+      render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.endDate}</span>,
+    },
+    {
+      key: 'sequence',
+      label: '공정 진행',
+      align: 'center',
+      render: (_, row) => {
+        const currentOpNum = row.currentOperation || 0;
+        return (
+          <div
+            ref={(el) => {
+              if (el) stepperRefs.current.set(row.mesId, el);
             }}
-            autoSelectFirst
-          />
-          <Dropdown
-            placeholder="전체 상태"
-            items={mesStatusOptions}
-            value={selectedMesStatus}
-            onChange={(status: string) => {
-              setSelectedMesStatus(status);
-            }}
-          />
+            className="flex items-center justify-center gap-0 overflow-x-auto pb-1 scrollbar-none"
+          >
+            {row.sequence.map((operation, index) => {
+              const state = getStepState(index, currentOpNum, row.status);
+              const isLast = index === row.sequence.length - 1;
+              return (
+                <div
+                  key={index}
+                  className="flex items-center shrink-0"
+                  data-active={state === 'active'}
+                >
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div
+                      className={`flex items-center justify-center rounded-full shrink-0 transition-all ${
+                        state === 'done'
+                          ? 'w-4 h-4 bg-blue-500'
+                          : state === 'active'
+                            ? 'w-5 h-5 bg-blue-600 ring-2 ring-blue-200'
+                            : 'w-4 h-4 bg-gray-200'
+                      }`}
+                    >
+                      {state === 'done' ? (
+                        <i className="ri-check-line text-white text-[8px]" />
+                      ) : state === 'active' ? (
+                        <i className="ri-play-mini-fill text-white text-[9px]" />
+                      ) : (
+                        <span className="w-1 h-1 rounded-full bg-gray-400" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-[9px] leading-tight text-center max-w-10 truncate ${
+                        state === 'active'
+                          ? 'text-blue-700 font-bold'
+                          : state === 'done'
+                            ? 'text-gray-600'
+                            : 'text-gray-400'
+                      }`}
+                    >
+                      {operation}
+                    </span>
+                  </div>
+                  {!isLast && (
+                    <div
+                      className={`w-4 h-0.5 mx-0.5 -mt-3 ${
+                        getStepState(index + 1, currentOpNum, row.status) !== 'pending'
+                          ? 'bg-blue-400'
+                          : state === 'active'
+                            ? 'bg-linear-to-r from-blue-400 to-gray-200'
+                            : 'bg-gray-200'
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'progressRate',
+      label: '진행률',
+      align: 'center',
+      render: (_, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-40 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-blue-500 h-1.5 rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${row.progressRate}%` }}
+            />
+          </div>
+          <span className="font-semibold text-gray-600 w-8">{row.progressRate}%</span>
         </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col h-full gap-6">
+      <div className="flex items-center justify-end gap-3 shrink-0">
+        <Dropdown
+          placeholder="견적 선택"
+          items={mrpQuotationOptions}
+          value={selectedMesQuote}
+          onChange={(quote: string) => {
+            setSelectedMesQuote(quote);
+            setCurrentPage(1);
+          }}
+          autoSelectFirst
+        />
+        <Dropdown
+          placeholder="전체 상태"
+          items={mesStatusOptions}
+          value={selectedMesStatus}
+          onChange={(status: string) => {
+            setSelectedMesStatus(status);
+          }}
+        />
       </div>
 
-      <div className="border-t border-gray-200 pt-4">
+      <div className="flex flex-col flex-1 min-h-0 bg-white rounded-xl overflow-hidden">
         {isLoading ? (
-          <div className="text-center py-12 text-gray-500">
-            <i className="ri-loader-4-line animate-spin text-3xl"></i>
-            <p className="mt-3 text-lg font-medium">MES 데이터를 로딩 중입니다...</p>
-          </div>
+          <TableStatusBox $type="loading" $message="MES 데이터를 불러오는 중입니다..." />
         ) : isError ? (
-          <div className="text-center py-12 text-red-500">
-            <i className="ri-error-warning-line text-3xl"></i>
-            <p className="mt-3 text-lg font-medium">데이터를 불러오는데 실패했습니다.</p>
-          </div>
+          <TableStatusBox $type="error" $message="데이터를 불러오는데 실패했습니다." />
         ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {mesListData && mesListData.length > 0 ? (
-              mesListData.map((order) => {
-                const currentOpNum = order.currentOperation || 0;
-
-                return (
-                  <div
-                    key={order.mesId}
-                    className="bg-white border border-gray-200 rounded-xl p-4 transition duration-200 hover:border-gray-300"
-                  >
-                    <div className="flex justify-between gap-6">
-                      {/* 좌측: MES 번호, 제품 정보 및 상태 */}
-                      <div className="w-45 shrink-0 flex flex-col gap-2.5">
-                        <div className="flex items-center gap-1">
-                          {getStatusBadge(order.status)}
-                          <IconButton
-                            label="공정 상세 보기"
-                            icon="ri-search-line"
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleShowProcessDetail(order.mesId)}
-                          />
-                        </div>
-
-                        <div className="text-xl font-bold text-gray-800">
-                          {order.quotationNumber}
-                        </div>
-
-                        <div>
-                          <div className="text-[11px] text-gray-400 mb-0.5">제품</div>
-                          <div className="text-sm font-semibold text-gray-700">
-                            {order.productName}
-                            <span className="ml-1 text-gray-400 font-normal text-xs">
-                              {order.quantity} {order.uomName}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="text-[11px] text-gray-400 mb-0.5">기간</div>
-                          <div className="text-xs text-gray-600">
-                            {order.startDate}
-                            <br />
-                            {order.endDate}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex-1 rounded-lg bg-gray-50 border border-gray-100 px-4 py-3">
-                        <div className="flex items-center h-full">
-                          {/* 공정 순서 (세로 방향) */}
-                          <div
-                            ref={scrollContainerRef}
-                            className="flex flex-col gap-2 overflow-y-auto custom-scroll max-h-32 px-2 pr-3"
-                          >
-                            {order.sequence.map((operation, index) => {
-                              const status = getOperationStatus(index, currentOpNum, order.status);
-                              const isLast = index === order.sequence.length - 1;
-                              const nextStatus =
-                                !isLast &&
-                                getOperationStatus(index + 1, currentOpNum, order.status);
-                              const isCurrent = index + 1 === currentOpNum;
-                              const isDone = index + 1 < currentOpNum && order.status !== 'PENDING';
-
-                              return (
-                                <div
-                                  key={index}
-                                  className="flex w-19 items-start gap-2"
-                                  ref={isCurrent ? currentStepRef : null}
-                                >
-                                  {/* 아이콘 + 라인 */}
-                                  <div className="relative flex flex-col items-center justify-start min-w-4">
-                                    <i
-                                      className={`${status.icon} ${status.class} ${status.size} z-local`}
-                                    ></i>
-                                    {!isLast && nextStatus && (
-                                      <div
-                                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 w-0.5 h-7 z-base ${nextStatus.lineClass}`}
-                                      ></div>
-                                    )}
-                                  </div>
-                                  {/* 공정명 */}
-                                  <div className="flex-1 -mt-1">
-                                    <span
-                                      className={`text-xs ${
-                                        isCurrent
-                                          ? 'text-gray-900 font-bold'
-                                          : isDone
-                                            ? 'text-gray-500 font-medium'
-                                            : 'text-gray-300'
-                                      }`}
-                                    >
-                                      {operation}
-                                    </span>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* 진행률 바 */}
-                          <div className="flex-1 ml-3">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[11px] text-gray-400">진행률</span>
-                              <span className="text-sm font-bold text-gray-700">
-                                {order.progressRate}%
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="bg-blue-500 h-2 rounded-full transition-all duration-700 ease-out"
-                                style={{ width: `${order.progressRate}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-12 text-gray-500 col-span-full">
-                <i className="ri-file-list-3-line text-3xl"></i>
-                <p className="mt-3 text-lg font-medium">
-                  선택한 조건에 해당하는 작업지시가 없습니다.
-                </p>
-              </div>
-            )}
-          </div>
+          <Table
+            columns={columns}
+            data={mesListData}
+            keyExtractor={(row) => row.mesId}
+            onRowClick={(row) => handleShowProcessDetail(row.mesId)}
+            emptyMessage="선택한 조건에 해당하는 작업지시가 없습니다."
+          />
         )}
       </div>
 

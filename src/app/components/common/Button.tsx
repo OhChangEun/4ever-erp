@@ -17,7 +17,7 @@ export default function Button({
   const variants = {
     primary: 'bg-blue-500 font-semibold text-white hover:opacity-85',
     secondary: 'bg-gray-100 font-medium text-gray-700 hover:bg-gray-200',
-    outline: 'font-normal border border-blue-500 text-blue-500 bg-transparent hover:bg-blue-50',
+    outline: 'font-normal border border-blue-400 text-blue-500 bg-transparent hover:bg-blue-100',
     whiteOutline: 'bg-white font-normal border border-gray-300 text-gray-500/70 hover:bg-gray-50',
     ghost: 'bg-transparent text-blue-600 hover:bg-blue-100',
     soft: 'bg-blue-100 font-medium text-blue-500 hover:bg-blue-200/70',

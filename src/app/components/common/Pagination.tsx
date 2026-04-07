@@ -21,10 +21,10 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
   const btnBase = 'w-8 h-8 flex items-center justify-center rounded text-sm transition-colors';
   const btnActive = 'bg-blue-600 text-white font-medium';
   const btnDefault = 'border border-gray-300 text-gray-600 hover:bg-gray-50 cursor-pointer';
-  const btnDisabled = 'text-gray-300 cursor-not-allowed';
+  const btnDisabled = 'text-gray-300';
 
   return (
-    <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between shrink-0">
+    <div className="px-6 border-gray-200 flex items-center justify-between shrink-0">
       <span className="text-sm text-gray-500">
         총 <span className="font-medium text-gray-700">{totalElements ?? 0}</span>개
       </span>
