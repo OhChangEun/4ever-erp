@@ -1,4 +1,7 @@
 
+# 문서 (민감 정보 포함, git 추적 금지)
+docs/
+
 # 의존성
 node_modules/
 
