@@ -22,7 +22,11 @@ import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
-export default function OrdersTab() {
+interface OrdersTabProps {
+  tabButtons?: React.ReactNode;
+}
+
+export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   // mrp 순소요 - 견적 드롭다운
   const { options: mrpQuotationOptions } = useDropdown(
     'mrpQuotationsDropdown',
@@ -214,8 +218,9 @@ export default function OrdersTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex justify-end items-center p-4 shrink-0">
+    <div className="flex flex-col h-full gap-6">
+      <div className="flex justify-between items-center shrink-0">
+        {tabButtons}
         <div className="flex gap-4 items-center">
           <Dropdown
             placeholder="견적 선택"
