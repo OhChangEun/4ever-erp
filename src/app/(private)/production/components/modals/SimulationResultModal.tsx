@@ -8,6 +8,7 @@ import {
   QuotationPreviewResponse,
 } from '@/app/(private)/production/types/QuotationPreviewApiType';
 import Button from '@/app/components/common/Button';
+import Spacing from '@/app/components/common/Spacing';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 interface SimulationResultModalProps extends ModalProps {
@@ -23,8 +24,10 @@ export default function SimulationResultModal({
   onClose,
   onConfirm,
 }: SimulationResultModalProps) {
-  // 프론트엔드 페이지네이션 상태
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // 카드 선택 상태
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
+    simulationResults[0]?.quotationId || null
+  );
 
   const previewMutation = useMutation({
     mutationFn: (params: string[]) => fetchQuotationPreview(params),
@@ -41,128 +44,174 @@ export default function SimulationResultModal({
     previewMutation.mutate(selectedQuotes);
   };
 
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+  const getStatusIcon = (status: string) => {
+    return status === 'PASS' ? '🟢' : '🔴';
   };
 
-  const handleNext = () => {
-    if (currentIndex < simulationResults.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
+  // 통계 계산
+  const passCount = simulationResults.filter((r) => r.simulation.status === 'PASS').length;
+  const failCount = simulationResults.length - passCount;
 
-  const getStatusBadge = (status: string) => {
-    const config =
-      status === 'PASS'
-        ? { label: '충족', class: 'bg-green-100 text-green-600' }
-        : { label: '부족', class: 'bg-red-100 text-red-600' };
-
-    return (
-      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${config.class}`}>
-        {config.label}
-      </span>
-    );
-  };
-
-  // 현재 표시할 결과
-  const currentResult = simulationResults[currentIndex];
-  const totalCount = simulationResults.length;
+  // 선택된 견적 데이터
+  const selectedResult = simulationResults.find((r) => r.quotationId === selectedQuotationId);
 
   return (
-    <>
-      {/* 시뮬레이션 결과 표시 (현재 인덱스만) */}
-      <div className="space-y-6">
-        <div className="border border-gray-200 rounded-lg p-4">
-          {/* 견적 정보 */}
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              견적 {currentResult.quotationNumber}
-            </h3>
-            <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
+    <div className="flex flex-col h-full gap-6">
+      {/* 요약 섹션 */}
+      <div className="card-base p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+        <h3 className="text-sm font-bold text-gray-700 mb-4">시뮬레이션 결과 요약</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{simulationResults.length}</span>
+              <span className="block text-xs text-gray-600 mt-1">총 견적</span>
+            </div>
+            <Spacing size={3} direction="horizontal" className="border-l-2 border-blue-200" />
+            <div className="text-center">
+              <span className="text-3xl font-bold text-green-600">{passCount}</span>
+              <span className="block text-xs text-gray-600 mt-1">충족 가능</span>
+            </div>
+            <Spacing size={3} direction="horizontal" className="border-l-2 border-blue-200" />
+            <div className="text-center">
+              <span className="text-3xl font-bold text-red-600">{failCount}</span>
+              <span className="block text-xs text-gray-600 mt-1">부족</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 카드 그리드 섹션 */}
+      <div>
+        <h4 className="text-sm font-bold text-gray-700 mb-4">견적 목록 {'(' + simulationResults.length + '개)'}</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto pr-2">
+          {simulationResults.map((result) => (
+            <button
+              key={result.quotationId}
+              onClick={() => setSelectedQuotationId(result.quotationId)}
+              className={`text-left p-4 rounded-lg border-2 transition-all ${
+                selectedQuotationId === result.quotationId
+                  ? 'border-blue-500 bg-blue-50 shadow-md'
+                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-sm font-bold text-gray-900 truncate">
+                  {result.quotationNumber}
+                </span>
+                <span className="text-xl ml-2">{getStatusIcon(result.simulation.status)}</span>
+              </div>
+              <div className="text-xs text-gray-600 space-y-1">
+                <div className="truncate">{result.customerCompanyName}</div>
+                <div className="truncate">{result.productName}</div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">가용</span>
+                  <span className="font-semibold text-gray-900">
+                    {(result.simulation.availableQuantity / 1000).toFixed(1)}k EA
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 상세 정보 섹션 */}
+      {selectedResult && (
+        <div className="space-y-4 border-t-2 border-gray-200 pt-6">
+          {/* 견적 정보 카드 */}
+          <div className="card-base p-4 bg-gradient-to-br from-blue-50 to-white border-l-4 border-l-blue-500">
+            <h4 className="text-xs font-bold text-gray-600 uppercase mb-3">견적 정보</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-500">고객사:</span>
-                <span className="ml-2 text-gray-900">{currentResult.customerCompanyName}</span>
+                <span className="block text-gray-500 text-xs mb-1">고객사</span>
+                <span className="font-semibold text-gray-900">{selectedResult.customerCompanyName}</span>
               </div>
               <div>
-                <span className="text-gray-500">제품:</span>
-                <span className="ml-2 text-gray-900">{currentResult.productName}</span>
+                <span className="block text-gray-500 text-xs mb-1">제품</span>
+                <span className="font-semibold text-gray-900">{selectedResult.productName}</span>
               </div>
               <div>
-                <span className="text-gray-500">요청 수량:</span>
-                <span className="ml-2 text-gray-900">
-                  {currentResult.requestQuantity.toLocaleString()}EA
+                <span className="block text-gray-500 text-xs mb-1">요청 수량</span>
+                <span className="font-semibold text-gray-900">
+                  {selectedResult.requestQuantity.toLocaleString()} EA
                 </span>
               </div>
               <div>
-                <span className="text-gray-500">요청 납기:</span>
-                <span className="ml-2 text-gray-900">
-                  {new Date(currentResult.requestDueDate).toLocaleDateString('ko-KR')}
+                <span className="block text-gray-500 text-xs mb-1">요청 납기</span>
+                <span className="font-semibold text-gray-900">
+                  {new Date(selectedResult.requestDueDate).toLocaleDateString('ko-KR')}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* 시뮬레이션 정보 */}
-          <div className="mb-4 bg-blue-50 p-3 rounded">
-            <div className="grid grid-cols-3 gap-4 text-sm">
+          {/* 시뮬레이션 결과 카드 */}
+          <div
+            className={`card-base p-4 border-l-4 ${
+              selectedResult.simulation.status === 'PASS'
+                ? 'bg-gradient-to-br from-green-50 to-white border-l-green-500'
+                : 'bg-gradient-to-br from-red-50 to-white border-l-red-500'
+            }`}
+          >
+            <h4 className="text-xs font-bold text-gray-600 uppercase mb-3 flex items-center">
+              {getStatusIcon(selectedResult.simulation.status)} 시뮬레이션 결과
+            </h4>
+            <div className="grid grid-cols-3 gap-3 text-sm">
               <div>
-                <span className="text-gray-600">가용 수량:</span>
-                <span className="ml-2 font-semibold text-blue-600">
-                  {currentResult.simulation.availableQuantity.toLocaleString()}EA
+                <span className="block text-gray-500 text-xs mb-1">가용 수량</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {(selectedResult.simulation.availableQuantity / 1000).toFixed(1)}k
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">제안 납기:</span>
-                <span className="ml-2 font-semibold text-blue-600">
-                  {currentResult.simulation.suggestedDueDate}
+                <span className="block text-gray-500 text-xs mb-1">제안 납기</span>
+                <span className="font-semibold text-gray-900">
+                  {selectedResult.simulation.suggestedDueDate}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">상태:</span>
-                <span className="ml-2">{getStatusBadge(currentResult.simulation.status)}</span>
+                <span className="block text-gray-500 text-xs mb-1">상태</span>
+                <span
+                  className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                    selectedResult.simulation.status === 'PASS'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {selectedResult.simulation.status === 'PASS' ? '충족' : '부족'}
+                </span>
               </div>
-            </div>
-            <div className="mt-2 text-xs text-gray-500">
-              생성 시간: {new Date(currentResult.simulation.generatedAt).toLocaleString('ko-KR')}
             </div>
           </div>
 
-          {/* 부족 재고 테이블 */}
-          {currentResult.shortages && currentResult.shortages.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">부족 재고 목록</h4>
+          {/* 부족 재고 카드 */}
+          {selectedResult.shortages && selectedResult.shortages.length > 0 && (
+            <div className="card-base p-4 bg-gradient-to-br from-orange-50 to-white border-l-4 border-l-orange-500">
+              <h4 className="text-xs font-bold text-gray-600 uppercase mb-3">⚠️ 부족 재고</h4>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                        자재명
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                        필요 수량
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                        현재 재고
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
-                        부족 수량
-                      </th>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-gray-300">
+                      <th className="text-left px-2 py-2 text-gray-600 font-semibold">자재</th>
+                      <th className="text-right px-2 py-2 text-gray-600 font-semibold">필요</th>
+                      <th className="text-right px-2 py-2 text-gray-600 font-semibold">현재</th>
+                      <th className="text-right px-2 py-2 text-gray-600 font-semibold">부족</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {currentResult.shortages.map((shortage, index) => (
-                      <tr key={index}>
-                        <td className="px-4 py-2 text-sm text-gray-900">{shortage.itemName}</td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {shortage.requiredQuantity.toLocaleString()}
+                  <tbody>
+                    {selectedResult.shortages.map((shortage, index) => (
+                      <tr key={index} className="border-b border-gray-100 hover:bg-orange-50">
+                        <td className="px-2 py-2 text-gray-900">{shortage.itemName}</td>
+                        <td className="text-right px-2 py-2 text-gray-900">
+                          {(shortage.requiredQuantity / 1000).toFixed(1)}k
                         </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {shortage.currentStock.toLocaleString()}
+                        <td className="text-right px-2 py-2 text-gray-900">
+                          {(shortage.currentStock / 1000).toFixed(1)}k
                         </td>
-                        <td className="px-4 py-2 text-sm font-semibold text-red-600">
-                          {shortage.shortQuantity.toLocaleString()}
+                        <td className="text-right px-2 py-2 font-bold text-red-600">
+                          {(shortage.shortQuantity / 1000).toFixed(1)}k
                         </td>
                       </tr>
                     ))}
@@ -172,51 +221,21 @@ export default function SimulationResultModal({
             </div>
           )}
         </div>
-      </div>
-
-      {/* 네비게이션 버튼 (페이지네이션) */}
-      {totalCount > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-6 pt-4 border-t">
-          <button
-            onClick={handlePrevious}
-            disabled={currentIndex === 0}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              currentIndex === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 cursor-pointer'
-            }`}
-          >
-            <i className="ri-arrow-left-line mr-1"></i>
-            이전
-          </button>
-
-          <div className="text-sm text-gray-600">
-            {currentIndex + 1} / {totalCount}
-          </div>
-
-          <button
-            onClick={handleNext}
-            disabled={currentIndex === totalCount - 1}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              currentIndex === totalCount - 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 cursor-pointer'
-            }`}
-          >
-            다음
-            <i className="ri-arrow-right-line ml-1"></i>
-          </button>
-        </div>
       )}
 
       {/* 액션 버튼 */}
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <Button
+          label="닫기"
+          onClick={onClose}
+          variant="secondary"
+        />
         <Button
           label={previewMutation.isPending ? 'MPS 프리뷰 로딩 중...' : '제안 납기 확정'}
           onClick={handleConfirmClick}
           disabled={previewMutation.isPending}
         />
       </div>
-    </>
+    </div>
   );
 }
