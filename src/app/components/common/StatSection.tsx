@@ -24,21 +24,6 @@ export default function StatSection({ title, subTitle, statsData }: StatSectionP
 
   return (
     <div>
-      {/* 제목 + 좌측 컨트롤 */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <PageTitle title={title} subTitle={subTitle} />
-
-        {/* 토글 버튼 */}
-        <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors border border-gray-200"
-        >
-          <i className="ri-bar-chart-2-line" />
-          <span>{isOpen ? '지표 숨기기' : '지표 보기'}</span>
-          <i className={`ri-arrow-${isOpen ? 'up' : 'down'}-s-line`} />
-        </button>
-      </div>
-
       <div className="flex flex-col gap-3">
         {isOpen && (
           <div className="w-fit">

@@ -46,11 +46,7 @@ export default function FinancePage() {
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {/* 페이지 헤더 */}
         {financeStatsData ? (
-          <StatSection
-            title="재무 관리"
-            subTitle="전표 관리 및 재무 현황"
-            statsData={financeStatsData}
-          />
+          <StatSection statsData={financeStatsData} />
         ) : (
           <ErrorMessage message={'재무 통계 데이터를 불러오는데 실패했습니다.'} />
         )}

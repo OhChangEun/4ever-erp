@@ -30,11 +30,7 @@ export default function InventoryPage() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {/* 페이지 헤더 */}
-        <StatSection
-          title="재고 관리"
-          subTitle="재고 현황 및 입출고 관리"
-          statsData={inventoryStatsData}
-        />
+        <StatSection statsData={inventoryStatsData} />
         {/* 탭 콘텐츠 */}
         <Suspense fallback={<div>Loading...</div>}>
           <TabNavigation tabs={INVENTORY_TABS} />

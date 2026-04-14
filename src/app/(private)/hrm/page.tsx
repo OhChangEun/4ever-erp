@@ -29,11 +29,7 @@ export default function HrmPage() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {hrmStatsData ? (
-          <StatSection
-            title="인적자원관리"
-            subTitle="직원 정보 및 인사 업무 관리 시스템"
-            statsData={hrmStatsData}
-          />
+          <StatSection statsData={hrmStatsData} />
         ) : (
           <ErrorMessage message={'인적자원관리 통계 데이터를 불러오는데 실패했습니다.'} />
         )}

@@ -29,12 +29,7 @@ export default function ProductionPage() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {productionStatsData ? (
-          //생산 관리 주요 지표
-          <StatSection
-            title="생산 관리"
-            subTitle="견적, MPS, MRP, MES, BOM 등 생산 전반 관리"
-            statsData={productionStatsData}
-          />
+          <StatSection statsData={productionStatsData} />
         ) : (
           <ErrorMessage message={'생산 통계 데이터를 불러오는데 실패했습니다.'} />
         )}

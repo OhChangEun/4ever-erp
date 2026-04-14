@@ -30,11 +30,7 @@ export default function WarehousePage() {
     <div className="bg-gray-50">
       <main className="w-full px-6 py-6">
         {/* 페이지 헤더 */}
-        <StatSection
-          title="창고 관리"
-          subTitle="창고 현황 및 관리"
-          statsData={warehouseStatsData}
-        />
+        <StatSection statsData={warehouseStatsData} />
         <div className="w-full flex justify-end">
           <Link
             href="/inventory"

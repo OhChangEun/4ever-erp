@@ -34,11 +34,7 @@ export default function DashboardClient() {
     <div>
       <main className="w-full px-6 py-6">
         {/* 페이지 헤더 */}
-        <StatSection
-          title="대시보드"
-          subTitle="기업 자원 관리 현황"
-          statsData={dashboardStatsData}
-        />
+        <StatSection statsData={dashboardStatsData} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 mb-8">
           {/* 빠른 작업 */}
           <div className="lg:col-span-1">

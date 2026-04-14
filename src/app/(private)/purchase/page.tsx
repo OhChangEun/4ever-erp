@@ -48,12 +48,7 @@ export default function PurchasePage() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {statsData ? (
-          //구매 관리 주요 지표
-          <StatSection
-            title={isSupplier ? '영업관리' : '구매 및 조달 관리'} // 공급사인 경우 분기
-            subTitle={isSupplier ? '발주서 관리' : '구매 요청부터 발주까지 전체 프로세스 관리'} // 공급사인 경우 분기
-            statsData={statsData}
-          />
+          <StatSection statsData={statsData} />
         ) : (
           <ErrorMessage message={'구매 통계 데이터를 불러오는데 실패했습니다.'} />
         )}

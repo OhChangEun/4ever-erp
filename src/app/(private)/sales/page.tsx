@@ -40,15 +40,7 @@ export default function SalesPage() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         {/* 페이지 헤더 */}
-        <StatSection
-          title={role === 'CUSTOMER_ADMIN' ? '구매 관리' : '영업관리'}
-          subTitle={
-            role === 'CUSTOMER_ADMIN'
-              ? '주문, 견적 및 고객 관리 시스템'
-              : '주문 및 고객 관리 시스템'
-          }
-          statsData={salesStatsData ?? { week: [], month: [], quarter: [], year: [] }}
-        />
+        <StatSection statsData={salesStatsData ?? { week: [], month: [], quarter: [], year: [] }} />
         {/* 탭 콘텐츠 */}
         <Suspense fallback={<div>Loading...</div>}>
           <SalesTabs />
