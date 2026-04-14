@@ -119,7 +119,7 @@ export default function MpsTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-6">
       <div className="flex items-center justify-end shrink-0">
         <DateRangePicker
           startDate={startDate}
@@ -135,21 +135,20 @@ export default function MpsTab() {
         />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white rounded overflow-hidden">
-        {isLoading ? (
-          <TableStatusBox $type="loading" $message="MPS 데이터를 불러오는 중입니다..." />
-        ) : isError ? (
-          <TableStatusBox $type="error" $message="데이터를 불러오는 데 실패했습니다." />
-        ) : (
-          <Table
-            columns={columns}
-            data={paginatedRows}
-            keyExtractor={(row, index) => `${row.bomId}-${row.week}-${index}`}
-            hoverable={false}
-            emptyMessage="조회된 MPS 데이터가 없습니다."
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <TableStatusBox $type="loading" $message="MPS 데이터를 불러오는 중입니다..." />
+      ) : isError ? (
+        <TableStatusBox $type="error" $message="데이터를 불러오는 데 실패했습니다." />
+      ) : (
+        <Table
+          columns={columns}
+          data={paginatedRows}
+          keyExtractor={(row, index) => `${row.bomId}-${row.week}-${index}`}
+          hoverable={false}
+          emptyMessage="조회된 MPS 데이터가 없습니다."
+          className="flex-1 min-h-0"
+        />
+      )}
 
       {!isLoading && !isError && (
         <Pagination
