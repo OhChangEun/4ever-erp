@@ -91,7 +91,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         createPortal(
           <>
             {/* 배경 오버레이 */}
-            <div className="fixed inset-0 z-999 bg-black/50" />
+            <div className="fixed inset-0 bg-black/50" />
             {/* 각 모달 */}
             {modals.map(({ id, Component, props }) => (
               <ModalContainer
