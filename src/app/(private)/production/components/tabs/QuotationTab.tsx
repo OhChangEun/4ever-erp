@@ -84,7 +84,23 @@ export default function QuotationTab() {
 
   const queryClient = useQueryClient();
   const { mutate: simulationQuotations, isPending: simulationPending } = useMutation({
-    mutationFn: (params: FetchQuotationSimulationParams) => fetchQuotationSimulationResult(params),
+    mutationFn: async (quotationIds: string[]) => {
+      // 선택된 각 견적마다 개별 API 호출
+      const results = await Promise.all(
+        quotationIds.map((quotationId) =>
+          fetchQuotationSimulationResult({
+            quotationIds: [quotationId],
+            page: 0,
+            size: 1,
+          }),
+        ),
+      );
+      // 모든 결과의 content를 합치기
+      return {
+        page: results[0]?.page,
+        content: results.flatMap((r) => r.content || []),
+      };
+    },
     onSuccess: (data) => {
       console.log(data);
       // 시뮬레이션 결과 모달
@@ -144,13 +160,8 @@ export default function QuotationTab() {
       return;
     }
 
-    // Mutation 실행
-    simulationQuotations({
-      quotationIds: selectedQuotes,
-      page: currentPage - 1, // 0-based 인덱스
-      size: pageSize,
-      // 날짜 필터링 상태가 있다면 여기에 추가
-    });
+    // Mutation 실행 - 선택된 견적 ID 배열만 전달
+    simulationQuotations(selectedQuotes);
   };
 
   const handleStartDateChange = (value: string) => {

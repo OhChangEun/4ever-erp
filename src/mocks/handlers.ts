@@ -1353,30 +1353,95 @@ export const handlers = [
     const start = page * size;
     return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
   }),
-  http.post(PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE, ({ request }) => {
+  http.post(PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE, async ({ request }) => {
     if (shouldError(request)) return error('Failed to simulate quotation', 500);
-    return ok({
-      page: makePage(0, 10, 1),
-      content: [
-        {
-          quotationId: 'qt-001',
-          quotationNumber: 'QT-2026-001',
-          customerCompanyId: 'cus-001',
-          customerCompanyName: '한빛전자',
-          productId: 'prod-001',
-          productName: '모터 A',
-          requestQuantity: 100,
-          requestDueDate: 20260201,
-          simulation: {
-            status: 'OK',
-            availableQuantity: 120,
-            shortageQuantity: 0,
-            suggestedDueDate: '2026-02-01',
-            generatedAt: isoNow,
-          },
-          shortages: [],
+
+    // request body에서 quotationIds 추출
+    const body = (await request.json()) as { quotationIds: string[] };
+    const quotationIds = body.quotationIds || [];
+
+    // 각 견적별로 시뮬레이션 결과 생성 (PASS/FAIL 섞이게)
+    const mockQuotations = [
+      {
+        quotationId: 'qt-001',
+        quotationNumber: 'QT-2026-001',
+        customerCompanyId: 'cus-001',
+        customerCompanyName: '삼성전자',
+        productId: 'prod-001',
+        productName: '센서 모듈',
+        requestQuantity: 5000,
+        requestDueDate: 1713067200000,
+        simulation: {
+          status: 'PASS',
+          availableQuantity: 5200,
+          shortageQuantity: 0,
+          suggestedDueDate: '2026-04-20',
+          generatedAt: isoNow,
         },
-      ],
+        shortages: [],
+      },
+      {
+        quotationId: 'qt-002',
+        quotationNumber: 'QT-2026-002',
+        customerCompanyId: 'cus-002',
+        customerCompanyName: 'LG Display',
+        productId: 'prod-002',
+        productName: 'LCD Panel 32"',
+        requestQuantity: 3000,
+        requestDueDate: 1713153600000,
+        simulation: {
+          status: 'FAIL',
+          availableQuantity: 500,
+          shortageQuantity: 2500,
+          suggestedDueDate: '2026-04-25',
+          generatedAt: isoNow,
+        },
+        shortages: [
+          {
+            itemId: 'item-001',
+            itemName: '실리콘 웨이퍼',
+            requiredQuantity: 10000,
+            currentStock: 7500,
+            shortQuantity: 2500,
+          },
+          {
+            itemId: 'item-002',
+            itemName: '감광액',
+            requiredQuantity: 500,
+            currentStock: 200,
+            shortQuantity: 300,
+          },
+        ],
+      },
+      {
+        quotationId: 'qt-003',
+        quotationNumber: 'QT-2026-003',
+        customerCompanyId: 'cus-003',
+        customerCompanyName: 'SK Hynix',
+        productId: 'prod-003',
+        productName: '메모리칩 16GB',
+        requestQuantity: 8000,
+        requestDueDate: 1713240000000,
+        simulation: {
+          status: 'PASS',
+          availableQuantity: 8500,
+          shortageQuantity: 0,
+          suggestedDueDate: '2026-04-22',
+          generatedAt: isoNow,
+        },
+        shortages: [],
+      },
+    ];
+
+    // 선택된 견적만 반환
+    const selectedQuotations =
+      quotationIds.length > 0
+        ? mockQuotations.filter((q) => quotationIds.includes(q.quotationId))
+        : mockQuotations;
+
+    return ok({
+      page: makePage(0, 10, selectedQuotations.length),
+      content: selectedQuotations,
     });
   }),
   http.post(PRODUCTION_ENDPOINTS.QUOTATION_PREVIEW, ({ request }) => {
