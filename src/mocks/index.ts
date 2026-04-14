@@ -3,13 +3,13 @@ let started = false;
 export async function setupMocks() {
   if (started) return;
   if (typeof window === 'undefined') return;
-  
+
   const shouldMock = process.env.NEXT_PUBLIC_API_MOCKING === 'enabled';
   console.log('[MSW] Environment check:', {
     NEXT_PUBLIC_API_MOCKING: process.env.NEXT_PUBLIC_API_MOCKING,
     shouldMock,
   });
-  
+
   if (!shouldMock) return;
 
   try {
