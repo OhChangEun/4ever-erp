@@ -22,7 +22,11 @@ import MrpPurchaseRequestModal from '@/app/(private)/production/components/modal
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
-export default function PlannedOrdersTab() {
+interface PlannedOrdersTabProps {
+  tabButtons?: React.ReactNode;
+}
+
+export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) {
   const { openModal } = useModal();
 
   // mrp 계획주문 견적 드롭다운
@@ -167,8 +171,9 @@ export default function PlannedOrdersTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-200 flex items-center justify-end shrink-0">
+    <div className="flex flex-col h-full gap-6">
+      <div className="flex items-center justify-between shrink-0">
+        {tabButtons}
         <div className="flex items-center gap-3">
           <Dropdown
             placeholder="견적 선택"

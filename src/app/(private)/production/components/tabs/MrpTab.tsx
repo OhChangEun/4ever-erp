@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MRP_TABS } from '@/app/(private)/production/constants';
 import TabButtons from '@/app/components/common/TabButtons';
+import { ComponentType, ReactNode } from 'react';
 
 export default function MrpTab() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function MrpTab() {
   };
 
   const activeTab = MRP_TABS.find((tab) => tab.id === currentSubTab);
-  const ActiveComponent = activeTab?.component;
+  const ActiveComponent = activeTab?.component as ComponentType<{ tabButtons?: ReactNode }>;
 
   const tabButtons = (
     <TabButtons

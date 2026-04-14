@@ -54,15 +54,17 @@ export default function Table<T = Record<string, unknown>>({
       <div className="overflow-auto flex-1 min-h-0">
         <table className="w-full">
           <thead className="sticky top-0 z-10 shadow-sm bg-gray-50">
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={`px-4 py-3 text-sm font-medium text-gray-700 ${getAlignClass(column.align)}`}
-                style={{ width: column.width }}
-              >
-                {column.headerRender ? column.headerRender() : column.label}
-              </th>
-            ))}
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={`px-4 py-3 text-sm font-medium text-gray-700 ${getAlignClass(column.align)}`}
+                  style={{ width: column.width }}
+                >
+                  {column.headerRender ? column.headerRender() : column.label}
+                </th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {data.length === 0 ? (
