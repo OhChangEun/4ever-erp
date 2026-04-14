@@ -53,7 +53,7 @@ export default function Table<T = Record<string, unknown>>({
     >
       <div className="overflow-auto flex-1 min-h-0">
         <table className="w-full">
-          <thead className="sticky top-0 z-10 shadow-sm bg-gray-50">
+          <thead className="sticky top-0 shadow-sm bg-gray-50">
             <tr>
               {columns.map((column) => (
                 <th
