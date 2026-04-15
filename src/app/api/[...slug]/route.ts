@@ -1399,26 +1399,81 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
     ]);
   }
   if (path === 'scm-pp/pp/quotations/simulate') {
-    return ok({
-      page: makePage(0, 10, 1),
-      content: [
-        {
-          quotationId: 'qt-001',
-          quotationNumber: 'QT-2026-001',
-          customerCompanyName: '한빛전자',
-          productName: '모터 A',
-          requestQuantity: 100,
-          simulation: {
-            status: 'OK',
-            availableQuantity: 120,
-            shortageQuantity: 0,
-            suggestedDueDate: '2026-02-01',
-            generatedAt: isoNow,
-          },
-          shortages: [],
+    const body = (await request.json().catch(() => ({}))) as { quotationIds?: string[] };
+    const quotationIds: string[] = body.quotationIds ?? [];
+    const customers = [
+      '삼성전자',
+      'LG Display',
+      'SK Hynix',
+      '현대모비스',
+      '두산중공업',
+      'LG화학',
+      '포스코',
+      '한빛전자',
+      '대양상사',
+      'KT&G',
+    ];
+    const products = [
+      '센서 모듈',
+      'LCD Panel 32"',
+      '메모리칩 16GB',
+      '모터 A',
+      '펌프 B',
+      '밸브 C',
+      '기어 D',
+      '베어링 E',
+      '실린더 F',
+      '피스톤 G',
+    ];
+    const shortageItems = [
+      { name: '실리콘 웨이퍼', base: 10000 },
+      { name: '감광액', base: 500 },
+      { name: '구리 배선', base: 3000 },
+      { name: '에폭시 수지', base: 800 },
+      { name: '알루미늄 합금', base: 2000 },
+    ];
+    const content = quotationIds.map((quotationId) => {
+      const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
+      const isFail = num % 3 === 2;
+      const requestQty = ((num % 10) + 1) * 1000;
+      const availableQty = isFail ? Math.floor(requestQty * 0.3) : requestQty + 500;
+      const year = 2025 + Math.floor(num / 300);
+      const month = String((num % 12) + 1).padStart(2, '0');
+      const day = String((num % 28) + 1).padStart(2, '0');
+      const nextMonth = String((((num % 12) + 1) % 12) + 1).padStart(2, '0');
+      const shortages = isFail
+        ? shortageItems.slice(0, (num % 3) + 1).map((item, i) => {
+            const required = item.base + num * 10;
+            const stock = Math.floor(required * 0.6);
+            return {
+              itemId: `item-${num * 10 + i}`,
+              itemName: item.name,
+              requiredQuantity: required,
+              currentStock: stock,
+              shortQuantity: required - stock,
+            };
+          })
+        : [];
+      return {
+        quotationId,
+        quotationNumber: `QT-${year}-${String(num).padStart(3, '0')}`,
+        customerCompanyId: `cus-${String((num % customers.length) + 1).padStart(3, '0')}`,
+        customerCompanyName: customers[num % customers.length],
+        productId: `prod-${String((num % products.length) + 1).padStart(3, '0')}`,
+        productName: products[num % products.length],
+        requestQuantity: requestQty,
+        requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
+        simulation: {
+          status: isFail ? 'FAIL' : 'PASS',
+          availableQuantity: availableQty,
+          shortageQuantity: isFail ? requestQty - availableQty : 0,
+          suggestedDueDate: `${year}-${nextMonth}-${day}`,
+          generatedAt: isoNow,
         },
-      ],
+        shortages,
+      };
     });
+    return ok({ page: makePage(0, content.length, content.length), content });
   }
   if (path === 'scm-pp/pp/quotations/preview') {
     return ok([
