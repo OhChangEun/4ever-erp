@@ -45,6 +45,13 @@ ERP 도메인: Finance(재무), HRM(인사), Inventory(재고), Production(생�
 - API 함수는 `{domain}.api.ts`, 비즈니스 로직은 `{domain}.service.ts`
 - 공통 컴포넌트는 `src/app/components/common/` 에 배치
 - 모달은 `ModalProvider` 컨텍스트를 통해 관리
+- **UI 구현 시 `src/app/components/common/` 의 공통 컴포넌트를 최우선으로 사용**
+  - 레이아웃: `Flex`, `Spacing`
+  - 데이터: `Table`, `Pagination`, `StatSection`
+  - 입력: `Button`, `IconButton`, `Input`, `Dropdown`, `DateRangePicker`, `SearchBar`
+  - 피드백: `TableStatusBox`, `ModalStatusBox`, `StatusLabel`, `LoadingSpinner`
+  - 내비게이션: `TabNavigation`, `TabButtons`, `SubNavigation`
+  - 날 것의 `<div style>` 나 raw `<table>` 대신 반드시 공통 컴포넌트 사용 여부를 먼저 검토
 
 ## Key Patterns
 
