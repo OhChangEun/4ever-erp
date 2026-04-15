@@ -83,85 +83,71 @@ export const productionHandlers = [
     const body = (await request.json()) as { quotationIds: string[] };
     const quotationIds = body.quotationIds || [];
 
-    const mockQuotations = [
-      {
-        quotationId: 'qt-001',
-        quotationNumber: 'QT-2026-001',
-        customerCompanyId: 'cus-001',
-        customerCompanyName: '삼성전자',
-        productId: 'prod-001',
-        productName: '센서 모듈',
-        requestQuantity: 5000,
-        requestDueDate: 1713067200000,
-        simulation: {
-          status: 'PASS',
-          availableQuantity: 5200,
-          shortageQuantity: 0,
-          suggestedDueDate: '2026-04-20',
-          generatedAt: isoNow,
-        },
-        shortages: [],
-      },
-      {
-        quotationId: 'qt-002',
-        quotationNumber: 'QT-2026-002',
-        customerCompanyId: 'cus-002',
-        customerCompanyName: 'LG Display',
-        productId: 'prod-002',
-        productName: 'LCD Panel 32"',
-        requestQuantity: 3000,
-        requestDueDate: 1713153600000,
-        simulation: {
-          status: 'FAIL',
-          availableQuantity: 500,
-          shortageQuantity: 2500,
-          suggestedDueDate: '2026-04-25',
-          generatedAt: isoNow,
-        },
-        shortages: [
-          {
-            itemId: 'item-001',
-            itemName: '실리콘 웨이퍼',
-            requiredQuantity: 10000,
-            currentStock: 7500,
-            shortQuantity: 2500,
-          },
-          {
-            itemId: 'item-002',
-            itemName: '감광액',
-            requiredQuantity: 500,
-            currentStock: 200,
-            shortQuantity: 300,
-          },
-        ],
-      },
-      {
-        quotationId: 'qt-003',
-        quotationNumber: 'QT-2026-003',
-        customerCompanyId: 'cus-003',
-        customerCompanyName: 'SK Hynix',
-        productId: 'prod-003',
-        productName: '메모리칩 16GB',
-        requestQuantity: 8000,
-        requestDueDate: 1713240000000,
-        simulation: {
-          status: 'PASS',
-          availableQuantity: 8500,
-          shortageQuantity: 0,
-          suggestedDueDate: '2026-04-22',
-          generatedAt: isoNow,
-        },
-        shortages: [],
-      },
+    const customers = [
+      '삼성전자',
+      'LG Display',
+      'SK Hynix',
+      '현대모비스',
+      '두산중공업',
+      'LG화학',
+      '포스코',
+      '한빛전자',
+      '대양상사',
+      'KT&G',
     ];
+    const products = [
+      '센서 모듈',
+      'LCD Panel 32"',
+      '메모리칩 16GB',
+      '모터 A',
+      '펌프 B',
+      '밸브 C',
+      '기어 D',
+      '베어링 E',
+      '실린더 F',
+      '피스톤 G',
+    ];
+    const selectedQuotations = quotationIds.map((quotationId) => {
+      const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
+      const isFail = num % 3 === 2; // 3개 중 1개는 FAIL
+      const requestQty = ((num % 10) + 1) * 1000;
+      const availableQty = isFail ? Math.floor(requestQty * 0.3) : requestQty + 500;
+      const year = 2025 + Math.floor(num / 300);
+      const month = String((num % 12) + 1).padStart(2, '0');
+      const day = String((num % 28) + 1).padStart(2, '0');
+      const nextMonth = String((((num % 12) + 1) % 12) + 1).padStart(2, '0');
 
-    const selectedQuotations =
-      quotationIds.length > 0
-        ? mockQuotations.filter((q) => quotationIds.includes(q.quotationId))
-        : mockQuotations;
+      return {
+        quotationId,
+        quotationNumber: `QT-${year}-${String(num).padStart(3, '0')}`,
+        customerCompanyId: `cus-${String((num % customers.length) + 1).padStart(3, '0')}`,
+        customerCompanyName: customers[num % customers.length],
+        productId: `prod-${String((num % products.length) + 1).padStart(3, '0')}`,
+        productName: products[num % products.length],
+        requestQuantity: requestQty,
+        requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
+        simulation: {
+          status: isFail ? 'FAIL' : 'PASS',
+          availableQuantity: availableQty,
+          shortageQuantity: isFail ? requestQty - availableQty : 0,
+          shortageReason: isFail
+            ? [
+                '주요 원자재(실리콘 웨이퍼) 입고 지연',
+                '협력사 생산 차질',
+                '공정 설비 점검으로 인한 생산 중단',
+                '긴급 오더로 인한 재고 소진',
+                '예상치 못한 불량률 증가',
+                '납기일 내 입고 불가',
+              ][num % 6]
+            : '',
+          suggestedDueDate: `${year}-${nextMonth}-${day}`,
+          generatedAt: isoNow,
+        },
+      };
+    });
 
     return ok({
-      page: makePage(0, 10, selectedQuotations.length),
+      page: makePage(0, selectedQuotations.length, selectedQuotations.length),
       content: selectedQuotations,
     });
   }),

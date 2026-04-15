@@ -5,17 +5,9 @@ export interface SimulationData {
   status: string;
   availableQuantity: number;
   shortageQuantity: number;
+  shortageReason?: string;
   suggestedDueDate: string;
   generatedAt: string;
-}
-
-// 부족 재고 데이터
-export interface ShortageStock {
-  itemId: string;
-  itemName: string;
-  requiredQuantity: number;
-  currentStock: number;
-  shortQuantity: number;
 }
 
 // 시뮬레이션 후 응답 데이터
@@ -29,7 +21,6 @@ export interface QuotationSimulationData {
   requestQuantity: number;
   requestDueDate: number;
   simulation: SimulationData;
-  shortages: ShortageStock[];
 }
 
 // 견적 시뮬레이션 결과 최상위 응답 타입
