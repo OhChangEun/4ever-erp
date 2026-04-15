@@ -64,6 +64,9 @@ export const STATUS_TEXT_MAP: Record<string, string> = {
   INITIAL: '신청전',
   REQUEST_APPROVED: '요청 승인',
   ORDER_APPROVED: '발주서 승인',
+
+  PASS: '가능',
+  FAIL: '불가능',
 };
 
 // 상태 색상 매핑
@@ -121,6 +124,9 @@ export const STATUS_COLOR_MAP: Record<string, string> = {
 
   PAID: 'bg-green-100 text-green-700 border-green-300',
   UNPAID: 'bg-red-100 text-red-700 border-red-300',
+
+  PASS: 'bg-green-100 text-green-700 border-green-300',
+  FAIL: 'bg-red-100 text-red-600 border-red-300',
 
   DEFAULT: 'bg-gray-100 text-gray-600 border-gray-300',
 

@@ -17,6 +17,14 @@ export interface TableProps<T = Record<string, unknown>> {
   emptyMessage?: string;
   hoverable?: boolean;
   className?: string;
+  /**
+   * 테이블 내부 스크롤 영역의 최대 높이 (ex: '400px', '60vh', '100%')
+   */
+  maxHeight?: string;
+  /**
+   * 테이블 내부 스크롤 영역의 고정 높이 (ex: '400px', '60vh')
+   */
+  height?: string;
 }
 
 export default function Table<T = Record<string, unknown>>({
@@ -27,6 +35,8 @@ export default function Table<T = Record<string, unknown>>({
   emptyMessage = '데이터가 없습니다.',
   hoverable = true,
   className = '',
+  maxHeight,
+  height,
 }: TableProps<T>) {
   const getAlignClass = (align?: string) => {
     switch (align) {
@@ -49,9 +59,15 @@ export default function Table<T = Record<string, unknown>>({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 overflow-hidden h-full flex flex-col ${className}`}
+      className={`bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col ${className}`}
     >
-      <div className="overflow-auto flex-1 min-h-0">
+      <div
+        className="overflow-auto w-full"
+        style={{
+          maxHeight: maxHeight ?? height ?? '100%',
+          height: height,
+        }}
+      >
         <table className="w-full">
           <thead className="sticky top-0 shadow-sm bg-gray-50">
             <tr>
