@@ -59,10 +59,10 @@ export default function Table<T = Record<string, unknown>>({
 
   return (
     <div
-      className={`bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col ${className}`}
+      className={`bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col ${className}`}
     >
       <div
-        className="overflow-auto w-full"
+        className="overflow-auto custom-scroll w-full"
         style={{
           maxHeight: maxHeight ?? height ?? '100%',
           height: height,
