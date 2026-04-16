@@ -65,16 +65,16 @@ export const fetchQuotationSimulationResult = async (
   return res.data.data;
 };
 
-// 제안 납기 계획 프리뷰 조회
-export const fetchQuotationPreview = async (
-  params: string[],
-): Promise<QuotationPreviewResponse> => {
-  const res = await axios.post<ApiResponse<QuotationPreviewResponse>>(
-    `${PRODUCTION_ENDPOINTS.QUOTATION_PREVIEW}`,
-    params,
-  );
-  return res.data.data;
-};
+// 제안 납기 계획 프리뷰 조회 (미사용)
+// export const fetchQuotationPreview = async (
+//   params: string[],
+// ): Promise<QuotationPreviewResponse> => {
+//   const res = await axios.post<ApiResponse<QuotationPreviewResponse>>(
+//     `${PRODUCTION_ENDPOINTS.QUOTATION_PREVIEW}`,
+//     params,
+//   );
+//   return res.data.data;
+// };
 
 // 제품별 Master Production Schedule(MPS) 정보를 조회
 export const fetchMpsList = async (params: MpsListParams): Promise<MpsListResponse> => {

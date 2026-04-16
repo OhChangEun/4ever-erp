@@ -1,9 +1,6 @@
 'use client';
-import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { QuotationSimulationData } from '@/app/(private)/production/types/QuotationSimulationApiType';
-import { fetchQuotationPreview } from '@/app/(private)/production/api/production.api';
-import { QuotationPreviewResponse } from '@/app/(private)/production/types/QuotationPreviewApiType';
 import Button from '@/app/components/common/Button';
 import Flex from '@/app/components/common/Flex';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -12,8 +9,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 
 interface SimulationResultModalProps extends ModalProps {
   simulationResults: QuotationSimulationData[];
-  selectedQuotes?: string[];
-  onConfirm: (previewData: QuotationPreviewResponse) => void;
+  onConfirm: () => void;
 }
 
 export default function SimulationResultModal({
@@ -23,14 +19,6 @@ export default function SimulationResultModal({
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
     simulationResults[0]?.quotationId || null,
   );
-  const previewMutation = useMutation({
-    mutationFn: (params: string[]) => fetchQuotationPreview(params),
-    onSuccess: (data) => onConfirm(data),
-    onError: (error) => {
-      console.error('MPS 프리뷰 조회 실패:', error);
-      alert('MPS 프리뷰를 가져오는데 실패했습니다.');
-    },
-  });
 
   const passResults = simulationResults.filter((r) => r.simulation.status === 'PASS');
   const passCount = passResults.length;
@@ -39,11 +27,11 @@ export default function SimulationResultModal({
   return (
     <Flex direction="col" gap={4} className="h-full">
       {/* 시뮬레이션 결과 테이블 */}
-      <Flex direction="col" gap={3} className="flex-1 overflow-hidden">
+      <Flex direction="col" gap={2} className="flex-1 overflow-hidden">
         <h4 className="text-sm font-medium px-1 text-gray-700">생산 검토 현황</h4>
         <div className="flex-1 overflow-auto">
           <Table
-            maxHeight="300px"
+            maxHeight="25vh"
             columns={[
               {
                 key: 'quotationNumber',
@@ -97,49 +85,107 @@ export default function SimulationResultModal({
 
       {/* 선택된 견적 상세 정보 */}
       {selectedResult && (
-        <div className="pt-4">
-          <Flex align="center" justify="between" className="mb-3">
-            <h4 className="text-sm font-medium px-1 text-gray-700">상세 정보</h4>
-          </Flex>
+        <Flex direction="col" gap={2} className="flex-1 overflow-hidden">
+          <h4 className="text-sm font-medium px-1 text-gray-700 mb-3">상세 정보</h4>
+          <Flex gap={3}>
+            {/* 왼쪽: 제품 정보 패널 */}
+            <Flex direction="col" gap={2} flex1 className="border border-gray-100 rounded-xl p-3">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                제품 정보
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {(
+                  [
+                    { label: '고객사', value: selectedResult.customerCompanyName },
+                    { label: '제품명', value: selectedResult.productName },
+                    {
+                      label: '요청 납기',
+                      value: new Date(selectedResult.requestDueDate).toLocaleDateString('ko-KR'),
+                    },
+                    {
+                      label: '제안 납기',
+                      value: selectedResult.simulation.suggestedDueDate,
+                      valueClass:
+                        selectedResult.simulation.status === 'FAIL'
+                          ? 'text-red-500'
+                          : 'text-gray-700',
+                    },
+                    {
+                      label: '부족 사유',
+                      value: selectedResult.simulation.shortageReason || '-',
+                      valueClass: selectedResult.simulation.shortageReason
+                        ? 'text-red-500'
+                        : 'text-gray-400',
+                    },
+                  ] as { label: string; value: string; valueClass?: string }[]
+                ).map(({ label, value, valueClass }) => (
+                  <Flex
+                    key={label}
+                    direction="col"
+                    gap={1}
+                    className="bg-gray-50 rounded-lg px-3 py-2"
+                  >
+                    <span className="text-xs text-gray-400">{label}</span>
+                    <span className={`font-medium text-sm ${valueClass ?? 'text-gray-700'}`}>
+                      {value}
+                    </span>
+                  </Flex>
+                ))}
+              </div>
+            </Flex>
 
-          <div className="grid grid-cols-3 gap-2 text-sm">
-            {/* 1행: 고객사 - 요청 수량 - 요청 납기 */}
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">고객사</span>
-              <span className="font-medium text-sm text-gray-700">{selectedResult.customerCompanyName}</span>
-            </div>
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">요청 수량</span>
-              <span className="font-medium text-sm text-gray-700">{selectedResult.requestQuantity.toLocaleString()} EA</span>
-            </div>
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">요청 납기</span>
-              <span className="font-medium text-sm text-gray-700">{new Date(selectedResult.requestDueDate).toLocaleDateString('ko-KR')}</span>
-            </div>
-            {/* 2행: 제품명 - 가용 수량 - 제안 납기 */}
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">제품명</span>
-              <span className="font-medium text-sm text-gray-700">{selectedResult.productName}</span>
-            </div>
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">가용 수량</span>
-              <span className="font-medium text-sm text-gray-700">{selectedResult.simulation.availableQuantity.toLocaleString()} EA</span>
-            </div>
-            <div className="bg-gray-50 rounded-lg px-3 py-2.5">
-              <span className="block text-xs text-gray-400 mb-0.5">제안 납기</span>
-              <span className={`font-medium text-sm ${selectedResult.simulation.status === 'FAIL' ? 'text-red-500' : 'text-gray-700'}`}>{selectedResult.simulation.suggestedDueDate}</span>
-            </div>
-          </div>
-        </div>
+            {/* 오른쪽: 수량 분석 패널 */}
+            {(() => {
+              const { status, shortageQuantity, availableQuantity } = selectedResult.simulation;
+              const isPass = status === 'PASS';
+              return (
+                <Flex
+                  direction="col"
+                  gap={1}
+                  className="w-44 border border-gray-100 rounded-xl p-3"
+                >
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                    수량 분석
+                  </p>
+                  <Flex direction="col" gap={1} className="bg-gray-50 rounded-lg px-3 py-2">
+                    <span className="text-xs text-gray-400">요청 수량</span>
+                    <span className="font-medium text-sm text-gray-700">
+                      {selectedResult.requestQuantity.toLocaleString()} EA
+                    </span>
+                  </Flex>
+                  <p className="text-center text-gray-300 text-xs select-none">−</p>
+                  <Flex direction="col" gap={1} className="bg-gray-50 rounded-lg px-3 py-2">
+                    <span className="text-xs text-gray-400">가용 수량</span>
+                    <span className="font-medium text-sm text-gray-700">
+                      {availableQuantity.toLocaleString()} EA
+                    </span>
+                  </Flex>
+                  <p className="text-center text-gray-300 text-xs select-none">=</p>
+                  <Flex
+                    direction="col"
+                    gap={1}
+                    className={`rounded-lg px-3 py-2 ${isPass ? 'bg-green-50' : 'bg-red-50'}`}
+                  >
+                    <span className="text-xs text-gray-400">생산 필요량</span>
+                    <span
+                      className={`font-semibold text-sm ${isPass ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {shortageQuantity.toLocaleString()} EA
+                    </span>
+                    <span className={`text-xs ${isPass ? 'text-green-400' : 'text-red-400'}`}>
+                      {isPass ? '생산 가능' : '생산 불가'}
+                    </span>
+                  </Flex>
+                </Flex>
+              );
+            })()}
+          </Flex>
+        </Flex>
       )}
 
       {/* 액션 버튼 */}
       <Flex justify="end" gap={3} className="pt-4">
-        <Button
-          label={previewMutation.isPending ? 'MPS 생성 중...' : 'MPS 생성하기'}
-          onClick={() => previewMutation.mutate(passResults.map((r) => r.quotationId))}
-          disabled={previewMutation.isPending || passCount === 0}
-        />
+        <Button label="MPS 생성하기" onClick={onConfirm} disabled={passCount === 0} />
       </Flex>
     </Flex>
   );

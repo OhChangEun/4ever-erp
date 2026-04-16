@@ -9,7 +9,6 @@ import {
   QuotationListResponse,
 } from '@/app/(private)/production/types/QuotationApiType';
 import SimulationResultModal from '@/app/(private)/production/components/modals/SimulationResultModal';
-import MpsPreviewModal from '@/app/(private)/production/components/modals/MpsPreviewModal';
 import {
   fetchQuotationSimulationResult,
   fetchQuotationList,
@@ -19,7 +18,6 @@ import {
 } from '@/app/(private)/production/api/production.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FetchQuotationSimulationParams } from '@/app/(private)/production/types/QuotationSimulationApiType';
-import { QuotationPreviewResponse } from '@/app/(private)/production/types/QuotationPreviewApiType'; // 타입은 여전히 필요
 import Pagination from '@/app/components/common/Pagination';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -108,8 +106,7 @@ export default function QuotationTab() {
         openModal(SimulationResultModal, {
           title: '시뮬레이션 결과',
           simulationResults: data.content,
-          selectedQuotes: selectedQuotes,
-          onConfirm: handleConfirmProposedDelivery,
+          onConfirm: handleConfirmMps,
         });
       } else {
         alert('시뮬레이션 결과가 없습니다.');
@@ -177,15 +174,6 @@ export default function QuotationTab() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     // useQuery가 currentPage 변경을 감지하고 자동으로 데이터를 다시 불러옴
-  };
-
-  // MPS 생성 프리뷰
-  const handleConfirmProposedDelivery = (previewData: QuotationPreviewResponse) => {
-    openModal(MpsPreviewModal, {
-      title: 'MPS 생성 Preview',
-      previewResults: previewData,
-      onConfirm: handleConfirmMps,
-    });
   };
 
   const handleConfirmMps = () => {
