@@ -1,4 +1,6 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
+import Flex from '../common/Flex';
+import LogoMark from './LogoMark';
 
 export default function Logo() {
   return (
@@ -6,11 +8,13 @@ export default function Logo() {
       href="/dashboard"
       className="pl-1 flex items-center gap-2.5 cursor-pointer select-none group"
     >
-      {/* 워드마크 */}
-      <div className="flex items-baseline gap-1 px-1">
-        <span className="text-4xl font-black tracking-tight text-blue-500 italic">4</span>
-        <span className="text-2xl font-black tracking-normal text-gray-800 italic">Ever</span>
-      </div>
+      <LogoMark />
+      <Flex align="baseline">
+        <span className="text-3xl font-mono font-black italic text-blue-500">4</span>
+        <span className="text-2xl font-sans font-black italic tracking-tight text-gray-700 pr-3">
+          Ever
+        </span>
+      </Flex>
     </Link>
   );
 }
