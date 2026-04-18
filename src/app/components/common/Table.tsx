@@ -68,7 +68,7 @@ export default function Table<T = Record<string, unknown>>({
           height: height,
         }}
       >
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead className="sticky top-0 shadow-sm bg-gray-50">
             <tr>
               {columns.map((column) => (

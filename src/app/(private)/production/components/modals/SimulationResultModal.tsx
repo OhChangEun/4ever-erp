@@ -12,6 +12,27 @@ interface SimulationResultModalProps extends ModalProps {
   onConfirm: () => void;
 }
 
+const SHORTAGE_RESULT = {
+  STOCK_SUFFICIENT: {
+    bg: 'bg-green-50',
+    textColor: 'text-green-600',
+    subColor: 'text-green-500',
+    label: '재고 충당 가능',
+  },
+  PASS: {
+    bg: 'bg-blue-50',
+    textColor: 'text-blue-600',
+    subColor: 'text-blue-400',
+    label: '생산 가능',
+  },
+  FAIL: {
+    bg: 'bg-red-50',
+    textColor: 'text-red-600',
+    subColor: 'text-red-400',
+    label: '생산 불가',
+  },
+} as const;
+
 export default function SimulationResultModal({
   simulationResults,
   onConfirm,
@@ -20,8 +41,9 @@ export default function SimulationResultModal({
     simulationResults[0]?.quotationId || null,
   );
 
-  const passResults = simulationResults.filter((r) => r.simulation.status === 'PASS');
-  const passCount = passResults.length;
+  const hasMpsTarget = simulationResults.some(
+    (r) => r.simulation.shortageQuantity > 0 && r.simulation.status === 'PASS',
+  );
   const selectedResult = simulationResults.find((r) => r.quotationId === selectedQuotationId);
 
   return (
@@ -37,13 +59,13 @@ export default function SimulationResultModal({
                 key: 'quotationNumber',
                 label: '견적번호',
                 align: 'center',
-                width: '150px',
+                width: '140px',
                 render: (_, row: QuotationSimulationData) => (
                   <span className="font-medium text-blue-600">{row.quotationNumber}</span>
                 ),
               },
               { key: 'customerCompanyName', label: '고객사', align: 'center', width: '120px' },
-              { key: 'productName', label: '제품명', width: '150px' },
+              { key: 'productName', label: '제품명', align: 'center', width: '130px' },
               {
                 key: 'status',
                 label: '상태',
@@ -56,7 +78,7 @@ export default function SimulationResultModal({
                 key: 'shortage',
                 label: '부족 사유',
                 align: 'center',
-                width: '200px',
+                width: '220px',
                 render: (_, row: QuotationSimulationData) =>
                   row.simulation.status === 'FAIL' && row.simulation.shortageReason ? (
                     <span className="text-xs text-red-500">{row.simulation.shortageReason}</span>
@@ -86,7 +108,7 @@ export default function SimulationResultModal({
       {/* 선택된 견적 상세 정보 */}
       {selectedResult && (
         <Flex direction="col" gap={2} className="flex-1 overflow-hidden">
-          <h4 className="text-sm font-medium px-1 text-gray-700 mb-3">상세 정보</h4>
+          <h4 className="text-sm font-medium px-1 text-gray-700">상세 정보</h4>
           <Flex gap={3}>
             {/* 왼쪽: 제품 정보 패널 */}
             <Flex direction="col" gap={2} flex1 className="border border-gray-100 rounded-xl p-3">
@@ -137,7 +159,10 @@ export default function SimulationResultModal({
             {/* 오른쪽: 수량 분석 패널 */}
             {(() => {
               const { status, shortageQuantity, availableQuantity } = selectedResult.simulation;
-              const isPass = status === 'PASS';
+              const resultKey = (
+                status in SHORTAGE_RESULT ? status : 'FAIL'
+              ) as keyof typeof SHORTAGE_RESULT;
+              const { bg, textColor, subColor, label } = SHORTAGE_RESULT[resultKey];
               return (
                 <Flex
                   direction="col"
@@ -161,20 +186,12 @@ export default function SimulationResultModal({
                     </span>
                   </Flex>
                   <p className="text-center text-gray-300 text-xs select-none">=</p>
-                  <Flex
-                    direction="col"
-                    gap={1}
-                    className={`rounded-lg px-3 py-2 ${isPass ? 'bg-green-50' : 'bg-red-50'}`}
-                  >
-                    <span className="text-xs text-gray-400">생산 필요량</span>
-                    <span
-                      className={`font-semibold text-sm ${isPass ? 'text-green-600' : 'text-red-600'}`}
-                    >
+                  <Flex direction="col" gap={1} className={`rounded-lg px-3 py-2 ${bg}`}>
+                    <span className="text-xs text-gray-500">생산 필요량</span>
+                    <span className={`font-semibold text-sm ${textColor}`}>
                       {shortageQuantity.toLocaleString()} EA
                     </span>
-                    <span className={`text-xs ${isPass ? 'text-green-400' : 'text-red-400'}`}>
-                      {isPass ? '생산 가능' : '생산 불가'}
-                    </span>
+                    <span className={`text-xs ${subColor}`}>{label}</span>
                   </Flex>
                 </Flex>
               );
@@ -185,7 +202,7 @@ export default function SimulationResultModal({
 
       {/* 액션 버튼 */}
       <Flex justify="end" gap={3} className="pt-4">
-        <Button label="MPS 생성하기" onClick={onConfirm} disabled={passCount === 0} />
+        <Button label="MPS 생성하기" onClick={onConfirm} disabled={!hasMpsTarget} />
       </Flex>
     </Flex>
   );

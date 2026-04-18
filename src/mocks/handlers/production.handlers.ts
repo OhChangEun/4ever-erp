@@ -31,7 +31,6 @@ export const productionHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    const filterStatus = url.searchParams.get('statusCode') ?? '';
     const filterAvailable = url.searchParams.get('availableStatusCode') ?? '';
     const filterStartDate = url.searchParams.get('startDate') ?? '';
     const filterEndDate = url.searchParams.get('endDate') ?? '';
@@ -47,8 +46,19 @@ export const productionHandlers = [
       '론데케미칼',
       'KT&G',
     ];
-    const statusCodes = ['NEW', 'CONFIRMED'];
     const availableStatuses = ['CHECKED', 'UNCHECKED'];
+    const products = [
+      '모터 A',
+      '펌프 B',
+      '밸브 C',
+      '기어 D',
+      '베어링 E',
+      '실린더 F',
+      '피스톤 G',
+      'LCD Panel 32"',
+      '메모리칩 16GB',
+      '센서 H',
+    ];
     const baseTotal = 512;
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
@@ -60,15 +70,13 @@ export const productionHandlers = [
         quotationId: `qt-${String(idx).padStart(3, '0')}`,
         quotationNumber: `QT-${year}-${String(idx).padStart(3, '0')}`,
         customerName: customers[idx % customers.length],
+        productName: products[idx % products.length],
         requestDate: `${year}-${month}-${day}`,
         dueDate: `${year}-${nextMonth}-${day}`,
-        statusCode: statusCodes[idx % statusCodes.length],
         availableStatus: availableStatuses[idx % availableStatuses.length],
       };
     });
     let filtered = allData;
-    if (filterStatus && filterStatus !== 'ALL')
-      filtered = filtered.filter((d) => d.statusCode === filterStatus);
     if (filterAvailable && filterAvailable !== 'ALL')
       filtered = filtered.filter((d) => d.availableStatus === filterAvailable);
     if (filterStartDate) filtered = filtered.filter((d) => d.requestDate >= filterStartDate);
@@ -109,9 +117,14 @@ export const productionHandlers = [
     ];
     const selectedQuotations = quotationIds.map((quotationId) => {
       const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
-      const isFail = num % 3 === 2; // 3개 중 1개는 FAIL
       const requestQty = ((num % 10) + 1) * 1000;
-      const availableQty = isFail ? Math.floor(requestQty * 0.3) : requestQty + 500;
+      // 가용 수량은 요청 수량의 40~130% 범위에서 결정
+      const availableRatio = [0.4, 0.6, 0.8, 1.0, 1.1, 1.3][num % 6];
+      const availableQty = Math.floor(requestQty * availableRatio);
+      const shortageQty = Math.max(0, requestQty - availableQty);
+      // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 경우 내부 사정으로 약 30% FAIL
+      const isFail = shortageQty > 0 && (num * 7 + 3) % 10 < 2;
+      const simulationStatus = shortageQty === 0 ? 'STOCK_SUFFICIENT' : isFail ? 'FAIL' : 'PASS';
       const year = 2025 + Math.floor(num / 300);
       const month = String((num % 12) + 1).padStart(2, '0');
       const day = String((num % 28) + 1).padStart(2, '0');
@@ -127,9 +140,9 @@ export const productionHandlers = [
         requestQuantity: requestQty,
         requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
         simulation: {
-          status: isFail ? 'FAIL' : 'PASS',
+          status: simulationStatus,
           availableQuantity: availableQty,
-          shortageQuantity: isFail ? requestQty - availableQty : 0,
+          shortageQuantity: shortageQty,
           shortageReason: isFail
             ? [
                 '주요 원자재(실리콘 웨이퍼) 입고 지연',
@@ -595,14 +608,6 @@ export const productionHandlers = [
       { key: 'ALL', value: '전체 가용재고' },
       { key: 'CHECKED', value: '확인' },
       { key: 'UNCHECKED', value: '미확인' },
-    ]);
-  }),
-  http.get(PRODUCTION_ENDPOINTS.QUOTATION_STATUS_DROPDOWN, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load quotation status dropdown', 500);
-    return ok([
-      { key: 'ALL', value: '전체 상태' },
-      { key: 'NEW', value: '신규' },
-      { key: 'CONFIRMED', value: '확정' },
     ]);
   }),
   http.get(PRODUCTION_ENDPOINTS.MRP_QUOTATION_DROPDOWN, ({ request }) => {

@@ -72,13 +72,6 @@ export type AvailableStockStatus = 'ALL' | 'CHECKED' | 'UNCHECKED';
 //   { key: 'INSUFFICIENT', value: '부족' }, // 재고 부족
 // ];
 
-// 견적 상태 필터링
-export type QuotationStatus = 'ALL' | 'NEW' | 'CONFIRMED';
-// export const QUOTATIONS_STATUS: KeyValueItem<QuotationStatus>[] = [
-//   { key: 'ALL', value: '전체 상태' },
-//   { key: 'NEW', value: '신규' },
-//   { key: 'CONFIRMED', value: '확정' },
-// ];
 
 // 제품 목록
 export const PRODUCTS: KeyValueItem[] = [

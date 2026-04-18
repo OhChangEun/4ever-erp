@@ -43,8 +43,7 @@ export const PRODUCTION_ENDPOINTS = {
   OPERATIONS_DROPDOWN: `${PRODUCTION_BASE_PATH}/operations`,
 
   PRODUCTS: `${PRODUCTION_BASE_PATH}/products`, // 자재 드롭다운
-  AVAILABLE_STATUS_DROPDOWN: `${PRODUCTION_BASE_PATH}/available/status/toggle`, // 가용재고 상태 드롭다운
-  QUOTATION_STATUS_DROPDOWN: `${PRODUCTION_BASE_PATH}/status/toggle`, // 견적 상태 드롭다운
+  AVAILABLE_STATUS_DROPDOWN: `${PRODUCTION_BASE_PATH}/available/status/toggle`,
 
   MRP_QUOTATION_DROPDOWN: `${PRODUCTION_BASE_PATH}/mrp/quotations/toggle`, // 견적 드롭다운
   MRP_AVAILABLE_STATUS_DROPDOWN: `${PRODUCTION_BASE_PATH}/mrp/available/status/toggle`, // 견적 드롭다운

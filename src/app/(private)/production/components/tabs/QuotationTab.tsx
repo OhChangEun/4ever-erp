@@ -1,7 +1,7 @@
 'use client';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useState, useMemo } from 'react'; // useMemo 추가
-import { AvailableStockStatus, QuotationStatus } from '@/app/(private)/production/constants';
+import { AvailableStockStatus } from '@/app/(private)/production/constants';
 import IconButton from '@/app/components/common/IconButton';
 import {
   QuotationData,
@@ -13,11 +13,9 @@ import {
   fetchQuotationSimulationResult,
   fetchQuotationList,
   fetchQuotationConfirm,
-  fetchQuotationStatusDropdown,
-  fetchAvailableStatusDropdown, // API 함수 추가
+  fetchAvailableStatusDropdown,
 } from '@/app/(private)/production/api/production.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FetchQuotationSimulationParams } from '@/app/(private)/production/types/QuotationSimulationApiType';
 import Pagination from '@/app/components/common/Pagination';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -29,22 +27,15 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
 
-  // 견적 상태 드롭다운
-  const { options: quotationsStatusOptions } = useDropdown(
-    'quotationsStatusDropdown',
-    fetchQuotationStatusDropdown,
-  );
   // 가용 재고 상태 드롭다운
   const { options: availableStatusOptions } = useDropdown(
     'availableStatusDropdown',
     fetchAvailableStatusDropdown,
   );
 
-  // 필터링 상태(날짜, 가용재고 상태, 견적 상태)
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStockStatus, setSelectedStockStatus] = useState<AvailableStockStatus>('ALL');
-  const [selectedQuotationsStatus, setSelectedQuotationsStatus] = useState<QuotationStatus>('ALL');
 
   // 선택된 견적
   const [selectedQuotes, setSelectedQuotes] = useState<string[]>([]);
@@ -55,14 +46,13 @@ export default function QuotationTab() {
   // 1. 견적 리스트를 가져오는 useQuery
   const quotationListQueryParams = useMemo(
     (): FetchQuotationParams => ({
-      availableStatusCode: selectedStockStatus, // 가용재고 산태
-      statusCode: selectedQuotationsStatus, // 견적 상태
-      page: currentPage - 1, // API는 0-based
+      availableStatusCode: selectedStockStatus,
+      page: currentPage - 1,
       size: pageSize,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     }),
-    [selectedStockStatus, selectedQuotationsStatus, currentPage, pageSize, startDate, endDate],
+    [selectedStockStatus, currentPage, pageSize, startDate, endDate],
   );
 
   const {
@@ -157,8 +147,7 @@ export default function QuotationTab() {
       return;
     }
 
-    // Mutation 실행 - 선택된 견적 ID 배열만 전달
-    simulationQuotations(selectedQuotes);
+    simulationQuotations(unCheckedQuotes);
   };
 
   const handleStartDateChange = (value: string) => {
@@ -193,15 +182,20 @@ export default function QuotationTab() {
           className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
+            const uncheckedIds = quotationDataList
+              .filter((q) => q.availableStatus === 'UNCHECKED')
+              .map((q) => q.quotationId);
             if (e.target.checked) {
-              setSelectedQuotes(quotationDataList.map((q) => q.quotationId));
+              setSelectedQuotes(uncheckedIds);
             } else {
               setSelectedQuotes([]);
             }
           }}
           checked={
-            quotationDataList.length > 0 &&
-            quotationDataList.every((q) => selectedQuotes.includes(q.quotationId))
+            quotationDataList.some((q) => q.availableStatus === 'UNCHECKED') &&
+            quotationDataList
+              .filter((q) => q.availableStatus === 'UNCHECKED')
+              .every((q) => selectedQuotes.includes(q.quotationId))
           }
         />
       ),
@@ -220,13 +214,8 @@ export default function QuotationTab() {
     },
     { key: 'quotationNumber', label: '견적 번호', align: 'center' },
     { key: 'customerName', label: '고객사', align: 'center' },
+    { key: 'productName', label: '제품명', align: 'center' },
     { key: 'requestDate', label: '요청 납기', align: 'center' },
-    {
-      key: 'availableStatus',
-      label: '가용 재고',
-      align: 'center',
-      render: (_, quote) => <StatusLabel $statusCode={quote.availableStatus} />,
-    },
     {
       key: 'dueDate',
       label: '제안 납기',
@@ -234,10 +223,10 @@ export default function QuotationTab() {
       render: (_, quote) => <>{quote.dueDate || '-'}</>,
     },
     {
-      key: 'statusCode',
-      label: '상태',
+      key: 'availableStatus',
+      label: '가용 재고',
       align: 'center',
-      render: (_, quote) => <StatusLabel $statusCode={quote.statusCode} />,
+      render: (_, quote) => <StatusLabel $statusCode={quote.availableStatus} />,
     },
   ];
 
@@ -258,15 +247,6 @@ export default function QuotationTab() {
             value={selectedStockStatus}
             onChange={(status: AvailableStockStatus) => {
               setSelectedStockStatus(status);
-              setCurrentPage(1); // 필터 변경 시 첫 페이지로
-            }}
-          />
-          <Dropdown
-            placeholder="전체 상태"
-            items={quotationsStatusOptions}
-            value={selectedQuotationsStatus}
-            onChange={(status: QuotationStatus) => {
-              setSelectedQuotationsStatus(status);
               setCurrentPage(1); // 필터 변경 시 첫 페이지로
             }}
           />

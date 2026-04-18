@@ -1,6 +1,5 @@
 import { AvailableStockStatus } from '@/app/(private)/production/constants';
 import { Page, PageRequest } from '@/app/types/Page';
-import { QuotationStatus } from '@/app/(private)/production/constants';
 import { DateRequest } from '@/app/types/Date';
 
 export interface itemsData {
@@ -15,9 +14,9 @@ export interface QuotationData {
   quotationId: string;
   quotationNumber: string;
   customerName: string;
+  productName: string;
   requestDate: string;
   dueDate: string;
-  statusCode: QuotationStatus;
   availableStatus: AvailableStockStatus;
   items: itemsData[];
 }
@@ -30,7 +29,5 @@ export interface QuotationListResponse {
 
 // 응답 요청시 request params
 export interface FetchQuotationParams extends DateRequest, PageRequest {
-  // stockStatusCode: AvailableStockStatus;
   availableStatusCode: string;
-  statusCode: QuotationStatus;
 }

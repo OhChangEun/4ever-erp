@@ -280,12 +280,6 @@ export const fetchAvailableStatusDropdown = async (): Promise<KeyValueItem[]> =>
   return res.data.data;
 };
 
-export const fetchQuotationStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.QUOTATION_STATUS_DROPDOWN}`,
-  );
-  return res.data.data;
-};
 
 // mrp 순소요 - 견적 드롭다운
 export const fetchMrpQuotationsDropdown = async (): Promise<KeyValueItem[]> => {
