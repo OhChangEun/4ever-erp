@@ -25,7 +25,7 @@ const ModalContainer = ({ children, title, width, height, onClose }: ModalContai
             height: modalHeight,
             minWidth: '400px',
             minHeight: '380px',
-            maxWidth: '70vw',
+            maxWidth: '900px',
             maxHeight: '90vh',
           }}
           initial={{ scale: 0.95, opacity: 0 }}
