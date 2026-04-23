@@ -29,10 +29,12 @@ import { formatDateTime } from '@/app/utils/date';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useDebounce } from 'use-debounce';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 // import CalendarButton from '@/app/components/common/Calendar';
 
 export default function PurchaseRequestListTab() {
   const { openModal } = useModal();
+  const toast = useToast();
 
   // 구매 요청 상태 드롭다운
   const { options: purchaseRequisitionStatusOptions } = useDropdown(
@@ -86,11 +88,11 @@ export default function PurchaseRequestListTab() {
   const { mutate: approvePurchaseRequest } = useMutation({
     mutationFn: (prId: string) => postApporvePurchaseReq(prId),
     onSuccess: () => {
-      alert('구매 요청 승인 완료되었습니다.');
+      toast.success('구매 요청 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseRequests'] });
     },
     onError: (error) => {
-      alert(`구매 요청 승인 중 오류가 발생했습니다. ${error}`);
+      toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${error}`);
     },
   });
 
@@ -98,11 +100,11 @@ export default function PurchaseRequestListTab() {
   const { mutate: rejectpurchaseRequest } = useMutation({
     mutationFn: (prId: string) => postRejectPurchaseReq(prId, ''),
     onSuccess: () => {
-      alert('반려 처리되었습니다.');
+      toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseRequests'] });
     },
     onError: (error) => {
-      alert(`반려 처리 중 오류가 발생했습니다. ${error}`);
+      toast.error(`반려 처리 중 오류가 발생했습니다. ${error}`);
     },
   });
 

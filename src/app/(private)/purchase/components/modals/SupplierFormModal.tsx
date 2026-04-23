@@ -23,6 +23,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
 import Input, { InputLabel } from '@/app/components/common/Input';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface SupplierFormModalProps extends ModalProps {
   initialData?: SupplierDetailResponse; // 수정 모드일 때 전달
@@ -31,6 +32,7 @@ interface SupplierFormModalProps extends ModalProps {
 export default function SupplierFormModal({ initialData, onClose }: SupplierFormModalProps) {
   const isEditMode = !!initialData; // initialData가 있으면 수정 모드
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialData?.supplierInfo.category || '',
@@ -92,7 +94,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
     mutationFn: createSupplyRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplierList'] });
-      alert('공급업체 등록이 완료되었습니다.');
+      toast.success('공급업체 등록이 완료되었습니다.');
       onClose();
     },
   });
@@ -114,7 +116,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
           queryKey: ['supplierDetail', initialData.supplierInfo.supplierId],
         });
       }
-      alert('공급업체 정보가 수정되었습니다.');
+      toast.success('공급업체 정보가 수정되었습니다.');
       onClose();
     },
   });
@@ -162,7 +164,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         !managerInfo.managerPhone ||
         !managerInfo.managerEmail
       ) {
-        alert('모든 필수 항목을 입력해주세요.');
+        toast.warning('모든 필수 항목을 입력해주세요.');
         return;
       }
 
@@ -193,7 +195,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         !managerInfo.managerPhone ||
         !managerInfo.managerEmail
       ) {
-        alert('모든 필수 항목을 입력해주세요.');
+        toast.warning('모든 필수 항목을 입력해주세요.');
         return;
       }
 
@@ -204,7 +206,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
       // 자재 검증
       if (filteredMaterials.length === 0) {
-        alert('최소 하나의 유효한 자재 정보를 입력해야 합니다.');
+        toast.info('최소 하나의 유효한 자재 정보를 입력해야 합니다.');
         return;
       }
 

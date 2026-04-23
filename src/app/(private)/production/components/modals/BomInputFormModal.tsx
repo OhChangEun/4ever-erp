@@ -34,6 +34,7 @@ import { getQueryClient } from '@/lib/queryClient';
 import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -141,6 +142,7 @@ interface SortableRowProps {
 
 function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: SortableRowProps) {
   const { options: productsOptions } = useDropdown('productsDropdown', fetchProductDropdown);
+  const toast = useToast();
   const { options: operationOptions } = useDropdown('operationsDropdown', fetchOperationDropdown);
 
   const {
@@ -157,7 +159,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
     mutationFn: (productionId: string) => fetchProduction(productionId),
     onError: (error) => {
       console.log(`자재 목록 호출 중 오류 발생: ${error}`);
-      alert('자재 목록 호출 중 오류가 발생했습니다.');
+      toast.error('자재 목록 호출 중 오류가 발생했습니다.');
     },
   });
 
@@ -245,6 +247,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
 
 export default function BomInputFormModal({ editMode = false, onClose }: BomInputFormModalProps) {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [productName, setProductName] = useState('');
   const [unit, setUnit] = useState('');
   const [bomItems, setBomItems] = useState<BomItem[]>([]);
@@ -252,14 +255,14 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
   const { mutate: updateBomItem, isPending } = useMutation({
     mutationFn: (body: BomRequestBody) => postBomItem(body),
     onSuccess: async () => {
-      alert('BOM 생성이 완료되었습니다.');
+      toast.success('BOM 생성이 완료되었습니다.');
       // await new Promise((resolve) => setTimeout(resolve, 2000));
       queryClient.invalidateQueries({ queryKey: ['bomList'] });
       onClose(); // 모달 닫기
     },
     onError: (error) => {
       console.log(`BOM 생성 중 오류 발생: ${error}`);
-      alert('BOM 생성 중 오류가 발생했습니다.');
+      toast.error('BOM 생성 중 오류가 발생했습니다.');
     },
   });
 

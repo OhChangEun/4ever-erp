@@ -15,12 +15,14 @@ import {
   getReadyToShipDetail,
   patchMarkAsReadyToShip,
 } from '../../inventory.api';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const ShippingDetailModal = ({
   onClose,
   $selectedSubTab,
   $selectedOrderId,
 }: ShippingDetailModalProps) => {
+  const toast = useToast();
   const getShippingDetailBySubTab = (subTab: string, id: string) => {
     switch (subTab) {
       case 'producing':
@@ -53,13 +55,12 @@ const ShippingDetailModal = ({
     { orderId: string; itemIds: markAsReadyRequest }
   >({
     mutationFn: ({ orderId, itemIds }) => patchMarkAsReadyToShip(orderId, itemIds),
-    onSuccess: (data) => {
-      //   console.log(data);
-      alert('출고 준비 완료로 상태가 변경되었습니다.');
+    onSuccess: () => {
+      toast.success('출고 준비 완료로 상태가 변경되었습니다.');
       onClose();
     },
-    onError: (error) => {
-      alert(`고객 등록 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('상태 변경 중 오류가 발생했습니다.');
     },
   });
 

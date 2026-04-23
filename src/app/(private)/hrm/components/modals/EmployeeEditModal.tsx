@@ -8,6 +8,7 @@ import { fetchDepartmentsDropdown, fetchPositionsDropdown, putEmployee } from '.
 import { KeyValueItem } from '@/app/types/CommonType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useDropdown } from '@/app/hooks/useDropdown';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;
@@ -18,6 +19,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const [selectedPosition, setSelectedPosition] = useState('');
 
   const { removeAllModals } = useModal();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // 부서 드롭다운
@@ -44,17 +46,17 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
       queryClient.invalidateQueries({ queryKey: ['employeesList'] });
 
       removeAllModals();
-      alert('고객정보가 수정되었습니다.');
+      toast.success('고객정보가 수정되었습니다.');
     },
     onError: (error) => {
       console.error('직원 정보 수정 실패: ', error);
-      alert('직원 정보 수정에 실패했습니다. 다시 시도해주세요.');
+      toast.error('직원 정보 수정에 실패했습니다. 다시 시도해주세요.');
     },
   });
 
   const handleSave = () => {
     if (!selectedDepartment || !selectedPosition) {
-      alert('부서와 직급을 모두 입력해주세요.');
+      toast.warning('부서와 직급을 모두 입력해주세요.');
       return;
     }
 

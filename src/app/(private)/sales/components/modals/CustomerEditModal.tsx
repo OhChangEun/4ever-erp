@@ -10,6 +10,7 @@ import {
 import { CustomerStatus } from '../../types/SalesCustomerListType';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchCustomer } from '../../sales.api';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const CustomerEditModal = ({
   onClose,
@@ -17,6 +18,7 @@ const CustomerEditModal = ({
   $setEditFormData,
 }: CustomerEditModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   useEffect(() => {
     console.log($editFormData);
   }, [$editFormData]);
@@ -96,13 +98,13 @@ const CustomerEditModal = ({
 
     // 성공 시: 알림 + 모달 닫기 + 최신 데이터 갱신
     onSuccess: (data) => {
-      alert('고객 정보가 성공적으로 수정되었습니다.');
+      toast.success('고객 정보가 성공적으로 수정되었습니다.');
       onClose();
       queryClient.invalidateQueries({ queryKey: ['customerDetail'] });
     },
 
     onError: (error) => {
-      alert(`고객 수정 중 오류가 발생했습니다.`);
+      toast.error(`고객 수정 중 오류가 발생했습니다.`);
     },
 
     // 성공,실패 상관없이 서버 데이터로 최신화

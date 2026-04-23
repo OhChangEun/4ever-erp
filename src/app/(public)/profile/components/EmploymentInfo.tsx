@@ -2,10 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FormEvent, useEffect, useState } from 'react';
+import { useToast } from '@/app/components/common/toast/useToast';
 import { EditUserRequest, EmploymentInfoProps, ProfileInfoResponse } from '../ProfileType';
 import { getProfile, postProfile } from '../profile.api';
 
 const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
+  const toast = useToast();
   const { data: profileInfo } = useQuery<ProfileInfoResponse>({
     queryKey: ['profileInfo'],
     queryFn: getProfile,
@@ -88,13 +90,13 @@ const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
       }));
       return { previousData };
     },
-    onError: (error, newData, context) => {
+    onError: (_error, _newData, context) => {
       if (context?.previousData) queryClient.setQueryData(['profileInfo'], context.previousData);
-      alert(`프로필 수정 중 오류가 발생했습니다. ${error}`);
+      toast.error('프로필 수정 중 오류가 발생했습니다.');
     },
     onSuccess: () => {
       $setIsEditing(false);
-      alert('프로필 수정이 완료되었습니다.');
+      toast.success('프로필 수정이 완료되었습니다.');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['profileInfo'] });

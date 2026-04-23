@@ -23,9 +23,11 @@ import SearchBar from '@/app/components/common/SearchBar';
 import { useDebounce } from 'use-debounce';
 import { FetchPurchaseOrderParams } from '../../types/PurchaseApiRequestType';
 import { useRole } from '@/app/hooks/useRole';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
+  const toast = useToast();
 
   // 발주서 타입 드롭다운
   const { options: purchaseOrderStatusOptions } = useDropdown(
@@ -81,11 +83,11 @@ export default function PurchaseOrderListTab() {
   const { mutate: approvePurchaseOrder } = useMutation({
     mutationFn: (poId: string) => postApprovePurchaseOrder(poId),
     onSuccess: () => {
-      alert('발주서 승인 완료되었습니다.');
+      toast.success('발주서 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
-      alert(`발주서 승인 중 오류가 발생했습니다. ${error}`);
+      toast.error(`발주서 승인 중 오류가 발생했습니다. ${error}`);
     },
   });
 
@@ -93,22 +95,22 @@ export default function PurchaseOrderListTab() {
   const { mutate: rejectPurhcaseOrder } = useMutation({
     mutationFn: (poId: string) => postRejectPurchaseOrder(poId, ''),
     onSuccess: () => {
-      alert('반려 처리되었습니다.');
+      toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders"'] });
     },
     onError: (error) => {
-      alert(`반려 중 오류가 발생했습니다. ${error}`);
+      toast.error(`반려 중 오류가 발생했습니다. ${error}`);
     },
   });
 
   const { mutate: deliveryPurhcaseOrder } = useMutation({
     mutationFn: (poId: string) => postDeliveryStartOrder(poId),
     onSuccess: () => {
-      alert('배송이 시작되었습니다.');
+      toast.info('배송이 시작되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders"'] });
     },
     onError: (error) => {
-      alert(`배송 시작 처리 중 오류가 발생했습니다. ${error}`);
+      toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${error}`);
     },
   });
 

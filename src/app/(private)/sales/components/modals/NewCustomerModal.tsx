@@ -8,8 +8,10 @@ import { SalesCustomer } from '../../types/SalesCustomerListType';
 import { Page } from '@/app/types/Page';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
+import { useToast } from '@/app/components/common/toast/useToast';
 const NewCustomerModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [customerData, setCustomerData] = useState<CustomerData>({
     companyName: '',
     businessNumber: '',
@@ -117,10 +119,10 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
       if (context?.previousData) {
         queryClient.setQueryData(['customerList'], context.previousData);
       }
-      alert(`고객 등록 중 오류가 발생했습니다. ${error}`);
+      toast.error(`고객 등록 중 오류가 발생했습니다. ${error}`);
     },
     onSuccess: () => {
-      alert('고객이 성공적으로 등록되었습니다.');
+      toast.success('고객이 성공적으로 등록되었습니다.');
       onClose();
     },
     onSettled: () => {

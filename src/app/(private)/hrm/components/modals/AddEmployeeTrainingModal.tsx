@@ -8,6 +8,7 @@ import { fetchProgramListDropdown, postProgramToEmployee } from '@/app/(private)
 import { UpdateProgramToEmployeeRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface AddEmployeeTrainingModalProps extends ModalProps {
   employeeId: string;
@@ -20,6 +21,7 @@ export default function AddEmployeeTrainingModal({
   const [selectedProgram, setSelectedProgram] = useState('');
 
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   // 교육 프로그램 드롭다운 조회
   const {
@@ -39,11 +41,11 @@ export default function AddEmployeeTrainingModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainingList'] });
       onClose();
-      alert('교육 프로그램이 지정되었습니다.');
+      toast.info('교육 프로그램이 지정되었습니다.');
     },
     onError: (error) => {
       console.log('교육 프로그램 추가 실패', error);
-      alert('교육 프로그램 지정에 실패했습니다.');
+      toast.error('교육 프로그램 지정에 실패했습니다.');
     },
   });
 
@@ -51,7 +53,7 @@ export default function AddEmployeeTrainingModal({
     e.preventDefault();
 
     if (!selectedProgram) {
-      return alert('교육 프로그램을 선택해주세요.');
+      toast.warning('교육 프로그램을 선택해주세요.');
     }
 
     mutation.mutate({ employeeId, programId: selectedProgram });

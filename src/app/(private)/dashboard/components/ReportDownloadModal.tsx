@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { ReportDownloadModalProps } from '../types/ReportDownloadModalType';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const ReportDownloadModal = ({ isOpen, onClose, selectedPeriod }: ReportDownloadModalProps) => {
+  const toast = useToast();
   if (!isOpen) return null;
 
   const handleReportDownload = (reportType: string, format: string) => {
@@ -65,7 +67,7 @@ const ReportDownloadModal = ({ isOpen, onClose, selectedPeriod }: ReportDownload
     link.click();
     document.body.removeChild(link);
 
-    alert(`리포트가 성공적으로 다운로드되었습니다.\n파일명: ${fileName}\n기간: ${selectedPeriod}`);
+    toast.success(`리포트가 다운로드되었습니다. (${fileName})`);
     onClose();
   };
 

@@ -9,10 +9,12 @@ import {
   WarehouseToggleResponse,
 } from '../../types/AddInventoryModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
 
 const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMoveModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     fromWarehouseId: $selectedStock.warehouseId,
     toWarehouseId: '',
@@ -97,15 +99,15 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
       return { previousData };
     },
 
-    onError: (error, _newMovement, context) => {
+    onError: (_error, _newMovement, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['inventoryDetail', $selectedStock?.itemId], context.previousData);
       }
-      alert(`재고 이동 중 오류가 발생했습니다. ${error}`);
+      toast.error('재고 이동 중 오류가 발생했습니다.');
     },
 
-    onSuccess: (data) => {
-      alert(`재고가 이동되었습니다.`);
+    onSuccess: () => {
+      toast.success('재고가 이동되었습니다.');
       $setShowMoveModal(false);
     },
 

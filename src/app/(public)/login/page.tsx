@@ -27,7 +27,7 @@ export default function LoginPage() {
     }
 
     if (!VALID_IDS.has(trimmed)) {
-      alert('잘못 입력되었습니다.\n목록의 아이디를 선택하거나 올바른 아이디를 입력해 주세요.');
+      setError('목록의 아이디를 선택하거나 올바른 아이디를 입력해 주세요.');
       return;
     }
 

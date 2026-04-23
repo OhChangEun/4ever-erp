@@ -21,6 +21,7 @@ import { MrpOrdersConvertReqeustBody } from '../../types/MrpOrdersConvertApiType
 import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface OrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -32,6 +33,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     'mrpQuotationsDropdown',
     fetchMrpQuotationsDropdown,
   );
+  const toast = useToast();
   // mrp 순소요 - 가용 재고 상태 드롭다운
   const { options: mrpAvailableStatusOptions } = useDropdown(
     'mrpAvailableStatusDropdown',
@@ -93,20 +95,20 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   const { mutate: mrpConvert } = useMutation({
     mutationFn: (body: MrpOrdersConvertReqeustBody) => postMrpConvert(body),
     onSuccess: () => {
-      alert('계획 주문 전환이 완료되었습니다.');
+      toast.success('계획 주문 전환이 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['mrpOrdersList'] });
       router.push('/production?tab=mrp&subTab=orders');
     },
     onError: (error) => {
       console.log('계획 주문 전환 실패', error);
-      alert('계획 주문 전환에 실패했습니다.');
+      toast.success('계획 주문 전환에 실패했습니다.');
     },
   });
 
   // 계획 주문 전환 실행
   const handleConvertToPlannedOrder = () => {
     if (selectedRequirements.length === 0) {
-      alert('전환할 항목을 선택해주세요.');
+      toast.success('전환할 항목을 선택해주세요.');
       return;
     }
 

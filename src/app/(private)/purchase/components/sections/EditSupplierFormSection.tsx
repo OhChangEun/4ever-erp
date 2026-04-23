@@ -1,5 +1,6 @@
 import { SupplierResponse, SupplierInfo } from '@/app/(private)/purchase/types/SupplierType';
 import { useState } from 'react';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface EditSupplierProps {
   supplier: SupplierResponse;
@@ -21,6 +22,7 @@ export default function EditSupplierFormSection({
   onSave,
 }: EditSupplierProps) {
   const [form, setForm] = useState<SupplierResponse>(supplier);
+  const toast = useToast();
 
   const handleSupplierInfoChange = (field: keyof SupplierInfo, value: string | number) => {
     const updated = {
@@ -46,11 +48,11 @@ export default function EditSupplierFormSection({
       !supplierInfo.supplierBaseAddress ||
       !supplierInfo.deliveryLeadTime
     ) {
-      alert('필수 항목을 입력해주세요');
+      toast.warning('필수 항목을 입력해주세요');
       return;
     }
     onSave();
-    alert('공급업체 정보가 수정되었습니다.');
+    toast.success('공급업체 정보가 수정되었습니다.');
   };
 
   return (

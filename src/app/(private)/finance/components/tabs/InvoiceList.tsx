@@ -22,6 +22,7 @@ import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const InvoiceList = () => {
   const searchParams = useSearchParams();
@@ -84,6 +85,7 @@ const InvoiceList = () => {
   type InvoiceItem = (typeof invoices)[0];
 
   const { openModal } = useModal();
+  const toast = useToast();
   const mutationFn =
     role === 'SUPPLIER_ADMIN'
       ? () => postSupplierApInvoice(selectedInvoiceId)
@@ -94,10 +96,10 @@ const InvoiceList = () => {
   const { mutate: sendReq } = useMutation({
     mutationFn: mutationFn,
     onSuccess: (data) => {
-      alert(`${data.message}`);
+      toast.success(data.message);
     },
-    onError: (error) => {
-      alert(` 등록 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('등록 중 오류가 발생했습니다.');
     },
     onSettled: () => {
       const key = currentTab === 'sales' ? 'salesInvoiceList' : 'purchaseInvoiceList';

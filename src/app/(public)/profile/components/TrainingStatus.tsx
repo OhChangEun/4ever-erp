@@ -10,9 +10,11 @@ import {
   postTraining,
 } from '../profile.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const TrainingStatus = () => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('progress');
   const getTrainingCategoryText = (status: string) => {
     switch (status) {
@@ -40,11 +42,11 @@ const TrainingStatus = () => {
 
   const { mutate: registerTraining } = useMutation({
     mutationFn: postTraining,
-    onSuccess: (data) => {
-      alert('교육 신청이 완료되었습니다.');
+    onSuccess: () => {
+      toast.success('교육 신청이 완료되었습니다.');
     },
-    onError: (error) => {
-      alert(`교육 신청 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('교육 신청 중 오류가 발생했습니다.');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['training'] });

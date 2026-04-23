@@ -12,6 +12,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchDeptMemberDropdown, patchDepartments } from '@/app/(private)/hrm/api/hrm.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;
@@ -19,6 +20,7 @@ interface DepartmentEditModalProps extends ModalProps {
 
 export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   const { removeAllModals } = useModal();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // 선택된 부서장 상태
@@ -39,11 +41,11 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
     onSuccess: () => {
       // 성공 시 캐시 갱신
       queryClient.invalidateQueries({ queryKey: ['departmentsList'] });
-      alert('부서 정보가 수정되었습니다.');
+      toast.success('부서 정보가 수정되었습니다.');
       removeAllModals();
     },
     onError: (error) => {
-      alert('수정 중 오류가 발생했습니다.');
+      toast.error('수정 중 오류가 발생했습니다.');
       console.error(error);
     },
   });

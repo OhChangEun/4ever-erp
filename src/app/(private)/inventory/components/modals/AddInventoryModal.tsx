@@ -13,9 +13,11 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { InventoryResponse } from '../../types/InventoryListType';
 import { Page } from '@/app/types/Page';
 import { ModalProps } from '@/app/components/common/modal/types';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [selectedItem, setSelectedItem] = useState<AddInventoryItemsToggleResponse | null>(null);
 
   const [formData, setFormData] = useState<AddInventoryItemsRequest>({
@@ -106,15 +108,15 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
       return { previousData };
     },
 
-    onError: (error, _newMaterial, context) => {
+    onError: (_error, _newMaterial, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['inventoryList'], context.previousData);
       }
-      alert(`원자재 등록 중 오류가 발생했습니다. ${error}`);
+      toast.error('원자재 등록 중 오류가 발생했습니다.');
     },
 
     onSuccess: () => {
-      alert('원자재가 성공적으로 등록되었습니다.');
+      toast.success('원자재가 성공적으로 등록되었습니다.');
       onClose();
     },
 

@@ -15,6 +15,7 @@ import {
 } from '@/app/(private)/purchase/types/PurchaseApiRequestType';
 import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function PurchaseRequestModal({ onClose }: ModalProps) {
   const [requestItems, setRequestItems] = useState<PurchaseRequestItem[]>([
@@ -30,12 +31,13 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
       note: '',
     },
   ]);
+  const toast = useToast();
 
   const { mutate: submitPurchaseRequest, isPending } = useMutation({
     mutationFn: (data: PurchaseRequestBody) => createPurchaseRequest(data),
     onSuccess: (data) => {
       console.log('구매 요청 성공: ', data);
-      alert(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
+      toast.success(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
       onClose();
       setRequestItems([
         {
@@ -53,7 +55,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
     },
     onError: (error) => {
       console.log(`구매 요청 중 오류 발생: ${error}`);
-      alert('구매 요청 중 오류가 발생했습니다.');
+      toast.error('구매 요청 중 오류가 발생했습니다.');
     },
   });
 
@@ -115,7 +117,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
     );
 
     if (invalidItems.length > 0) {
-      alert('모든 필수 항목을 입력해주세요.');
+      toast.warning('모든 필수 항목을 입력해주세요.');
       return;
     }
 

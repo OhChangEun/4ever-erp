@@ -7,6 +7,7 @@ import Input from '@/app/components/common/Input';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface SelectedItem {
   itemId: string;
@@ -58,18 +59,18 @@ export default function InventoryPurchaseRequestModal({
   };
 
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { mutate: registerStockPurchaseReq } = useMutation({
     mutationFn: (body: StockPurchaseRequestItem[]) => createStockPurchaseRequest({ items: body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainingList'] });
+      toast.success('발주 요청이 생성되었습니다.');
       onClose();
-      // console.log('발주 요청 데이터:', requestItems);
-      alert(`발주 요청이 생성되었습니다.`);
     },
     onError: (error) => {
       console.error('발주 요청 실패:', error);
-      alert('발주 요청 중 오류가 발생했습니다.');
+      toast.error('발주 요청 중 오류가 발생했습니다.');
     },
   });
 
@@ -83,7 +84,7 @@ export default function InventoryPurchaseRequestModal({
       }));
 
     if (requestItems.length === 0) {
-      alert('발주 수량을 입력해주세요.');
+      toast.warning('발주 수량을 입력해주세요.');
       return;
     }
 

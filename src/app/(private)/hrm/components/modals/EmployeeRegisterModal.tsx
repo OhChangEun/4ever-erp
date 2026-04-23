@@ -15,6 +15,7 @@ import {
 } from '@/app/(private)/hrm/api/hrm.api';
 import { EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -36,6 +37,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
     fetchDepartmentsDropdown,
     'include',
   );
+  const toast = useToast();
 
   const { data: positionData, isLoading: isPositionLoading } = useQuery({
     queryKey: ['positionsDropdown', selectedDepartment],
@@ -47,7 +49,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const { mutate: registerEmployee, isPending: isRegistering } = useMutation({
     mutationFn: (body: EmployeeRegisterRequest) => postEmployeeRegister(body),
     onSuccess: () => {
-      alert('회원 등록 성공');
+      toast.success('회원 등록 성공');
       setFormData({
         name: '',
         departmentId: '',
@@ -65,7 +67,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
     },
     onError: (error) => {
       console.log('회원 등록 실패: ', error);
-      alert('회원 등록에 실패했습니다.');
+      toast.error('회원 등록에 실패했습니다.');
     },
   });
 

@@ -10,6 +10,7 @@ import { formatDateTime } from '@/app/utils/date';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import axios from 'axios';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const BomTreeContainer = dynamic(() => import('../../BomTreeContainer'), {
   ssr: false,
@@ -26,6 +27,7 @@ interface BomDetailModalProps extends ModalProps {
 
 export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [showConflictModal, setShowConflictModal] = useState(false);
 
   const {
@@ -55,7 +57,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
         // 409 Conflict → 다른 사용자가 먼저 수정한 경우
         setShowConflictModal(true);
       } else {
-        alert('BOM 수정 중 오류가 발생했습니다.');
+        toast.error('BOM 수정 중 오류가 발생했습니다.');
       }
     },
   });
@@ -64,7 +66,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   const { mutate: triggerConflict, isPending: isTriggering } = useMutation({
     mutationFn: () => simulateBomConflict(bomId),
     onSuccess: (data) => {
-      alert(data.message);
+      toast.info(data.message);
     },
   });
 

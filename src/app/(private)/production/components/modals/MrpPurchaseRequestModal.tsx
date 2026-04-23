@@ -7,6 +7,7 @@ import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchas
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
 import { ItemResponse } from '@/app/(private)/inventory/types/ItemListType';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface ItemWithQuantity extends ItemResponse {
   quantity: number;
@@ -29,6 +30,7 @@ export default function MrpPurchaseRequestModal({
   const [isLoading, setIsLoading] = useState(true);
 
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   // 아이템 상세 정보 조회
   const { mutate: fetchItemsInfo } = useMutation({
@@ -56,7 +58,7 @@ export default function MrpPurchaseRequestModal({
     },
     onError: (error) => {
       console.error('자재 정보 조회 실패:', error);
-      alert('자재 정보를 불러오는데 실패했습니다.');
+      toast.error('자재 정보를 불러오는데 실패했습니다.');
       setIsLoading(false);
     },
   });
@@ -70,7 +72,7 @@ export default function MrpPurchaseRequestModal({
   const { mutate: createStockPurchase, isPending } = useMutation({
     mutationFn: (data: StockPurchaseRequestBody) => createStockPurchaseRequest(data),
     onSuccess: () => {
-      alert('자재 구매 요청이 완료되었습니다.');
+      toast.success('자재 구매 요청이 완료되었습니다.');
 
       queryClient.invalidateQueries({ queryKey: ['mrpPlannedOrders'] });
 
@@ -79,7 +81,7 @@ export default function MrpPurchaseRequestModal({
     },
     onError: (error) => {
       console.error('자재 구매 요청 실패:', error);
-      alert('자재 구매 요청에 실패했습니다.');
+      toast.error('자재 구매 요청에 실패했습니다.');
     },
   });
 

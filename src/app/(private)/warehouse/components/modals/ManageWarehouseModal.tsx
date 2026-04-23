@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from 'react';
 import { getStatusText } from '@/lib/status.constants';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { useToast } from '@/app/components/common/toast/useToast';
 import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';
 import { ApiResponseNoData } from '@/app/types/api';
 import { WarehouseListResponse } from '../../types/WarehouseListType';
@@ -35,6 +36,7 @@ interface ManageWarehouseRequest {
 
 const ManageWarehouseModal = ({ onClose, $selectedWarehouseId }: ManageWarehouseModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [formData, setFormData] = useState<ManageWarehouseRequest>({
     warehouseName: '',
     warehouseNumber: '',
@@ -139,13 +141,13 @@ const ManageWarehouseModal = ({ onClose, $selectedWarehouseId }: ManageWarehouse
       return { previousData };
     },
 
-    onError: (error, _variables, context) => {
+    onError: (_error, _variables, context) => {
       if (context?.previousData) queryClient.setQueryData(['warehouseList'], context.previousData);
-      alert(`창고 수정 중 오류가 발생했습니다. ${error}`);
+      toast.error('창고 수정 중 오류가 발생했습니다.');
     },
 
-    onSuccess: (data) => {
-      alert(`창고 수정이 완료되었습니다.`);
+    onSuccess: () => {
+      toast.success('창고 수정이 완료되었습니다.');
       onClose();
     },
 

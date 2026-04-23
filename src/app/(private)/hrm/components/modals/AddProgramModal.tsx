@@ -6,8 +6,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FormEvent, useMemo, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
+  const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState(''); // 부서
 
   const {
@@ -26,11 +28,11 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['programList'] });
       onClose();
-      alert('교육 프로그램이 추가되었습니다.');
+      toast.success('교육 프로그램이 추가되었습니다.');
     },
     onError: (error) => {
-      console.log('교육 프로그램 추가 실패', error);
-      alert('교육 프로그램 추가에 실패했습니다.');
+      console.error('교육 프로그램 추가 실패', error);
+      toast.error('교육 프로그램 추가에 실패했습니다.');
     },
   });
 
@@ -45,18 +47,17 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
 
     // 필수 체크
     if (!selectedCategory) {
-      // 추가
-      alert('카테고리를 선택해주세요.');
+      toast.warning('카테고리를 선택해주세요.');
       return;
     }
 
     if (departments.length === 0) {
-      alert('대상 부서를 최소 1개 이상 선택해주세요.');
+      toast.warning('대상 부서를 최소 1개 이상 선택해주세요.');
       return;
     }
 
     if (positions.length === 0) {
-      alert('대상 직급을 최소 1개 이상 선택해주세요.');
+      toast.warning('대상 직급을 최소 1개 이상 선택해주세요.');
       return;
     }
 

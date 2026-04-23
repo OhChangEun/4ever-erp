@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { putTimeRecord } from '@/app/(private)/hrm/api/hrm.api';
 import { FormEvent } from 'react';
 import { formatTime } from '@/app/utils/date';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface AttendanceEditModalProps extends ModalProps {
   attendance: AttendanceListData;
@@ -15,17 +16,18 @@ interface AttendanceEditModalProps extends ModalProps {
 
 export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModalProps) {
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const mutation = useMutation({
     mutationFn: (params: UpdateTimeRecord) => putTimeRecord(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendanceList'] });
       onClose();
-      alert('출결 정보가 수정되었습니다.');
+      toast.success('출결 정보가 수정되었습니다.');
     },
     onError: (error) => {
       console.error('출결 정보 수정 실패', error);
-      alert('출결 정보 수정에 실패했습니다.');
+      toast.error('출결 정보 수정에 실패했습니다.');
     },
   });
 

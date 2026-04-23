@@ -23,9 +23,11 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
+  const toast = useToast();
 
   // 가용 재고 상태 드롭다운
   const { options: availableStatusOptions } = useDropdown(
@@ -99,28 +101,28 @@ export default function QuotationTab() {
           onConfirm: handleConfirmMps,
         });
       } else {
-        alert('시뮬레이션 결과가 없습니다.');
+        toast.info('시뮬레이션 결과가 없습니다.');
       }
 
       queryClient.invalidateQueries({ queryKey: ['quotationList'] });
     },
     onError: (error) => {
       console.error('시뮬레이션 실패:', error);
-      alert('시뮬레이션 결과를 가져오는데 실패했습니다.');
+      toast.error('시뮬레이션 결과를 가져오는데 실패했습니다.');
     },
   });
 
   const { mutate: confirmQuotations } = useMutation({
     mutationFn: (params: string[]) => fetchQuotationConfirm(params),
     onSuccess: () => {
-      alert('제안납기를 확정하였습니다.');
+      toast.success('제안납기를 확정하였습니다.');
       removeAllModals(); // 모든 탭 닫기
 
       queryClient.invalidateQueries({ queryKey: ['quotationList'] });
     },
     onError: (error) => {
       console.error('제안납기 확정 실패:', error);
-      alert('제안납기를 확정하는데 실패했습니다.');
+      toast.success('제안납기를 확정하는데 실패했습니다.');
     },
   });
 
@@ -133,7 +135,7 @@ export default function QuotationTab() {
   // --- 이벤트 핸들러 ---
   const handleSimulation = () => {
     if (selectedQuotes.length === 0) {
-      alert('시뮬레이션을 실행할 견적을 선택해주세요');
+      toast.warning('시뮬레이션을 실행할 견적을 선택해주세요');
       return;
     }
     // API 데이터에서 선택된 견적 중 'NOT_CHECKED'인지 확인
@@ -143,7 +145,7 @@ export default function QuotationTab() {
     });
 
     if (unCheckedQuotes.length === 0) {
-      alert("가용 재고가 '미확인'인 견적을 선택해주세요.");
+      toast.warning("가용 재고가 '미확인'인 견적을 선택해주세요.");
       return;
     }
 

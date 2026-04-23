@@ -10,9 +10,11 @@ import {
   patchCheckout,
   postVacation,
 } from '../profile.api';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function AttendanceRecord() {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [currentStatus, setCurrentStatus] = useState('');
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveForm, setLeaveForm] = useState<RequestVacation>({
@@ -38,24 +40,22 @@ export default function AttendanceRecord() {
 
   const { mutate: sendVacation } = useMutation({
     mutationFn: postVacation,
-    onSuccess: (data) => {
-      alert(`${data.status} : ${data.message}
-        `);
-      alert('휴가 신청이 접수되었습니다.');
+    onSuccess: () => {
+      toast.success('휴가 신청이 접수되었습니다.');
     },
-    onError: (error) => {
-      alert(` 휴가 신청 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('휴가 신청 중 오류가 발생했습니다.');
     },
   });
 
   const { mutate: checkIn } = useMutation({
     mutationFn: patchCheckIn,
-    onSuccess: (data) => {
+    onSuccess: () => {
       setCurrentStatus('출근');
-      alert('출근 처리가 완료되었습니다.');
+      toast.success('출근 처리가 완료되었습니다.');
     },
-    onError: (error) => {
-      alert(`출근 처리 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('출근 처리 중 오류가 발생했습니다.');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['todayAttendance'] });
@@ -64,12 +64,12 @@ export default function AttendanceRecord() {
 
   const { mutate: checkOut } = useMutation({
     mutationFn: patchCheckout,
-    onSuccess: (data) => {
+    onSuccess: () => {
       setCurrentStatus('퇴근');
-      alert('퇴근 처리가 완료되었습니다.');
+      toast.success('퇴근 처리가 완료되었습니다.');
     },
-    onError: (error) => {
-      alert(`퇴근 처리 중 오류가 발생했습니다. ${error}`);
+    onError: () => {
+      toast.error('퇴근 처리 중 오류가 발생했습니다.');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['todayAttendance'] });

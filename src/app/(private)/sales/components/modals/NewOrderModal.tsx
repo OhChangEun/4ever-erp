@@ -13,6 +13,7 @@ import { getItemInfoForNewQuote, postNewQuote } from '../../sales.api';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
 import Button from '@/app/components/common/Button';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const NewOrderModal = ({ onClose }: ModalProps) => {
   const [newOrderItems, setNewOrderItems] = useState<NewOrderRequest>({
@@ -25,6 +26,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
     ],
     note: '',
   });
+  const toast = useToast();
 
   const addOrderItem = () => {
     setNewOrderItems((prev) => ({
@@ -89,7 +91,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addOrder(newOrderItems);
-    alert('신규 견적 요청이 등록되었습니다.');
+    toast.success('신규 견적 요청이 등록되었습니다.');
 
     setNewOrderItems({
       items: [
@@ -133,7 +135,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
       console.log(data);
     },
     onError: (error) => {
-      alert(` 견적 요청 중 오류가 발생했습니다. ${error}`);
+      toast.error(` 견적 요청 중 오류가 발생했습니다. ${error}`);
     },
   });
 

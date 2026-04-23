@@ -8,6 +8,7 @@ import { fetchProgramStatusDropdown, patchProgram } from '@/app/(private)/hrm/ap
 import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface EditProgramModalProps extends ModalProps {
   programId: string;
@@ -30,6 +31,7 @@ export default function EditProgramModal({
     queryFn: fetchProgramStatusDropdown,
     staleTime: Infinity,
   });
+  const toast = useToast();
 
   const queryClient = useQueryClient();
 
@@ -41,11 +43,11 @@ export default function EditProgramModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['programList'] });
       onClose();
-      alert('교육 정보가 수정되었습니다.');
+      toast.success('교육 정보가 수정되었습니다.');
     },
     onError: (error) => {
       console.error('교육 정보 수정 실패', error);
-      alert('교육 정보 수정에 실패했습니다.');
+      toast.error('교육 정보 수정에 실패했습니다.');
     },
   });
 
@@ -53,7 +55,7 @@ export default function EditProgramModal({
     e.preventDefault();
 
     if (!programName.trim()) {
-      alert('교육명을 입력해주세요.');
+      toast.warning('교육명을 입력해주세요.');
       return;
     }
 

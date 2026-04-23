@@ -13,10 +13,12 @@ import Table, { TableColumn } from '@/app/components/common/Table';
 import Dropdown from '@/app/components/common/Dropdown';
 import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
+import { useToast } from '@/app/components/common/toast/useToast';
 import InventoryPurchaseRequestModal from '../../inventory/components/modals/InventoryPurchaseRequestModal';
 
 export default function LowStockList() {
   const { openModal } = useModal();
+  const toast = useToast();
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -70,7 +72,7 @@ export default function LowStockList() {
 
   const handleBulkOrder = () => {
     if (selectedItems.length === 0) {
-      alert('발주할 품목을 선택해주세요.');
+      toast.warning('발주할 품목을 선택해주세요.');
       return;
     }
 

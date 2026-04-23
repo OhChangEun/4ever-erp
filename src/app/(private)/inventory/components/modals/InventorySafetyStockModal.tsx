@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { PatchSafetyStock } from '../../inventory.api';
+import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
 
 const InventorySafetyStockModal = ({
@@ -11,6 +12,7 @@ const InventorySafetyStockModal = ({
   $selectedStock,
 }: InventorySafetyStockModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [newSafetyStock, setNewSafetyStock] = useState<number>(0);
 
   const handleSubmit = (e: FormEvent) => {
@@ -60,15 +62,15 @@ const InventorySafetyStockModal = ({
       return { previousData };
     },
 
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['inventoryDetail', $selectedStock.itemId], context.previousData);
       }
-      alert(`등록 중 오류가 발생했습니다. ${err}`);
+      toast.error('안전재고 수정 중 오류가 발생했습니다.');
     },
 
-    onSuccess: (data) => {
-      alert(`${data.status} : ${data.message}`);
+    onSuccess: () => {
+      toast.success('안전재고가 수정되었습니다.');
       $setShowSafetyStockModal(false);
     },
 

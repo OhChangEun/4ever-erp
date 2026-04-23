@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalType';
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteModalProps) => {
   const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
@@ -33,15 +34,14 @@ const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteMo
     deliveryTerms: 'FOB 공장도',
     warranty: '1년',
   });
+  const toast = useToast();
 
   const handleNewQuoteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const quoteNumber = `QT-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000) + 1).padStart(3, '0')}`;
 
-    alert(
-      `신규 견적서가 성공적으로 작성되었습니다!\n견적번호: ${quoteNumber}\n고객: ${newQuoteData.customer}\n총 금액: ₩${newQuoteData.totalAmount.toLocaleString()}`,
-    );
+    toast.success(`견적번호 ${quoteNumber} 신규 견적서가 작성되었습니다.`);
 
     $setShowNewQuoteModal(false);
     setNewQuoteData({

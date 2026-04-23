@@ -12,9 +12,11 @@ import { Page } from '@/app/types/Page';
 import { WarehouseListResponse } from '../../types/WarehouseListType';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
     warehouseName: '',
     warehouseType: '',
@@ -89,15 +91,15 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       return { previousData };
     },
 
-    onError: (error, _newWarehouse, context) => {
+    onError: (_error, _newWarehouse, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(['warehouseList'], context.previousData);
       }
-      alert(`창고 등록 중 오류가 발생했습니다. ${error}`);
+      toast.error('창고 등록 중 오류가 발생했습니다.');
     },
 
-    onSuccess: (data) => {
-      alert(`창고 등록이 완료되었습니다.`);
+    onSuccess: () => {
+      toast.success('창고 등록이 완료되었습니다.');
       onClose();
     },
 

@@ -18,11 +18,13 @@ import {
 } from '../../sales.api';
 import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalProps) => {
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
   );
+  const toast = useToast();
 
   const handleInventoryCheck = () => {
     inventoryCheckReq(haveToCheckItems);
@@ -51,10 +53,10 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
   const { mutate: quotationConfirmReq } = useMutation({
     mutationFn: (id: string) => postQuotationConfirm(id),
     onSuccess: (data) => {
-      alert('검토 요청이 완료되었습니다.');
+      toast.success('검토 요청이 완료되었습니다.');
     },
     onError: (error) => {
-      alert(`검토 요청 중 오류가 발생했습니다. ${error}`);
+      toast.error(`검토 요청 중 오류가 발생했습니다. ${error}`);
     },
   });
 
@@ -64,18 +66,18 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
       setInventoryCheckResult(data);
     },
     onError: (error) => {
-      alert(`재고 확인 중 오류가 발생했습니다. ${error}`);
+      toast.error(`재고 확인 중 오류가 발생했습니다. ${error}`);
     },
   });
 
   const { mutate: delieveryProcessReq } = useMutation({
     mutationFn: (id: string) => postDeliveryProcess(id),
     onSuccess: (data) => {
-      alert(`${data.status} : ${quote?.quotationNumber}
+      toast.info(`${data.status} : ${quote?.quotationNumber}
           `);
     },
     onError: (error) => {
-      alert(`즉시 납품 처리 중 오류가 발생했습니다. ${error}`);
+      toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${error}`);
     },
   });
 

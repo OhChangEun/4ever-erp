@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect, useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { ModalProvider } from './components/common/modal/ModalProvider';
+import { ToastProvider } from './components/common/toast/ToastProvider';
 
 export default function Providers({
   children,
@@ -26,7 +27,9 @@ export default function Providers({
   return (
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={dehydratedState}>
-        <ModalProvider>{children}</ModalProvider>
+        <ToastProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </ToastProvider>
       </HydrationBoundary>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

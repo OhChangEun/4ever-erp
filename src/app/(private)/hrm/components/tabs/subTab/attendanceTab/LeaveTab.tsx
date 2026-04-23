@@ -17,10 +17,12 @@ import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 export default function LeaveTab() {
   // --- 모달 출력 ---
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
+  const toast = useToast();
 
   // 부서 드롭다운
   const { options: departmentsOptions } = useDropdown(
@@ -64,22 +66,22 @@ export default function LeaveTab() {
   const { mutate: approveLeave } = useMutation({
     mutationFn: (requestId: string) => postLeaveRelease(requestId),
     onSuccess: () => {
-      alert('승인이 완료되었습니다.');
+      toast.success('승인이 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['leaveList'], exact: false });
     },
     onError: (error) => {
-      alert(`휴가 승인 중 오류가 발생했습니다. ${error}`);
+      toast.error(`휴가 승인 중 오류가 발생했습니다. ${error}`);
     },
   });
 
   const { mutate: rejectLeave } = useMutation({
     mutationFn: (requestId: string) => postLeaveReject(requestId),
     onSuccess: () => {
-      alert('반료되었습니다.');
+      toast.info('반료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['leaveList'], exact: false });
     },
     onError: (error) => {
-      alert(`휴가 반려 중 오류가 발생했습니다. ${error}`);
+      toast.error(`휴가 반려 중 오류가 발생했습니다. ${error}`);
     },
   });
 

@@ -70,6 +70,7 @@
   --z-index-sidebar: 40; /* 사이드바 패널 */
   --z-index-overlay: 50; /* 인라인 오버레이 · 드롭다운 · 간이 모달 */
   --z-index-modal: 1000; /* Portal 전역 모달 (ModalContainer) */
+  --z-index-toast: 1100; /* 토스트 알림 (모달보다 위) */
   --z-index-popover: 9999; /* Floating UI 팝오버 (모달 위 드롭다운 · 캘린더) */
 }
 /* 

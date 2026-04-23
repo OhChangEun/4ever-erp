@@ -4,6 +4,7 @@ import { fetchPayRollDetail, postPayrollComplete } from '@/app/(private)/hrm/api
 import Button from '@/app/components/common/Button';
 import { PayRollCompleteRequestParams } from '../../types/HrmPayrollApiType';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { useToast } from '@/app/components/common/toast/useToast';
 
 interface PayrollDetailModalProps extends ModalProps {
   payrollId: string;
@@ -12,17 +13,18 @@ interface PayrollDetailModalProps extends ModalProps {
 
 export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const mutation = useMutation({
     mutationFn: (params: PayRollCompleteRequestParams) => postPayrollComplete(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payrollList'] });
       onClose();
-      alert('급여 지급 완료 처리되었습니다.');
+      toast.success('급여 지급 완료 처리되었습니다.');
     },
     onError: (error) => {
       console.log('급여 지급 처리 실패: ', error);
-      alert('급여 지급 처리에 실패했습니다.');
+      toast.error('급여 지급 처리에 실패했습니다.');
     },
   });
 

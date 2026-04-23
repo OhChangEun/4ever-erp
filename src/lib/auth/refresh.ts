@@ -31,8 +31,6 @@ export async function trySilentRefresh() {
 
     const { access_token, expires_in } = res.data;
 
-    alert(res.data.accessToken);
-
     persistAccessToken(access_token, expires_in);
   } catch (error) {
     startAuthorization('/');
