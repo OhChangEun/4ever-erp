@@ -45,13 +45,13 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   const { options: supplierCategoryOptions } = useDropdown(
     'supplierCategoryDropdown',
     fetchSupplierCategoryDropdown,
-    'exclude',
+    'without-all',
   );
   // 공급업체 상태 드롭다운
   const { options: supplierStatusOptions } = useDropdown(
     'supplierStatusDropdown',
     fetchSupplierStatusDropdown,
-    'exclude',
+    'without-all',
   );
 
   const [supplierInfo, setSupplierInfo] = useState({

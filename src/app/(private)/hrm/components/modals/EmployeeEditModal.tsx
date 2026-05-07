@@ -26,7 +26,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
 
   const {

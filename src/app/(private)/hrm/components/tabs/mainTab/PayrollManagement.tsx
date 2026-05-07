@@ -30,13 +30,13 @@ export default function PayrollManagement() {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
   // 상태 드롭다운
   const { options: statusOptions } = useDropdown(
     'payrollStatusDropdown',
     fetchPayrollStatusDropdown,
-    'include',
+    'with-all',
   );
 
   // --- 선택된 드롭다운 상태 ---

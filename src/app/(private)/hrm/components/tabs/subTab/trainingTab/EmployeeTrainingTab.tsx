@@ -26,7 +26,7 @@ export default function EmployeeTrainingTab() {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
 
   // --- 드롭다운 ---

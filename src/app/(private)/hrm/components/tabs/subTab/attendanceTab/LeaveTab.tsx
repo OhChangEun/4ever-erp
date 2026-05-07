@@ -28,7 +28,7 @@ export default function LeaveTab() {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
 
   // --- 드롭다운 ---

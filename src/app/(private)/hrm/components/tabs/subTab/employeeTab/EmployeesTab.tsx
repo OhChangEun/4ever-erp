@@ -35,7 +35,7 @@ export default function EmployeesTab() {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
 
   const employeesQueryParams = useMemo(

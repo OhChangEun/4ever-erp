@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { useMemo } from 'react';
 
-type AllOptionMode = 'include' | 'exclude' | 'as-is';
+type AllOptionMode = 'with-all' | 'without-all' | 'as-is';
+
+const ALL_OPTION: KeyValueItem = { key: '', value: '전체' };
 
 export const useDropdown = (
   key: string,
@@ -15,29 +17,19 @@ export const useDropdown = (
     staleTime: Infinity,
   });
 
-  const filteredData = useMemo(() => {
+  const options = useMemo(() => {
     if (!data) return [];
 
-    const normalized = Array.isArray(data) ? data : [];
-    let list = [...normalized];
-
     switch (mode) {
-      case 'include':
-        const hasAll = list.some((item) => item.value === 'value');
-        if (!hasAll) {
-          list = [{ key: '', value: '전체' }, ...list];
-        }
-        break;
-      case 'exclude':
-        list = list.filter((item) => item.value !== 'ALL');
-        break;
-      case 'as-is':
+      case 'with-all':
+        const hasAll = data.some((item) => item.value === ALL_OPTION.value);
+        return hasAll ? data : [ALL_OPTION, ...data];
+      case 'without-all':
+        return data.filter((item) => item.value !== ALL_OPTION.value);
       default:
-        break;
+        return data;
     }
-
-    return list;
   }, [data, mode]);
 
-  return { options: filteredData ?? [], isLoading, isError };
+  return { options, isLoading, isError };
 };

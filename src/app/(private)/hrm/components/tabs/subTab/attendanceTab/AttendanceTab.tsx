@@ -35,7 +35,7 @@ export default function AttendanceTab() {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'include',
+    'with-all',
   );
 
   const {
