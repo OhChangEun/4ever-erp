@@ -32,4 +32,5 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
 
-# 
+*.tsbuildinfo
+.DS_Store
