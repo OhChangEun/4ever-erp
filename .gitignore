@@ -11,10 +11,6 @@ dist/
 .tsbuildinfo
 out/
 
-# 패키지 매니저
-package-lock.json
-
-
 # 환경 변수
 
 .env
