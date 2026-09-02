@@ -1,0 +1,211 @@
+{
+  "scripts/prepare.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/finance/components/modals/InvoiceDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/finance/components/tabs/InvoiceList.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/modals/AddInventoryModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/modals/InventoryDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/modals/InventoryMoveModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/modals/ShippingDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/tabs/ReceivingManagementList.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/inventory/components/tabs/ShippingManagementList.tsx": {
+    "prettier/prettier": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/layout.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/production/BomTreeContainer.tsx": {
+    "prettier/prettier": {
+      "count": 9
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/production/api/production.api.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/production/components/modals/BomDetailModal.tsx": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/app/(private)/production/constants.ts": {
+    "prettier/prettier": {
+      "count": 2
+    }
+  },
+  "src/app/(private)/purchase/components/modals/PurchaseOrderDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/purchase/components/modals/PurchaseRequestDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/purchase/components/modals/SupplierFormModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/purchase/constants.ts": {
+    "prettier/prettier": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/sales/components/modals/CustomerDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/sales/components/modals/CustomerEditModal.tsx": {
+    "react-hooks/immutability": {
+      "count": 2
+    }
+  },
+  "src/app/(private)/sales/components/modals/NewOrderModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/sales/components/modals/QuoteDetailModal.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/sales/components/modals/QuoteReviewModal.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/sales/components/modals/SalesOrderDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/warehouse/components/modals/AddWarehouseModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/warehouse/components/modals/ManageWarehouseModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "src/app/(private)/warehouse/components/modals/WarehouseDetailModal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/warehouse/components/warehouseVisualizer/components/FreeCameraControls.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/app/(private)/warehouse/components/warehouseVisualizer/components/WarehouseVisualizer.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "src/app/(public)/profile/components/AttendanceRecord.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(public)/profile/components/EmploymentInfo.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/(public)/profile/layout.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/CalendarButton.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/Dropdown.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/DropdownInputListModal.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/DropdownInputModal.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/modal/ModalProvider.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/components/common/toast/ToastProvider.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/app/components/header/Notification/NoificationDropdown.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "src/mocks/handlers/sales.handlers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 20
+    }
+  }
+}
