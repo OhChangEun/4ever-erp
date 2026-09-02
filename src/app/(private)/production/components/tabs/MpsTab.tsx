@@ -136,9 +136,9 @@ export default function MpsTab() {
       </div>
 
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="MPS 데이터를 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="MPS 데이터를 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="데이터를 불러오는 데 실패했습니다." />
+        <TableStatusBox type="error" message="데이터를 불러오는 데 실패했습니다." />
       ) : (
         <Table
           columns={columns}

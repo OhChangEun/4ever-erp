@@ -78,7 +78,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
   //     alert(`고객이 성공적으로 등록되었습니다.
   //       `);
 
-  //     $onClose();
+  //     onClose();
   //   },
   //   onError: (error) => {
   //     alert(`고객 등록 중 오류가 발생했습니다. ${error}`);

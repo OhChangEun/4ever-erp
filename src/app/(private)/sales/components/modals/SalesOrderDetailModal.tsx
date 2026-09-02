@@ -10,15 +10,15 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
-const SalesOrderDetailModal = ({ onClose, $selectedSalesOrderId }: SalesOrderDetailProps) => {
+const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDetailProps) => {
   const {
     data: orderDetailRes,
     isLoading,
     isError,
   } = useQuery<OrderDetail>({
-    queryKey: ['orderDetail', $selectedSalesOrderId],
-    queryFn: () => getOrderDetail($selectedSalesOrderId),
-    enabled: !!$selectedSalesOrderId,
+    queryKey: ['orderDetail', selectedSalesOrderId],
+    queryFn: () => getOrderDetail(selectedSalesOrderId),
+    enabled: !!selectedSalesOrderId,
   });
   const [errorModal, setErrorModal] = useState(false);
   useEffect(() => {
@@ -26,14 +26,14 @@ const SalesOrderDetailModal = ({ onClose, $selectedSalesOrderId }: SalesOrderDet
     // onClose();
   }, [isError]);
 
-  if (isLoading) return <ModalStatusBox $type="loading" $message="주문서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message="주문서를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="주문 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="주문 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -66,7 +66,7 @@ const SalesOrderDetailModal = ({ onClose, $selectedSalesOrderId }: SalesOrderDet
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500">상태</label>
-                    <StatusLabel $statusCode={order?.statusCode as string} />
+                    <StatusLabel statusCode={order?.statusCode as string} />
                   </div>
                 </div>
               </div>

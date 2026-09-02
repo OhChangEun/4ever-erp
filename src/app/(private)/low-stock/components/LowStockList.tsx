@@ -136,7 +136,7 @@ export default function LowStockList() {
       label: '카테고리',
       render: (_, lowStock) => (
         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-          <StatusLabel $statusCode={lowStock.category} />
+          <StatusLabel statusCode={lowStock.category} />
         </span>
       ),
     },
@@ -185,7 +185,7 @@ export default function LowStockList() {
     {
       key: 'statusCode',
       label: '상태',
-      render: (_, lowStock) => <StatusLabel $statusCode={lowStock.statusCode} />,
+      render: (_, lowStock) => <StatusLabel statusCode={lowStock.statusCode} />,
     },
   ];
 
@@ -222,11 +222,11 @@ export default function LowStockList() {
 
         <div className="overflow-x-auto">
           {isLoading ? (
-            <TableStatusBox $type="loading" $message="재고 부족 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message="재고 부족 목록을 불러오는 중입니다..." />
           ) : isError ? (
             <TableStatusBox
-              $type="error"
-              $message="재고 부족 목록을 불러오는 중 오류가 발생했습니다."
+              type="error"
+              message="재고 부족 목록을 불러오는 중 오류가 발생했습니다."
             />
           ) : (
             <Table

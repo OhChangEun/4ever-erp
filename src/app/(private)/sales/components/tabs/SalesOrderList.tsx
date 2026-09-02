@@ -64,7 +64,7 @@ const SalesOrderList = () => {
     openModal(SalesOrderDetailModal, {
       width: '900px',
       title: `주문 상세 정보`,
-      $selectedSalesOrderId: id,
+      selectedSalesOrderId: id,
     });
   };
 
@@ -106,7 +106,7 @@ const SalesOrderList = () => {
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, order) => <StatusLabel $statusCode={order.statusCode} />,
+      render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',
@@ -157,9 +157,9 @@ const SalesOrderList = () => {
 
       {/* 테이블 */}
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="주문 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="주문 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="주문 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="주문 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

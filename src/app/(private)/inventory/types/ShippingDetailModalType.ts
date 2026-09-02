@@ -1,8 +1,8 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface ShippingDetailModalProps extends ModalProps {
-  $selectedSubTab: string;
-  $selectedOrderId: string;
+  selectedSubTab: string;
+  selectedOrderId: string;
 }
 
 export interface ShippingDetailResponse {

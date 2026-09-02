@@ -119,9 +119,9 @@ const ReceivingManagementList = () => {
 
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {isReceivedLoading || isPendingLoading ? (
-            <TableStatusBox $type="loading" $message="입고 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message="입고 목록을 불러오는 중입니다..." />
           ) : isReceivedError || isPendingError ? (
-            <TableStatusBox $type="error" $message="입고 목록을 불러오는 중 오류가 발생했습니다." />
+            <TableStatusBox type="error" message="입고 목록을 불러오는 중 오류가 발생했습니다." />
           ) : (
             <Table
               columns={[
@@ -147,7 +147,7 @@ const ReceivingManagementList = () => {
                   key: 'statusCode',
                   label: '상태',
                   align: 'center',
-                  render: (_, row) => <StatusLabel $statusCode={row.statusCode} />,
+                  render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
               ]}
               data={currentData}

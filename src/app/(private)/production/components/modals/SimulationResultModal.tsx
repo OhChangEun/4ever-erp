@@ -71,7 +71,7 @@ export default function SimulationResultModal({
                 label: '상태',
                 align: 'center',
                 render: (_, row: QuotationSimulationData) => (
-                  <StatusLabel $statusCode={row.simulation.status} />
+                  <StatusLabel statusCode={row.simulation.status} />
                 ),
               },
               {

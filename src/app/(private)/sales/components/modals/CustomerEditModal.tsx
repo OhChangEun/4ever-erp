@@ -12,16 +12,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchCustomer } from '../../sales.api';
 import { useToast } from '@/app/components/common/toast/useToast';
 
-const CustomerEditModal = ({
-  onClose,
-  $editFormData,
-  $setEditFormData,
-}: CustomerEditModalProps) => {
+const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerEditModalProps) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   useEffect(() => {
-    console.log($editFormData);
-  }, [$editFormData]);
+    console.log(editFormData);
+  }, [editFormData]);
 
   let updatedCustomer = {
     customerName: '',
@@ -42,29 +38,29 @@ const CustomerEditModal = ({
 
   const handleEditSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!$editFormData) return;
+    if (!editFormData) return;
 
     updatedCustomer = {
-      customerName: $editFormData.customerName,
-      ceoName: $editFormData.ceoName,
-      businessNumber: $editFormData.businessNumber,
-      customerPhone: $editFormData.customerPhone,
-      customerEmail: $editFormData.customerEmail,
-      baseAddress: $editFormData.baseAddress,
-      detailAddress: $editFormData.detailAddress,
-      statusCode: $editFormData.statusCode,
-      note: $editFormData.note,
+      customerName: editFormData.customerName,
+      ceoName: editFormData.ceoName,
+      businessNumber: editFormData.businessNumber,
+      customerPhone: editFormData.customerPhone,
+      customerEmail: editFormData.customerEmail,
+      baseAddress: editFormData.baseAddress,
+      detailAddress: editFormData.detailAddress,
+      statusCode: editFormData.statusCode,
+      note: editFormData.note,
       manager: {
-        name: $editFormData.manager.managerName,
-        mobile: $editFormData.manager.managerPhone,
-        email: $editFormData.manager.managerEmail,
+        name: editFormData.manager.managerName,
+        mobile: editFormData.manager.managerPhone,
+        email: editFormData.manager.managerEmail,
       },
     };
 
-    editCustomer({ id: $editFormData.customerId, data: updatedCustomer });
+    editCustomer({ id: editFormData.customerId, data: updatedCustomer });
     // alert(`고객 정보가 성공적으로 수정되었습니다.\n\n고객명: ${updatedCustomer.name}`);
     onClose();
-    $setEditFormData(null);
+    setEditFormData(null);
   };
 
   // 낙관적 업데이트 x
@@ -76,7 +72,7 @@ const CustomerEditModal = ({
   //   mutationFn: ({ id, data }) => putCustomer(id, data),
   //   onSuccess: (data) => {
   //     alert(`고객 정보가 성공적으로 수정되었습니다.`);
-  //     $onClose();
+  //     onClose();
   //   },
   //   onError: (error) => {
   //     alert(`고객 수정 중 오류가 발생했습니다.`);
@@ -118,7 +114,7 @@ const CustomerEditModal = ({
     field: K,
     value: CustomerDetail[K],
   ) => {
-    $setEditFormData((prev: CustomerDetail | null) => {
+    setEditFormData((prev: CustomerDetail | null) => {
       if (!prev) return null;
       return { ...prev, [field]: value };
     });
@@ -128,7 +124,7 @@ const CustomerEditModal = ({
     field: K,
     value: CustomerDetail['manager'][K],
   ) => {
-    $setEditFormData((prev: CustomerDetail | null) => {
+    setEditFormData((prev: CustomerDetail | null) => {
       if (!prev) return null;
       return {
         ...prev,
@@ -140,7 +136,7 @@ const CustomerEditModal = ({
     });
   };
 
-  if (!$editFormData) {
+  if (!editFormData) {
     return null;
   }
 
@@ -154,7 +150,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">고객번호</label>
               <input
                 type="text"
-                value={$editFormData.customerNumber}
+                value={editFormData.customerNumber}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
               />
@@ -164,7 +160,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">고객명</label>
               <input
                 type="text"
-                value={$editFormData.customerName}
+                value={editFormData.customerName}
                 onChange={(e) => updateEditFormData('customerName', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
@@ -175,7 +171,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">대표이사</label>
               <input
                 type="text"
-                value={$editFormData.ceoName}
+                value={editFormData.ceoName}
                 onChange={(e) => updateEditFormData('ceoName', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
@@ -186,7 +182,7 @@ const CustomerEditModal = ({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
               <select
-                value={$editFormData.statusCode}
+                value={editFormData.statusCode}
                 onChange={(e) => updateEditFormData('statusCode', e.target.value as CustomerStatus)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-8"
               >
@@ -199,7 +195,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <input
                 type="tel"
-                value={$editFormData.customerPhone}
+                value={editFormData.customerPhone}
                 onChange={(e) =>
                   updateEditFormData('customerPhone', e.target.value.replace(/[^0-9\-]/g, ''))
                 }
@@ -210,7 +206,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">사업자번호</label>
               <input
                 type="text"
-                value={$editFormData.businessNumber}
+                value={editFormData.businessNumber}
                 onChange={(e) =>
                   updateEditFormData('businessNumber', e.target.value.replace(/[^0-9\-]/g, ''))
                 }
@@ -228,7 +224,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">기본 주소</label>
               <input
                 type="text"
-                value={$editFormData.baseAddress}
+                value={editFormData.baseAddress}
                 onChange={(e) => updateEditFormData('baseAddress', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
@@ -238,7 +234,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">상세 주소</label>
               <input
                 type="text"
-                value={$editFormData.detailAddress}
+                value={editFormData.detailAddress}
                 onChange={(e) => updateEditFormData('detailAddress', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
@@ -254,7 +250,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">담당자명</label>
               <input
                 type="text"
-                value={$editFormData.manager.managerName}
+                value={editFormData.manager.managerName}
                 onChange={(e) => updateManagerInfo('managerName', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
@@ -264,7 +260,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">담당자 휴대폰</label>
               <input
                 type="tel"
-                value={$editFormData.manager.managerPhone}
+                value={editFormData.manager.managerPhone}
                 onChange={(e) =>
                   updateManagerInfo('managerPhone', e.target.value.replace(/[^0-9\-]/g, ''))
                 }
@@ -276,7 +272,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">담당자 이메일</label>
               <input
                 type="email"
-                value={$editFormData.manager.managerEmail}
+                value={editFormData.manager.managerEmail}
                 onChange={(e) => updateManagerInfo('managerEmail', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
@@ -292,7 +288,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">총 주문건수</label>
               <input
                 type="number"
-                value={$editFormData.totalOrders}
+                value={editFormData.totalOrders}
                 readOnly
                 // onChange={(e) => updateEditFormData('totalOrders', Number(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
@@ -303,7 +299,7 @@ const CustomerEditModal = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">총 거래금액</label>
               <input
                 type="number"
-                value={$editFormData.totalTransactionAmount}
+                value={editFormData.totalTransactionAmount}
                 readOnly
                 // onChange={(e) =>
                 //   updateEditFormData('totalTransactionAmount', Number(e.target.value))
@@ -318,7 +314,7 @@ const CustomerEditModal = ({
         <div className="border-t border-gray-200 pt-6">
           <label className="block text-sm font-medium text-gray-700 mb-1">비고</label>
           <textarea
-            value={$editFormData.note}
+            value={editFormData.note}
             onChange={(e) => updateEditFormData('note', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             rows={3}

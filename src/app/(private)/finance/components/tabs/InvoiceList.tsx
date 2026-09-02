@@ -113,8 +113,8 @@ const InvoiceList = () => {
     openModal(InvoiceDetailModal, {
       title: '전표 상세 정보',
       width: '900px',
-      $selectedInvoiceId: id,
-      $setSelectedInvoiceId: setSelectedInvoiceId,
+      selectedInvoiceId: id,
+      setSelectedInvoiceId: setSelectedInvoiceId,
     });
   };
   const handleSelectVoucher = (voucherId: string, checked: boolean) => {
@@ -174,7 +174,7 @@ const InvoiceList = () => {
     {
       key: 'statusCode',
       label: '상태',
-      render: (_, invoice) => <StatusLabel $statusCode={invoice.statusCode} />,
+      render: (_, invoice) => <StatusLabel statusCode={invoice.statusCode} />,
     },
     {
       key: 'referenceNumber',
@@ -229,9 +229,9 @@ const InvoiceList = () => {
       </div>
 
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="전표 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="전표 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="전표 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="전표 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

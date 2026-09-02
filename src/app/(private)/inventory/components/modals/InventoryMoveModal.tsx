@@ -12,15 +12,15 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
 
-const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMoveModalProps) => {
+const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formData, setFormData] = useState({
-    fromWarehouseId: $selectedStock.warehouseId,
+    fromWarehouseId: selectedStock.warehouseId,
     toWarehouseId: '',
-    itemId: $selectedStock.itemId,
+    itemId: selectedStock.itemId,
     stockQuantity: 0,
-    uomName: $selectedStock.uomName,
+    uomName: selectedStock.uomName,
     reason: '',
   });
 
@@ -38,10 +38,10 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
 
   const queryParams = useMemo(() => {
     const params: WarehouseToggleQueryParams = {
-      warehouseId: $selectedStock.warehouseId,
+      warehouseId: selectedStock.warehouseId,
     };
     return params;
-  }, [$selectedStock.warehouseId]);
+  }, [selectedStock.warehouseId]);
 
   const {
     data: warehouseInfoRes,
@@ -50,7 +50,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
   } = useQuery<WarehouseToggleResponse[]>({
     queryKey: ['getWarehouseInfo', queryParams],
     queryFn: ({ queryKey }) => getWarehouseInfo(queryKey[1] as WarehouseToggleQueryParams),
-    enabled: !!$selectedStock.itemId,
+    enabled: !!selectedStock.itemId,
   });
   // 낙관적 업데이트x
   // const { mutate: moveStock } = useMutation({
@@ -58,7 +58,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
   //   onSuccess: (data) => {
   //     alert(`${data.status} : ${data.message}
   //     `);
-  //     $setShowMoveModal(false);
+  //     setShowMoveModal(false);
   //   },
   //   onError: () => {
   //     alert(` 등록 중 오류가 발생했습니다.`);
@@ -69,7 +69,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
   const { mutate: moveStock } = useMutation({
     mutationFn: postStockMovement,
     onMutate: async (newMovement) => {
-      await queryClient.cancelQueries({ queryKey: ['inventoryDetail', $selectedStock?.itemId] });
+      await queryClient.cancelQueries({ queryKey: ['inventoryDetail', selectedStock?.itemId] });
 
       const previousData = queryClient.getQueryData<InventoryDetailResponse[]>([
         'inventoryDetail',
@@ -94,25 +94,25 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
           }
           return warehouse;
         });
-        queryClient.setQueryData(['inventoryDetail', $selectedStock?.itemId], updatedData);
+        queryClient.setQueryData(['inventoryDetail', selectedStock?.itemId], updatedData);
       }
       return { previousData };
     },
 
     onError: (_error, _newMovement, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['inventoryDetail', $selectedStock?.itemId], context.previousData);
+        queryClient.setQueryData(['inventoryDetail', selectedStock?.itemId], context.previousData);
       }
       toast.error('재고 이동 중 오류가 발생했습니다.');
     },
 
     onSuccess: () => {
       toast.success('재고가 이동되었습니다.');
-      $setShowMoveModal(false);
+      setShowMoveModal(false);
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventoryDetail', $selectedStock?.itemId] });
+      queryClient.invalidateQueries({ queryKey: ['inventoryDetail', selectedStock?.itemId] });
     },
   });
 
@@ -122,14 +122,14 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="창고 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="창고 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
   return (
@@ -138,7 +138,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">재고 이동</h3>
           <button
-            onClick={() => $setShowMoveModal(false)}
+            onClick={() => setShowMoveModal(false)}
             className="text-gray-400 hover:text-gray-600 cursor-pointer"
           >
             <i className="ri-close-line text-xl"></i>
@@ -146,13 +146,13 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
         </div>
 
         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <div className="text-sm font-medium text-gray-900">{$selectedStock.itemName}</div>
-          <div className="text-sm text-gray-500">{$selectedStock.itemNumber}</div>
+          <div className="text-sm font-medium text-gray-900">{selectedStock.itemName}</div>
+          <div className="text-sm text-gray-500">{selectedStock.itemNumber}</div>
           <div className="text-sm text-gray-600 mt-1">
-            현재 위치: {$selectedStock.warehouseName} ({$selectedStock.warehouseNumber})
+            현재 위치: {selectedStock.warehouseName} ({selectedStock.warehouseNumber})
           </div>
           <div className="text-sm text-gray-600">
-            현재 재고: {$selectedStock.currentStock} {$selectedStock.uomName}
+            현재 재고: {selectedStock.currentStock} {selectedStock.uomName}
           </div>
         </div>
 
@@ -198,7 +198,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               placeholder="이동할 수량을 입력하세요"
-              max={$selectedStock.currentStock}
+              max={selectedStock.currentStock}
             />
           </div>
 
@@ -218,7 +218,7 @@ const InventoryMoveModal = ({ $setShowMoveModal, $selectedStock }: InventoryMove
           <div className="flex gap-3 pt-4">
             <button
               type="button"
-              onClick={() => $setShowMoveModal(false)}
+              onClick={() => setShowMoveModal(false)}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
             >
               취소

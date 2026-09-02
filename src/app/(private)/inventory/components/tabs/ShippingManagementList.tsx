@@ -52,8 +52,7 @@ const ShippingManagementList = () => {
   const currentRes = selectedSubTab === 'producing' ? ProductionRes : ReadyToShipRes;
 
   const currentData = (currentRes?.data ?? []) as (
-    | ProductionListResponse
-    | ReadyToShipListResponse
+    ProductionListResponse | ReadyToShipListResponse
   )[];
   const pageInfo = currentRes?.pageData;
   const totalPages = pageInfo?.totalPages ?? 1;
@@ -94,9 +93,9 @@ const ShippingManagementList = () => {
 
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {isProductionLoading || isReadyLoading ? (
-            <TableStatusBox $type="loading" $message="출고 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message="출고 목록을 불러오는 중입니다..." />
           ) : isProductionError || isReadyError ? (
-            <TableStatusBox $type="error" $message="출고 목록을 불러오는 중 오류가 발생했습니다." />
+            <TableStatusBox type="error" message="출고 목록을 불러오는 중 오류가 발생했습니다." />
           ) : (
             <Table
               columns={[
@@ -122,7 +121,7 @@ const ShippingManagementList = () => {
                   key: 'statusCode',
                   label: '상태',
                   align: 'center',
-                  render: (_, row) => <StatusLabel $statusCode={row.statusCode} />,
+                  render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
                 {
                   key: 'action',
@@ -134,8 +133,8 @@ const ShippingManagementList = () => {
                         openModal(ShippingDetailModal, {
                           width: '900px',
                           title: `주문 상세 - ${row.salesOrderNumber}`,
-                          $selectedOrderId: row.salesOrderId,
-                          $selectedSubTab: selectedSubTab,
+                          selectedOrderId: row.salesOrderId,
+                          selectedSubTab: selectedSubTab,
                         });
                       }}
                       className="text-blue-600 hover:text-blue-800 cursor-pointer"

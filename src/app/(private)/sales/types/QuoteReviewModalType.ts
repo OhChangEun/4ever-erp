@@ -29,5 +29,5 @@ export interface InventoryCheckRes {
 }
 
 export interface QuoteReviewModalProps extends ModalProps {
-  $selectedQuotationId: string;
+  selectedQuotationId: string;
 }

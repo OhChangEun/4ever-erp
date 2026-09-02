@@ -43,7 +43,7 @@ export default function DashboardClient() {
 
           {/* 워크플로우 현황 */}
           <div className="lg:col-span-2">
-            <WorkflowStatus $workflowData={workflowData} />
+            <WorkflowStatus workflowData={workflowData} />
           </div>
         </div>
       </main>

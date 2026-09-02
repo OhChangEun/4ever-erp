@@ -134,7 +134,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
         </div>
       )}
 
-      {isSupOrCusModalOpen && <ProfileInfoModal $setIsOpen={setIsSupOrCusModalOpen} />}
+      {isSupOrCusModalOpen && <ProfileInfoModal setIsOpen={setIsSupOrCusModalOpen} />}
     </div>
   );
 }

@@ -128,7 +128,7 @@ const TrainingStatus = () => {
                           시간
                         </p>
                       </div>
-                      <StatusLabel $statusCode={training.trainingStatus} />
+                      <StatusLabel statusCode={training.trainingStatus} />
                     </div>
                   </div>
                 ))}

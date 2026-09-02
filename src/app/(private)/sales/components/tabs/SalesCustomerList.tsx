@@ -67,8 +67,8 @@ const CustomerList = () => {
       width: '900px',
       height: '1050px',
       title: '고객 상세 정보',
-      $selectedCustomerId: id,
-      $setEditFormData: setEditFormData,
+      selectedCustomerId: id,
+      setEditFormData: setEditFormData,
     });
   };
 
@@ -124,7 +124,7 @@ const CustomerList = () => {
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, customer) => <StatusLabel $statusCode={customer.statusCode} />,
+      render: (_, customer) => <StatusLabel statusCode={customer.statusCode} />,
     },
     {
       key: 'action',
@@ -171,9 +171,9 @@ const CustomerList = () => {
 
       {/* 테이블 */}
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="고객 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="고객 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="고객 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="고객 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

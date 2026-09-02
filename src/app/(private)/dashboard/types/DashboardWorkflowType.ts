@@ -13,5 +13,5 @@ export interface DashboardWorkflowRes {
 }
 
 export interface DashboardProps {
-  $workflowData?: DashboardWorkflowRes;
+  workflowData?: DashboardWorkflowRes;
 }

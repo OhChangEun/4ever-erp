@@ -31,14 +31,14 @@ export default function PurchaseOrderDetailModal({ purchaseId }: PurchaseOrderDe
   if (!order) return null;
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="발주서 상세정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="발주서 상세정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="발주서 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="발주서 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -76,7 +76,7 @@ export default function PurchaseOrderDetailModal({ purchaseId }: PurchaseOrderDe
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-            <StatusLabel $statusCode={order.statusCode} />
+            <StatusLabel statusCode={order.statusCode} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">총 금액</label>

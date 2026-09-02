@@ -39,9 +39,9 @@ const WarehouseList = () => {
     openModal(WarehouseDetailModal, {
       width: '900px',
       title: '창고 상세 정보',
-      $handleWarehouseManage: handleWarehouseManage,
-      $selectedWarehouseId: warehouseId,
-      $selectedWarehouseName: warehouseName,
+      handleWarehouseManage: handleWarehouseManage,
+      selectedWarehouseId: warehouseId,
+      selectedWarehouseName: warehouseName,
     });
   };
 
@@ -50,7 +50,7 @@ const WarehouseList = () => {
     openModal(ManageWarehouseModal, {
       width: '600px',
       title: `창고 관리 - ${warehouseName}`,
-      $selectedWarehouseId: warehouseId,
+      selectedWarehouseId: warehouseId,
     });
   };
 
@@ -96,11 +96,11 @@ const WarehouseList = () => {
         </div>
       </div>
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="창고 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="창고 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="창고 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="창고 목록을 불러오는 중 오류가 발생했습니다." />
       ) : !warehouses || warehouses.length === 0 ? (
-        <TableStatusBox $type="empty" $message="등록된 창고가 없습니다." />
+        <TableStatusBox type="empty" message="등록된 창고가 없습니다." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
           {warehouses.map((warehouse) => (
@@ -113,7 +113,7 @@ const WarehouseList = () => {
                   <h3 className="text-lg font-semibold text-gray-900">{warehouse.warehouseName}</h3>
                   <p className="text-sm text-gray-500">{warehouse.warehouseNumber}</p>
                 </div>
-                {<StatusLabel $statusCode={warehouse.statusCode} />}
+                {<StatusLabel statusCode={warehouse.statusCode} />}
               </div>
 
               <div className="space-y-2 mb-4">

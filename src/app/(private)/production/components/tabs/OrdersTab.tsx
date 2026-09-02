@@ -179,7 +179,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       key: 'availableStatusCode',
       label: '가용 재고 상태',
       align: 'center',
-      render: (_, item) => <StatusLabel $statusCode={item.availableStatusCode} />,
+      render: (_, item) => <StatusLabel statusCode={item.availableStatusCode} />,
     },
     {
       key: 'shortageQuantity',
@@ -196,7 +196,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       key: 'itemType',
       label: '자재 유형',
       align: 'center',
-      render: (_, item) => <StatusLabel $statusCode={item.itemType} />,
+      render: (_, item) => <StatusLabel statusCode={item.itemType} />,
     },
     {
       key: 'procurementStartDate',
@@ -215,7 +215,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       key: 'convertStatus',
       label: '전환 상태',
       align: 'center',
-      render: (_, item) => <StatusLabel $statusCode={item.convertStatus} />,
+      render: (_, item) => <StatusLabel statusCode={item.convertStatus} />,
     },
   ];
 
@@ -252,9 +252,9 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       </div>
 
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="순소요 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="순소요 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="순소요 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="순소요 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

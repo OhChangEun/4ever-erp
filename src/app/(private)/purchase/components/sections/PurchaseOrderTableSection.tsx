@@ -53,7 +53,7 @@ export default function PurchaseOrderTable({
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, order) => <StatusLabel $statusCode={order.statusCode} />,
+      render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',

@@ -41,8 +41,8 @@ const InventoryList = () => {
       title: '재고 이동 기록',
       width: '1000px',
       height: '1600px',
-      $selectedItemId: itemId,
-      $setSelectedItemId: setSelectedItemId,
+      selectedItemId: itemId,
+      setSelectedItemId: setSelectedItemId,
     });
   };
 
@@ -147,7 +147,7 @@ const InventoryList = () => {
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, inv) => <StatusLabel $statusCode={inv.statusCode} />,
+      render: (_, inv) => <StatusLabel statusCode={inv.statusCode} />,
     },
     {
       key: 'action',
@@ -208,9 +208,9 @@ const InventoryList = () => {
           </div>
         </div>
         {isLoading ? (
-          <TableStatusBox $type="loading" $message="재고 목록을 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message="재고 목록을 불러오는 중입니다..." />
         ) : isError ? (
-          <TableStatusBox $type="error" $message="재고 목록을 불러오는 중 오류가 발생했습니다." />
+          <TableStatusBox type="error" message="재고 목록을 불러오는 중 오류가 발생했습니다." />
         ) : (
           <Table
             columns={columns}

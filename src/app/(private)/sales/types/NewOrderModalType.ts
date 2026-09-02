@@ -1,6 +1,6 @@
 export interface NewOrderModalProps {
-  $showNewOrderModal: boolean;
-  $setShowNewOrderModal: React.Dispatch<React.SetStateAction<boolean>>;
+  showNewOrderModal: boolean;
+  setShowNewOrderModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface Product {

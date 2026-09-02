@@ -11,7 +11,7 @@ import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalTyp
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import { useToast } from '@/app/components/common/toast/useToast';
 
-const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteModalProps) => {
+const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModalProps) => {
   const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
     customer: '',
     customerContact: '',
@@ -43,7 +43,7 @@ const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteMo
 
     toast.success(`견적번호 ${quoteNumber} 신규 견적서가 작성되었습니다.`);
 
-    $setShowNewQuoteModal(false);
+    setShowNewQuoteModal(false);
     setNewQuoteData({
       customer: '',
       customerContact: '',
@@ -140,13 +140,13 @@ const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteMo
   return (
     <>
       {/* 신규 견적서 작성 모달 */}
-      {$showNewQuoteModal && (
+      {showNewQuoteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-overlay">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-gray-900">견적서 작성</h3>
               <button
-                onClick={() => $setShowNewQuoteModal(false)}
+                onClick={() => setShowNewQuoteModal(false)}
                 className="text-gray-400 hover:text-gray-600 cursor-pointer"
               >
                 <i className="ri-close-line text-2xl"></i>
@@ -353,7 +353,7 @@ const NewQuoteModal = ({ $showNewQuoteModal, $setShowNewQuoteModal }: NewQuoteMo
               <div className="flex gap-3 pt-6 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => $setShowNewQuoteModal(false)}
+                  onClick={() => setShowNewQuoteModal(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer whitespace-nowrap"
                 >
                   취소

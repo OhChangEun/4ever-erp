@@ -2,8 +2,8 @@ import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailT
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface CustomerEditModalProps extends ModalProps {
-  $editFormData: CustomerDetail | null;
-  $setEditFormData: React.Dispatch<React.SetStateAction<CustomerDetail | null>>;
+  editFormData: CustomerDetail | null;
+  setEditFormData: React.Dispatch<React.SetStateAction<CustomerDetail | null>>;
 }
 
 export interface CustomerResponse {

@@ -2,7 +2,7 @@ import { OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface SalesOrderDetailProps extends ModalProps {
-  $selectedSalesOrderId: string;
+  selectedSalesOrderId: string;
 }
 
 export interface OrderDetail {

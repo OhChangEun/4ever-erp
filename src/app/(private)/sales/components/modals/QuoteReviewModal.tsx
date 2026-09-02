@@ -20,7 +20,7 @@ import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 
-const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalProps) => {
+const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
   );
@@ -31,7 +31,7 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
   };
 
   const handleDelieveryProcess = () => {
-    delieveryProcessReq($selectedQuotationId);
+    delieveryProcessReq(selectedQuotationId);
   };
 
   const {
@@ -39,9 +39,9 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
     isLoading,
     isError,
   } = useQuery<QuoteDetail>({
-    queryKey: ['quoteDetailForReview', $selectedQuotationId],
-    queryFn: () => getQuoteDetail($selectedQuotationId),
-    enabled: !!$selectedQuotationId,
+    queryKey: ['quoteDetailForReview', selectedQuotationId],
+    queryFn: () => getQuoteDetail(selectedQuotationId),
+    enabled: !!selectedQuotationId,
   });
 
   const haveToCheckItems: Inventories[] =
@@ -87,14 +87,14 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
 
   const [errorModal, setErrorModal] = useState(false);
 
-  if (isLoading) return <ModalStatusBox $type="loading" $message="견적서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message="견적서를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="견적서를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="견적서를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -131,7 +131,7 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">상태:</span>
-              <StatusLabel $statusCode={quote!.statusCode} />
+              <StatusLabel statusCode={quote!.statusCode} />
             </div>
           </div>
         </div>
@@ -277,7 +277,7 @@ const QuoteReviewModal = ({ onClose, $selectedQuotationId }: QuoteReviewModalPro
                   href="/production"
                   className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2"
                   onClick={() => {
-                    quotationConfirmReq($selectedQuotationId);
+                    quotationConfirmReq(selectedQuotationId);
                     onClose();
                   }}
                 >

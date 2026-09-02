@@ -10,8 +10,8 @@ export const ActionCard = ({ title, description, icon, color, href }: ActionCard
   // {
   //   showNewOrderModal && (
   //     <NewOrderModal
-  //       $showNewOrderModal={showNewOrderModal}
-  //       $setShowNewOrderModal={setShowNewOrderModal}
+  //       showNewOrderModal={showNewOrderModal}
+  //       setShowNewOrderModal={setShowNewOrderModal}
   //     />
   //   );
   // }

@@ -261,9 +261,9 @@ export default function MesTab() {
 
       <div className="flex flex-col flex-1 min-h-0 bg-white rounded-xl overflow-hidden">
         {isLoading ? (
-          <TableStatusBox $type="loading" $message="MES 데이터를 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message="MES 데이터를 불러오는 중입니다..." />
         ) : isError ? (
-          <TableStatusBox $type="error" $message="데이터를 불러오는데 실패했습니다." />
+          <TableStatusBox type="error" message="데이터를 불러오는데 실패했습니다." />
         ) : (
           <Table
             columns={columns}

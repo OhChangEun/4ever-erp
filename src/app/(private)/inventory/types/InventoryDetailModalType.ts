@@ -1,8 +1,8 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface InventoryDetailModalProps extends ModalProps {
-  $selectedItemId: string;
-  $setSelectedItemId: (itemId: string) => void;
+  selectedItemId: string;
+  setSelectedItemId: (itemId: string) => void;
 }
 
 export interface StockMovement {

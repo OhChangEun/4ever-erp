@@ -10,11 +10,11 @@ import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { ModalProps } from '@/app/components/common/modal/types';
 
-const QuoteDetailModal = ({ onClose, $selectedQuotationId }: QuoteDetailModalProps) => {
+const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProps) => {
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
-    queryKey: ['quoteDetail', $selectedQuotationId],
-    queryFn: () => getQuoteDetail($selectedQuotationId),
-    enabled: !!$selectedQuotationId,
+    queryKey: ['quoteDetail', selectedQuotationId],
+    queryFn: () => getQuoteDetail(selectedQuotationId),
+    enabled: !!selectedQuotationId,
   });
 
   useEffect(() => {
@@ -23,14 +23,14 @@ const QuoteDetailModal = ({ onClose, $selectedQuotationId }: QuoteDetailModalPro
 
   const [errorModal, setErrorModal] = useState(false);
 
-  if (isLoading) return <ModalStatusBox $type="loading" $message="견적서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message="견적서를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="견적서를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="견적서를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
   return (
@@ -69,7 +69,7 @@ const QuoteDetailModal = ({ onClose, $selectedQuotationId }: QuoteDetailModalPro
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">상태:</span>
-                  <StatusLabel $statusCode={data?.statusCode as string} />
+                  <StatusLabel statusCode={data?.statusCode as string} />
                 </div>
               </div>
             </div>

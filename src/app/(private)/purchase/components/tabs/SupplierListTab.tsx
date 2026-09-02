@@ -135,7 +135,7 @@ export default function SupplierListTab() {
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, item) => <StatusLabel $statusCode={item.supplierInfo.supplierStatusCode} />,
+      render: (_, item) => <StatusLabel statusCode={item.supplierInfo.supplierStatusCode} />,
     },
     {
       key: 'action',

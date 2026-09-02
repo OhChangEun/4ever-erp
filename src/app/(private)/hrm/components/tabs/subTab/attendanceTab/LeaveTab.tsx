@@ -111,7 +111,7 @@ export default function LeaveTab() {
     {
       key: 'leaveType',
       label: '휴가 유형',
-      render: (_, leave) => <StatusLabel $statusCode={leave.leaveType} />,
+      render: (_, leave) => <StatusLabel statusCode={leave.leaveType} />,
     },
     {
       key: 'startDate',
@@ -156,7 +156,7 @@ export default function LeaveTab() {
             </button>
           </div>
         ) : (
-          <StatusLabel $statusCode={leave.status} />
+          <StatusLabel statusCode={leave.status} />
         ),
     },
   ];
@@ -184,9 +184,9 @@ export default function LeaveTab() {
         </div>
       </div>
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="휴가 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="휴가 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="휴가 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="휴가 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

@@ -167,7 +167,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
             <h4 className="text-xl font-bold text-gray-900 mb-2 sm:mb-0">
               작업지시: {mesDetail.mesNumber}
             </h4>
-            <StatusLabel $statusCode={mesDetail.statusCode} />
+            <StatusLabel statusCode={mesDetail.statusCode} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
@@ -224,7 +224,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                       <div className="text-xs text-gray-500">공정 순서: {operation.sequence}</div>
                     </div>
                   </div>
-                  <StatusLabel $statusCode={operation.statusCode} />
+                  <StatusLabel statusCode={operation.statusCode} />
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">

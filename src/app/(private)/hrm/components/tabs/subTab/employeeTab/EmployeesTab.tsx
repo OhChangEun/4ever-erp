@@ -154,9 +154,9 @@ export default function EmployeesTab() {
       </div>
 
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="직원 정보를 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="직원 정보를 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox $type="error" $message="직원 정보를 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="직원 정보를 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

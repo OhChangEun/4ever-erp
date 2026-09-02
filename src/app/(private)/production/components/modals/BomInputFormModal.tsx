@@ -196,7 +196,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
         <Input type="text" value={materialInfo?.productNumber || ''} disabled />
       </td>
       <td className="px-3 py-2">
-        <StatusLabel $statusCode={materialInfo?.category ?? ''} />
+        <StatusLabel statusCode={materialInfo?.category ?? ''} />
         {/* <Input type="text" value={materialInfo?.category || ''} disabled /> */}
       </td>
       <td className="px-3 py-2">

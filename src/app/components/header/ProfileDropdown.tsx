@@ -145,7 +145,7 @@ export default function ProfileDropdown() {
           </div>
         </div>
       )}
-      {isSupOrCusModalOpen && <ProfileInfoModal $setIsOpen={setIsSupOrCusModalOpen} />}
+      {isSupOrCusModalOpen && <ProfileInfoModal setIsOpen={setIsSupOrCusModalOpen} />}
     </div>
   );
 }

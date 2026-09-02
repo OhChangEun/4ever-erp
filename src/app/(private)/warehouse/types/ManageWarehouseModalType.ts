@@ -1,7 +1,7 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface ManageWarehouseModalProps extends ModalProps {
-  $selectedWarehouseId: string;
+  selectedWarehouseId: string;
 }
 
 export interface EditWarehouseRequest {

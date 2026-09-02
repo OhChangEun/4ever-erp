@@ -1,9 +1,9 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface WarehouseDetailModalProps extends ModalProps {
-  $handleWarehouseManage: (id: string, name: string) => void;
-  $selectedWarehouseId: string;
-  $selectedWarehouseName: string;
+  handleWarehouseManage: (id: string, name: string) => void;
+  selectedWarehouseId: string;
+  selectedWarehouseName: string;
 }
 
 export interface WarehouseDetailResponse {

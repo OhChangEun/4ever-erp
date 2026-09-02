@@ -73,7 +73,7 @@ const SalesQuoteList = () => {
       width: '900px',
       height: '600px',
       title: `견적서 상세보기-${quote.quotationNumber}`,
-      $selectedQuotationId: quote.quotationId,
+      selectedQuotationId: quote.quotationId,
     });
   };
 
@@ -85,7 +85,7 @@ const SalesQuoteList = () => {
     openModal(QuoteReviewModal, {
       width: '900px',
       title: '견적 검토 요청',
-      $selectedQuotationId: selectedQuotationId,
+      selectedQuotationId: selectedQuotationId,
     });
   };
 
@@ -125,7 +125,7 @@ const SalesQuoteList = () => {
     {
       key: 'statusCode',
       label: '상태',
-      render: (_, q) => <StatusLabel $statusCode={q.statusCode} />,
+      render: (_, q) => <StatusLabel statusCode={q.statusCode} />,
     },
     {
       key: 'action',
@@ -184,9 +184,9 @@ const SalesQuoteList = () => {
       {/* 견적 목록 */}
       <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {isLoading ? (
-          <TableStatusBox $type="loading" $message="견적서 목록을 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message="견적서 목록을 불러오는 중입니다..." />
         ) : isError ? (
-          <TableStatusBox $type="error" $message="견적서 목록을 불러오는 중 오류가 발생했습니다." />
+          <TableStatusBox type="error" message="견적서 목록을 불러오는 중 오류가 발생했습니다." />
         ) : (
           <Table
             columns={columns}

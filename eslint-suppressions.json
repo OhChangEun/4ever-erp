@@ -40,9 +40,6 @@
     }
   },
   "src/app/(private)/inventory/components/tabs/ShippingManagementList.tsx": {
-    "prettier/prettier": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }

@@ -1,11 +1,11 @@
 export interface EmploymentInfoProps {
-  $isEditing: boolean;
-  $setIsEditing: (show: boolean) => void;
+  isEditing: boolean;
+  setIsEditing: (show: boolean) => void;
 }
 
 export interface ProfileHeaderProps {
-  $isEditing: boolean;
-  $setIsEditing: (show: boolean) => void;
+  isEditing: boolean;
+  setIsEditing: (show: boolean) => void;
 }
 
 export interface EditUserRequest {

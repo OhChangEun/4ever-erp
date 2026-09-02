@@ -21,9 +21,9 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
   return (
     <>
       {isLoading ? (
-        <ModalStatusBox $type="loading" $message="교육 프로그램을 불러오는 중입니다..." />
+        <ModalStatusBox type="loading" message="교육 프로그램을 불러오는 중입니다..." />
       ) : isError || !program ? (
-        <ModalStatusBox $type="error" $message="교육 프로그램을 불러오는 중 오류가 발생했습니다." />
+        <ModalStatusBox type="error" message="교육 프로그램을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <>
           <div className="space-y-6">
@@ -34,7 +34,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
                   <strong>교육명:</strong> {program.programName}
                 </div>
                 <div>
-                  <strong>카테고리:</strong> <StatusLabel $statusCode={program.category} />
+                  <strong>카테고리:</strong> <StatusLabel statusCode={program.category} />
                 </div>
                 <div>
                   <strong>교육 시간:</strong> {program.trainingHour}시간
@@ -46,7 +46,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
                   <strong>시작일:</strong> {program.startDate}
                 </div>
                 <div>
-                  <strong>상태:</strong> <StatusLabel $statusCode={program.statusCode} />
+                  <strong>상태:</strong> <StatusLabel statusCode={program.statusCode} />
                 </div>
               </div>
             </div>
@@ -79,7 +79,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
                         <span
                           className={'inline-flex px-2 py-1 text-xs font-semibold rounded-full'}
                         >
-                          <StatusLabel $statusCode={employee.statusCode} />
+                          <StatusLabel statusCode={employee.statusCode} />
                         </span>
                       </div>
                     </div>

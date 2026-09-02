@@ -32,5 +32,5 @@ export interface ProfileInfo {
 }
 
 export interface ProfileInfoModalProps {
-  $setIsOpen: (show: boolean) => void;
+  setIsOpen: (show: boolean) => void;
 }

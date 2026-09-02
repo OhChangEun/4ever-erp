@@ -228,7 +228,7 @@ export default function QuotationTab() {
       key: 'availableStatus',
       label: '가용 재고',
       align: 'center',
-      render: (_, quote) => <StatusLabel $statusCode={quote.availableStatus} />,
+      render: (_, quote) => <StatusLabel statusCode={quote.availableStatus} />,
     },
   ];
 
@@ -261,9 +261,9 @@ export default function QuotationTab() {
         </div>
       </div>
       {isQuotationListLoading ? (
-        <TableStatusBox $type="loading" $message="견적 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="견적 목록을 불러오는 중입니다..." />
       ) : isQuotationListError ? (
-        <TableStatusBox $type="error" $message="견적 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message="견적 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

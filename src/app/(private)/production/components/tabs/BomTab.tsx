@@ -77,7 +77,7 @@ export default function BomTab() {
       key: 'statusCode',
       label: '상태',
       align: 'center',
-      render: (_, bom) => <StatusLabel $statusCode={bom.statusCode} />,
+      render: (_, bom) => <StatusLabel statusCode={bom.statusCode} />,
     },
     {
       key: 'lastModifiedAt',

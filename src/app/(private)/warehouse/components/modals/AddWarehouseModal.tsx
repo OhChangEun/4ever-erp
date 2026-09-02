@@ -114,14 +114,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="담당자 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="담당자 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="담당자 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="담당자 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 

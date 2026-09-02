@@ -147,7 +147,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
           </span>
         </div>
         <div className="mt-2">
-          <StatusLabel $statusCode={statusCode} />
+          <StatusLabel statusCode={statusCode} />
         </div>
       </div>
 

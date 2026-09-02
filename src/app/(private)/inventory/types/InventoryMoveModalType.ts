@@ -1,6 +1,6 @@
 export interface InventoryMoveModalProps {
-  $setShowMoveModal: (show: boolean) => void;
-  $selectedStock: {
+  setShowMoveModal: (show: boolean) => void;
+  selectedStock: {
     itemId: string;
     itemName: string;
     itemNumber: string;

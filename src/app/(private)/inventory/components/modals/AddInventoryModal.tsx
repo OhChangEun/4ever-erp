@@ -78,7 +78,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
   //   onSuccess: (data) => {
   //     alert(`${data.status} : ${data.message}
   //     `);
-  //     $setShowAddModal(false);
+  //     setShowAddModal(false);
   //   },
   //   onError: (error) => {
   //     alert(` 자재 등록 중 오류가 발생했습니다. ${error}`);
@@ -132,26 +132,26 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
   }, [isItemInfoLoading, isWarehouseInfoLoading]);
 
   if (isItemInfoLoading)
-    return <ModalStatusBox $type="loading" $message="자재 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="자재 정보를 불러오는 중입니다..." />;
 
   if (isWarehouseInfoLoading)
-    return <ModalStatusBox $type="loading" $message="창고 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="자재 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="자재 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="창고 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 

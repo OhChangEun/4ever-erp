@@ -12,18 +12,18 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 
 const WarehouseDetailModal = ({
   onClose,
-  $handleWarehouseManage,
-  $selectedWarehouseId,
-  $selectedWarehouseName,
+  handleWarehouseManage,
+  selectedWarehouseId,
+  selectedWarehouseName,
 }: WarehouseDetailModalProps) => {
   const {
     data: warehouseDetailRes,
     isLoading,
     isError,
   } = useQuery<WarehouseDetailResponse>({
-    queryKey: ['warehouseDetail', $selectedWarehouseId],
-    queryFn: () => getWarehouseDetail($selectedWarehouseId),
-    enabled: !!$selectedWarehouseId,
+    queryKey: ['warehouseDetail', selectedWarehouseId],
+    queryFn: () => getWarehouseDetail(selectedWarehouseId),
+    enabled: !!selectedWarehouseId,
   });
 
   const warehouseInfo = warehouseDetailRes?.warehouseInfo;
@@ -35,14 +35,14 @@ const WarehouseDetailModal = ({
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="창고 상세 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="창고 상세 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="창고 상세 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="창고 상세 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
   return (
@@ -72,7 +72,7 @@ const WarehouseDetailModal = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">상태:</span>
-                {<StatusLabel $statusCode={warehouseInfo?.statusCode as string} />}
+                {<StatusLabel statusCode={warehouseInfo?.statusCode as string} />}
               </div>
             </div>
           </div>
@@ -117,8 +117,8 @@ const WarehouseDetailModal = ({
       <div className="mt-6 flex gap-3">
         <button
           onClick={() => {
-            // $setShowDetailModal(false);
-            $handleWarehouseManage($selectedWarehouseId, $selectedWarehouseName);
+            // setShowDetailModal(false);
+            handleWarehouseManage(selectedWarehouseId, selectedWarehouseName);
           }}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer"
         >

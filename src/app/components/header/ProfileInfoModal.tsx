@@ -6,7 +6,7 @@ import { getSupOrCusProfile } from './header.api';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
 
-const ProfileInfoModal = ({ $setIsOpen }: ProfileInfoModalProps) => {
+const ProfileInfoModal = ({ setIsOpen }: ProfileInfoModalProps) => {
   const role = useRole();
 
   const { data: profileInfoRes } = useQuery<ProfileInfo>({
@@ -36,7 +36,7 @@ const ProfileInfoModal = ({ $setIsOpen }: ProfileInfoModalProps) => {
               고객사 프로필
             </h2>
             <button
-              onClick={() => $setIsOpen(false)}
+              onClick={() => setIsOpen(false)}
               className="text-white/80 hover:text-white transition-colors"
             >
               <i className="ri-close-line text-xl"></i>
@@ -95,7 +95,7 @@ const ProfileInfoModal = ({ $setIsOpen }: ProfileInfoModalProps) => {
 
             <div className="pt-4">
               <button
-                onClick={() => $setIsOpen(false)}
+                onClick={() => setIsOpen(false)}
                 className="w-full py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium"
               >
                 닫기

@@ -38,14 +38,11 @@ export default function SupplierDetailModal({ supplierId, onClose }: DetailSuppl
   };
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="공급업체 상세정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="공급업체 상세정보를 불러오는 중입니다..." />;
 
   if (isError || !supplier)
     return (
-      <ModalStatusBox
-        $type="error"
-        $message="공급업체 상세정보를 불러오는 중 오류가 발생했습니다."
-      />
+      <ModalStatusBox type="error" message="공급업체 상세정보를 불러오는 중 오류가 발생했습니다." />
     );
 
   return (

@@ -13,8 +13,8 @@ import CustomerEditModal from './CustomerEditModal';
 
 const CustomerDetailModal = ({
   onClose,
-  $selectedCustomerId,
-  $setEditFormData,
+  selectedCustomerId,
+  setEditFormData,
 }: CustomerDetailModalProps) => {
   const { openModal } = useModal();
   const {
@@ -22,9 +22,9 @@ const CustomerDetailModal = ({
     isLoading,
     isError,
   } = useQuery<CustomerDetail>({
-    queryKey: ['customerDetail', $selectedCustomerId],
-    queryFn: () => getCustomerDetail($selectedCustomerId),
-    enabled: !!$selectedCustomerId,
+    queryKey: ['customerDetail', selectedCustomerId],
+    queryFn: () => getCustomerDetail(selectedCustomerId),
+    enabled: !!selectedCustomerId,
   });
   const [errorModal, setErrorModal] = useState(false);
   useEffect(() => {
@@ -32,14 +32,14 @@ const CustomerDetailModal = ({
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="고객 상세 데이터를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="고객 상세 데이터를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
   return (
@@ -59,7 +59,7 @@ const CustomerDetailModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-              <StatusLabel $statusCode={customer?.statusCode as string} />
+              <StatusLabel statusCode={customer?.statusCode as string} />
             </div>
           </div>
           <div className="space-y-4">
@@ -161,12 +161,12 @@ const CustomerDetailModal = ({
           <Button
             label="수정"
             onClick={() => {
-              // $setEditFormData(customer!);
+              // setEditFormData(customer!);
               openModal(CustomerEditModal, {
                 width: '900px',
                 title: '고객 정보 수정',
-                $editFormData: customer ?? null,
-                $setEditFormData: $setEditFormData,
+                editFormData: customer ?? null,
+                setEditFormData: setEditFormData,
               });
             }}
           />

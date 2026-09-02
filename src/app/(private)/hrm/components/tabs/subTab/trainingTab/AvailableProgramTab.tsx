@@ -72,10 +72,10 @@ export default function AvailableProgramTab() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">{program.programName}</h4>
-                <StatusLabel $statusCode={program.category} />
+                <StatusLabel statusCode={program.category} />
               </div>
               <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                <StatusLabel $statusCode={program.statusCode} />
+                <StatusLabel statusCode={program.statusCode} />
               </span>
             </div>
             <div className="space-y-3 mb-4">

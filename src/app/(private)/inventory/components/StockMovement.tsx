@@ -70,7 +70,7 @@ export default function StockMovement() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <StatusLabel $statusCode={movement.type} />
+                    <StatusLabel statusCode={movement.type} />
                     <span className="text-sm font-medium text-gray-900">
                       {movement.quantity} {movement.uomName}
                     </span>

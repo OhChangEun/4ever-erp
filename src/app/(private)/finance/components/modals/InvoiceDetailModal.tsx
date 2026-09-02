@@ -17,8 +17,8 @@ import { useModal } from '@/app/components/common/modal/useModal';
 
 const InvoiceDetailModal = ({
   onClose,
-  $selectedInvoiceId,
-  $setSelectedInvoiceId,
+  selectedInvoiceId,
+  setSelectedInvoiceId,
 }: InvoiceDetailModalProps) => {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'sales';
@@ -26,28 +26,28 @@ const InvoiceDetailModal = ({
 
   // const queryFn =
   //   currentTab === 'sales'
-  //     ? () => getSalesInvoiceDetail($selectedInvoiceId)
+  //     ? () => getSalesInvoiceDetail(selectedInvoiceId)
   //     : () => {
-  //         return getPurchaseInvoiceDetail($selectedInvoiceId);
+  //         return getPurchaseInvoiceDetail(selectedInvoiceId);
   //       };
 
   const queryFn =
     currentTab === 'sales'
       ? role === 'SUPPLIER_ADMIN'
-        ? () => getPurchaseInvoiceDetail($selectedInvoiceId)
-        : () => getSalesInvoiceDetail($selectedInvoiceId)
+        ? () => getPurchaseInvoiceDetail(selectedInvoiceId)
+        : () => getSalesInvoiceDetail(selectedInvoiceId)
       : role === 'SUPPLIER_ADMIN'
-        ? () => getSalesInvoiceDetail($selectedInvoiceId)
-        : () => getPurchaseInvoiceDetail($selectedInvoiceId);
+        ? () => getSalesInvoiceDetail(selectedInvoiceId)
+        : () => getPurchaseInvoiceDetail(selectedInvoiceId);
 
   const {
     data: invoiceRes,
     isLoading,
     isError,
   } = useQuery<InvoicetDetailRes>({
-    queryKey: ['invoiceDetail', $selectedInvoiceId],
+    queryKey: ['invoiceDetail', selectedInvoiceId],
     queryFn: queryFn,
-    enabled: !!$selectedInvoiceId,
+    enabled: !!selectedInvoiceId,
   });
 
   const [errorModal, setErrorModal] = useState(false);
@@ -56,18 +56,18 @@ const InvoiceDetailModal = ({
   }, [isError]);
 
   // useEffect(() => {
-  //   $setSelectedInvoiceId('');
+  //   setSelectedInvoiceId('');
   // }, [onClose]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="고객 상세 데이터를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="고객 상세 데이터를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -108,7 +108,7 @@ const InvoiceDetailModal = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-            <StatusLabel $statusCode={invoiceRes?.statusCode as string} />
+            <StatusLabel statusCode={invoiceRes?.statusCode as string} />
           </div>
         </div>
       </div>

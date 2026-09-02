@@ -36,7 +36,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-6">
-          <EmploymentInfo $isEditing={isEditing} $setIsEditing={setIsEditing} />
+          <EmploymentInfo isEditing={isEditing} setIsEditing={setIsEditing} />
           <div className="grid grid-cols-1 gap-6 items-start lg:grid-cols-[22rem_1fr]">
             <div className="lg:sticky lg:top-24 lg:h-fit">
               <AttendanceRecord />

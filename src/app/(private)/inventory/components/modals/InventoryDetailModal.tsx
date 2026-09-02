@@ -14,10 +14,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { FormatDate, getMovementColor, getMovementIcon } from '../../inventory.utils';
 import IconButton from '@/app/components/common/IconButton';
 
-const InventoryDetailModal = ({
-  $selectedItemId,
-  $setSelectedItemId,
-}: InventoryDetailModalProps) => {
+const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState({
@@ -33,7 +30,7 @@ const InventoryDetailModal = ({
   });
 
   const handleStockMove = (itemId: string) => {
-    $setSelectedItemId(itemId);
+    setSelectedItemId(itemId);
     setSelectedStock({
       itemId: inventoryDetailRes?.itemId || '',
       itemName: inventoryDetailRes?.itemName || '',
@@ -68,9 +65,9 @@ const InventoryDetailModal = ({
     isLoading,
     isError,
   } = useQuery<InventoryDetailResponse>({
-    queryKey: ['inventoryDetail', $selectedItemId],
-    queryFn: () => getInventoryDetail($selectedItemId),
-    enabled: !!$selectedItemId,
+    queryKey: ['inventoryDetail', selectedItemId],
+    queryFn: () => getInventoryDetail(selectedItemId),
+    enabled: !!selectedItemId,
   });
   const [errorModal, setErrorModal] = useState(false);
   useEffect(() => {
@@ -78,14 +75,14 @@ const InventoryDetailModal = ({
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="재고 상세 데이터를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="재고 상세 데이터를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="재고 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="재고 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -123,7 +120,7 @@ const InventoryDetailModal = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">상태:</span>
-                <StatusLabel $statusCode={inventoryDetailRes?.statusCode || ''} />
+                <StatusLabel statusCode={inventoryDetailRes?.statusCode || ''} />
               </div>
             </div>
           </div>
@@ -204,7 +201,7 @@ const InventoryDetailModal = ({
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <StatusLabel $statusCode={movement.type} />
+                        <StatusLabel statusCode={movement.type} />
                         <span className="text-sm font-medium text-gray-900">
                           {movement.quantity} {movement.uomName}
                         </span>
@@ -246,7 +243,7 @@ const InventoryDetailModal = ({
               icon="ri-arrow-left-right-line"
               label="재고 이동"
               onClick={() => {
-                //   $setShowDetailModal(false);
+                //   setShowDetailModal(false);
                 handleStockMove(inventoryDetailRes?.itemId ?? '');
               }}
               className="w-[49%]"
@@ -255,7 +252,7 @@ const InventoryDetailModal = ({
               icon="ri-edit-line mr-1"
               label="안전 재고 수정"
               onClick={() => {
-                // $setShowDetailModal(false);
+                // setShowDetailModal(false);
                 handleSafetyStockEdit();
               }}
               className="w-[51%]"
@@ -265,13 +262,13 @@ const InventoryDetailModal = ({
       </div>
       {/* 재고 이동 모달 */}
       {showMoveModal && (
-        <InventoryMoveModal $setShowMoveModal={setShowMoveModal} $selectedStock={selectedStock} />
+        <InventoryMoveModal setShowMoveModal={setShowMoveModal} selectedStock={selectedStock} />
       )}
       {/* 안전재고 수정 모달 */}
       {showSafetyStockModal && (
         <InventorySafetyModal
-          $setShowSafetyStockModal={setShowSafetyStockModal}
-          $selectedStock={selectedStock}
+          setShowSafetyStockModal={setShowSafetyStockModal}
+          selectedStock={selectedStock}
         />
       )}
     </>

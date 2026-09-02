@@ -33,14 +33,14 @@ export default function PurchaseRequestDetailModal({
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="구매 요청 상세정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="구매 요청 상세정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="구매 요청 상세 정보 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => {
+        type="error"
+        message="구매 요청 상세 정보 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => {
           setErrorModal(false);
           onClose(); // 모달창 닫기
         }}
@@ -77,7 +77,7 @@ export default function PurchaseRequestDetailModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-              <StatusLabel $statusCode={request.statusCode} />
+              <StatusLabel statusCode={request.statusCode} />
             </div>
           </div>
         </div>

@@ -166,7 +166,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
       key: 'status',
       label: '상태',
       align: 'center',
-      render: (_, order) => <StatusLabel $statusCode={order.status} />,
+      render: (_, order) => <StatusLabel statusCode={order.status} />,
     },
   ];
 
@@ -202,12 +202,9 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
       </div>
 
       {isLoading ? (
-        <TableStatusBox $type="loading" $message="계획 주문 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message="계획 주문 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox
-          $type="error"
-          $message="계획 주문 목록을 불러오는 중 오류가 발생했습니다."
-        />
+        <TableStatusBox type="error" message="계획 주문 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
           columns={columns}

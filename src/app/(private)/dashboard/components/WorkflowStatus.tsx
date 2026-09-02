@@ -6,10 +6,10 @@ import { getTabCodeText } from '../dashboard.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 
-const WorkflowStatus = ({ $workflowData }: DashboardProps) => {
+const WorkflowStatus = ({ workflowData }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState('first');
 
-  const tabs = $workflowData?.tabs ?? [];
+  const tabs = workflowData?.tabs ?? [];
   const firstTab = tabs[0];
   const secondTab = tabs[1];
 
@@ -76,7 +76,7 @@ const WorkflowStatus = ({ $workflowData }: DashboardProps) => {
                   </p>
                 </div>
               </div>
-              <StatusLabel $statusCode={workflow.statusCode} />
+              <StatusLabel statusCode={workflow.statusCode} />
             </div>
           ))
         )}

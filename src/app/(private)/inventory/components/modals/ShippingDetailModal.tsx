@@ -19,8 +19,8 @@ import { useToast } from '@/app/components/common/toast/useToast';
 
 const ShippingDetailModal = ({
   onClose,
-  $selectedSubTab,
-  $selectedOrderId,
+  selectedSubTab,
+  selectedOrderId,
 }: ShippingDetailModalProps) => {
   const toast = useToast();
   const getShippingDetailBySubTab = (subTab: string, id: string) => {
@@ -39,9 +39,9 @@ const ShippingDetailModal = ({
     isLoading,
     isError,
   } = useQuery<ShippingDetailResponse>({
-    queryKey: ['shippingDetail', $selectedOrderId],
-    queryFn: () => getShippingDetailBySubTab($selectedSubTab, $selectedOrderId),
-    enabled: !!$selectedOrderId,
+    queryKey: ['shippingDetail', selectedOrderId],
+    queryFn: () => getShippingDetailBySubTab(selectedSubTab, selectedOrderId),
+    enabled: !!selectedOrderId,
   });
 
   const [errorModal, setErrorModal] = useState(false);
@@ -65,14 +65,14 @@ const ShippingDetailModal = ({
   });
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="출고 상세 데이터를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="출고 상세 데이터를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="출고 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="출고 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
@@ -106,7 +106,7 @@ const ShippingDetailModal = ({
         </div>
       </div>
 
-      {$selectedSubTab !== 'producing' && (
+      {selectedSubTab !== 'producing' && (
         <div className="flex gap-3 pt-4">
           <button
             onClick={() => onClose()}
@@ -117,7 +117,7 @@ const ShippingDetailModal = ({
           <button
             onClick={() => {
               markAsReadyToShip({
-                orderId: $selectedOrderId,
+                orderId: selectedOrderId,
                 itemIds: {
                   itemIds: shippingDetailRes?.orderItems.map((item) => item.itemId) ?? [],
                 },

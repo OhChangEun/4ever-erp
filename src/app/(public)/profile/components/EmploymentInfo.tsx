@@ -6,7 +6,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { EditUserRequest, EmploymentInfoProps, ProfileInfoResponse } from '../ProfileType';
 import { getProfile, postProfile } from '../profile.api';
 
-const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
+const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   const toast = useToast();
   const { data: profileInfo } = useQuery<ProfileInfoResponse>({
     queryKey: ['profileInfo'],
@@ -95,7 +95,7 @@ const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
       toast.error('프로필 수정 중 오류가 발생했습니다.');
     },
     onSuccess: () => {
-      $setIsEditing(false);
+      setIsEditing(false);
       toast.success('프로필 수정이 완료되었습니다.');
     },
     onSettled: () => {
@@ -148,7 +148,7 @@ const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
       </div>
 
       <div className="bg-white px-6 py-6">
-        {$isEditing ? (
+        {isEditing ? (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {formFields.map((field) => {
@@ -194,7 +194,7 @@ const EmploymentInfo = ({ $isEditing, $setIsEditing }: EmploymentInfoProps) => {
               <button
                 type="button"
                 onClick={() => {
-                  $setIsEditing(false);
+                  setIsEditing(false);
                 }}
                 className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
               >

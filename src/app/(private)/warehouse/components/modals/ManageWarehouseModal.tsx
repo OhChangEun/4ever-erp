@@ -34,7 +34,7 @@ interface ManageWarehouseRequest {
   description: string;
 }
 
-const ManageWarehouseModal = ({ onClose, $selectedWarehouseId }: ManageWarehouseModalProps) => {
+const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseModalProps) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const [formData, setFormData] = useState<ManageWarehouseRequest>({
@@ -70,16 +70,16 @@ const ManageWarehouseModal = ({ onClose, $selectedWarehouseId }: ManageWarehouse
       warehouseStatusCode: formData.statusCode,
       note: formData.description ?? '',
     };
-    editWarehouse({ warehouseId: $selectedWarehouseId, payload: data });
+    editWarehouse({ warehouseId: selectedWarehouseId, payload: data });
   };
   const {
     data: warehouseDetailRes,
     isLoading: isWarehouseInfoLoading,
     isError: isWarehouseInfoError,
   } = useQuery<WarehouseDetailResponse>({
-    queryKey: ['warehouseDetail', $selectedWarehouseId],
-    queryFn: () => getWarehouseDetail($selectedWarehouseId),
-    enabled: !!$selectedWarehouseId,
+    queryKey: ['warehouseDetail', selectedWarehouseId],
+    queryFn: () => getWarehouseDetail(selectedWarehouseId),
+    enabled: !!selectedWarehouseId,
   });
 
   const warehouseInfo = warehouseDetailRes?.warehouseInfo;
@@ -186,26 +186,26 @@ const ManageWarehouseModal = ({ onClose, $selectedWarehouseId }: ManageWarehouse
   }, [isWarehouseInfoError, isManagerInfoError]);
 
   if (isWarehouseInfoLoading)
-    return <ModalStatusBox $type="loading" $message="창고 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
 
   if (isManagerInfoLoading)
-    return <ModalStatusBox $type="loading" $message="담당자 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="담당자 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="담당자 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="담당자 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="창고 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => setErrorModal(false)}
+        type="error"
+        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => setErrorModal(false)}
       />
     );
 

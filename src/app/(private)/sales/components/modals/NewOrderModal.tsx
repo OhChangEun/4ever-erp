@@ -146,14 +146,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   }, [isError]);
 
   if (isLoading)
-    return <ModalStatusBox $type="loading" $message="자재 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message="자재 정보를 불러오는 중입니다..." />;
 
   if (errorModal)
     return (
       <ModalStatusBox
-        $type="error"
-        $message="자재 정보를 불러오는 중 오류가 발생했습니다."
-        $onClose={() => {
+        type="error"
+        message="자재 정보를 불러오는 중 오류가 발생했습니다."
+        onClose={() => {
           setErrorModal(false);
         }}
       />

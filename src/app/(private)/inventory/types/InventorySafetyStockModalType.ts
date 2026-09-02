@@ -1,6 +1,6 @@
 export interface InventorySafetyStockModalProps {
-  $setShowSafetyStockModal: (show: boolean) => void;
-  $selectedStock: {
+  setShowSafetyStockModal: (show: boolean) => void;
+  selectedStock: {
     itemId: string;
     itemName: string;
     itemNumber: string;
