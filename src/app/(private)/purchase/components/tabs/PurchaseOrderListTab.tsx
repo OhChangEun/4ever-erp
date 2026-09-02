@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import PurchaseOrderDetailModal from '@/app/(private)/purchase/components/modals/PurchaseOrderDetailModal';
 import PurchaseOrderTable from '@/app/(private)/purchase/components/sections/PurchaseOrderTableSection';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchPurchaseOrderList,
   fetchPurchaseOrderSearchTypeDropdown,
@@ -14,7 +14,6 @@ import {
 } from '@/app/(private)/purchase/api/purchase.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import { getQueryClient } from '@/lib/queryClient';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -51,7 +50,7 @@ export default function PurchaseOrderListTab() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const queryClient = getQueryClient();
+  const queryClient = useQueryClient();
 
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
@@ -96,7 +95,7 @@ export default function PurchaseOrderListTab() {
     mutationFn: (poId: string) => postRejectPurchaseOrder(poId, ''),
     onSuccess: () => {
       toast.success('반려 처리되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['purchaseOrders"'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
       toast.error(`반려 중 오류가 발생했습니다. ${error}`);
@@ -107,7 +106,7 @@ export default function PurchaseOrderListTab() {
     mutationFn: (poId: string) => postDeliveryStartOrder(poId),
     onSuccess: () => {
       toast.info('배송이 시작되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['purchaseOrders"'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
     },
     onError: (error) => {
       toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${error}`);
