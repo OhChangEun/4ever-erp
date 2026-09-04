@@ -1,3 +1,4 @@
+import { signSession } from '@/lib/auth/session';
 import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -37,9 +38,10 @@ export async function POST(req: NextRequest) {
   const res = NextResponse.json({ user });
 
   // 5. res.cookies.set({ ... }) 로 세션 쿠키 심기
+  const value = await signSession({ sub: loginId, role: user.role });
   res.cookies.set({
     name: 'session',
-    value: loginId,
+    value,
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
