@@ -1,4 +1,4 @@
-import { signSession } from '@/lib/auth/session';
+import { SESSION_COOKIE, signSession } from '@/lib/auth/session';
 import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
   if (!isLoginBody(body)) {
     return NextResponse.json({ message: '잘못된 요청' }, { status: 400 });
   }
-  const loginId = body.loginId.trim().toLowerCase();
 
   // 2.1 계정이 존재하는지 체크
+  const loginId = body.loginId.trim().toLowerCase();
   const isExists = DEMO_ACCOUNTS.some((a) => a.loginId === loginId);
   if (!isExists) {
     return NextResponse.json({ message: '없는 아이디입니다.' }, { status: 401 });
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   // 5. res.cookies.set({ ... }) 로 세션 쿠키 심기
   const value = await signSession({ sub: loginId, role: user.role });
   res.cookies.set({
-    name: 'session',
+    name: SESSION_COOKIE,
     value,
     httpOnly: true,
     sameSite: 'lax',

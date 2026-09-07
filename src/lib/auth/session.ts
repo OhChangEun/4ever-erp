@@ -55,3 +55,6 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
     return null;
   }
 }
+
+// 6. 쿠키 이름 - login, logout, me, proxy 네 곳에서 같은 문자열을 써야 한다
+export const SESSION_COOKIE = 'session';
