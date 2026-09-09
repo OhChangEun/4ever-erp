@@ -1,32 +1,11 @@
 import axios from 'axios';
-import { readStoredToken } from '@/lib/auth/tokenStorage';
 import { API_BASE_URL } from '@/app/types/api';
 import { buildMockUser } from '@/lib/auth/simpleLogin';
 
 axios.defaults.timeout = 4000;
 
-async function resolveAccessToken(): Promise<string | null> {
-  if (typeof window !== 'undefined') {
-    const { token } = readStoredToken();
-    return token;
-  }
-
-  return null;
-}
-
-axios.interceptors.request.use(
-  async (config) => {
-    const token = await resolveAccessToken();
-
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+// 인증 헤더를 여기서 붙이지 않는다.
+// 브라우저는 세션 쿠키만 자동으로 보내고, Bearer 토큰은 /api/proxy 가 서버에서 교환한다.
 
 const enableFallback = process.env.NEXT_PUBLIC_API_FALLBACK !== 'disabled';
 

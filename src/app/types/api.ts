@@ -1,7 +1,7 @@
 // 공통 API Base URL
-// 기본값: /api (Next.js API Routes → 로컬/Vercel 모두 별도 설정 불필요)
-// 실제 백엔드 연결 시: NEXT_PUBLIC_API_BASE_URL=https://api.everp.co.kr/api
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api';
+// 기본값: /api/proxy (BFF) - 브라우저는 세션 쿠키만 보내고, 프록시가 서버에서 Bearer로 바꿔 백엔드에 전달
+// 백엔드 주소는 서버 전용 env BACKEND_API_URL 로 지정 (없으면 이 앱의 목 API /api 로 전달)
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api/proxy';
 
 export const SALES_BASE_PATH = `${API_BASE_URL}/business/sd`;
 export const FINANCE_BASE_PATH = `${API_BASE_URL}/business/fcm`;

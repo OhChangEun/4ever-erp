@@ -2,23 +2,30 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import { persistAccessToken } from '@/lib/auth/tokenStorage';
 import { useAuthStore } from '@/store/authStore';
-import { buildMockUser, saveLoginId, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
+import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
+import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
 import Button from '@/app/components/common/Button';
 import Flex from '@/app/components/common/Flex';
 import LogoMark from '@/app/components/header/LogoMark';
 
 const VALID_IDS = new Set(DEMO_ACCOUNTS.map((a) => a.loginId.toUpperCase()));
 
+// middleware가 붙여준 returnTo - 같은 사이트 안의 경로만 허용
+function readReturnTo(): string {
+  if (typeof window === 'undefined') return '/dashboard';
+  const value = new URLSearchParams(window.location.search).get('returnTo') ?? '';
+  return value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { setUserInfo } = useAuthStore();
   const [inputId, setInputId] = useState('');
   const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
 
-  function login(loginId: string) {
+  async function login(loginId: string) {
     const trimmed = loginId.trim();
 
     if (!trimmed) {
@@ -31,16 +38,29 @@ export default function LoginPage() {
       return;
     }
 
-    saveLoginId(trimmed);
-    const user = buildMockUser(trimmed);
+    // 로그인은 서버가 처리한다 - 세션은 httpOnly 쿠키로 오고, 브라우저 JS는 그 값을 볼 수 없다
+    setPending(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginId: trimmed }),
+      });
 
-    persistAccessToken('demo-access-token', 60 * 60 * 24);
-    setUserInfo(user);
-    Cookies.set('role', user.role.toUpperCase(), { path: '/', sameSite: 'lax' });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { message?: string } | null;
+        setError(data?.message ?? '로그인에 실패했습니다.');
+        return;
+      }
 
-    const returnTo = localStorage.getItem('oauth_return_to') || '/dashboard';
-    localStorage.removeItem('oauth_return_to');
-    router.replace(returnTo);
+      const { user } = (await res.json()) as { user: userInfoResponse };
+      setUserInfo(user);
+      router.replace(readReturnTo());
+    } catch {
+      setError('서버에 연결할 수 없습니다.');
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -122,7 +142,7 @@ export default function LoginPage() {
                 placeholder="아이디 입력"
                 autoComplete="username"
               />
-              <Button type="submit" label="로그인" variant="primary" size="sm" />
+              <Button type="submit" label="로그인" variant="primary" size="sm" disabled={pending} />
             </Flex>
           </form>
           {error ? <p className="pl-2 text-xs text-red-500">{error}</p> : null}

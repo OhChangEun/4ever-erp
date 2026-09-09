@@ -3,49 +3,42 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import Cookies from 'js-cookie';
-import { clearAccessToken, readStoredToken } from '@/lib/auth/tokenStorage';
-import { buildMockUser, readLoginId } from '@/lib/auth/simpleLogin';
+import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
 
+// 로그인 여부는 서버가 판단한다.
+// 브라우저에 남은 값(localStorage·zustand persist)은 표시용 캐시일 뿐이고, 매 진입마다 /api/auth/me 로 확인한다.
 export default function PrivateGuard({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
-  const [redirecting, setRedirecting] = useState(false);
-  const { userInfo, setUserInfo } = useAuthStore();
+  const { setUserInfo, clearUserInfo } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
-      const { token, expiresAt } = readStoredToken();
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' });
+        if (cancelled) return;
 
-      if (!token || !expiresAt || Date.now() > expiresAt) {
-        clearAccessToken();
-        setRedirecting(true);
-        try {
-          localStorage.setItem('oauth_return_to', window.location.pathname);
-        } catch {
-          // Ignore storage errors and continue redirect.
+        if (!res.ok) {
+          clearUserInfo();
+          router.replace(`/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
+          return;
         }
-        router.replace('/login');
-        return;
+
+        const { user } = (await res.json()) as { user: userInfoResponse };
+        if (cancelled) return;
+        setUserInfo(user);
+        setReady(true);
+      } catch {
+        if (!cancelled) router.replace('/login');
       }
-
-      setReady(true);
     })();
-  }, [router, setReady]);
 
-  useEffect(() => {
-    if (!ready) return;
-
-    if (!userInfo) {
-      const loginId = readLoginId();
-      const fallbackUser = buildMockUser(loginId ?? undefined);
-      setUserInfo(fallbackUser);
-      Cookies.set('role', fallbackUser.role.toUpperCase(), { path: '/', sameSite: 'lax' });
-      return;
-    }
-
-    Cookies.set('role', userInfo.role.toUpperCase(), { path: '/', sameSite: 'lax' });
-  }, [ready, userInfo, setUserInfo]);
+    return () => {
+      cancelled = true;
+    };
+  }, [router, setUserInfo, clearUserInfo]);
 
   if (!ready) {
     return null;

@@ -4,10 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRole } from '@/app/hooks/useRole';
 import { useRouter } from 'next/navigation';
-import { clearAccessToken } from '@/lib/auth/tokenStorage';
-import Cookies from 'js-cookie';
 import { useAuthStore } from '@/store/authStore';
-import { clearLoginId } from '@/lib/auth/simpleLogin';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
 import { mapRoleToKorean } from '@/app/components/header/ProfileDropdown';
 
@@ -43,11 +40,12 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
     };
   }, [isOpen]);
 
-  const handleLogout = () => {
-    clearAccessToken();
+  const handleLogout = async () => {
+    // 세션 쿠키는 httpOnly라 브라우저 JS가 못 지운다 - 서버가 지운다
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(
+      () => null,
+    );
     clearUserInfo();
-    clearLoginId();
-    Cookies.remove('role', { path: '/' });
     router.replace('/login');
   };
 
