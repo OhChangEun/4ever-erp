@@ -1,5 +1,7 @@
 import { Page } from '@/app/types/Page';
-import { PurchaseOrderStatus } from '@/app/(private)/purchase/constants';
+
+// 발주서 상태 코드
+export type PurchaseOrderStatus = 'APPROVAL' | 'PENDING' | 'REJECTED' | 'DELIVERING' | 'DELIVERED';
 
 // 발주서 주문 품목 상세
 export interface PurchaseOrderItem {

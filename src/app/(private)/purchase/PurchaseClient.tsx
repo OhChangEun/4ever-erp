@@ -5,7 +5,7 @@ import {
   mapPurchaseStatsToCards,
   mapSupplierPurchaseStatsToCards,
 } from '@/app/(private)/purchase/services/purchase.service';
-import { PURCHASE_TABS, SUPPLIER_PURCHASE_TABS } from '@/app/(private)/purchase/constants';
+import { PURCHASE_TABS, SUPPLIER_PURCHASE_TABS } from '@/app/(private)/purchase/purchase.tabs';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import StatSection from '@/app/components/common/StatSection';
 import ErrorMessage from '@/app/components/common/ErrorMessage';

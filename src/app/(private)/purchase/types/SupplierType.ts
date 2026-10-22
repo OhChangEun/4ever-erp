@@ -1,6 +1,10 @@
 import { Page, PageRequest } from '@/app/types/Page';
-import { SupplierStatus } from '@/app/(private)/purchase/constants';
 import { KeywordRequest } from '@/app/types/KeywordType';
+
+// 공급업체 카테고리 코드
+export type SupplierCategory = 'MATERIAL' | 'PARTS' | 'ETC';
+// 공급업체 상태 코드
+export type SupplierStatus = 'ACTIVE' | 'INACTIVE';
 
 // 자재 정보
 export interface Material {
@@ -56,7 +60,7 @@ export interface SupplierInfo {
   supplierBaseAddress: string;
   supplierDetailAddress: string | null;
   supplierStatusCode: SupplierStatus; // 상태값이 정해져 있으면 enum으로도 가능
-  category: string; // 예: 'MATERIAL', 'SERVICE' 등
+  category: SupplierCategory;
   deliveryLeadTime: number; // 납기일 (단위: 일)
 }
 

@@ -7,11 +7,11 @@ import {
   SupplierDetailResponse,
   ManagerInfo,
   Material,
+  SupplierCategory,
 } from '@/app/(private)/purchase/types/SupplierType';
 import Button from '@/app/components/common/Button';
 import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
-import { SupplierCategory } from '@/app/(private)/purchase/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   createSupplyRequest,
@@ -60,7 +60,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
     supplierPhone: initialData?.supplierInfo.supplierPhone || '',
     supplierBaseAddress: initialData?.supplierInfo.supplierBaseAddress || '',
     supplierDetailAddress: initialData?.supplierInfo.supplierDetailAddress || '',
-    category: initialData?.supplierInfo.category || ('ALL' as SupplierCategory),
+    category: initialData?.supplierInfo.category || '',
     statusCode: initialData?.supplierInfo.supplierStatusCode || '',
     deliveryLeadTime: initialData?.supplierInfo.deliveryLeadTime || 0,
   });

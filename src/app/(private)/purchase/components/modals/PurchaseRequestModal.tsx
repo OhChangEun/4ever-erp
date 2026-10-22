@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PURCHASE_REQUEST_TABLE_HEADERS, SUPPLIERS } from '@/app/(private)/purchase/constants';
+import { PURCHASE_REQUEST_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
 import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import Input from '@/app/components/common/Input';
