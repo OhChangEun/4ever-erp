@@ -2,8 +2,8 @@
 
 import { PURCHASE_ITEM_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
 import { useQuery } from '@tanstack/react-query';
-import { PurchaseReqDetailResponse } from '@/app/(private)/purchase/types/PurchaseReqType';
-import { fetchPurchaseReqDetail } from '@/app/(private)/purchase/api/purchase.api';
+import { PurchaseRequestDetail } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import { fetchPurchaseRequestDetail } from '@/app/(private)/purchase/api/purchase.api';
 import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
@@ -11,20 +11,20 @@ import { formatDateTime } from '@/app/utils/date';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
 export interface PurchaseRequestDetailModalProps extends ModalProps {
-  purchaseId: string;
+  purchaseRequestId: string;
 }
 
 export default function PurchaseRequestDetailModal({
-  purchaseId,
+  purchaseRequestId,
   onClose,
 }: PurchaseRequestDetailModalProps) {
   const {
     data: request,
     isLoading,
     isError,
-  } = useQuery<PurchaseReqDetailResponse>({
+  } = useQuery<PurchaseRequestDetail>({
     queryKey: ['purchaseReqDetail'],
-    queryFn: () => fetchPurchaseReqDetail(purchaseId),
+    queryFn: () => fetchPurchaseRequestDetail(purchaseRequestId),
   });
 
   const [errorModal, setErrorModal] = useState(false);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PurchaseOrder } from '@/app/(private)/purchase/types/PurchaseOrderType';
+import { PurchaseOrderListItem } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { formatDateTime } from '@/app/utils/date';
 import IconButton from '@/app/components/common/IconButton';
@@ -8,26 +8,26 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 
 export interface PurchaseOrderTableProps {
-  currentOrders: PurchaseOrder[];
-  handleViewDetail: (orderId: string) => void;
-  handleApprove: (orderId: string) => void;
-  handleReject: (orderId: string) => void;
-  handleDelivery: (orderId: string) => void;
+  orders: PurchaseOrderListItem[];
+  onViewDetail: (purchaseOrderId: string) => void;
+  onApprove: (purchaseOrderId: string) => void;
+  onReject: (purchaseOrderId: string) => void;
+  onStartDelivery: (purchaseOrderId: string) => void;
   className?: string;
 }
 
 export default function PurchaseOrderTable({
-  currentOrders,
-  handleViewDetail,
-  handleApprove,
-  handleReject,
-  handleDelivery,
+  orders,
+  onViewDetail,
+  onApprove,
+  onReject,
+  onStartDelivery,
   className,
 }: PurchaseOrderTableProps) {
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
-  const columns: TableColumn<PurchaseOrder>[] = [
+  const columns: TableColumn<PurchaseOrderListItem>[] = [
     { key: 'purchaseOrderNumber', label: '발주번호', align: 'center' },
     { key: 'supplierName', label: '공급업체', align: 'center' },
     {
@@ -62,7 +62,7 @@ export default function PurchaseOrderTable({
       render: (_, order) => (
         <div className="flex items-center justify-center space-x-2">
           <button
-            onClick={() => handleViewDetail(order.purchaseOrderId)}
+            onClick={() => onViewDetail(order.purchaseOrderId)}
             className="text-blue-600 hover:text-blue-500 cursor-pointer"
             title="상세보기"
           >
@@ -71,14 +71,14 @@ export default function PurchaseOrderTable({
           {isSupplier && order.statusCode === 'PENDING' && (
             <>
               <button
-                onClick={() => handleApprove(order.purchaseOrderId)}
+                onClick={() => onApprove(order.purchaseOrderId)}
                 className="text-green-600 hover:text-green-900 cursor-pointer"
                 title="승인"
               >
                 <i className="ri-check-line"></i>
               </button>
               <button
-                onClick={() => handleReject(order.purchaseOrderId)}
+                onClick={() => onReject(order.purchaseOrderId)}
                 className="text-red-600 hover:text-red-900 cursor-pointer"
                 title="반려"
               >
@@ -91,7 +91,7 @@ export default function PurchaseOrderTable({
               size="sm"
               variant="soft"
               icon="ri-truck-line"
-              onClick={() => handleDelivery(order.purchaseOrderId)}
+              onClick={() => onStartDelivery(order.purchaseOrderId)}
             />
           )}
         </div>
@@ -103,7 +103,7 @@ export default function PurchaseOrderTable({
     <Table
       className={className}
       columns={columns}
-      data={currentOrders}
+      data={orders}
       keyExtractor={(row) => row.purchaseOrderId}
       emptyMessage="발주서가 없습니다."
     />

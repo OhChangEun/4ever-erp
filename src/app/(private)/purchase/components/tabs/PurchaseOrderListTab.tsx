@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import PurchaseOrderDetailModal from '@/app/(private)/purchase/components/modals/PurchaseOrderDetailModal';
-import PurchaseOrderTable from '@/app/(private)/purchase/components/sections/PurchaseOrderTableSection';
+import PurchaseOrderTable from '@/app/(private)/purchase/components/sections/PurchaseOrderTable';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchPurchaseOrderList,
-  fetchPurchaseOrderSearchTypeDropdown,
-  fetchPurchaseOrderStatusDropdown,
-  postApprovePurchaseOrder,
-  postDeliveryStartOrder,
-  postRejectPurchaseOrder,
+  fetchPurchaseOrderSearchTypeOptions,
+  fetchPurchaseOrderStatusOptions,
+  approvePurchaseOrder,
+  startPurchaseOrderDelivery,
+  rejectPurchaseOrder,
 } from '@/app/(private)/purchase/api/purchase.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
@@ -20,7 +20,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useDebounce } from 'use-debounce';
-import { FetchPurchaseOrderParams } from '../../types/PurchaseApiRequestType';
+import { PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
 
@@ -31,12 +31,12 @@ export default function PurchaseOrderListTab() {
   // 발주서 타입 드롭다운
   const { options: purchaseOrderStatusOptions } = useDropdown(
     'purchaseOrderStatusDropdown',
-    fetchPurchaseOrderStatusDropdown,
+    fetchPurchaseOrderStatusOptions,
   );
   // 발주서 검색 타입 드롭다운
   const { options: purchaseOrderSearchTypeOptions } = useDropdown(
     'purchaseOrderSearchTypeDropdown',
-    fetchPurchaseOrderSearchTypeDropdown,
+    fetchPurchaseOrderSearchTypeOptions,
   );
 
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -56,7 +56,7 @@ export default function PurchaseOrderListTab() {
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
   const queryParams = useMemo(
-    (): FetchPurchaseOrderParams => ({
+    (): PurchaseOrderListParams => ({
       statusCode: selectedStatus || undefined,
       type: selectedSearchType,
       keyword: debouncedKeyword,
@@ -79,8 +79,8 @@ export default function PurchaseOrderListTab() {
   });
 
   // 발주서 승인
-  const { mutate: approvePurchaseOrder } = useMutation({
-    mutationFn: (poId: string) => postApprovePurchaseOrder(poId),
+  const { mutate: approveOrder } = useMutation({
+    mutationFn: (purchaseOrderId: string) => approvePurchaseOrder(purchaseOrderId),
     onSuccess: () => {
       toast.success('발주서 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
@@ -91,8 +91,8 @@ export default function PurchaseOrderListTab() {
   });
 
   // 발주서 반려
-  const { mutate: rejectPurhcaseOrder } = useMutation({
-    mutationFn: (poId: string) => postRejectPurchaseOrder(poId, ''),
+  const { mutate: rejectOrder } = useMutation({
+    mutationFn: (purchaseOrderId: string) => rejectPurchaseOrder(purchaseOrderId, ''),
     onSuccess: () => {
       toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
@@ -102,8 +102,9 @@ export default function PurchaseOrderListTab() {
     },
   });
 
-  const { mutate: deliveryPurhcaseOrder } = useMutation({
-    mutationFn: (poId: string) => postDeliveryStartOrder(poId),
+  // 배송 시작
+  const { mutate: startDelivery } = useMutation({
+    mutationFn: (purchaseOrderId: string) => startPurchaseOrderDelivery(purchaseOrderId),
     onSuccess: () => {
       toast.info('배송이 시작되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
@@ -117,29 +118,29 @@ export default function PurchaseOrderListTab() {
   const pageInfo = orderData?.page;
   const totalPages = pageInfo?.totalPages ?? 1;
 
-  const handleApprove = (poId: string) => {
+  const handleApprove = (purchaseOrderId: string) => {
     if (confirm('해당 요청을 승인하시겠습니까?')) {
-      approvePurchaseOrder(poId);
+      approveOrder(purchaseOrderId);
     }
   };
 
-  const handleReject = (poId: string) => {
+  const handleReject = (purchaseOrderId: string) => {
     if (confirm('해당 요청을 반려하시겠습니까?')) {
-      rejectPurhcaseOrder(poId);
+      rejectOrder(purchaseOrderId);
     }
   };
 
-  const handleDelivery = (poId: string) => {
+  const handleStartDelivery = (purchaseOrderId: string) => {
     if (confirm('배송을 시작하시겠습니까?')) {
-      deliveryPurhcaseOrder(poId);
+      startDelivery(purchaseOrderId);
     }
   };
 
   // 상세 보기 모달 핸들러
-  const handleViewDetail = (purchaseId: string): void => {
+  const handleViewDetail = (purchaseOrderId: string): void => {
     openModal(PurchaseOrderDetailModal, {
       title: '발주서 상세정보',
-      purchaseId: purchaseId,
+      purchaseOrderId,
       width: '800px',
     });
   };
@@ -187,11 +188,11 @@ export default function PurchaseOrderListTab() {
         <TableStatusBox type="error" message="발주서 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <PurchaseOrderTable
-          currentOrders={orders}
-          handleViewDetail={handleViewDetail}
-          handleApprove={handleApprove}
-          handleReject={handleReject}
-          handleDelivery={handleDelivery}
+          orders={orders}
+          onViewDetail={handleViewDetail}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onStartDelivery={handleStartDelivery}
           className="flex-1 min-h-0"
         />
       )}

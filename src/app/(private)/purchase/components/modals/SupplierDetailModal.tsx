@@ -1,6 +1,6 @@
 'use client';
 
-import { SupplierDetailResponse } from '@/app/(private)/purchase/types/SupplierType';
+import { SupplierDetail } from '@/app/(private)/purchase/types/SupplierType';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSupplierDetail } from '@/app/(private)/purchase/api/purchase.api';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
@@ -9,18 +9,18 @@ import Button from '@/app/components/common/Button';
 import { useModal } from '@/app/components/common/modal/useModal';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
 
-interface DetailSupplierModalProps extends ModalProps {
+interface SupplierDetailModalProps extends ModalProps {
   supplierId: string;
 }
 
-export default function SupplierDetailModal({ supplierId, onClose }: DetailSupplierModalProps) {
+export default function SupplierDetailModal({ supplierId, onClose }: SupplierDetailModalProps) {
   const { openModal } = useModal();
 
   const {
     data: supplier,
     isLoading,
     isError,
-  } = useQuery<SupplierDetailResponse>({
+  } = useQuery<SupplierDetail>({
     queryKey: ['supplierDetail', supplierId],
     queryFn: () => fetchSupplierDetail(supplierId),
   });

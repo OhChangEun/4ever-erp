@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchPurchaseOrderDetail } from '@/app/(private)/purchase/api/purchase.api';
-import { PurchaseOrderDetailResponse } from '@/app/(private)/purchase/types/PurchaseOrderType';
+import { PurchaseOrderDetail } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useEffect, useState } from 'react';
 import { ModalProps } from '@/app/components/common/modal/types';
@@ -10,17 +10,19 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 
 export interface PurchaseOrderDetailModalProps extends ModalProps {
-  purchaseId: string;
+  purchaseOrderId: string;
 }
 
-export default function PurchaseOrderDetailModal({ purchaseId }: PurchaseOrderDetailModalProps) {
+export default function PurchaseOrderDetailModal({
+  purchaseOrderId,
+}: PurchaseOrderDetailModalProps) {
   const {
     data: order,
     isLoading,
     isError,
-  } = useQuery<PurchaseOrderDetailResponse>({
+  } = useQuery<PurchaseOrderDetail>({
     queryKey: ['purchaseOrderDetail'],
-    queryFn: () => fetchPurchaseOrderDetail(purchaseId),
+    queryFn: () => fetchPurchaseOrderDetail(purchaseOrderId),
   });
 
   const [errorModal, setErrorModal] = useState(false);

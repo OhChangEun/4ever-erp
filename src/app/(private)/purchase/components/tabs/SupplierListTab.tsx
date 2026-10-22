@@ -5,15 +5,16 @@ import { useQuery } from '@tanstack/react-query';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
 import SupplierDetailModal from '@/app/(private)/purchase/components/modals/SupplierDetailModal';
 import {
-  SupplierListRequestParams,
+  SupplierListItem,
+  SupplierListParams,
   SupplierListResponse,
 } from '@/app/(private)/purchase/types/SupplierType';
 import IconButton from '@/app/components/common/IconButton';
 import {
-  fetchSupplierCategoryDropdown,
+  fetchSupplierCategoryOptions,
   fetchSupplierList,
-  fetchSupplierSearchTypeDropdown,
-  fetchSupplierStatusDropdown,
+  fetchSupplierSearchTypeOptions,
+  fetchSupplierStatusOptions,
 } from '@/app/(private)/purchase/api/purchase.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import Pagination from '@/app/components/common/Pagination';
@@ -28,17 +29,17 @@ export default function SupplierListTab() {
   // 공급업체 카테고리 드롭다운
   const { options: supplierCategoryOptions } = useDropdown(
     'supplierCategoryDropdown',
-    fetchSupplierCategoryDropdown,
+    fetchSupplierCategoryOptions,
   );
   // 공급업체 상태 드롭다운
   const { options: supplierStatusOptions } = useDropdown(
     'supplierStatusDropdown',
-    fetchSupplierStatusDropdown,
+    fetchSupplierStatusOptions,
   );
   // 공급업체 검색타입 드롭다운
   const { options: supplierSearchTypeOptions } = useDropdown(
     'supplierSearchTypeDropdown',
-    fetchSupplierSearchTypeDropdown,
+    fetchSupplierSearchTypeOptions,
   );
 
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -50,7 +51,7 @@ export default function SupplierListTab() {
   const pageSize = 10;
 
   const queryParams = useMemo(
-    (): SupplierListRequestParams => ({
+    (): SupplierListParams => ({
       category: selectedCategory,
       statusCode: selectedStatus,
       type: selectedSearchType,
@@ -86,8 +87,7 @@ export default function SupplierListTab() {
     openModal(SupplierDetailModal, { title: '공급업체 상세', supplierId: supplierId });
   };
 
-  type SupplierItem = (typeof suppliers)[0];
-  const columns: TableColumn<SupplierItem>[] = [
+  const columns: TableColumn<SupplierListItem>[] = [
     {
       key: 'supplierNumber',
       label: '공급업체 코드',

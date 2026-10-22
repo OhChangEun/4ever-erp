@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import {
-  CreateSupplierRequest,
-  ModSupplierRequestBody,
-  SupplierDetailResponse,
+  CreateSupplierBody,
+  UpdateSupplierBody,
+  SupplierDetail,
   ManagerInfo,
   Material,
   SupplierCategory,
@@ -14,10 +14,10 @@ import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  createSupplyRequest,
-  patchSupplyRequest,
-  fetchSupplierCategoryDropdown,
-  fetchSupplierStatusDropdown,
+  createSupplier,
+  updateSupplier,
+  fetchSupplierCategoryOptions,
+  fetchSupplierStatusOptions,
 } from '@/app/(private)/purchase/api/purchase.api';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -26,7 +26,7 @@ import Input, { InputLabel } from '@/app/components/common/Input';
 import { useToast } from '@/app/components/common/toast/useToast';
 
 interface SupplierFormModalProps extends ModalProps {
-  initialData?: SupplierDetailResponse; // 수정 모드일 때 전달
+  initialData?: SupplierDetail; // 수정 모드일 때 전달
 }
 
 export default function SupplierFormModal({ initialData, onClose }: SupplierFormModalProps) {
@@ -44,13 +44,13 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   // 공급업체 카테고리 드롭다운
   const { options: supplierCategoryOptions } = useDropdown(
     'supplierCategoryDropdown',
-    fetchSupplierCategoryDropdown,
+    fetchSupplierCategoryOptions,
     'without-all',
   );
   // 공급업체 상태 드롭다운
   const { options: supplierStatusOptions } = useDropdown(
     'supplierStatusDropdown',
-    fetchSupplierStatusDropdown,
+    fetchSupplierStatusOptions,
     'without-all',
   );
 
@@ -91,7 +91,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
   // 생성 mutation
   const { mutate: submitSupplierCreate, isPending: isCreating } = useMutation({
-    mutationFn: createSupplyRequest,
+    mutationFn: createSupplier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplierList'] });
       toast.success('공급업체 등록이 완료되었습니다.');
@@ -100,14 +100,13 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   });
 
   // 수정 mutation
-  // 수정 mutation 부분만 수정
   const { mutate: submitSupplierUpdate, isPending: isUpdating } = useMutation({
-    mutationFn: (body: ModSupplierRequestBody) => {
+    mutationFn: (body: UpdateSupplierBody) => {
       const supplierId = initialData?.supplierInfo.supplierId;
       if (!supplierId) {
         throw new Error('공급업체 ID를 찾을 수 없습니다.');
       }
-      return patchSupplyRequest(supplierId, body);
+      return updateSupplier(supplierId, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplierList'] });
@@ -168,7 +167,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         return;
       }
 
-      const updateRequest: ModSupplierRequestBody = {
+      const updateRequest: UpdateSupplierBody = {
         supplierName: supplierInfo.supplierName,
         supplierEmail: supplierInfo.supplierEmail,
         supplierPhone: supplierInfo.supplierPhone,
@@ -210,8 +209,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         return;
       }
 
-      // CreateSupplierRequest 형태로 데이터 구성
-      const supplierRequest: CreateSupplierRequest = {
+      const supplierRequest: CreateSupplierBody = {
         supplierInfo: {
           supplierName: supplierInfo.supplierName,
           supplierEmail: supplierInfo.supplierEmail,

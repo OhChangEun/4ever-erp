@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { StockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseApiRequestType';
+import { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
@@ -70,7 +70,7 @@ export default function MrpPurchaseRequestModal({
 
   // 구매 요청 API
   const { mutate: createStockPurchase, isPending } = useMutation({
-    mutationFn: (data: StockPurchaseRequestBody) => createStockPurchaseRequest(data),
+    mutationFn: (data: CreateStockPurchaseRequestBody) => createStockPurchaseRequest(data),
     onSuccess: () => {
       toast.success('자재 구매 요청이 완료되었습니다.');
 

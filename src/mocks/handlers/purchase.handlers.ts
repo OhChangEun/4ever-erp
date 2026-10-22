@@ -23,7 +23,7 @@ export const purchaseHandlers = [
     if (shouldError(request)) return error('Failed to load supplier orders stats', 500);
     return ok(mockSupplierOrderStats);
   }),
-  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUISITIONS, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase requisitions', 500);
     return ok({
       content: [
@@ -42,11 +42,11 @@ export const purchaseHandlers = [
       page: makePage(0, 10, 1),
     });
   }),
-  http.post(PURCHASE_ENDPOINTS.PURCHASE_REQUISITIONS, ({ request }) => {
+  http.post(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to create purchase requisition', 500);
     return ok(null);
   }),
-  http.post(PURCHASE_ENDPOINTS.STOCK_PURCHASE_REQUISITIONS, ({ request }) => {
+  http.post(PURCHASE_ENDPOINTS.STOCK_PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to create stock purchase requisition', 500);
     return ok(null);
   }),
@@ -193,49 +193,49 @@ export const purchaseHandlers = [
     if (shouldError(request)) return error('Failed to update supplier', 500);
     return ok(null);
   }),
-  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_STATUS_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUEST_STATUS_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PR status dropdown', 500);
     return ok([
       { key: 'PENDING', value: '대기' },
       { key: 'APPROVED', value: '승인' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_SEARCH_TYPE_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUEST_SEARCH_TYPE_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PR search type dropdown', 500);
     return ok([
       { key: 'NUMBER', value: '요청 번호' },
       { key: 'REQUESTER', value: '요청자' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PO status dropdown', 500);
     return ok([
       { key: 'PENDING', value: '대기' },
       { key: 'APPROVED', value: '승인' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PO search type dropdown', 500);
     return ok([
       { key: 'NUMBER', value: '발주 번호' },
       { key: 'SUPPLIER', value: '공급업체' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier category dropdown', 500);
     return ok([
       { key: 'MATERIAL', value: '자재' },
       { key: 'SERVICE', value: '서비스' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier search dropdown', 500);
     return ok([
       { key: 'NAME', value: '공급업체명' },
       { key: 'NUMBER', value: '공급업체 코드' },
     ]);
   }),
-  http.get(PURCHASE_ENDPOINTS.SUPPLIER_STATUS_TOGGLE, ({ request }) => {
+  http.get(PURCHASE_ENDPOINTS.SUPPLIER_STATUS_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier status dropdown', 500);
     return ok([
       { key: 'ACTIVE', value: '활성' },

@@ -1,7 +1,7 @@
 'use client';
 
 import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
-import { StockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseApiRequestType';
+import { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import IconButton from '@/app/components/common/IconButton';
 import Input from '@/app/components/common/Input';
 import { ModalProps } from '@/app/components/common/modal/types';
@@ -62,7 +62,8 @@ export default function InventoryPurchaseRequestModal({
   const toast = useToast();
 
   const { mutate: registerStockPurchaseReq } = useMutation({
-    mutationFn: (body: StockPurchaseRequestItem[]) => createStockPurchaseRequest({ items: body }),
+    mutationFn: (body: CreateStockPurchaseRequestItem[]) =>
+      createStockPurchaseRequest({ items: body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainingList'] });
       toast.success('발주 요청이 생성되었습니다.');
@@ -76,7 +77,7 @@ export default function InventoryPurchaseRequestModal({
 
   const handleSubmit = async () => {
     // 백엔드 API 형식으로 변환
-    const requestItems: StockPurchaseRequestItem[] = quantities
+    const requestItems: CreateStockPurchaseRequestItem[] = quantities
       .filter((q) => q.quantity > 0)
       .map((q) => ({
         productId: q.itemId,

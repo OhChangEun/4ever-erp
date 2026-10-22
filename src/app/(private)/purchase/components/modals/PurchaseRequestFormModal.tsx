@@ -10,15 +10,15 @@ import { createPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api
 import DropdownInputModal from '@/app/components/common/DropdownInputModal';
 import { ModalProps } from '@/app/components/common/modal/types';
 import {
-  PurchaseRequestBody,
-  PurchaseRequestItem,
-} from '@/app/(private)/purchase/types/PurchaseApiRequestType';
+  CreatePurchaseRequestBody,
+  PurchaseRequestFormItem,
+} from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import { useToast } from '@/app/components/common/toast/useToast';
 
-export default function PurchaseRequestModal({ onClose }: ModalProps) {
-  const [requestItems, setRequestItems] = useState<PurchaseRequestItem[]>([
+export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
+  const [requestItems, setRequestItems] = useState<PurchaseRequestFormItem[]>([
     {
       id: '1',
       itemName: '',
@@ -34,7 +34,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
   const toast = useToast();
 
   const { mutate: submitPurchaseRequest, isPending } = useMutation({
-    mutationFn: (data: PurchaseRequestBody) => createPurchaseRequest(data),
+    mutationFn: (data: CreatePurchaseRequestBody) => createPurchaseRequest(data),
     onSuccess: (data) => {
       console.log('구매 요청 성공: ', data);
       toast.success(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
@@ -71,7 +71,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
   };
 
   const addRequestItem = (): void => {
-    const newItem: PurchaseRequestItem = {
+    const newItem: PurchaseRequestFormItem = {
       id: Date.now().toString(),
       itemName: '',
       quantity: 0,
@@ -93,7 +93,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
 
   const updateRequestItem = (
     id: string,
-    field: keyof PurchaseRequestItem,
+    field: keyof PurchaseRequestFormItem,
     value: string | number,
   ): void => {
     setRequestItems((prev) =>
@@ -121,7 +121,7 @@ export default function PurchaseRequestModal({ onClose }: ModalProps) {
       return;
     }
 
-    const purchaseRequestData: PurchaseRequestBody = {
+    const purchaseRequestData: CreatePurchaseRequestBody = {
       requesterId: '1234',
       items: requestItems.map((item) => ({
         itemName: item.itemName,

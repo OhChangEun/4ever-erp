@@ -4,26 +4,24 @@ import {
   SupplierPurchaseStatResponse,
 } from '@/app/(private)/purchase/types/PurchaseStatsType';
 import {
-  PurchaseOrderDetailResponse,
+  PurchaseOrderDetail,
   PurchaseOrderListResponse,
+  PurchaseOrderListParams,
 } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import {
-  PurchaseReqDetailResponse,
-  PurchaseReqListResponse,
-} from '@/app/(private)/purchase/types/PurchaseReqType';
+  PurchaseRequestDetail,
+  PurchaseRequestListResponse,
+  PurchaseRequestListParams,
+  CreatePurchaseRequestBody,
+  CreateStockPurchaseRequestBody,
+} from '@/app/(private)/purchase/types/PurchaseRequestType';
 import {
-  CreateSupplierRequest,
-  ModSupplierRequestBody,
-  SupplierDetailResponse,
+  CreateSupplierBody,
+  UpdateSupplierBody,
+  SupplierDetail,
   SupplierListResponse,
+  SupplierListParams,
 } from '@/app/(private)/purchase/types/SupplierType';
-import {
-  FetchPurchaseOrderParams,
-  PurchaseReqParams,
-  FetchSupplierListParams,
-  PurchaseRequestBody,
-  StockPurchaseRequestBody,
-} from '@/app/(private)/purchase/types/PurchaseApiRequestType';
 import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
 import { KeyValueItem } from '@/app/types/CommonType';
 import axios from '@/lib/axiosInstance';
@@ -35,7 +33,6 @@ export const fetchPurchaseStats = async (): Promise<PurchaseStatResponse | null>
       `${PURCHASE_ENDPOINTS.STATISTICS}`,
     );
     return res.data.data;
-    // console.log(res);
   } catch (error) {
     console.log(error);
     return null;
@@ -56,61 +53,55 @@ export const fetchSupplierOrdersPurchaseStats =
   };
 
 // 구매 요청 목록
-export const fetchPurchaseReqList = async (
-  params: PurchaseReqParams,
-): Promise<PurchaseReqListResponse> => {
-  const res = await axios.get<ApiResponse<PurchaseReqListResponse>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_REQUISITIONS}`,
+export const fetchPurchaseRequestList = async (
+  params: PurchaseRequestListParams,
+): Promise<PurchaseRequestListResponse> => {
+  const res = await axios.get<ApiResponse<PurchaseRequestListResponse>>(
+    `${PURCHASE_ENDPOINTS.PURCHASE_REQUESTS}`,
     { params },
   );
-  // console.log(res.data.data);
   return res.data.data;
 };
 
 // 구매 요청 승인
-export const postApporvePurchaseReq = async (prId: string) => {
+export const approvePurchaseRequest = async (purchaseRequestId: string) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_RELEASE(prId)}`,
+    `${PURCHASE_ENDPOINTS.PURCHASE_REQUEST_APPROVE(purchaseRequestId)}`,
   );
   return res.data;
 };
 
 // 구매 요청 반려
-export const postRejectPurchaseReq = async (prId: string, body: string) => {
+export const rejectPurchaseRequest = async (purchaseRequestId: string, body: string) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_REJECT(prId)}`,
+    `${PURCHASE_ENDPOINTS.PURCHASE_REQUEST_REJECT(purchaseRequestId)}`,
     { comment: body },
   );
   return res.data;
 };
 
 // 구매 요청 상세정보
-export const fetchPurchaseReqDetail = async (
-  purchaseId: string,
-): Promise<PurchaseReqDetailResponse> => {
-  const res = await axios.get<ApiResponse<PurchaseReqDetailResponse>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_DETAIL(purchaseId)}`,
+export const fetchPurchaseRequestDetail = async (
+  purchaseRequestId: string,
+): Promise<PurchaseRequestDetail> => {
+  const res = await axios.get<ApiResponse<PurchaseRequestDetail>>(
+    `${PURCHASE_ENDPOINTS.PURCHASE_REQUEST_DETAIL(purchaseRequestId)}`,
   );
-
-  // console.log(res.data.data);
   return res.data.data;
 };
 
 // 비재고성 구매 요청 등록
 export const createPurchaseRequest = async (
-  data: PurchaseRequestBody,
+  data: CreatePurchaseRequestBody,
 ): Promise<ApiResponse<null>> => {
-  const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_REQUISITIONS}`,
-    data,
-  );
+  const res = await axios.post<ApiResponse<null>>(`${PURCHASE_ENDPOINTS.PURCHASE_REQUESTS}`, data);
   return res.data;
 };
 
 // 재고성 구매 요청 등록
-export const createStockPurchaseRequest = async (data: StockPurchaseRequestBody) => {
+export const createStockPurchaseRequest = async (data: CreateStockPurchaseRequestBody) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.STOCK_PURCHASE_REQUISITIONS}`,
+    `${PURCHASE_ENDPOINTS.STOCK_PURCHASE_REQUESTS}`,
     data,
   );
   return res.data;
@@ -118,35 +109,34 @@ export const createStockPurchaseRequest = async (data: StockPurchaseRequestBody)
 
 // 발주서 목록
 export const fetchPurchaseOrderList = async (
-  params: FetchPurchaseOrderParams,
+  params: PurchaseOrderListParams,
 ): Promise<PurchaseOrderListResponse> => {
   const res = await axios.get<ApiResponse<PurchaseOrderListResponse>>(
     `${PURCHASE_ENDPOINTS.PURCHASE_ORDERS}`,
     { params },
   );
-  // console.log(res.data.data);
   return res.data.data;
 };
 
 // 발주서 승인
-export const postApprovePurchaseOrder = async (poId: string) => {
+export const approvePurchaseOrder = async (purchaseOrderId: string) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_APPROVE(poId)}`,
+    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_APPROVE(purchaseOrderId)}`,
   );
   return res.data;
 };
 
 // 발주서 반려
-export const postRejectPurchaseOrder = async (poId: string, body: string) => {
+export const rejectPurchaseOrder = async (purchaseOrderId: string, body: string) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_REJECT(poId)},`,
+    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_REJECT(purchaseOrderId)},`,
     { body },
   );
   return res.data;
 };
 
 // 승인된 발주서 배송
-export const postDeliveryStartOrder = async (purchaseOrderId: string) => {
+export const startPurchaseOrderDelivery = async (purchaseOrderId: string) => {
   const res = await axios.post<ApiResponse<null>>(
     `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_DELIVERY(purchaseOrderId)}`,
   );
@@ -155,19 +145,18 @@ export const postDeliveryStartOrder = async (purchaseOrderId: string) => {
 
 // 발주서 상세정보
 export const fetchPurchaseOrderDetail = async (
-  purchaseId: string,
-): Promise<PurchaseOrderDetailResponse> => {
-  const res = await axios.get<ApiResponse<PurchaseOrderDetailResponse>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_DETAIL(purchaseId)}`,
+  purchaseOrderId: string,
+): Promise<PurchaseOrderDetail> => {
+  const res = await axios.get<ApiResponse<PurchaseOrderDetail>>(
+    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_DETAIL(purchaseOrderId)}`,
   );
 
-  console.log(res.data.data);
   return res.data.data;
 };
 
 // 공급업체 목록
 export const fetchSupplierList = async (
-  params: FetchSupplierListParams = {},
+  params: SupplierListParams,
 ): Promise<SupplierListResponse> => {
   const res = await axios.get<ApiResponse<SupplierListResponse>>(`${PURCHASE_ENDPOINTS.SUPPLIER}`, {
     params,
@@ -176,27 +165,23 @@ export const fetchSupplierList = async (
 };
 
 // 공급업체 상세정보
-export const fetchSupplierDetail = async (supplierId: string): Promise<SupplierDetailResponse> => {
-  const res = await axios.get<ApiResponse<SupplierDetailResponse>>(
+export const fetchSupplierDetail = async (supplierId: string): Promise<SupplierDetail> => {
+  const res = await axios.get<ApiResponse<SupplierDetail>>(
     `${PURCHASE_ENDPOINTS.SUPPLIER_DETAIL(supplierId)}`,
   );
-
-  // console.log(res.data.data);
   return res.data.data;
 };
 
 // 공급업체 등록
-export const createSupplyRequest = async (
-  data: CreateSupplierRequest,
-): Promise<ApiResponse<null>> => {
+export const createSupplier = async (data: CreateSupplierBody): Promise<ApiResponse<null>> => {
   const res = await axios.post<ApiResponse<null>>(`${PURCHASE_ENDPOINTS.SUPPLIER}`, data);
   return res.data;
 };
 
 // 공급업체 수정
-export const patchSupplyRequest = async (
+export const updateSupplier = async (
   supplierId: string,
-  body: ModSupplierRequestBody,
+  body: UpdateSupplierBody,
 ): Promise<ApiResponse<null>> => {
   const res = await axios.patch<ApiResponse<null>>(
     `${PURCHASE_ENDPOINTS.SUPPLIER_DETAIL(supplierId)}`,
@@ -207,57 +192,57 @@ export const patchSupplyRequest = async (
 
 // --- 드롭다운 ---
 // 구매요청서 상태
-export const fetchPurchaseRequisitionStatusDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchPurchaseRequestStatusOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_STATUS_TOGGLE,
+    PURCHASE_ENDPOINTS.PURCHASE_REQUEST_STATUS_OPTIONS,
   );
   return res.data.data;
 };
 
 // 구매요청서 검색 타입
-export const fetchPurchaseRequisitionSearchTypeDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchPurchaseRequestSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.PURCHASE_REQUISITION_SEARCH_TYPE_TOGGLE,
+    PURCHASE_ENDPOINTS.PURCHASE_REQUEST_SEARCH_TYPE_OPTIONS,
   );
   return res.data.data;
 };
 
 // 발주서 상태
-export const fetchPurchaseOrderStatusDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchPurchaseOrderStatusOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_TOGGLE,
+    PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_OPTIONS,
   );
   return res.data.data;
 };
 
 // 발주서 검색 타입
-export const fetchPurchaseOrderSearchTypeDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchPurchaseOrderSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_TOGGLE,
+    PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_OPTIONS,
   );
   return res.data.data;
 };
 
 // 공급업체 카테고리
-export const fetchSupplierCategoryDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchSupplierCategoryOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_TOGGLE,
+    PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_OPTIONS,
   );
   return res.data.data;
 };
 
 // 공급업체 검색 타입
-export const fetchSupplierSearchTypeDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchSupplierSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_TOGGLE,
+    PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_OPTIONS,
   );
   return res.data.data;
 };
 
 // 공급업체 상태
-export const fetchSupplierStatusDropdown = async (): Promise<KeyValueItem[]> => {
+export const fetchSupplierStatusOptions = async (): Promise<KeyValueItem[]> => {
   const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    PURCHASE_ENDPOINTS.SUPPLIER_STATUS_TOGGLE,
+    PURCHASE_ENDPOINTS.SUPPLIER_STATUS_OPTIONS,
   );
   return res.data.data;
 };

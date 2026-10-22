@@ -2,27 +2,26 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import PurchaseRequestModal from '@/app/(private)/purchase/components/modals/PurchaseRequestModal';
+import PurchaseRequestFormModal from '@/app/(private)/purchase/components/modals/PurchaseRequestFormModal';
 import PurchaseRequestDetailModal from '@/app/(private)/purchase/components/modals/PurchaseRequestDetailModal';
 import {
-  fetchPurchaseReqList,
-  fetchPurchaseRequisitionSearchTypeDropdown,
-  fetchPurchaseRequisitionStatusDropdown,
-  postApporvePurchaseReq,
-  postRejectPurchaseReq,
+  fetchPurchaseRequestList,
+  fetchPurchaseRequestSearchTypeOptions,
+  fetchPurchaseRequestStatusOptions,
+  approvePurchaseRequest,
+  rejectPurchaseRequest,
 } from '@/app/(private)/purchase/api/purchase.api';
 import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import {
-  PurchaseReqListResponse,
-  PurchaseReqResponse,
-} from '@/app/(private)/purchase/types/PurchaseReqType';
+  PurchaseRequestListItem,
+  PurchaseRequestListParams,
+  PurchaseRequestListResponse,
+} from '@/app/(private)/purchase/types/PurchaseRequestType';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import { getQueryClient } from '@/lib/queryClient';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import Pagination from '@/app/components/common/Pagination';
-import { PurchaseReqParams } from '@/app/(private)/purchase/types/PurchaseApiRequestType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { formatDateTime } from '@/app/utils/date';
@@ -37,15 +36,15 @@ export default function PurchaseRequestListTab() {
   const toast = useToast();
 
   // 구매 요청 상태 드롭다운
-  const { options: purchaseRequisitionStatusOptions } = useDropdown(
-    'purchaseRequisitionStatusDropdown',
-    fetchPurchaseRequisitionStatusDropdown,
+  const { options: purchaseRequestStatusOptions } = useDropdown(
+    'purchaseRequestStatusDropdown',
+    fetchPurchaseRequestStatusOptions,
   );
 
   // 구매 요청 검색 타입 드롭다운
-  const { options: purchaseRequisitionSearchTypeOptions } = useDropdown(
-    'purchaseRequisitionSearchTypeDropdown',
-    fetchPurchaseRequisitionSearchTypeDropdown,
+  const { options: purchaseRequestSearchTypeOptions } = useDropdown(
+    'purchaseRequestSearchTypeDropdown',
+    fetchPurchaseRequestSearchTypeOptions,
   );
 
   const [selectedStatus, setSelectedStatus] = useState<string>('');
@@ -62,7 +61,7 @@ export default function PurchaseRequestListTab() {
   const queryClient = useQueryClient();
 
   const queryParams = useMemo(
-    (): PurchaseReqParams => ({
+    (): PurchaseRequestListParams => ({
       statusCode: selectedStatus,
       type: selectedSearchType,
       keyword: debouncedKeyword,
@@ -78,15 +77,15 @@ export default function PurchaseRequestListTab() {
     data: requestData,
     isLoading,
     isError,
-  } = useQuery<PurchaseReqListResponse>({
+  } = useQuery<PurchaseRequestListResponse>({
     queryKey: ['purchaseRequests', queryParams],
-    queryFn: ({ queryKey }) => fetchPurchaseReqList(queryKey[1] as PurchaseReqParams),
+    queryFn: ({ queryKey }) => fetchPurchaseRequestList(queryKey[1] as PurchaseRequestListParams),
     staleTime: 1000,
   });
 
   // 승인 mutation
-  const { mutate: approvePurchaseRequest } = useMutation({
-    mutationFn: (prId: string) => postApporvePurchaseReq(prId),
+  const { mutate: approveRequest } = useMutation({
+    mutationFn: (purchaseRequestId: string) => approvePurchaseRequest(purchaseRequestId),
     onSuccess: () => {
       toast.success('구매 요청 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseRequests'] });
@@ -97,8 +96,8 @@ export default function PurchaseRequestListTab() {
   });
 
   // 반려 mutation
-  const { mutate: rejectpurchaseRequest } = useMutation({
-    mutationFn: (prId: string) => postRejectPurchaseReq(prId, ''),
+  const { mutate: rejectRequest } = useMutation({
+    mutationFn: (purchaseRequestId: string) => rejectPurchaseRequest(purchaseRequestId, ''),
     onSuccess: () => {
       toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['purchaseRequests'] });
@@ -113,35 +112,33 @@ export default function PurchaseRequestListTab() {
 
   const totalPages = pageInfo?.totalPages ?? 1;
 
-  type RequestItem = (typeof requests)[0];
-
-  const handleViewDetail = (request: PurchaseReqResponse): void => {
+  const handleViewDetail = (request: PurchaseRequestListItem): void => {
     openModal(PurchaseRequestDetailModal, {
       title: '구매 요청 상세 정보',
-      purchaseId: request.purchaseRequisitionId,
+      purchaseRequestId: request.purchaseRequisitionId,
     });
   };
 
   const handleViewRequestModal = () => {
-    openModal(PurchaseRequestModal, {
+    openModal(PurchaseRequestFormModal, {
       title: '구매 요청 작성',
       height: '800px',
     });
   };
 
-  const handleApprove = (prId: string) => {
+  const handleApprove = (purchaseRequestId: string) => {
     if (confirm('해당 요청을 승인하시겠습니까?')) {
-      approvePurchaseRequest(prId);
+      approveRequest(purchaseRequestId);
     }
   };
 
-  const handleReject = (prId: string) => {
+  const handleReject = (purchaseRequestId: string) => {
     if (confirm('해당 요청을 반려하시겠습니까?')) {
-      rejectpurchaseRequest(prId);
+      rejectRequest(purchaseRequestId);
     }
   };
 
-  const columns: TableColumn<RequestItem>[] = [
+  const columns: TableColumn<PurchaseRequestListItem>[] = [
     {
       key: 'purchaseRequisitionNumber',
       label: '구매요청번호',
@@ -222,7 +219,7 @@ export default function PurchaseRequestListTab() {
         <div className="flex items-center space-x-4">
           <Dropdown
             placeholder="전체 상태"
-            items={purchaseRequisitionStatusOptions}
+            items={purchaseRequestStatusOptions}
             value={selectedStatus}
             onChange={(status: string): void => {
               setSelectedStatus(status);
@@ -231,7 +228,7 @@ export default function PurchaseRequestListTab() {
           />
 
           <SearchBar
-            options={purchaseRequisitionSearchTypeOptions}
+            options={purchaseRequestSearchTypeOptions}
             onTypeChange={(type) => {
               setSelectedSearchType(type);
             }}
