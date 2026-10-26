@@ -43,7 +43,7 @@ export default function DateRangePicker({
         onDateChange={handleStartDateChange}
         placeholder="시작 날짜"
       />
-      <span className="text-gray-400 text-lg">~</span>
+      <span className="text-gray-400 text-sm">~</span>
       <CalendarButton
         selectedDate={endDate}
         onDateChange={handleEndDateChange}

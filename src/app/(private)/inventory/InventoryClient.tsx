@@ -22,9 +22,11 @@ export default function InventoryClient() {
   return (
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
-        <StatSection statsData={inventoryStatsData} />
         <Suspense fallback={<div>Loading...</div>}>
-          <TabNavigation tabs={INVENTORY_TABS} />
+          <TabNavigation
+            tabs={INVENTORY_TABS}
+            header={<StatSection statsData={inventoryStatsData} />}
+          />
         </Suspense>
       </main>
     </div>

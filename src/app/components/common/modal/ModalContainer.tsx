@@ -11,6 +11,10 @@ interface ModalContainerProps {
   onClose: () => void;
 }
 
+/**
+ * 모달 프레임. 제목 줄과 본문을 선으로 나누고, 등장은 150ms 페이드만.
+ * 크기는 내용에 맞추되 화면의 90% 를 넘지 않는다.
+ */
 const ModalContainer = ({ children, title, width, height, onClose }: ModalContainerProps) => {
   const modalWidth = width || 'auto';
   const modalHeight = height || 'auto';
@@ -19,32 +23,37 @@ const ModalContainer = ({ children, title, width, height, onClose }: ModalContai
     <AnimatePresence>
       <div className="fixed z-modal inset-0 flex items-center justify-center pointer-events-auto">
         <motion.div
-          className="flex flex-col border border-gray-200 shadow-2xl bg-white rounded-2xl p-6 relative pointer-events-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          className="flex flex-col border border-gray-200 shadow-xl bg-white rounded-xl relative pointer-events-auto"
           style={{
             width: modalWidth,
             height: modalHeight,
             minWidth: '400px',
-            minHeight: '380px',
             maxWidth: '900px',
             maxHeight: '90vh',
           }}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 헤더: title + 닫기 버튼 */}
-          <div className="flex justify-between items-center shrink-0">
-            <h2 className="pl-2 pt-2 text-gray-800 text-lg font-semibold">{title}</h2>
+          {/* 제목 줄 */}
+          <div className="flex justify-between items-center h-12 px-5 border-b border-gray-200 shrink-0">
+            <h2 className="text-[15px] font-semibold text-gray-900">{title}</h2>
             <button
+              type="button"
               onClick={onClose}
-              className="pr-1 text-gray-500 hover:text-gray-800 dark:hover:text-white cursor-pointer"
+              aria-label="닫기"
+              className="w-8 h-8 -mr-2 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
             >
-              ✕
+              <i aria-hidden="true" className="ri-close-line text-lg" />
             </button>
           </div>
-          {/* 모달 본문 */}
-          <div className="pt-6 flex-1 overflow-y-auto custom-scroll min-h-0">{children}</div>
+          {/* 본문 */}
+          <div className="p-5 flex-1 overflow-y-auto custom-scroll min-h-0">{children}</div>
         </motion.div>
       </div>
     </AnimatePresence>

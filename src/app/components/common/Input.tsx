@@ -98,17 +98,17 @@ export default function Input({
   const [isFocused, setIsFocused] = useState(false);
   const inputId = id;
 
-  const base = ' w-full text-gray-800 focus:outline-none transition-colors placeholder-gray-300';
+  const base = 'w-full text-gray-800 focus:outline-none transition-colors placeholder-gray-400';
 
   const variants = {
     default: 'border border-gray-300 focus:border-blue-500 bg-white',
-    outline: 'border border-blue-500 bg-transparent focus:ring focus:ring-blue-500',
+    outline: 'border border-blue-500 bg-white focus:border-blue-600',
   };
 
   const sizes = {
-    sm: 'px-1 pr-1.5 py-1 text-xs rounded-sm',
-    md: 'px-2.5 pr-2 py-1.5 text-sm rounded-lg',
-    lg: 'px-4 py-2 text-lg rounded-lg',
+    sm: 'h-7 px-2 text-xs rounded-md',
+    md: 'h-8 px-2.5 text-[13px] rounded-md',
+    lg: 'h-10 px-3 text-sm rounded-md',
   };
 
   const disabledClasses = 'bg-gray-100 text-gray-400 border-gray-200';
@@ -187,7 +187,7 @@ export default function Input({
       <div className="relative flex items-center">
         {icon && !disabled && (
           <i
-            className={`${icon} absolute left-2.5 z-1 text-base pointer-events-none transition-colors ${
+            className={`${icon} absolute left-2.5 z-1 text-sm pointer-events-none transition-colors ${
               isFocused ? 'text-blue-500' : 'text-gray-400'
             }`}
           />

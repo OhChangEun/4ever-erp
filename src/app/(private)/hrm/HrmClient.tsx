@@ -21,13 +21,17 @@ export default function HrmClient() {
   return (
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
-        {hrmStatsData ? (
-          <StatSection statsData={hrmStatsData} />
-        ) : (
-          <ErrorMessage message={'인적자원관리 통계 데이터를 불러오는데 실패했습니다.'} />
-        )}
         <Suspense fallback={<div>Loading...</div>}>
-          <TabNavigation tabs={HRM_TABS} />
+          <TabNavigation
+            tabs={HRM_TABS}
+            header={
+              hrmStatsData ? (
+                <StatSection statsData={hrmStatsData} />
+              ) : (
+                <ErrorMessage message={'인적자원관리 통계 데이터를 불러오는데 실패했습니다.'} />
+              )
+            }
+          />
         </Suspense>
       </main>
     </div>

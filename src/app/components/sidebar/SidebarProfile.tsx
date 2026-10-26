@@ -57,18 +57,18 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   };
 
   return (
-    <div className="relative mt-auto border-t border-gray-200 bg-gray-50" ref={dropdownRef}>
+    <div className="relative mt-auto border-t border-gray-200 bg-white" ref={dropdownRef}>
       {/* 프로필 버튼 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-3 px-4 py-4 hover:bg-gray-100 transition-colors ${
+        className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
           isExpanded ? 'justify-start' : 'justify-center'
         }`}
         title={!isExpanded ? userName : undefined}
       >
         {/* 프로필 아바타 */}
-        <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-          <i className="ri-user-3-line text-blue-600 text-xl"></i>
+        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+          <i className="ri-user-3-line text-blue-600 text-base"></i>
         </div>
 
         {/* 이름 & 직급 */}

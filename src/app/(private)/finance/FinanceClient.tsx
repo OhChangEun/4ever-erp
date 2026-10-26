@@ -45,13 +45,16 @@ export default function FinanceClient() {
   return (
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
-        {financeStatsData ? (
-          <StatSection statsData={financeStatsData} />
-        ) : (
-          <ErrorMessage message={'재무 통계 데이터를 불러오는데 실패했습니다.'} />
-        )}
         <Suspense fallback={<div>Loading...</div>}>
-          <FinanceTabs />
+          <FinanceTabs
+            header={
+              financeStatsData ? (
+                <StatSection statsData={financeStatsData} />
+              ) : (
+                <ErrorMessage message={'재무 통계 데이터를 불러오는데 실패했습니다.'} />
+              )
+            }
+          />
         </Suspense>
       </main>
     </div>

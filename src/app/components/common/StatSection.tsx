@@ -18,6 +18,7 @@ interface StatSectionProps {
   statsData: Record<Period, StatCardType[]>;
 }
 
+/** 페이지 상단 지표 띠. 지표는 왼쪽에 가로로, 기간 선택은 오른쪽 끝에. */
 export default function StatSection({ statsData }: StatSectionProps) {
   const DEFAULT_PERIOD: Period = 'week';
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(DEFAULT_PERIOD);
@@ -28,18 +29,16 @@ export default function StatSection({ statsData }: StatSectionProps) {
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-3">
-        <div className="w-fit">
-          <SlidingNavBar
-            items={STAT_PERIODS}
-            selectedKey={selectedPeriod}
-            onSelect={handlePeriodSelect}
-          />
-        </div>
-        {/* 지표 카드 리스트 */}
-        <StatCardList stats={stats} period={selectedPeriod} />
-      </div>
-    </div>
+    <section
+      aria-label="지표"
+      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3 border-b border-gray-200"
+    >
+      <StatCardList stats={stats} period={selectedPeriod} />
+      <SlidingNavBar
+        items={STAT_PERIODS}
+        selectedKey={selectedPeriod}
+        onSelect={handlePeriodSelect}
+      />
+    </section>
   );
 }

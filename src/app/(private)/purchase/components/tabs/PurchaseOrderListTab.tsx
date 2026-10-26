@@ -153,8 +153,8 @@ export default function PurchaseOrderListTab() {
   };
 
   return (
-    <div className="flex flex-col h-full gap-6">
-      <div className="flex items-center justify-between shrink-0">
+    <div className="flex flex-col h-full gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 shrink-0">
         <DateRangePicker
           startDate={startDate}
           onStartDateChange={setStartDate}
@@ -162,7 +162,7 @@ export default function PurchaseOrderListTab() {
           onEndDateChange={setEndDate}
         />
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Dropdown
             placeholder="전체 상태"
             items={purchaseOrderStatusOptions}
