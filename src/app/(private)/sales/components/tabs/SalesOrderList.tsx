@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import SalesOrderDetailModal from '@/app/(private)/sales/components/modals/SalesOrderDetailModal';
-import { OrderQueryParams, OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
+import { OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { getOrderList } from '../../sales.api';
+import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import {
   getOrderSearchKeywordOptions,
@@ -52,8 +53,8 @@ const SalesOrderList = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['orderList', queryParams],
-    queryFn: ({ queryKey }) => getOrderList(queryKey[1] as OrderQueryParams),
+    queryKey: salesOrderKeys.list(queryParams),
+    queryFn: () => getOrderList(queryParams),
   });
 
   const orders = orderRes?.data ?? [];

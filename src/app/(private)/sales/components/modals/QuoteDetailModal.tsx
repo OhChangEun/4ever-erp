@@ -4,6 +4,7 @@ import {
 } from '@/app/(private)/sales/types/QuoteDetailModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getQuoteDetail } from '../../sales.api';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
@@ -12,7 +13,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 
 const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProps) => {
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
-    queryKey: ['quoteDetail', selectedQuotationId],
+    queryKey: quoteKeys.detail(selectedQuotationId),
     queryFn: () => getQuoteDetail(selectedQuotationId),
     enabled: !!selectedQuotationId,
   });

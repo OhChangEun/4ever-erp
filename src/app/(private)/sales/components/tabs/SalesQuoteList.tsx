@@ -1,14 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  QuoteStatus,
-  Quote,
-  QuoteQueryParams,
-} from '@/app/(private)/sales/types/SalesQuoteListType';
+import { QuoteStatus, Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
 import QuoteDetailModal from '../modals/QuoteDetailModal';
 import { useQuery } from '@tanstack/react-query';
 import { getQuoteList } from '@/app/(private)/sales/sales.api';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -56,8 +53,8 @@ const SalesQuoteList = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['quoteList', queryParams],
-    queryFn: ({ queryKey }) => getQuoteList(queryKey[1] as QuoteQueryParams),
+    queryKey: quoteKeys.list(queryParams),
+    queryFn: () => getQuoteList(queryParams),
     staleTime: 1000,
   });
 

@@ -10,6 +10,7 @@ import {
 } from '@/app/(private)/sales/types/NewOrderModalType';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getItemInfoForNewQuote, postNewQuote } from '../../sales.api';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
 import Button from '@/app/components/common/Button';
@@ -125,7 +126,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
     isLoading,
     isError,
   } = useQuery<ItemResponse[]>({
-    queryKey: ['getItemInfoForNewQuote'],
+    queryKey: quoteKeys.itemInfoForNew(),
     queryFn: getItemInfoForNewQuote,
   });
 

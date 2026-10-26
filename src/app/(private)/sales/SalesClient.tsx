@@ -10,12 +10,13 @@ import {
 import SalesTabs from './components/tabs/SalesTabs';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
+import { salesStatsKeys } from '@/app/(private)/sales/sales.keys';
 
 export default function SalesClient() {
   const role = useRole();
 
   const { data: salesStatsData, isLoading } = useQuery({
-    queryKey: ['salesStats', role],
+    queryKey: salesStatsKeys.byRole(role),
     queryFn: async () => {
       if (role === 'CUSTOMER_ADMIN') {
         const res = await getCustomerSalesStats();

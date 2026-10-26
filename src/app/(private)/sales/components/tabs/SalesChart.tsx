@@ -17,7 +17,8 @@ import {
   Cell,
 } from 'recharts';
 import { getAnalytics } from '../../sales.api';
-import { AnalyticsQueryParams, SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
+import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
+import { SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
 import { formatCurrency } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 
@@ -54,8 +55,8 @@ const SalesChart = () => {
     isLoading,
     isError,
   } = useQuery<SalesAnalysis>({
-    queryKey: ['analytics', queryParams],
-    queryFn: ({ queryKey }) => getAnalytics(queryKey[1] as AnalyticsQueryParams),
+    queryKey: analyticsKeys.byParams(queryParams),
+    queryFn: () => getAnalytics(queryParams),
 
     staleTime: 1000,
   });

@@ -10,6 +10,7 @@ import {
 import { CustomerStatus } from '../../types/SalesCustomerListType';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { patchCustomer } from '../../sales.api';
+import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useToast } from '@/app/components/common/toast/useToast';
 
 const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerEditModalProps) => {
@@ -89,14 +90,14 @@ const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerE
 
     // 요청 직전에 낙관적 업데이트 X (수정 성공 시만 반영)
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['customerDetail'] });
+      await queryClient.cancelQueries({ queryKey: customerKeys.details() });
     },
 
     // 성공 시: 알림 + 모달 닫기 + 최신 데이터 갱신
     onSuccess: (data) => {
       toast.success('고객 정보가 성공적으로 수정되었습니다.');
       onClose();
-      queryClient.invalidateQueries({ queryKey: ['customerDetail'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.details() });
     },
 
     onError: (error) => {
@@ -105,7 +106,7 @@ const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerE
 
     // 성공,실패 상관없이 서버 데이터로 최신화
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['customerDetail'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.details() });
     },
   });
 

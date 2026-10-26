@@ -16,6 +16,7 @@ import {
   postInventoryCheck,
   postQuotationConfirm,
 } from '../../sales.api';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -39,7 +40,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     isLoading,
     isError,
   } = useQuery<QuoteDetail>({
-    queryKey: ['quoteDetailForReview', selectedQuotationId],
+    queryKey: quoteKeys.reviewDetail(selectedQuotationId),
     queryFn: () => getQuoteDetail(selectedQuotationId),
     enabled: !!selectedQuotationId,
   });

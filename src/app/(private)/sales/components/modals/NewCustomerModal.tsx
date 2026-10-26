@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postCustomer } from '@/app/(private)/sales/sales.api';
+import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { SalesCustomer } from '../../types/SalesCustomerListType';
 import { Page } from '@/app/types/Page';
 import Button from '@/app/components/common/Button';
@@ -89,14 +90,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
   const { mutate: createCustomer, isPending } = useMutation({
     mutationFn: postCustomer,
     onMutate: async (newCustomer) => {
-      await queryClient.cancelQueries({ queryKey: ['customerList'] });
+      await queryClient.cancelQueries({ queryKey: customerKeys.lists() });
       // 이전 데이터 저장
       const previousData = queryClient.getQueryData<{
         data: { customers: SalesCustomer[]; page: Page };
-      }>(['customerList']);
+      }>(customerKeys.lists());
       // 낙관적 업데이트
       queryClient.setQueryData<{ data: { customers: SalesCustomer[]; page: Page } }>(
-        ['customerList'],
+        customerKeys.lists(),
         (oldData) => {
           if (!oldData) return oldData;
           return {
@@ -117,7 +118,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
       // context: 이전 캐시 데이터 백업용
       // 에러 시 기존 데이터로 복원
       if (context?.previousData) {
-        queryClient.setQueryData(['customerList'], context.previousData);
+        queryClient.setQueryData(customerKeys.lists(), context.previousData);
       }
       toast.error(`고객 등록 중 오류가 발생했습니다. ${error}`);
     },
@@ -127,7 +128,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
     },
     onSettled: () => {
       // 성공,실패 상관없이 서버 데이터로 최신화
-      queryClient.invalidateQueries({ queryKey: ['customerList'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
   });
 

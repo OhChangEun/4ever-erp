@@ -6,6 +6,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { getOrderDetail } from '@/app/(private)/sales/sales.api';
+import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -16,7 +17,7 @@ const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDeta
     isLoading,
     isError,
   } = useQuery<OrderDetail>({
-    queryKey: ['orderDetail', selectedSalesOrderId],
+    queryKey: salesOrderKeys.detail(selectedSalesOrderId),
     queryFn: () => getOrderDetail(selectedSalesOrderId),
     enabled: !!selectedSalesOrderId,
   });

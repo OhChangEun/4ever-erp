@@ -3,12 +3,10 @@
 import { useMemo, useState } from 'react';
 import CustomerDetailModal from '@/app/(private)/sales/components/modals/CustomerDetailModal';
 import NewCustomerModal from '@/app/(private)/sales/components/modals/NewCustomerModal';
-import {
-  CustomerQueryParams,
-  CustomerStatus,
-} from '@/app/(private)/sales/types/SalesCustomerListType';
+import { CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
 import { useQuery } from '@tanstack/react-query';
 import { getCustomerList } from '../../sales.api';
+import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
 import { CustomerDetail } from '../../types/SalesCustomerDetailType';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -53,8 +51,8 @@ const CustomerList = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['customerList', queryParams],
-    queryFn: ({ queryKey }) => getCustomerList(queryKey[1] as CustomerQueryParams),
+    queryKey: customerKeys.list(queryParams),
+    queryFn: () => getCustomerList(queryParams),
   });
 
   const customers = customerRes?.data ?? [];

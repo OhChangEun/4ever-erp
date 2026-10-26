@@ -4,6 +4,7 @@ import { CustomerDetailModalProps } from '@/app/(private)/sales/types/CustomerDe
 import { useEffect, useState } from 'react';
 import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
 import { getCustomerDetail } from '../../sales.api';
+import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useQuery } from '@tanstack/react-query';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -22,7 +23,7 @@ const CustomerDetailModal = ({
     isLoading,
     isError,
   } = useQuery<CustomerDetail>({
-    queryKey: ['customerDetail', selectedCustomerId],
+    queryKey: customerKeys.detail(selectedCustomerId),
     queryFn: () => getCustomerDetail(selectedCustomerId),
     enabled: !!selectedCustomerId,
   });
