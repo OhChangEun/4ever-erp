@@ -20,7 +20,11 @@ import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType'
 import { ApiResponseNoData } from '@/app/types/api';
 import { WarehouseListResponse } from '../../types/WarehouseListType';
 import { Page } from '@/app/types/Page';
-import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
+import {
+  warehouseKeys,
+  warehouseManagerInfoKeys,
+  warehouseStatsKeys,
+} from '@/app/(private)/warehouse/warehouse.keys';
 
 interface ManageWarehouseRequest {
   warehouseName: string;
@@ -155,6 +159,8 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.detail(selectedWarehouseId) });
+      queryClient.invalidateQueries({ queryKey: warehouseStatsKeys.all });
     },
   });
 

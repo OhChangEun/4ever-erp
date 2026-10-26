@@ -18,6 +18,7 @@ import {
   inventoryKeys,
   itemInfoKeys,
   warehouseInfoKeys,
+  inventoryStatsKeys,
 } from '@/app/(private)/inventory/inventory.keys';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
@@ -127,6 +128,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: inventoryStatsKeys.all });
     },
   });
 

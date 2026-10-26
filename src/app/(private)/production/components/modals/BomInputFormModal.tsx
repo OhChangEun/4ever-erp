@@ -35,7 +35,7 @@ import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { bomKeys } from '@/app/(private)/production/api/production.keys';
+import { bomKeys, productionStatsKeys } from '@/app/(private)/production/api/production.keys';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -259,6 +259,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
       toast.success('BOM 생성이 완료되었습니다.');
       // await new Promise((resolve) => setTimeout(resolve, 2000));
       queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
       onClose(); // 모달 닫기
     },
     onError: (error) => {

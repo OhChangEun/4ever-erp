@@ -11,7 +11,7 @@ import {
   postArInvoice,
   postSupplierApInvoice,
 } from '@/app/(private)/finance/finance.api';
-import { InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
+import { InvoiceTab, financeStatsKeys, invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import Pagination from '@/app/components/common/Pagination';
 import { useSearchParams } from 'next/navigation';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -105,6 +105,8 @@ const InvoiceList = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists(currentTab) });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(selectedInvoiceId) });
+      queryClient.invalidateQueries({ queryKey: financeStatsKeys.all });
     },
   });
 

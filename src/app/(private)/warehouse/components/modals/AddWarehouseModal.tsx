@@ -13,7 +13,11 @@ import { WarehouseListResponse } from '../../types/WarehouseListType';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
+import {
+  warehouseKeys,
+  warehouseManagerInfoKeys,
+  warehouseStatsKeys,
+} from '@/app/(private)/warehouse/warehouse.keys';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
@@ -106,6 +110,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: warehouseStatsKeys.all });
     },
   });
 

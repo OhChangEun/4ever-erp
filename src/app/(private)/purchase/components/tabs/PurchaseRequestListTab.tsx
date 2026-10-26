@@ -29,7 +29,7 @@ import SearchBar from '@/app/components/common/SearchBar';
 import { useDebounce } from 'use-debounce';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
 // import CalendarButton from '@/app/components/common/Calendar';
 
 export default function PurchaseRequestListTab() {
@@ -87,9 +87,11 @@ export default function PurchaseRequestListTab() {
   // 승인 mutation
   const { mutate: approveRequest } = useMutation({
     mutationFn: (purchaseRequestId: string) => approvePurchaseRequest(purchaseRequestId),
-    onSuccess: () => {
+    onSuccess: (_, purchaseRequestId) => {
       toast.success('구매 요청 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.detail(purchaseRequestId) });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${error}`);
@@ -99,9 +101,11 @@ export default function PurchaseRequestListTab() {
   // 반려 mutation
   const { mutate: rejectRequest } = useMutation({
     mutationFn: (purchaseRequestId: string) => rejectPurchaseRequest(purchaseRequestId, ''),
-    onSuccess: () => {
+    onSuccess: (_, purchaseRequestId) => {
       toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.detail(purchaseRequestId) });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`반려 처리 중 오류가 발생했습니다. ${error}`);

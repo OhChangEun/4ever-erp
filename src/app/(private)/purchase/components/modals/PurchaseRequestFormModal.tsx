@@ -5,7 +5,8 @@ import { PURCHASE_REQUEST_TABLE_HEADERS } from '@/app/(private)/purchase/constan
 import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import Input from '@/app/components/common/Input';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { createPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
 import DropdownInputModal from '@/app/components/common/DropdownInputModal';
 import { ModalProps } from '@/app/components/common/modal/types';
@@ -32,11 +33,13 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     },
   ]);
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const { mutate: submitPurchaseRequest, isPending } = useMutation({
     mutationFn: (data: CreatePurchaseRequestBody) => createPurchaseRequest(data),
-    onSuccess: (data) => {
-      console.log('구매 요청 성공: ', data);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
       toast.success(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
       onClose();
       setRequestItems([

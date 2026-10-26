@@ -13,7 +13,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
 import IconButton from '@/app/components/common/IconButton';
-import { mesKeys } from '@/app/(private)/production/api/production.keys';
+import { mesKeys, productionStatsKeys } from '@/app/(private)/production/api/production.keys';
 
 interface MesDetailProps extends ModalProps {
   mesId: string;
@@ -39,6 +39,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     mutationFn: () => startMes(mesId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
+      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
       setMessage({ type: 'success', text: 'MES 작업이 시작되었습니다.' });
     },
     onError: () => {
@@ -51,6 +53,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     mutationFn: () => completeMes(mesId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
+      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
       setMessage({ type: 'success', text: 'MES 작업이 완료되었습니다.' });
     },
     onError: () => {
@@ -63,6 +67,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     mutationFn: (operationId: string) => startMesOperation(mesId, operationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
+      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
       setMessage({ type: 'success', text: '공정이 시작되었습니다.' });
     },
     onError: () => {
@@ -75,6 +81,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     mutationFn: (operationId: string) => completeMesOperation(mesId, operationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
+      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
       setMessage({ type: 'success', text: '공정이 완료되었습니다.' });
     },
     onError: () => {

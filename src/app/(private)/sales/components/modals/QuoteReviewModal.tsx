@@ -8,7 +8,7 @@ import {
   QuoteReviewModalProps,
 } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Inventories, QuoteDetail } from '../../types/QuoteDetailModalType';
 import {
   getQuoteDetail,
@@ -16,7 +16,7 @@ import {
   postInventoryCheck,
   postQuotationConfirm,
 } from '../../sales.api';
-import { quoteKeys } from '@/app/(private)/sales/sales.keys';
+import { quoteKeys, salesOrderKeys, salesStatsKeys } from '@/app/(private)/sales/sales.keys';
 import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -51,10 +51,16 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       requiredQuantity: quantity,
     })) ?? [];
 
+  const queryClient = useQueryClient();
+
   const { mutate: quotationConfirmReq } = useMutation({
     mutationFn: (id: string) => postQuotationConfirm(id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('검토 요청이 완료되었습니다.');
+      queryClient.invalidateQueries({ queryKey: quoteKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: quoteKeys.detail(selectedQuotationId) });
+      queryClient.invalidateQueries({ queryKey: quoteKeys.reviewDetail(selectedQuotationId) });
+      queryClient.invalidateQueries({ queryKey: salesStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`검토 요청 중 오류가 발생했습니다. ${error}`);
@@ -76,6 +82,10 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     onSuccess: (data) => {
       toast.info(`${data.status} : ${quote?.quotationNumber}
           `);
+      queryClient.invalidateQueries({ queryKey: quoteKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: quoteKeys.reviewDetail(selectedQuotationId) });
+      queryClient.invalidateQueries({ queryKey: salesOrderKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: salesStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${error}`);
