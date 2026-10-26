@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 
 interface OrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -63,8 +64,8 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     isLoading,
     isError,
   } = useQuery<MrpOrdersListResponse>({
-    queryKey: ['mrpOrdersList', queryParams],
-    queryFn: ({ queryKey }) => fetchMrpOrdersList(queryKey[1] as FetchMrpOrdersListParams),
+    queryKey: mrpOrderKeys.list(queryParams),
+    queryFn: () => fetchMrpOrdersList(queryParams),
     staleTime: 1000,
   });
 
@@ -96,7 +97,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     mutationFn: (body: MrpOrdersConvertReqeustBody) => postMrpConvert(body),
     onSuccess: () => {
       toast.success('계획 주문 전환이 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['mrpOrdersList'] });
+      queryClient.invalidateQueries({ queryKey: mrpOrderKeys.lists() });
       router.push('/production?tab=mrp&subTab=orders');
     },
     onError: (error) => {

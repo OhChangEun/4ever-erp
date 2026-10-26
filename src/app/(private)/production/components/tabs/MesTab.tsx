@@ -19,6 +19,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import Pagination from '@/app/components/common/Pagination';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
+import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function MesTab() {
   const [selectedMesQuote, setSelectedMesQuote] = useState('');
@@ -36,7 +37,7 @@ export default function MesTab() {
   const { options: mesStatusOptions } = useDropdown('mesStatusDropdown', fetchMesStatusDropdown);
 
   const queryParams = useMemo(
-    () => ({
+    (): FetchMesListParams => ({
       quotationId: selectedMesQuote,
       status: selectedMesStatus,
       page: currentPage - 1,
@@ -50,8 +51,8 @@ export default function MesTab() {
     isLoading,
     isError,
   } = useQuery<MesListResponse>({
-    queryKey: ['mesList', queryParams],
-    queryFn: ({ queryKey }) => fetchMesList(queryKey[1] as FetchMesListParams),
+    queryKey: mesKeys.list(queryParams),
+    queryFn: () => fetchMesList(queryParams),
     staleTime: 1000,
   });
 

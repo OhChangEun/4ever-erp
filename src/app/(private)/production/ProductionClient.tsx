@@ -8,10 +8,11 @@ import { fetchProductionStats } from '@/app/(private)/production/api/production.
 import ErrorMessage from '@/app/components/common/ErrorMessage';
 import { mapProductionStatsToCards } from '@/app/(private)/production/services/production.service';
 import { useQuery } from '@tanstack/react-query';
+import { productionStatsKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function ProductionClient() {
   const { data } = useQuery({
-    queryKey: ['productionStats'],
+    queryKey: productionStatsKeys.all,
     queryFn: fetchProductionStats,
   });
 

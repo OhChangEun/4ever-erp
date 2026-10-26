@@ -16,6 +16,7 @@ import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function BomTab() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,7 +38,7 @@ export default function BomTab() {
     isLoading,
     isError,
   } = useQuery<BomListResponse>({
-    queryKey: ['bomList', bomQueryParams],
+    queryKey: bomKeys.list(bomQueryParams),
     queryFn: () => fetchBomList(bomQueryParams),
   });
 

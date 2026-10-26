@@ -24,6 +24,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
@@ -62,7 +63,7 @@ export default function QuotationTab() {
     isLoading: isQuotationListLoading,
     isError: isQuotationListError,
   } = useQuery<QuotationListResponse>({
-    queryKey: ['quotationList', quotationListQueryParams], // 쿼리 키에 파라미터를 넣어 파라미터 변경 시 재요청
+    queryKey: quotationKeys.list(quotationListQueryParams),
     queryFn: () => fetchQuotationList(quotationListQueryParams),
     staleTime: 1000,
   });
@@ -104,7 +105,7 @@ export default function QuotationTab() {
         toast.info('시뮬레이션 결과가 없습니다.');
       }
 
-      queryClient.invalidateQueries({ queryKey: ['quotationList'] });
+      queryClient.invalidateQueries({ queryKey: quotationKeys.lists() });
     },
     onError: (error) => {
       console.error('시뮬레이션 실패:', error);
@@ -118,7 +119,7 @@ export default function QuotationTab() {
       toast.success('제안납기를 확정하였습니다.');
       removeAllModals(); // 모든 탭 닫기
 
-      queryClient.invalidateQueries({ queryKey: ['quotationList'] });
+      queryClient.invalidateQueries({ queryKey: quotationKeys.lists() });
     },
     onError: (error) => {
       console.error('제안납기 확정 실패:', error);

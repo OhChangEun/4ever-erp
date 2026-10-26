@@ -13,6 +13,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
 import IconButton from '@/app/components/common/IconButton';
+import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 interface MesDetailProps extends ModalProps {
   mesId: string;
@@ -28,7 +29,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['mesDetail', mesId],
+    queryKey: mesKeys.detail(mesId),
     queryFn: () => fetchMesDetail(mesId),
     enabled: !!mesId,
   });
@@ -37,7 +38,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
   const startMesMutation = useMutation({
     mutationFn: () => startMes(mesId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mesDetail', mesId] });
+      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
       setMessage({ type: 'success', text: 'MES 작업이 시작되었습니다.' });
     },
     onError: () => {
@@ -49,7 +50,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
   const completeMesMutation = useMutation({
     mutationFn: () => completeMes(mesId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mesDetail', mesId] });
+      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
       setMessage({ type: 'success', text: 'MES 작업이 완료되었습니다.' });
     },
     onError: () => {
@@ -61,7 +62,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
   const startOperationMutation = useMutation({
     mutationFn: (operationId: string) => startMesOperation(mesId, operationId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mesDetail', mesId] });
+      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
       setMessage({ type: 'success', text: '공정이 시작되었습니다.' });
     },
     onError: () => {
@@ -73,7 +74,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
   const completeOperationMutation = useMutation({
     mutationFn: (operationId: string) => completeMesOperation(mesId, operationId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mesDetail', mesId] });
+      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
       setMessage({ type: 'success', text: '공정이 완료되었습니다.' });
     },
     onError: () => {

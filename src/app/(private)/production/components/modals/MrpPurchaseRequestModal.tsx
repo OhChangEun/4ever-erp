@@ -8,6 +8,7 @@ import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
 import { ItemResponse } from '@/app/(private)/inventory/types/ItemListType';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 
 interface ItemWithQuantity extends ItemResponse {
   quantity: number;
@@ -74,7 +75,7 @@ export default function MrpPurchaseRequestModal({
     onSuccess: () => {
       toast.success('자재 구매 요청이 완료되었습니다.');
 
-      queryClient.invalidateQueries({ queryKey: ['mrpPlannedOrders'] });
+      queryClient.invalidateQueries({ queryKey: mrpPlannedOrderKeys.lists() });
 
       onConfirm();
       onClose();

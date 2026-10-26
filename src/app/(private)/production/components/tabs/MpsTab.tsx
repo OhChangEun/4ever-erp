@@ -9,6 +9,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import Pagination from '@/app/components/common/Pagination';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
+import { mpsKeys } from '@/app/(private)/production/api/production.keys';
 
 interface MpsRow {
   productName: string;
@@ -31,7 +32,7 @@ export default function MpsTab() {
 
   const mpsQueries = useQueries({
     queries: dropdownOptions.map((product) => ({
-      queryKey: ['mpsList', product.key, startDate, endDate],
+      queryKey: mpsKeys.list(product.key, startDate, endDate),
       queryFn: () =>
         fetchMpsList({
           bomId: product.key,

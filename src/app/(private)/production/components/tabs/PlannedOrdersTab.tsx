@@ -21,6 +21,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import MrpPurchaseRequestModal from '@/app/(private)/production/components/modals/MrpPurchaseRequestModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 
 interface PlannedOrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -67,9 +68,8 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
     isLoading,
     isError,
   } = useQuery<MrpPlannedOrdersListResponse>({
-    queryKey: ['mrpPlannedOrders', queryParams],
-    queryFn: ({ queryKey }) =>
-      fetchMrpPlannedOrdersList(queryKey[1] as FetchMrpPlannedOrdersListParams),
+    queryKey: mrpPlannedOrderKeys.list(queryParams),
+    queryFn: () => fetchMrpPlannedOrdersList(queryParams),
     staleTime: 1000,
   });
 

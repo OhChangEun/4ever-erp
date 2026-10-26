@@ -1,4 +1,4 @@
-import { Page } from '@/app/types/Page';
+import { Page, PageRequest } from '@/app/types/Page';
 
 // MES 개별 항목
 export interface MesSummaryItem {
@@ -24,7 +24,7 @@ export interface MesListResponse {
   page: Page;
 }
 
-export interface FetchMesListParams {
+export interface FetchMesListParams extends PageRequest {
   quotationId?: string;
   status?: string;
 }

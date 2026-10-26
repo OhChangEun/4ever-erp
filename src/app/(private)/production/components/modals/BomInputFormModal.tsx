@@ -35,6 +35,7 @@ import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -150,8 +151,8 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ['materialInfo', item.itemId],
-    queryFn: ({ queryKey }) => fetchProduction(queryKey[1]),
+    queryKey: bomKeys.materialInfo(item.itemId),
+    queryFn: () => fetchProduction(item.itemId),
     enabled: !!item.itemId, // 선택된 자재가 있을 때만 호출
   });
 
@@ -257,7 +258,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
     onSuccess: async () => {
       toast.success('BOM 생성이 완료되었습니다.');
       // await new Promise((resolve) => setTimeout(resolve, 2000));
-      queryClient.invalidateQueries({ queryKey: ['bomList'] });
+      queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
       onClose(); // 모달 닫기
     },
     onError: (error) => {

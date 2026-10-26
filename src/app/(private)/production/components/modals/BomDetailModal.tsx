@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import axios from 'axios';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 const BomTreeContainer = dynamic(() => import('../../BomTreeContainer'), {
   ssr: false,
@@ -35,7 +36,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
     isLoading,
     isError,
   } = useQuery<BomDetailResponse>({
-    queryKey: ['bomDetail', bomId],
+    queryKey: bomKeys.detail(bomId),
     queryFn: () => fetchBomDetail(bomId),
     enabled: !!bomId,
   });
@@ -49,8 +50,8 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
       }),
     onSuccess: () => {
       // 버전 일치 → 성공, 최신 데이터로 갱신
-      queryClient.invalidateQueries({ queryKey: ['bomDetail', bomId] });
-      queryClient.invalidateQueries({ queryKey: ['bomList'] });
+      queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
+      queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
     },
     onError: (err) => {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
@@ -73,7 +74,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   // 충돌 발생 시 최신 데이터 재조회 후 모달 닫기
   const handleConflictReload = () => {
     setShowConflictModal(false);
-    queryClient.invalidateQueries({ queryKey: ['bomDetail', bomId] });
+    queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
   };
 
   // const renderLevelStructure = (levelStructure: BomDetailResponse['levelStructure']) => {
