@@ -15,7 +15,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
     isLoading,
     isError,
   } = useQuery({
-    queryKey: programKeys.details(),
+    queryKey: programKeys.detail(programId),
     queryFn: () => fetchProgramDetail(programId),
   });
 

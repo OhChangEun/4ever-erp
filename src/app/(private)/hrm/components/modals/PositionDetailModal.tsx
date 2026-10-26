@@ -14,7 +14,7 @@ export function PositionDetailModal({ positionId }: PositionDetailModalProps) {
     isLoading,
     isError,
   } = useQuery<PositionDetailResponse>({
-    queryKey: positionKeys.details(),
+    queryKey: positionKeys.detail(positionId),
     queryFn: () => fetchPositionsDetail(positionId),
   });
 
