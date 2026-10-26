@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @import 'remixicon/fonts/remixicon.css';
 
+/* Tailwind 유틸리티(font-sans / font-mono)가 next/font 변수를 쓰도록 연결 */
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 /* CSS 변수는 :root에 선언 */
 :root {
   /* ===== Primary (ERP Main - Deep Corporate Blue) ===== */
@@ -86,7 +92,22 @@ html {
     font-family:
       var(--font-noto-sans-kr), var(--font-geist-sans), var(--font-geist-mono),
       var(--font-pacifico), sans-serif;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.01em;
+  }
+
+  /* 키보드 포커스는 항상 보이게 (마우스 클릭은 :focus-visible 에 걸리지 않음) */
+  :focus-visible {
+    outline: 2px solid var(--color-blue-500);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -111,22 +132,20 @@ html {
   background-color: rgba(100, 100, 100, 0.6);
 }
 
-/* 공통 카드 스타일 - 시각적 계층 구조 */
+/* 공통 카드 스타일 - 테두리로만 구분, 그림자는 팝오버·모달에만 */
 .card-base {
   background-color: white;
-  border-radius: 0.75rem;
-  border: 1px solid rgb(243 244 246);
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-gray-200);
 }
 
 .card-hover {
   background-color: white;
-  border-radius: 0.75rem;
-  border: 1px solid rgb(243 244 246);
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  transition: box-shadow 200ms;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-gray-200);
+  transition: border-color 150ms;
 }
 
 .card-hover:hover {
-  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.06);
+  border-color: var(--color-gray-300);
 }

@@ -27,6 +27,10 @@ export interface TableProps<T = Record<string, unknown>> {
   height?: string;
 }
 
+/**
+ * 데이터 테이블. 행 40px, 숫자는 tabular-nums, 구분은 1px 선으로만.
+ * 정렬 기본값은 왼쪽. 숫자·금액 열만 호출부에서 align="right" 로 지정한다.
+ */
 export default function Table<T = Record<string, unknown>>({
   columns,
   data,
@@ -68,13 +72,14 @@ export default function Table<T = Record<string, unknown>>({
           height: height,
         }}
       >
-        <table className="w-full table-fixed">
-          <thead className="sticky top-0 shadow-sm bg-gray-50">
-            <tr>
+        <table className="w-full table-fixed text-[13px] tabular-nums">
+          <thead className="sticky top-0 z-local bg-gray-50">
+            <tr className="h-10">
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3 text-sm font-medium text-gray-700 ${getAlignClass(column.align)}`}
+                  scope="col"
+                  className={`px-4 text-xs font-medium text-gray-500 border-b border-gray-200 whitespace-nowrap ${getAlignClass(column.align)}`}
                   style={{ width: column.width }}
                 >
                   {column.headerRender ? column.headerRender() : column.label}
@@ -85,26 +90,23 @@ export default function Table<T = Record<string, unknown>>({
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center text-gray-500">
-                  <div className="flex flex-col items-center gap-2">
-                    <i className="ri-inbox-line text-3xl text-gray-400"></i>
-                    <p>{emptyMessage}</p>
-                  </div>
+                <td colSpan={columns.length} className="px-4 py-14 text-center text-gray-500">
+                  {emptyMessage}
                 </td>
               </tr>
             ) : (
               data.map((row, index) => (
                 <tr
                   key={keyExtractor ? keyExtractor(row, index) : index}
-                  className={`border-b border-gray-50 last:border-0 ${
-                    hoverable ? 'hover:bg-blue-100/70 transition-colors cursor-pointer' : ''
-                  }`}
+                  className={`h-10 border-b border-gray-100 last:border-0 ${
+                    hoverable ? 'hover:bg-gray-50 transition-colors' : ''
+                  } ${onRowClick ? 'cursor-pointer' : ''}`}
                   onClick={() => onRowClick?.(row, index)}
                 >
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={`px-4 py-3 text-sm text-gray-700 ${getAlignClass(column.align)}`}
+                      className={`px-4 py-2 text-gray-800 ${getAlignClass(column.align)}`}
                       style={{ width: column.width }}
                     >
                       {getCellValue(row, column, index)}

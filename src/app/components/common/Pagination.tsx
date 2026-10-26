@@ -18,39 +18,42 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
 
   const pageRange = getPageRange(currentPage, totalPages);
 
-  const btnBase = 'w-8 h-8 flex items-center justify-center rounded text-sm transition-colors';
-  const btnActive = 'bg-blue-600 text-white font-medium';
-  const btnDefault = 'border border-gray-300 text-gray-600 hover:bg-gray-50 cursor-pointer';
-  const btnDisabled = 'text-gray-300';
+  const btnBase =
+    'w-8 h-8 flex items-center justify-center rounded-md text-[13px] tabular-nums transition-colors';
+  const btnActive = 'bg-blue-500 text-white font-medium';
+  const btnDefault = 'text-gray-600 hover:bg-gray-100 cursor-pointer';
+  const btnDisabled = 'text-gray-300 cursor-not-allowed';
 
   return (
-    <div className="px-6 border-gray-200 flex items-center justify-between shrink-0">
-      <span className="text-sm text-gray-500">
-        총 <span className="font-medium text-gray-700">{totalElements ?? 0}</span>개
+    <nav aria-label="페이지" className="flex items-center justify-between shrink-0">
+      <span className="text-[13px] text-gray-500">
+        총 <span className="font-medium text-gray-800 tabular-nums">{totalElements ?? 0}</span>건
       </span>
 
-      <div className="flex items-center gap-1">
-        {/* 이전 버튼 */}
+      <div className="flex items-center gap-0.5">
         <button
+          type="button"
+          aria-label="이전 페이지"
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className={`${btnBase} ${currentPage === 1 ? btnDisabled : btnDefault}`}
         >
-          <i className="ri-arrow-left-s-line text-base" />
+          <i aria-hidden="true" className="ri-arrow-left-s-line text-base" />
         </button>
 
-        {/* 페이지 번호 */}
         {pageRange.map((p, index) =>
           p === '...' ? (
             <span
               key={`dots-${index}`}
-              className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm"
+              className="w-8 h-8 flex items-center justify-center text-gray-400 text-[13px]"
             >
-              ···
+              …
             </span>
           ) : (
             <button
               key={p}
+              type="button"
+              aria-current={currentPage === p ? 'page' : undefined}
               onClick={() => onPageChange(p)}
               className={`${btnBase} ${currentPage === p ? btnActive : btnDefault}`}
             >
@@ -59,16 +62,17 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
           ),
         )}
 
-        {/* 다음 버튼 */}
         <button
+          type="button"
+          aria-label="다음 페이지"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className={`${btnBase} ${currentPage === totalPages ? btnDisabled : btnDefault}`}
         >
-          <i className="ri-arrow-right-s-line text-base" />
+          <i aria-hidden="true" className="ri-arrow-right-s-line text-base" />
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

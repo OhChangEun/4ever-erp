@@ -7,6 +7,7 @@ interface SlidingNavBarProps {
   onSelect: (key: string) => void;
 }
 
+/** 세그먼트 컨트롤. 회색 트랙 위에 흰색 선택 칩이 미끄러진다. */
 export default function SlidingNavBar({ items, selectedKey, onSelect }: SlidingNavBarProps) {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const navRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -24,29 +25,33 @@ export default function SlidingNavBar({ items, selectedKey, onSelect }: SlidingN
   }, [selectedKey, items]);
 
   return (
-    <div className="relative inline-flex items-center bg-white rounded-md border border-gray-200 p-0.5 gap-0.5">
+    <div role="group" className="relative inline-flex items-center bg-gray-100 rounded-md p-0.5">
       {/* 슬라이딩 인디케이터 */}
       <div
-        className="absolute top-0.5 bottom-0.5 bg-blue-500 rounded transition-all duration-300 ease-out pointer-events-none"
+        className="absolute top-0.5 bottom-0.5 bg-white border border-gray-200 rounded transition-all duration-200 ease-out pointer-events-none"
         style={indicatorStyle}
       />
 
-      {/* 버튼들 */}
-      <div className="flex gap-0.5">
-        {items.map((item, index) => (
-          <button
-            key={item.key}
-            ref={(el) => {
-              navRefs.current[index] = el;
-            }}
-            onClick={() => onSelect(item.key)}
-            className={`relative z-local whitespace-nowrap cursor-pointer rounded px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
-              selectedKey === item.key ? 'text-white' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {item.value}
-          </button>
-        ))}
+      <div className="flex">
+        {items.map((item, index) => {
+          const isSelected = selectedKey === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              ref={(el) => {
+                navRefs.current[index] = el;
+              }}
+              onClick={() => onSelect(item.key)}
+              aria-pressed={isSelected}
+              className={`relative z-local whitespace-nowrap cursor-pointer rounded px-2.5 h-7 text-xs transition-colors ${
+                isSelected ? 'text-gray-900 font-medium' : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {item.value}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

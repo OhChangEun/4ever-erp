@@ -3,7 +3,7 @@ import React from 'react';
 import { PurchaseOrderListItem } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { formatDateTime } from '@/app/utils/date';
-import IconButton from '@/app/components/common/IconButton';
+import Button from '@/app/components/common/Button';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 
@@ -28,69 +28,87 @@ export default function PurchaseOrderTable({
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
   const columns: TableColumn<PurchaseOrderListItem>[] = [
-    { key: 'purchaseOrderNumber', label: '발주번호', align: 'center' },
-    { key: 'supplierName', label: '공급업체', align: 'center' },
+    {
+      key: 'purchaseOrderNumber',
+      label: '발주번호',
+      width: '140px',
+      render: (_, order) => <span className="font-mono text-xs">{order.purchaseOrderNumber}</span>,
+    },
+    { key: 'supplierName', label: '공급업체' },
     {
       key: 'itemsSummary',
       label: '주문품목',
-      align: 'center',
-      render: (_, order) => <span className="max-w-xs truncate block">{order.itemsSummary}</span>,
+      render: (_, order) => (
+        <span className="block truncate text-gray-600" title={order.itemsSummary}>
+          {order.itemsSummary}
+        </span>
+      ),
     },
-    { key: 'totalAmount', label: '총금액', align: 'center' },
+    {
+      key: 'totalAmount',
+      label: '총금액',
+      align: 'right',
+      width: '130px',
+      render: (_, order) => `₩${Number(order.totalAmount).toLocaleString('ko-KR')}`,
+    },
     {
       key: 'orderDate',
       label: '주문일자',
-      align: 'center',
-      render: (_, order) => formatDateTime(order.orderDate),
+      width: '150px',
+      render: (_, order) => (
+        <span className="text-gray-600">{formatDateTime(order.orderDate)}</span>
+      ),
     },
     {
       key: 'dueDate',
       label: '납기일',
-      align: 'center',
-      render: (_, order) => formatDateTime(order.dueDate),
+      width: '150px',
+      render: (_, order) => <span className="text-gray-600">{formatDateTime(order.dueDate)}</span>,
     },
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
+      width: '96px',
       render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
+      width: isSupplier ? '200px' : '80px',
       render: (_, order) => (
-        <div className="flex items-center justify-center space-x-2">
-          <button
+        <div className="flex items-center justify-end gap-0.5 -my-1">
+          <Button
+            label="상세"
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:bg-gray-100 px-2"
             onClick={() => onViewDetail(order.purchaseOrderId)}
-            className="text-blue-600 hover:text-blue-500 cursor-pointer"
-            title="상세보기"
-          >
-            <i className="ri-eye-line"></i>
-          </button>
+          />
           {isSupplier && order.statusCode === 'PENDING' && (
             <>
-              <button
+              <Button
+                label="승인"
+                variant="ghost"
+                size="sm"
+                className="px-2"
                 onClick={() => onApprove(order.purchaseOrderId)}
-                className="text-green-600 hover:text-green-900 cursor-pointer"
-                title="승인"
-              >
-                <i className="ri-check-line"></i>
-              </button>
-              <button
+              />
+              <Button
+                label="반려"
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:bg-red-50 px-2"
                 onClick={() => onReject(order.purchaseOrderId)}
-                className="text-red-600 hover:text-red-900 cursor-pointer"
-                title="반려"
-              >
-                <i className="ri-close-line"></i>
-              </button>
+              />
             </>
           )}
           {isSupplier && order.statusCode === 'APPROVAL' && (
-            <IconButton
+            <Button
+              label="배송 시작"
+              variant="ghost"
               size="sm"
-              variant="soft"
-              icon="ri-truck-line"
+              className="px-2"
               onClick={() => onStartDelivery(order.purchaseOrderId)}
             />
           )}

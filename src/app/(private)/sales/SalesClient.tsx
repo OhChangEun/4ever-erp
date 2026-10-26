@@ -40,9 +40,14 @@ export default function SalesClient() {
   return (
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
-        <StatSection statsData={salesStatsData ?? { week: [], month: [], quarter: [], year: [] }} />
         <Suspense fallback={<div>Loading...</div>}>
-          <SalesTabs />
+          <SalesTabs
+            header={
+              <StatSection
+                statsData={salesStatsData ?? { week: [], month: [], quarter: [], year: [] }}
+              />
+            }
+          />
         </Suspense>
       </main>
     </div>

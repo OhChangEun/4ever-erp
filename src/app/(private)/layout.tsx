@@ -29,7 +29,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <div
         className="flex flex-col transition-all duration-300"
         style={{
-          marginLeft: mounted && isMobile ? '0' : isExpanded ? '256px' : '64px',
+          marginLeft: mounted && isMobile ? '0' : isExpanded ? '224px' : '64px',
         }}
       >
         <main className="h-screen overflow-auto bg-gray-50 flex flex-col">

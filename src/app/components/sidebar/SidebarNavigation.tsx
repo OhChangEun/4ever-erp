@@ -52,6 +52,15 @@ const NAV_ITEMS = [
   },
 ] as const;
 
+/** 역할에 따라 메뉴 이름이 바뀌는 경우 (공급사는 구매→영업, 고객사는 영업→구매) */
+export function getNavLabel(href: string, role: string | undefined): string | undefined {
+  const item = NAV_ITEMS.find((nav) => nav.href === href);
+  if (!item) return undefined;
+  if (role === 'SUPPLIER_ADMIN' && href === '/purchase') return '영업관리';
+  if (role === 'CUSTOMER_ADMIN' && href === '/sales') return '구매관리';
+  return item.label;
+}
+
 interface SidebarNavigationProps {
   isExpanded: boolean;
 }
@@ -72,21 +81,8 @@ export default function SidebarNavigation({ isExpanded }: SidebarNavigationProps
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // role에 따라 label 변경
   const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role as string)).map(
-    (item) => {
-      let label = item.label;
-
-      if (role === 'SUPPLIER_ADMIN' && item.href === '/purchase') {
-        label = '영업관리'; // SUPPLIER_ADMIN이면 구매관리 -> 영업관리
-      }
-
-      if (role === 'CUSTOMER_ADMIN' && item.href === '/sales') {
-        label = '구매관리'; // CUSTOMER_ADMIN이면 영업관리 -> 구매관리
-      }
-
-      return { ...item, label };
-    },
+    (item) => ({ ...item, label: getNavLabel(item.href, role) ?? item.label }),
   );
 
   const isActive = (href: string) => pathname === href;
@@ -99,26 +95,27 @@ export default function SidebarNavigation({ isExpanded }: SidebarNavigationProps
   };
 
   return (
-    <ul className="space-y-1 px-2">
+    <ul className="space-y-0.5 px-2">
       {accessibleNavItems.map((item) => (
         <li key={item.href}>
           <Link
             href={item.href}
             onClick={handleLinkClick}
-            className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
+            aria-current={isActive(item.href) ? 'page' : undefined}
+            className={`flex items-center gap-2.5 h-9 px-2.5 rounded-md text-sm transition-colors ${
               isActive(item.href)
-                ? 'bg-blue-100 text-blue-600 font-medium'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-blue-50 text-blue-600 font-medium shadow-[inset_3px_0_0_var(--color-blue-500)]'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
             }`}
             title={!isExpanded ? item.label : undefined}
           >
             <i
-              className={`${item.icon} text-xl shrink-0 ${
-                isActive(item.href) ? 'text-blue-600' : 'text-gray-500'
+              className={`${item.icon} text-base shrink-0 ${
+                isActive(item.href) ? 'text-blue-600' : 'text-gray-400'
               }`}
             />
             <span
-              className={`transition-all duration-300 whitespace-nowrap ${
+              className={`whitespace-nowrap ${
                 isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'
               }`}
             >

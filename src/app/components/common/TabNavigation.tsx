@@ -1,14 +1,25 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Tab } from '@/app/types/NavigationType';
+import { useRole } from '@/app/hooks/useRole';
+import { getNavLabel } from '@/app/components/sidebar/SidebarNavigation';
 
-export default function TabNavigation({ tabs }: { tabs: Tab[] }) {
+interface TabNavigationProps {
+  tabs: Tab[];
+  /** 탭 바와 탭 내용 사이에 들어가는 페이지 공통 영역 (예: 통계 띠) */
+  header?: ReactNode;
+}
+
+export default function TabNavigation({ tabs, header }: TabNavigationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathName = usePathname(); // 현재 경로 가져오기 (ex: "/purchase")
+  const pathName = usePathname(); // 현재 경로 (ex: "/purchase")
+  const role = useRole();
 
   const currentTab = searchParams.get('tab') || tabs[0]?.id;
+  const pageTitle = getNavLabel(pathName, role);
 
   const handelTabChange = (tabId: string) => {
     const params = new URLSearchParams();
@@ -22,25 +33,39 @@ export default function TabNavigation({ tabs }: { tabs: Tab[] }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 pb-4">
-      {/* 네비게이션바 */}
-      <nav className="-mb-px mx-1 border-b border-gray-200 flex space-x-6 shrink-0">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handelTabChange(tab.id)}
-            className={`group inline-flex items-center pt-3 pb-2.5 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap ${
-              currentTab === tab.id
-                ? 'border-blue-500 text-blue-500'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <i className={`${tab.icon} mr-2 text-lg`}></i>
-            {tab.name}
-          </button>
-        ))}
-      </nav>
-      {/* 렌더링 되는 컴포넌트 */}
-      <div className="flex-1 min-h-0 mt-4 card-base p-6 space-y-6 overflow-hidden">
+      {/* 페이지 제목 + 탭 */}
+      <div className="flex items-stretch gap-4 h-11 border-b border-gray-200 shrink-0">
+        {pageTitle && (
+          <h1 className="flex items-center text-base font-semibold text-gray-900 whitespace-nowrap">
+            {pageTitle}
+          </h1>
+        )}
+        <nav aria-label={`${pageTitle ?? ''} 탭`} className="flex items-stretch gap-1 -mb-px">
+          {tabs.map((tab) => {
+            const isActive = currentTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handelTabChange(tab.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`px-2.5 text-sm border-b-2 cursor-pointer whitespace-nowrap transition-colors ${
+                  isActive
+                    ? 'border-blue-500 text-gray-900 font-medium'
+                    : 'border-transparent text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {tab.name}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {header && <div className="shrink-0">{header}</div>}
+
+      {/* 활성 탭 내용 */}
+      <div className="flex-1 min-h-0 mt-4 flex flex-col overflow-hidden">
         {ActiveComponent && <ActiveComponent />}
       </div>
     </div>

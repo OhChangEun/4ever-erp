@@ -65,8 +65,8 @@ export default function Dropdown<T extends string = string>({
 
   // size에 따른 스타일 클래스 정의
   const sizeClasses = {
-    sm: 'pl-3 pr-1 py-1.5 text-xs rounded-md', // 작은 사이즈
-    md: 'pl-4 pr-1.5 py-1.5 text-sm rounded-lg', // 기본/중간 사이즈
+    sm: 'h-7 pl-2.5 pr-1 text-xs rounded-md', // 작은 사이즈
+    md: 'h-8 pl-3 pr-1.5 text-[13px] rounded-md', // 기본/중간 사이즈
   };
 
   const buttonSizeClass = sizeClasses[size] || sizeClasses.md;
@@ -81,21 +81,21 @@ export default function Dropdown<T extends string = string>({
             if (disabled) return;
             setOpen((prev) => !prev);
           }}
-          className={`font-medium focus:outline-none transition whitespace-nowrap
+          className={`inline-flex items-center border transition-colors whitespace-nowrap focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500
                     ${buttonSizeClass} 
                     ${
                       disabled
-                        ? 'bg-gray-100 text-gray-300'
+                        ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
                         : isSelected
-                          ? 'bg-blue-100 text-blue-500 hover:bg-blue-200/70 cursor-pointer'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'
+                          ? 'bg-blue-50 border-blue-300 text-blue-700 font-medium hover:bg-blue-100 cursor-pointer'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
                     }
                   `}
           disabled={disabled}
         >
           <span>{displayLabel}</span>
-          <span className="pl-2">
-            <i className="ri-arrow-down-s-line"></i>
+          <span className="pl-1.5 text-gray-400">
+            <i aria-hidden="true" className="ri-arrow-down-s-line"></i>
           </span>
         </button>
       </div>
@@ -106,16 +106,16 @@ export default function Dropdown<T extends string = string>({
           <ul
             ref={refs.setFloating}
             style={floatingStyles}
-            className="z-popover max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg max-w-[160px] min-w-[96px] animate-fadeIn overscroll-contain"
+            className="z-popover max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-md max-w-[200px] min-w-[112px] overscroll-contain"
           >
             {items.length > 0 ? (
               items.map((item, index) => {
                 const isSelected = item.key === selectedItem?.key;
                 const borderRadiusClass =
-                  index === 0 ? 'rounded-t-lg' : index === items.length - 1 ? 'rounded-b-lg' : '';
+                  index === 0 ? 'rounded-t-md' : index === items.length - 1 ? 'rounded-b-md' : '';
                 // 리스트 아이템의 텍스트 크기도 size에 맞게 조정 (sm일 때 text-sm 유지, md일 때 text-sm 유지)
                 const listItemSizeClass =
-                  size === 'sm' ? 'text-xs px-3 py-1.5' : 'text-sm px-4 py-2';
+                  size === 'sm' ? 'text-xs px-3 py-1.5' : 'text-[13px] px-3 py-1.5';
                 return (
                   <li
                     key={item.key}
@@ -124,7 +124,7 @@ export default function Dropdown<T extends string = string>({
                     }}
                     className={`${listItemSizeClass} truncate cursor-pointer
                             ${borderRadiusClass}
-                            ${isSelected ? 'text-blue-500 bg-blue-50' : 'text-gray-800 hover:bg-blue-50'}
+                            ${isSelected ? 'text-blue-700 bg-blue-50 font-medium' : 'text-gray-800 hover:bg-gray-50'}
                           `}
                   >
                     {item.value}

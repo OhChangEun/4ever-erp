@@ -47,11 +47,11 @@ export default function Sidebar() {
       <aside
         className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-sidebar transition-all duration-300 ease-in-out flex flex-col
           lg:translate-x-0 ${
-            isExpanded ? 'w-64 translate-x-0' : 'w-16 lg:translate-x-0 -translate-x-full'
+            isExpanded ? 'w-56 translate-x-0' : 'w-16 lg:translate-x-0 -translate-x-full'
           }`}
       >
         {/* 사이드바 헤더 */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 shrink-0">
+        <div className="flex items-center justify-between h-12 px-3 shrink-0">
           <div
             className={`transition-all duration-300 overflow-hidden ${
               isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'
@@ -61,11 +61,11 @@ export default function Sidebar() {
           </div>
           <button
             onClick={toggleSidebar}
-            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors shrink-0 cursor-pointer"
             aria-label={isExpanded ? '사이드바 접기' : '사이드바 펼치기'}
           >
             <i
-              className={`text-2xl text-gray-500 font-light ${
+              className={`text-lg text-gray-500 ${
                 isExpanded ? 'ri-arrow-left-double-line' : 'ri-arrow-right-double-line'
               }`}
             />
@@ -73,7 +73,7 @@ export default function Sidebar() {
         </div>
 
         {/* 네비게이션 */}
-        <nav className="flex-1 py-4 overflow-y-auto">
+        <nav className="flex-1 py-2 overflow-y-auto">
           <SidebarNavigation isExpanded={isExpanded} />
         </nav>
 
