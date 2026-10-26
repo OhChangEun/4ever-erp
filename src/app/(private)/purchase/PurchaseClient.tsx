@@ -16,13 +16,14 @@ import {
 import { StatCardType } from '@/app/types/StatType';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
+import { purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export default function PurchaseClient() {
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
   const { data: statsData, isLoading } = useQuery({
-    queryKey: ['purchaseStats', role],
+    queryKey: purchaseStatsKeys.byRole(role),
     queryFn: async (): Promise<Record<string, StatCardType[]> | null> => {
       if (isSupplier) {
         const data = await fetchSupplierOrdersPurchaseStats();
