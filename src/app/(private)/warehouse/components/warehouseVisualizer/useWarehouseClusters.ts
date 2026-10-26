@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getInventoryList } from '@/app/(private)/inventory/inventory.api';
 import { buildCluster, SAMPLE_INVENTORY } from './clusters';
 import { InventoryQueryParams } from '@/app/(private)/inventory/types/InventoryListType';
+import { warehouseVisualizerKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 export interface InventoryQueryParamForWarehouse {
   statusCode?: string;
@@ -28,7 +29,7 @@ const createQueryParams = (filter?: WarehouseFilter): InventoryQueryParamForWare
 export const useWarehouseClusters = (filter?: WarehouseFilter) => {
   const queryParams = useMemo(() => createQueryParams(filter), [filter?.warehouseId]);
   const { data } = useQuery({
-    queryKey: ['inventoryVisualizer', queryParams],
+    queryKey: warehouseVisualizerKeys.list(queryParams),
     queryFn: () => getInventoryList(queryParams),
     staleTime: 1000 * 60,
   });

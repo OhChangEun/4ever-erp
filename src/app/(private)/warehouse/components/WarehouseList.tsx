@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { WarehouseListQueryParams } from '../types/WarehouseListType';
 import Pagination from '@/app/components/common/Pagination';
 import { getWarehouseList } from '../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -13,6 +12,7 @@ import ManageWarehouseModal from './modals/ManageWarehouseModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
+import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 const Warehouse3DModal = dynamic(
   () => import('./warehouseVisualizer/components/Warehouse3DModal'),
@@ -72,8 +72,8 @@ const WarehouseList = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['warehouseList', queryParams],
-    queryFn: ({ queryKey }) => getWarehouseList(queryKey[1] as WarehouseListQueryParams),
+    queryKey: warehouseKeys.list(queryParams),
+    queryFn: () => getWarehouseList(queryParams),
     staleTime: 1000,
   });
 

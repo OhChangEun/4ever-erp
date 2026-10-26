@@ -7,10 +7,11 @@ import StatSection from '@/app/components/common/StatSection';
 import { getWarehouseStats } from './warehouse.api';
 import { mapWarehouseStatsToCards } from './warehouse.service';
 import { useQuery } from '@tanstack/react-query';
+import { warehouseStatsKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 export default function WarehousePage() {
   const { data: warehouseStats, isLoading } = useQuery({
-    queryKey: ['warehouseStats'],
+    queryKey: warehouseStatsKeys.all,
     queryFn: getWarehouseStats,
   });
 

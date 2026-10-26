@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { getWarehouseDetail } from '../../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 const WarehouseDetailModal = ({
   onClose,
@@ -21,7 +22,7 @@ const WarehouseDetailModal = ({
     isLoading,
     isError,
   } = useQuery<WarehouseDetailResponse>({
-    queryKey: ['warehouseDetail', selectedWarehouseId],
+    queryKey: warehouseKeys.detail(selectedWarehouseId),
     queryFn: () => getWarehouseDetail(selectedWarehouseId),
     enabled: !!selectedWarehouseId,
   });

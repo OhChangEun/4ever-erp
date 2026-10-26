@@ -13,6 +13,7 @@ import { WarehouseListResponse } from '../../types/WarehouseListType';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
@@ -49,7 +50,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
     isLoading,
     isError,
   } = useQuery<WarehouseManagerInfoResponse[]>({
-    queryKey: ['getWarehouseManagerInfo'],
+    queryKey: warehouseManagerInfoKeys.all,
     queryFn: getWarehouseManagerInfo,
   });
   // 낙관적 업데이트x
@@ -70,15 +71,15 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
     mutationFn: postAddWarehouse,
 
     onMutate: async (newWarehouse) => {
-      await queryClient.cancelQueries({ queryKey: ['warehouseList'] });
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.lists() });
 
       const previousData = queryClient.getQueryData<{
         data: WarehouseListResponse[];
         pageData: Page;
-      }>(['warehouseList']);
+      }>(warehouseKeys.lists());
 
       queryClient.setQueryData<{ data: WarehouseListResponse[]; pageData: Page }>(
-        ['warehouseList'],
+        warehouseKeys.lists(),
         (oldData) => {
           if (!oldData) return oldData;
           return {
@@ -93,7 +94,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
 
     onError: (_error, _newWarehouse, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['warehouseList'], context.previousData);
+        queryClient.setQueryData(warehouseKeys.lists(), context.previousData);
       }
       toast.error('창고 등록 중 오류가 발생했습니다.');
     },
@@ -104,7 +105,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['warehouseList'] });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
     },
   });
 

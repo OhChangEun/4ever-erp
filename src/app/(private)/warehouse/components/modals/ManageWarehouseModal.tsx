@@ -20,6 +20,7 @@ import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType'
 import { ApiResponseNoData } from '@/app/types/api';
 import { WarehouseListResponse } from '../../types/WarehouseListType';
 import { Page } from '@/app/types/Page';
+import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 interface ManageWarehouseRequest {
   warehouseName: string;
@@ -77,7 +78,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     isLoading: isWarehouseInfoLoading,
     isError: isWarehouseInfoError,
   } = useQuery<WarehouseDetailResponse>({
-    queryKey: ['warehouseDetail', selectedWarehouseId],
+    queryKey: warehouseKeys.detail(selectedWarehouseId),
     queryFn: () => getWarehouseDetail(selectedWarehouseId),
     enabled: !!selectedWarehouseId,
   });
@@ -90,7 +91,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     isLoading: isManagerInfoLoading,
     isError: isManagerInfoError,
   } = useQuery<WarehouseManagerInfoResponse[]>({
-    queryKey: ['getWarehouseManagerInfo'],
+    queryKey: warehouseManagerInfoKeys.all,
     queryFn: getWarehouseManagerInfo,
   });
 
@@ -120,15 +121,15 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     mutationFn: patchManageWarehouse,
 
     onMutate: async (newWarehouse) => {
-      await queryClient.cancelQueries({ queryKey: ['warehouseList'] });
+      await queryClient.cancelQueries({ queryKey: warehouseKeys.lists() });
 
       const previousData = queryClient.getQueryData<{
         data: WarehouseListResponse[];
         pageData: Page;
-      }>(['warehouseList']);
+      }>(warehouseKeys.lists());
 
       queryClient.setQueryData<{ data: WarehouseListResponse[]; pageData: Page }>(
-        ['warehouseList'],
+        warehouseKeys.lists(),
         (oldData) => {
           if (!oldData) return oldData;
           return {
@@ -142,7 +143,8 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     },
 
     onError: (_error, _variables, context) => {
-      if (context?.previousData) queryClient.setQueryData(['warehouseList'], context.previousData);
+      if (context?.previousData)
+        queryClient.setQueryData(warehouseKeys.lists(), context.previousData);
       toast.error('창고 수정 중 오류가 발생했습니다.');
     },
 
@@ -152,7 +154,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['warehouseList'] });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
     },
   });
 
