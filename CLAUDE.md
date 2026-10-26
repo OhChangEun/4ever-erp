@@ -40,6 +40,9 @@ npm run lint     # ESLint 검사
 ## Domain Context
 ERP 도메인: Finance(재무), HRM(인사), Inventory(재고), Production(생산·BOM·MES·MRP), Sales(영업), Purchase(구매), Warehouse(창고)
 
+## Design
+UI 작업은 `DESIGN_GUIDELINES.md`를 따른다. 새 컴포넌트를 만들기 전에 `src/app/components/common/`의 기존 컴포넌트를 수정해서 해결할 수 있는지 먼저 본다.
+
 ## Coding Conventions
 - 도메인별 타입은 `types/` 폴더에 `{Entity}Type.ts` 파일로 분리
 - API 함수는 `{domain}.api.ts`, 비즈니스 로직은 `{domain}.service.ts`
