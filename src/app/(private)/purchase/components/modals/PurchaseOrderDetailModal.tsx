@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
+import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export interface PurchaseOrderDetailModalProps extends ModalProps {
   purchaseOrderId: string;
@@ -21,7 +22,7 @@ export default function PurchaseOrderDetailModal({
     isLoading,
     isError,
   } = useQuery<PurchaseOrderDetail>({
-    queryKey: ['purchaseOrderDetail'],
+    queryKey: purchaseOrderKeys.detail(purchaseOrderId),
     queryFn: () => fetchPurchaseOrderDetail(purchaseOrderId),
   });
 

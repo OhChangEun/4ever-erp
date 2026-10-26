@@ -23,7 +23,7 @@ import { useDebounce } from 'use-debounce';
 import { PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { purchaseOrderKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
@@ -82,9 +82,11 @@ export default function PurchaseOrderListTab() {
   // 발주서 승인
   const { mutate: approveOrder } = useMutation({
     mutationFn: (purchaseOrderId: string) => approvePurchaseOrder(purchaseOrderId),
-    onSuccess: () => {
+    onSuccess: (_, purchaseOrderId) => {
       toast.success('발주서 승인 완료되었습니다.');
       queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`발주서 승인 중 오류가 발생했습니다. ${error}`);
@@ -94,9 +96,11 @@ export default function PurchaseOrderListTab() {
   // 발주서 반려
   const { mutate: rejectOrder } = useMutation({
     mutationFn: (purchaseOrderId: string) => rejectPurchaseOrder(purchaseOrderId, ''),
-    onSuccess: () => {
+    onSuccess: (_, purchaseOrderId) => {
       toast.success('반려 처리되었습니다.');
       queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`반려 중 오류가 발생했습니다. ${error}`);
@@ -106,9 +110,11 @@ export default function PurchaseOrderListTab() {
   // 배송 시작
   const { mutate: startDelivery } = useMutation({
     mutationFn: (purchaseOrderId: string) => startPurchaseOrderDelivery(purchaseOrderId),
-    onSuccess: () => {
+    onSuccess: (_, purchaseOrderId) => {
       toast.info('배송이 시작되었습니다.');
       queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
+      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
     },
     onError: (error) => {
       toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${error}`);
