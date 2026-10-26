@@ -1,6 +1,7 @@
 'use client';
 
 import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
+import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import IconButton from '@/app/components/common/IconButton';
 import Input from '@/app/components/common/Input';
@@ -65,7 +66,7 @@ export default function InventoryPurchaseRequestModal({
     mutationFn: (body: CreateStockPurchaseRequestItem[]) =>
       createStockPurchaseRequest({ items: body }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainingList'] });
+      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
       toast.success('발주 요청이 생성되었습니다.');
       onClose();
     },
