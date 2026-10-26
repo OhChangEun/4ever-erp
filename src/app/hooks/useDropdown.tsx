@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { useMemo } from 'react';
+import { dropdownKeys } from '@/app/hooks/dropdown.keys';
 
 type AllOptionMode = 'with-all' | 'without-all' | 'as-is';
 
@@ -12,7 +13,7 @@ export const useDropdown = (
   mode: AllOptionMode = 'as-is',
 ) => {
   const { data, isLoading, isError } = useQuery<KeyValueItem[]>({
-    queryKey: [key],
+    queryKey: dropdownKeys.options(key),
     queryFn: fetchFn,
     staleTime: Infinity,
   });

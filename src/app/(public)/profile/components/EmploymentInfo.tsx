@@ -5,11 +5,12 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { EditUserRequest, EmploymentInfoProps, ProfileInfoResponse } from '../ProfileType';
 import { getProfile, postProfile } from '../profile.api';
+import { profileKeys } from '../profile.keys';
 
 const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   const toast = useToast();
   const { data: profileInfo } = useQuery<ProfileInfoResponse>({
-    queryKey: ['profileInfo'],
+    queryKey: profileKeys.info(),
     queryFn: getProfile,
   });
   const [formData, setFormData] = useState<EditUserRequest>({
@@ -82,16 +83,16 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   const { mutate: editProfile } = useMutation({
     mutationFn: postProfile,
     onMutate: async (newData) => {
-      await queryClient.cancelQueries({ queryKey: ['profileInfo'] });
-      const previousData = queryClient.getQueryData(['profileInfo']);
-      queryClient.setQueryData(['profileInfo'], (old: EditUserRequest) => ({
+      await queryClient.cancelQueries({ queryKey: profileKeys.info() });
+      const previousData = queryClient.getQueryData(profileKeys.info());
+      queryClient.setQueryData(profileKeys.info(), (old: EditUserRequest) => ({
         ...old!,
         ...newData,
       }));
       return { previousData };
     },
     onError: (_error, _newData, context) => {
-      if (context?.previousData) queryClient.setQueryData(['profileInfo'], context.previousData);
+      if (context?.previousData) queryClient.setQueryData(profileKeys.info(), context.previousData);
       toast.error('프로필 수정 중 오류가 발생했습니다.');
     },
     onSuccess: () => {
@@ -99,7 +100,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
       toast.success('프로필 수정이 완료되었습니다.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['profileInfo'] });
+      queryClient.invalidateQueries({ queryKey: profileKeys.info() });
     },
   });
 

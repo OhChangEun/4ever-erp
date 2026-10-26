@@ -23,6 +23,7 @@ import NotificationHeader from './NotificationHeader';
 import NotificationPagination from './NotificationPagination';
 import NotificationList from './NotificationList';
 import ErrorMessage from '../../common/ErrorMessage';
+import { notificationKeys } from '../header.keys';
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +51,7 @@ export default function NotificationDropdown() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['notificationList', currentPage],
+    queryKey: notificationKeys.list(currentPage),
     queryFn: () => fetchNotifications(currentPage, ITEMS_PER_PAGE),
   });
 
@@ -70,7 +71,7 @@ export default function NotificationDropdown() {
   const { mutate: readAll } = useMutation({
     mutationFn: readAllNotifications,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notificationList'] });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
       setCurrentPage(0);
     },
   });
@@ -79,7 +80,7 @@ export default function NotificationDropdown() {
   const { mutate: readOne } = useMutation({
     mutationFn: (id: string) => readNotification(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notificationList'] });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
     },
   });
 

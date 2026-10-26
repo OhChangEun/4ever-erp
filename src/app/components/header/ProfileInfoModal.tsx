@@ -5,12 +5,13 @@ import { ProfileInfo, ProfileInfoModalProps } from './types/CustomerOrSupplierIn
 import { getSupOrCusProfile } from './header.api';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
+import { partnerProfileKeys } from './header.keys';
 
 const ProfileInfoModal = ({ setIsOpen }: ProfileInfoModalProps) => {
   const role = useRole();
 
   const { data: profileInfoRes } = useQuery<ProfileInfo>({
-    queryKey: ['supOrCusProfile', role],
+    queryKey: partnerProfileKeys.byRole(role),
     queryFn: getSupOrCusProfile,
   });
 

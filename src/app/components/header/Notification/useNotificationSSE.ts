@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { readStoredToken } from '@/lib/auth/tokenStorage';
 import { useAuthStore } from '@/store/authStore';
+import { notificationKeys } from '@/app/components/header/header.keys';
 
 interface Alarm {
   alarmId: string;
@@ -90,7 +91,7 @@ export function useNotificationSSE({
               case 'alarm':
                 try {
                   const alarm: Alarm = JSON.parse(event.data);
-                  queryClient.invalidateQueries({ queryKey: ['notificationList'] });
+                  queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
                   onAlarm?.(alarm);
                 } catch (err) {
                   console.error('[SSE] Failed to parse alarm:', err);

@@ -11,6 +11,7 @@ import {
   postVacation,
 } from '../profile.api';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { profileKeys } from '../profile.keys';
 
 export default function AttendanceRecord() {
   const queryClient = useQueryClient();
@@ -58,7 +59,7 @@ export default function AttendanceRecord() {
       toast.error('출근 처리 중 오류가 발생했습니다.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayAttendance'] });
+      queryClient.invalidateQueries({ queryKey: profileKeys.todayAttendance() });
     },
   });
 
@@ -72,7 +73,7 @@ export default function AttendanceRecord() {
       toast.error('퇴근 처리 중 오류가 발생했습니다.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayAttendance'] });
+      queryClient.invalidateQueries({ queryKey: profileKeys.todayAttendance() });
     },
   });
 
@@ -88,7 +89,7 @@ export default function AttendanceRecord() {
   };
 
   const { data: todayAttendanceRes } = useQuery<TodayAttendResponse>({
-    queryKey: ['todayAttendance'],
+    queryKey: profileKeys.todayAttendance(),
     queryFn: getTodayAttendance,
   });
 
@@ -98,7 +99,7 @@ export default function AttendanceRecord() {
   }, [todayAttendanceRes]);
 
   const { data: AttendanceRecordsRes } = useQuery<AttendanceRecordsResponse[]>({
-    queryKey: ['attendanceRecord'],
+    queryKey: profileKeys.attendanceRecords(),
     queryFn: getAttendaceRecords,
   });
 

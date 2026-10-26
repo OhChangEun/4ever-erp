@@ -11,6 +11,7 @@ import {
 } from '../profile.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { profileKeys } from '../profile.keys';
 
 const TrainingStatus = () => {
   const queryClient = useQueryClient();
@@ -25,7 +26,7 @@ const TrainingStatus = () => {
     }
   };
   const { data: trainingRes } = useQuery<TrainingResponse[]>({
-    queryKey: ['training', activeTab],
+    queryKey: profileKeys.training(activeTab),
     queryFn: () => {
       switch (activeTab) {
         case 'progress':
@@ -49,7 +50,7 @@ const TrainingStatus = () => {
       toast.error('교육 신청 중 오류가 발생했습니다.');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['training'] });
+      queryClient.invalidateQueries({ queryKey: profileKeys.trainings() });
     },
   });
 
