@@ -24,7 +24,7 @@ export default function PurchaseRequestDetailModal({
     isLoading,
     isError,
   } = useQuery<PurchaseRequestDetail>({
-    queryKey: purchaseRequestKeys.details(),
+    queryKey: purchaseRequestKeys.detail(purchaseRequestId),
     queryFn: () => fetchPurchaseRequestDetail(purchaseRequestId),
   });
 
