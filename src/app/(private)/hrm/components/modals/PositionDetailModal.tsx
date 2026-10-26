@@ -2,6 +2,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { fetchPositionsDetail } from '@/app/(private)/hrm/api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
 import { EmployeeSummary, PositionDetailResponse } from '../../types/HrmPositionsApiType';
+import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface PositionDetailModalProps extends ModalProps {
   positionId: string;
@@ -13,7 +14,7 @@ export function PositionDetailModal({ positionId }: PositionDetailModalProps) {
     isLoading,
     isError,
   } = useQuery<PositionDetailResponse>({
-    queryKey: ['positionDetail'],
+    queryKey: positionKeys.details(),
     queryFn: () => fetchPositionsDetail(positionId),
   });
 

@@ -16,6 +16,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import Input from '@/app/components/common/Input';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeeTrainingTab() {
   // --- 모달 출력 ---
@@ -51,7 +52,7 @@ export default function EmployeeTrainingTab() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['trainingList', trainingQueryParams],
+    queryKey: trainingKeys.list(trainingQueryParams),
     queryFn: () => fetchTrainingList(trainingQueryParams),
   });
 

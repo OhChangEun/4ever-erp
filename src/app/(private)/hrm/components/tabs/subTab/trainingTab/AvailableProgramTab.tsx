@@ -11,6 +11,7 @@ import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDet
 import AddTrainingModal from '@/app/(private)/hrm/components/modals/AddProgramModal';
 import EditProgramModal from '../../../modals/ProgramEditModal';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function AvailableProgramTab() {
   // --- 모달 출력 ---
@@ -33,7 +34,7 @@ export default function AvailableProgramTab() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['programList', programQueryParams],
+    queryKey: programKeys.list(programQueryParams),
     queryFn: () => fetchProgramList(programQueryParams),
   });
 

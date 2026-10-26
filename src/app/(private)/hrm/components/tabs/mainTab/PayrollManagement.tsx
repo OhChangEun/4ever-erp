@@ -19,6 +19,7 @@ import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
+import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function PayrollManagement() {
   // --- 모달 출력 ---
@@ -98,7 +99,7 @@ export default function PayrollManagement() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['payrollList', payrollQueryParams],
+    queryKey: payrollKeys.list(payrollQueryParams),
     queryFn: () => fetchPayRollList(payrollQueryParams),
   });
 

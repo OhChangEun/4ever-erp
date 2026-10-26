@@ -9,6 +9,7 @@ import { KeyValueItem } from '@/app/types/CommonType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { employeeKeys, positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;
@@ -34,7 +35,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['positionsDropdown', selectedDepartment],
+    queryKey: positionKeys.dropdown(selectedDepartment),
     queryFn: () => fetchPositionsDropdown(selectedDepartment),
     enabled: !!selectedDepartment,
   });
@@ -43,7 +44,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const mutation = useMutation({
     mutationFn: (data: EmployeeUpdateRequest) => putEmployee(employee.employeeId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employeesList'] });
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
 
       removeAllModals();
       toast.success('고객정보가 수정되었습니다.');

@@ -9,6 +9,7 @@ import { putTimeRecord } from '@/app/(private)/hrm/api/hrm.api';
 import { FormEvent } from 'react';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface AttendanceEditModalProps extends ModalProps {
   attendance: AttendanceListData;
@@ -21,7 +22,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
   const mutation = useMutation({
     mutationFn: (params: UpdateTimeRecord) => putTimeRecord(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendanceList'] });
+      queryClient.invalidateQueries({ queryKey: attendanceKeys.lists() });
       onClose();
       toast.success('출결 정보가 수정되었습니다.');
     },

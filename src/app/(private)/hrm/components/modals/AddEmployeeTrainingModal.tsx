@@ -9,6 +9,7 @@ import { UpdateProgramToEmployeeRequest } from '@/app/(private)/hrm/types/HrmPro
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { programKeys, trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface AddEmployeeTrainingModalProps extends ModalProps {
   employeeId: string;
@@ -29,7 +30,7 @@ export default function AddEmployeeTrainingModal({
     isLoading: programLoading,
     isError: programError,
   } = useQuery({
-    queryKey: ['programListDropdown'],
+    queryKey: programKeys.dropdown(),
     queryFn: fetchProgramListDropdown,
     staleTime: Infinity,
   });
@@ -39,7 +40,7 @@ export default function AddEmployeeTrainingModal({
     mutationFn: ({ employeeId, programId }: UpdateProgramToEmployeeRequest) =>
       postProgramToEmployee({ employeeId, programId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainingList'] });
+      queryClient.invalidateQueries({ queryKey: trainingKeys.lists() });
       onClose();
       toast.info('교육 프로그램이 지정되었습니다.');
     },

@@ -7,6 +7,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
   const toast = useToast();
@@ -17,7 +18,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
     isLoading: categoryLoading,
     isError: categoryError,
   } = useQuery({
-    queryKey: ['trainingCategoryDropdown'],
+    queryKey: programKeys.categoryDropdown(),
     queryFn: fetchTrainingCategoryDropdown,
     staleTime: Infinity,
   });
@@ -26,7 +27,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
   const mutation = useMutation({
     mutationFn: (data: CreateProgramRequest) => postProgram(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['programList'] });
+      queryClient.invalidateQueries({ queryKey: programKeys.lists() });
       onClose();
       toast.success('교육 프로그램이 추가되었습니다.');
     },

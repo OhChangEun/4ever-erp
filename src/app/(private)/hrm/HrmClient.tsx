@@ -8,10 +8,11 @@ import { Suspense } from 'react';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import { HRM_TABS } from '@/app/(private)/hrm/constants';
 import { useQuery } from '@tanstack/react-query';
+import { hrmStatsKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function HrmClient() {
   const { data } = useQuery({
-    queryKey: ['hrmStats'],
+    queryKey: hrmStatsKeys.all,
     queryFn: fetchHrmStats,
   });
 

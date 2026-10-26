@@ -16,6 +16,7 @@ import {
 import { EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { employeeKeys, positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -40,7 +41,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const toast = useToast();
 
   const { data: positionData, isLoading: isPositionLoading } = useQuery({
-    queryKey: ['positionsDropdown', selectedDepartment],
+    queryKey: positionKeys.dropdown(selectedDepartment),
     queryFn: () => fetchPositionsDropdown(selectedDepartment),
     enabled: !!selectedDepartment,
   });
@@ -62,7 +63,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
         detailAddress: '',
       });
 
-      queryClient.invalidateQueries({ queryKey: ['employeesList'] });
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
       onClose();
     },
     onError: (error) => {

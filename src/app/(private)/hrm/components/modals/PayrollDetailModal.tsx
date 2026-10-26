@@ -5,6 +5,7 @@ import Button from '@/app/components/common/Button';
 import { PayRollCompleteRequestParams } from '../../types/HrmPayrollApiType';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface PayrollDetailModalProps extends ModalProps {
   payrollId: string;
@@ -18,7 +19,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
   const mutation = useMutation({
     mutationFn: (params: PayRollCompleteRequestParams) => postPayrollComplete(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payrollList'] });
+      queryClient.invalidateQueries({ queryKey: payrollKeys.lists() });
       onClose();
       toast.success('급여 지급 완료 처리되었습니다.');
     },
@@ -41,7 +42,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['payrollDetail', payrollId],
+    queryKey: payrollKeys.detail(payrollId),
     queryFn: () => fetchPayRollDetail(payrollId),
   });
 

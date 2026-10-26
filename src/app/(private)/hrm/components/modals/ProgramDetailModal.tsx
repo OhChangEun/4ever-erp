@@ -3,6 +3,7 @@ import { fetchProgramDetail } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface ProgramDetailModalProps extends ModalProps {
   programId: string;
@@ -14,7 +15,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['programDetail'],
+    queryKey: programKeys.details(),
     queryFn: () => fetchProgramDetail(programId),
   });
 

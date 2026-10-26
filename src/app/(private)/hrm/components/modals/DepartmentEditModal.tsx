@@ -13,6 +13,7 @@ import { fetchDeptMemberDropdown, patchDepartments } from '@/app/(private)/hrm/a
 import Dropdown from '@/app/components/common/Dropdown';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;
@@ -32,7 +33,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['deptMemberDropdown', departments.departmentId],
+    queryKey: departmentKeys.memberDropdown(departments.departmentId),
     queryFn: () => fetchDeptMemberDropdown(departments.departmentId),
   });
 
@@ -40,7 +41,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
     mutationFn: (body: DepartmentsRequestBody) => patchDepartments(departments.departmentId, body),
     onSuccess: () => {
       // 성공 시 캐시 갱신
-      queryClient.invalidateQueries({ queryKey: ['departmentsList'] });
+      queryClient.invalidateQueries({ queryKey: departmentKeys.lists() });
       toast.success('부서 정보가 수정되었습니다.');
       removeAllModals();
     },

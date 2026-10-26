@@ -20,6 +20,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import Input from '@/app/components/common/Input';
 import Button from '@/app/components/common/Button';
+import { employeeKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeesTab() {
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
@@ -53,7 +54,7 @@ export default function EmployeesTab() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['employeesList', employeesQueryParams],
+    queryKey: employeeKeys.list(employeesQueryParams),
     queryFn: () => fetchEmployeesList(employeesQueryParams),
     staleTime: 1000,
   });

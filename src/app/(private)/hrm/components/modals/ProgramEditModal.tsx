@@ -9,6 +9,7 @@ import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiTyp
 import Dropdown from '@/app/components/common/Dropdown';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface EditProgramModalProps extends ModalProps {
   programId: string;
@@ -27,7 +28,7 @@ export default function EditProgramModal({
     isLoading: statusLoading,
     isError: errorLoading,
   } = useQuery({
-    queryKey: ['programStatusDropdown'],
+    queryKey: programKeys.statusDropdown(),
     queryFn: fetchProgramStatusDropdown,
     staleTime: Infinity,
   });
@@ -41,7 +42,7 @@ export default function EditProgramModal({
   const mutation = useMutation({
     mutationFn: (data: UpdateProgramRequest) => patchProgram(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['programList'] });
+      queryClient.invalidateQueries({ queryKey: programKeys.lists() });
       onClose();
       toast.success('교육 정보가 수정되었습니다.');
     },

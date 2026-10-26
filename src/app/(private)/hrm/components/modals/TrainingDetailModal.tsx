@@ -5,6 +5,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { fetchTrainingDetail } from '@/app/(private)/hrm/api/hrm.api';
 import { TrainingDetailResponse } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 import { formatDateTime } from '@/app/utils/date';
+import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface TrainingDetailModalProps extends ModalProps {
   employeeId: string;
@@ -12,7 +13,7 @@ interface TrainingDetailModalProps extends ModalProps {
 
 export default function TrainingDetailModal({ employeeId }: TrainingDetailModalProps) {
   const { data, isLoading, isError } = useQuery<TrainingDetailResponse>({
-    queryKey: ['trainingDetail', employeeId],
+    queryKey: trainingKeys.detail(employeeId),
     queryFn: () => fetchTrainingDetail(employeeId),
     enabled: !!employeeId,
   });

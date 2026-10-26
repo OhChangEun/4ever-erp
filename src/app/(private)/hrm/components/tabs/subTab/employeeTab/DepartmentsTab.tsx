@@ -6,6 +6,7 @@ import React from 'react';
 import { DepartmentDetailModal } from '../../../modals/DepartmentDetailModal';
 import { DepartmentEditModal } from '../../../modals/DepartmentEditModal';
 import IconButton from '@/app/components/common/IconButton';
+import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function DepartmentsTab() {
   const { openModal, removeAllModals } = useModal();
@@ -16,7 +17,7 @@ export default function DepartmentsTab() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['departmentsList'],
+    queryKey: departmentKeys.lists(),
     queryFn: fetchDepartmentsList,
     staleTime: Infinity,
   });

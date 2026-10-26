@@ -18,6 +18,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function LeaveTab() {
   // --- 모달 출력 ---
@@ -54,7 +55,7 @@ export default function LeaveTab() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['leaveList', leaveQueryParams],
+    queryKey: leaveKeys.list(leaveQueryParams),
     queryFn: () => fetchLeaveList(leaveQueryParams),
   });
 
@@ -67,7 +68,7 @@ export default function LeaveTab() {
     mutationFn: (requestId: string) => postLeaveRelease(requestId),
     onSuccess: () => {
       toast.success('승인이 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['leaveList'], exact: false });
+      queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
     },
     onError: (error) => {
       toast.error(`휴가 승인 중 오류가 발생했습니다. ${error}`);
@@ -78,7 +79,7 @@ export default function LeaveTab() {
     mutationFn: (requestId: string) => postLeaveReject(requestId),
     onSuccess: () => {
       toast.info('반료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['leaveList'], exact: false });
+      queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
     },
     onError: (error) => {
       toast.error(`휴가 반려 중 오류가 발생했습니다. ${error}`);
