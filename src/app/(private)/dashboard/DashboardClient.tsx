@@ -6,15 +6,16 @@ import WorkflowStatus from '@/app/(private)/dashboard/components/WorkflowStatus'
 import StatSection from '@/app/components/common/StatSection';
 import { getDashboardStats, getWorkflowStatus } from '@/app/(private)/dashboard/dashboard.api';
 import { mapDashboardStatsToCards } from './dashboard.service';
+import { dashboardKeys } from '@/app/(private)/dashboard/dashboard.keys';
 
 export default function DashboardClient() {
   const { data: dashboardStats, isLoading: statsLoading } = useQuery({
-    queryKey: ['dashboardStats'],
+    queryKey: dashboardKeys.stats(),
     queryFn: getDashboardStats,
   });
 
   const { data: workflowData, isLoading: workflowLoading } = useQuery({
-    queryKey: ['workflowStatus'],
+    queryKey: dashboardKeys.workflowStatus(),
     queryFn: getWorkflowStatus,
   });
 
