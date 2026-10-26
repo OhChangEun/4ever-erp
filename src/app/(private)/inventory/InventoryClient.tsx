@@ -7,10 +7,11 @@ import { getInventoryStats } from '@/app/(private)/inventory/inventory.api';
 import { mapInventoryStatsToCards } from './inventory.service';
 import { INVENTORY_TABS } from '@/app/types/componentConstant';
 import { useQuery } from '@tanstack/react-query';
+import { inventoryStatsKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function InventoryClient() {
   const { data: inventoryStats } = useQuery({
-    queryKey: ['inventoryStats'],
+    queryKey: inventoryStatsKeys.all,
     queryFn: getInventoryStats,
   });
 

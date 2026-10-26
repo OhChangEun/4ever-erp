@@ -5,7 +5,6 @@ import { SHIPPING_TABLE_HEADERS } from '../../inventory.constants';
 import { useQuery } from '@tanstack/react-query';
 import { getProductionList, getReadyToShipList } from '../../inventory.api';
 import {
-  ManageMentCommonQueryParams,
   ProductionListResponse,
   ReadyToShipListResponse,
 } from '../../types/ShippingManagementListType';
@@ -15,6 +14,7 @@ import ShippingDetailModal from '../modals/ShippingDetailModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 const ShippingManagementList = () => {
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,8 +34,8 @@ const ShippingManagementList = () => {
     isLoading: isProductionLoading,
     isError: isProductionError,
   } = useQuery({
-    queryKey: ['productionList', queryParams],
-    queryFn: ({ queryKey }) => getProductionList(queryKey[1] as ManageMentCommonQueryParams),
+    queryKey: shippingKeys.productionList(queryParams),
+    queryFn: () => getProductionList(queryParams),
   });
 
   const {
@@ -43,8 +43,8 @@ const ShippingManagementList = () => {
     isLoading: isReadyLoading,
     isError: isReadyError,
   } = useQuery({
-    queryKey: ['readyToShipList', queryParams],
-    queryFn: ({ queryKey }) => getReadyToShipList(queryKey[1] as ManageMentCommonQueryParams),
+    queryKey: shippingKeys.readyToShipList(queryParams),
+    queryFn: () => getReadyToShipList(queryParams),
   });
 
   const isCurrentLoading = selectedSubTab === 'producing' ? isProductionLoading : isReadyLoading;

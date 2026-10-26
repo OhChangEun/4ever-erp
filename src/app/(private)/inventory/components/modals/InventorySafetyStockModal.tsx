@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { PatchSafetyStock } from '../../inventory.api';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
+import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const InventorySafetyStockModal = ({
   setShowSafetyStockModal,
@@ -37,15 +38,14 @@ const InventorySafetyStockModal = ({
     mutationFn: PatchSafetyStock,
 
     onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: ['inventoryDetail', selectedStock.itemId] });
+      await queryClient.cancelQueries({ queryKey: inventoryKeys.detail(selectedStock.itemId) });
 
-      const previousData = queryClient.getQueryData<{ data: InventoryDetailResponse }>([
-        'inventoryDetail',
-        selectedStock.itemId,
-      ]);
+      const previousData = queryClient.getQueryData<{ data: InventoryDetailResponse }>(
+        inventoryKeys.detail(selectedStock.itemId),
+      );
 
       queryClient.setQueryData<{ data: InventoryDetailResponse }>(
-        ['inventoryDetail', selectedStock.itemId],
+        inventoryKeys.detail(selectedStock.itemId),
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -64,7 +64,7 @@ const InventorySafetyStockModal = ({
 
     onError: (_err, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['inventoryDetail', selectedStock.itemId], context.previousData);
+        queryClient.setQueryData(inventoryKeys.detail(selectedStock.itemId), context.previousData);
       }
       toast.error('안전재고 수정 중 오류가 발생했습니다.');
     },
@@ -75,7 +75,7 @@ const InventorySafetyStockModal = ({
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventoryDetail', selectedStock.itemId] });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(selectedStock.itemId) });
     },
   });
   return (

@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { LowStockListQueryParams } from '../types/LowStockListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Pagination from '@/app/components/common/Pagination';
 import { LOW_STOCK_STATUS_OPTIONS } from '../../inventory/inventory.constants';
@@ -15,6 +14,7 @@ import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
 import InventoryPurchaseRequestModal from '../../inventory/components/modals/InventoryPurchaseRequestModal';
+import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 export default function LowStockList() {
   const { openModal } = useModal();
@@ -39,8 +39,8 @@ export default function LowStockList() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['lowStockList', queryParams],
-    queryFn: ({ queryKey }) => getLowStockList(queryKey[1] as LowStockListQueryParams),
+    queryKey: lowStockKeys.list(queryParams),
+    queryFn: () => getLowStockList(queryParams),
     staleTime: 1000,
   });
 

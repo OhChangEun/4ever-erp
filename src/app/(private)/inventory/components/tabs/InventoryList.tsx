@@ -9,7 +9,7 @@ import {
 import Pagination from '@/app/components/common/Pagination';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@tanstack/react-query';
-import { InventoryQueryParams, InventoryResponse } from '../../types/InventoryListType';
+import { InventoryResponse } from '../../types/InventoryListType';
 import { getInventoryList } from '../../inventory.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import InventoryDetailModal from '../modals/InventoryDetailModal';
@@ -26,6 +26,7 @@ import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';
 import InventoryPurchaseRequestModal from '../modals/InventoryPurchaseRequestModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const InventoryList = () => {
   const { openModal } = useModal();
@@ -67,8 +68,8 @@ const InventoryList = () => {
     data: InventoryResponse[];
     pageData: Page;
   }>({
-    queryKey: ['inventoryList', queryParams],
-    queryFn: ({ queryKey }) => getInventoryList(queryKey[1] as InventoryQueryParams),
+    queryKey: inventoryKeys.list(queryParams),
+    queryFn: () => getInventoryList(queryParams),
     staleTime: 1000,
   });
 

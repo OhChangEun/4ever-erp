@@ -13,6 +13,7 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { FormatDate, getMovementColor, getMovementIcon } from '../../inventory.utils';
 import IconButton from '@/app/components/common/IconButton';
+import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
@@ -65,7 +66,7 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
     isLoading,
     isError,
   } = useQuery<InventoryDetailResponse>({
-    queryKey: ['inventoryDetail', selectedItemId],
+    queryKey: inventoryKeys.detail(selectedItemId),
     queryFn: () => getInventoryDetail(selectedItemId),
     enabled: !!selectedItemId,
   });

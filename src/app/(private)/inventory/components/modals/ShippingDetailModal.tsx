@@ -16,6 +16,7 @@ import {
   patchMarkAsReadyToShip,
 } from '../../inventory.api';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const ShippingDetailModal = ({
   onClose,
@@ -39,7 +40,7 @@ const ShippingDetailModal = ({
     isLoading,
     isError,
   } = useQuery<ShippingDetailResponse>({
-    queryKey: ['shippingDetail', selectedOrderId],
+    queryKey: shippingKeys.detail(selectedOrderId),
     queryFn: () => getShippingDetailBySubTab(selectedSubTab, selectedOrderId),
     enabled: !!selectedOrderId,
   });

@@ -14,6 +14,11 @@ import { InventoryResponse } from '../../types/InventoryListType';
 import { Page } from '@/app/types/Page';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
+import {
+  inventoryKeys,
+  itemInfoKeys,
+  warehouseInfoKeys,
+} from '@/app/(private)/inventory/inventory.keys';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
   const queryClient = useQueryClient();
@@ -58,7 +63,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
     isLoading: isItemInfoLoading,
     isError: isItemInfoError,
   } = useQuery<AddInventoryItemsToggleResponse[]>({
-    queryKey: ['getItemInfo'],
+    queryKey: itemInfoKeys.all,
     queryFn: getItemInfo,
   });
 
@@ -67,7 +72,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
     isLoading: isWarehouseInfoLoading,
     isError: isWarehouseInfoError,
   } = useQuery<WarehouseToggleResponse[]>({
-    queryKey: ['getWarehouseInfo'],
+    queryKey: warehouseInfoKeys.all,
     queryFn: () => getWarehouseInfo(),
     enabled: !!formData.itemId,
   });
@@ -88,14 +93,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
     mutationFn: postAddMaterial,
 
     onMutate: async (newMaterial) => {
-      await queryClient.cancelQueries({ queryKey: ['inventoryList'] });
+      await queryClient.cancelQueries({ queryKey: inventoryKeys.lists() });
 
-      const previousData = queryClient.getQueryData<{ data: InventoryResponse[]; pageData: Page }>([
-        'inventoryList',
-      ]);
+      const previousData = queryClient.getQueryData<{ data: InventoryResponse[]; pageData: Page }>(
+        inventoryKeys.lists(),
+      );
 
       queryClient.setQueryData<{ data: InventoryResponse[]; pageData: Page }>(
-        ['inventoryList'],
+        inventoryKeys.lists(),
         (oldData) => {
           if (!oldData) return oldData;
           return {
@@ -110,7 +115,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
 
     onError: (_error, _newMaterial, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['inventoryList'], context.previousData);
+        queryClient.setQueryData(inventoryKeys.lists(), context.previousData);
       }
       toast.error('원자재 등록 중 오류가 발생했습니다.');
     },
@@ -121,7 +126,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventoryList'] });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
     },
   });
 

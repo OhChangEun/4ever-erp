@@ -13,6 +13,7 @@ import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { receivingKeys } from '@/app/(private)/inventory/inventory.keys';
 const ReceivingManagementList = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -42,8 +43,8 @@ const ReceivingManagementList = () => {
     isLoading: isPendingLoading,
     isError: isPendingError,
   } = useQuery({
-    queryKey: ['pendingList', queryPendingParams],
-    queryFn: ({ queryKey }) => getPendingList(queryKey[1] as ManageMentCommonQueryParams),
+    queryKey: receivingKeys.pendingList(queryPendingParams),
+    queryFn: () => getPendingList(queryPendingParams),
   });
 
   const queryReceivedParams = useMemo(() => {
@@ -61,8 +62,8 @@ const ReceivingManagementList = () => {
     isLoading: isReceivedLoading,
     isError: isReceivedError,
   } = useQuery({
-    queryKey: ['receivedList', queryReceivedParams],
-    queryFn: ({ queryKey }) => getReceivedList(queryKey[1] as ManageMentCommonQueryParams),
+    queryKey: receivingKeys.receivedList(queryReceivedParams),
+    queryFn: () => getReceivedList(queryReceivedParams),
   });
 
   const isCurrentLoading = selectedSubTab === 'pending' ? isPendingLoading : isReceivedLoading;

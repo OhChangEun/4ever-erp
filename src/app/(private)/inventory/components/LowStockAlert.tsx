@@ -5,6 +5,7 @@ import { LowStockItemResponse } from '../../low-stock/types/LowStockAlertType';
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../inventory.api';
 import Button from '@/app/components/common/Button';
+import { lowStockItemKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function LowStockAlert() {
   const {
@@ -12,7 +13,7 @@ export default function LowStockAlert() {
     isLoading,
     isError,
   } = useQuery<LowStockItemResponse[]>({
-    queryKey: ['lowStockItems'],
+    queryKey: lowStockItemKeys.all,
     queryFn: getLowStockItems,
     staleTime: 1000,
   });

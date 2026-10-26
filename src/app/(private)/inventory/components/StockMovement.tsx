@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCurrentStockMovement } from '../inventory.api';
 import { FormatDate, getMovementColor, getMovementIcon } from '../inventory.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { stockMovementKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function StockMovement() {
   const {
@@ -12,7 +13,7 @@ export default function StockMovement() {
     isLoading,
     isError,
   } = useQuery<StockMovementResponse[]>({
-    queryKey: ['stockMovement'],
+    queryKey: stockMovementKeys.all,
     queryFn: getCurrentStockMovement,
     staleTime: 1000,
   });

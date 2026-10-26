@@ -11,6 +11,7 @@ import {
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
+import { inventoryKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
   const queryClient = useQueryClient();
@@ -48,8 +49,8 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
     isLoading,
     isError,
   } = useQuery<WarehouseToggleResponse[]>({
-    queryKey: ['getWarehouseInfo', queryParams],
-    queryFn: ({ queryKey }) => getWarehouseInfo(queryKey[1] as WarehouseToggleQueryParams),
+    queryKey: warehouseInfoKeys.list(queryParams),
+    queryFn: () => getWarehouseInfo(queryParams),
     enabled: !!selectedStock.itemId,
   });
   // 낙관적 업데이트x
@@ -69,7 +70,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
   const { mutate: moveStock } = useMutation({
     mutationFn: postStockMovement,
     onMutate: async (newMovement) => {
-      await queryClient.cancelQueries({ queryKey: ['inventoryDetail', selectedStock?.itemId] });
+      await queryClient.cancelQueries({ queryKey: inventoryKeys.detail(selectedStock?.itemId) });
 
       const previousData = queryClient.getQueryData<InventoryDetailResponse[]>([
         'inventoryDetail',
@@ -94,14 +95,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
           }
           return warehouse;
         });
-        queryClient.setQueryData(['inventoryDetail', selectedStock?.itemId], updatedData);
+        queryClient.setQueryData(inventoryKeys.detail(selectedStock?.itemId), updatedData);
       }
       return { previousData };
     },
 
     onError: (_error, _newMovement, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['inventoryDetail', selectedStock?.itemId], context.previousData);
+        queryClient.setQueryData(inventoryKeys.detail(selectedStock?.itemId), context.previousData);
       }
       toast.error('재고 이동 중 오류가 발생했습니다.');
     },
@@ -112,7 +113,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventoryDetail', selectedStock?.itemId] });
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(selectedStock?.itemId) });
     },
   });
 

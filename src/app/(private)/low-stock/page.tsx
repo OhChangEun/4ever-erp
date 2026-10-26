@@ -6,10 +6,11 @@ import { Suspense } from 'react';
 import { getLowStockStats } from './lowStock.api';
 import { mapLowStockStatsToCards } from './lowStock.service';
 import { useQuery } from '@tanstack/react-query';
+import { lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 export default function LowStockPage() {
   const { data: lowStockStats, isLoading } = useQuery({
-    queryKey: ['lowStockStats'],
+    queryKey: lowStockStatsKeys.all,
     queryFn: getLowStockStats,
   });
 
