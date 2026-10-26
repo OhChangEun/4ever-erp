@@ -24,6 +24,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
 import Input, { InputLabel } from '@/app/components/common/Input';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 interface SupplierFormModalProps extends ModalProps {
   initialData?: SupplierDetail; // 수정 모드일 때 전달
@@ -93,7 +94,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   const { mutate: submitSupplierCreate, isPending: isCreating } = useMutation({
     mutationFn: createSupplier,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplierList'] });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
       toast.success('공급업체 등록이 완료되었습니다.');
       onClose();
     },
@@ -109,10 +110,10 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
       return updateSupplier(supplierId, body);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplierList'] });
+      queryClient.invalidateQueries({ queryKey: supplierKeys.lists() });
       if (initialData?.supplierInfo.supplierId) {
         queryClient.invalidateQueries({
-          queryKey: ['supplierDetail', initialData.supplierInfo.supplierId],
+          queryKey: supplierKeys.detail(initialData.supplierInfo.supplierId),
         });
       }
       toast.success('공급업체 정보가 수정되었습니다.');

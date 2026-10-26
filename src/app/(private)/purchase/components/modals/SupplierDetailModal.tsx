@@ -8,6 +8,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import Button from '@/app/components/common/Button';
 import { useModal } from '@/app/components/common/modal/useModal';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
+import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 interface SupplierDetailModalProps extends ModalProps {
   supplierId: string;
@@ -21,7 +22,7 @@ export default function SupplierDetailModal({ supplierId, onClose }: SupplierDet
     isLoading,
     isError,
   } = useQuery<SupplierDetail>({
-    queryKey: ['supplierDetail', supplierId],
+    queryKey: supplierKeys.detail(supplierId),
     queryFn: () => fetchSupplierDetail(supplierId),
   });
 

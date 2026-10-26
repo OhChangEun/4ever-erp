@@ -9,6 +9,7 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export interface PurchaseRequestDetailModalProps extends ModalProps {
   purchaseRequestId: string;
@@ -23,7 +24,7 @@ export default function PurchaseRequestDetailModal({
     isLoading,
     isError,
   } = useQuery<PurchaseRequestDetail>({
-    queryKey: ['purchaseReqDetail'],
+    queryKey: purchaseRequestKeys.details(),
     queryFn: () => fetchPurchaseRequestDetail(purchaseRequestId),
   });
 

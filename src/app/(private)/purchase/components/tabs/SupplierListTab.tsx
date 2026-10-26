@@ -22,6 +22,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
+import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export default function SupplierListTab() {
   const { openModal } = useModal();
@@ -68,7 +69,7 @@ export default function SupplierListTab() {
     isLoading,
     isError,
   } = useQuery<SupplierListResponse>({
-    queryKey: ['supplierList', queryParams],
+    queryKey: supplierKeys.list(queryParams),
     queryFn: () => fetchSupplierList(queryParams),
   });
 
