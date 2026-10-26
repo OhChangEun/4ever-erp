@@ -10,6 +10,7 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPurchaseInvoiceDetail, getSalesInvoiceDetail } from '../../finance.api';
+import { invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import { useSearchParams } from 'next/navigation';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
@@ -45,7 +46,7 @@ const InvoiceDetailModal = ({
     isLoading,
     isError,
   } = useQuery<InvoicetDetailRes>({
-    queryKey: ['invoiceDetail', selectedInvoiceId],
+    queryKey: invoiceKeys.detail(selectedInvoiceId),
     queryFn: queryFn,
     enabled: !!selectedInvoiceId,
   });

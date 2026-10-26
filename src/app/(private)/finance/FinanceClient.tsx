@@ -12,12 +12,13 @@ import StatSection from '@/app/components/common/StatSection';
 import FinanceTabs from './components/tabs/FinanceTabs';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
+import { financeStatsKeys } from '@/app/(private)/finance/finance.keys';
 
 export default function FinanceClient() {
   const role = useRole();
 
   const { data: financeStatsData, isLoading } = useQuery({
-    queryKey: ['financeStats', role],
+    queryKey: financeStatsKeys.byRole(role),
     queryFn: async () => {
       if (role === 'CUSTOMER_ADMIN') {
         const res = await getCustomerStats();

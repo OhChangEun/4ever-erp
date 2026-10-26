@@ -11,6 +11,7 @@ import {
   postArInvoice,
   postSupplierApInvoice,
 } from '@/app/(private)/finance/finance.api';
+import { InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import Pagination from '@/app/components/common/Pagination';
 import { useSearchParams } from 'next/navigation';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -30,9 +31,15 @@ const InvoiceList = () => {
   const role = useRole();
   // const role = 'CUSTOMER_ADMIN';
   // const role = 'SUPPLIER_ADMIN';
-  const defaultTab =
+  const defaultTab: InvoiceTab =
     role === 'SUPPLIER_ADMIN' ? 'sales' : role === 'CUSTOMER_ADMIN' ? 'purchase' : 'sales';
-  const currentTab = searchParams.get('tab') || defaultTab;
+  const tabParam = searchParams.get('tab');
+  // 기존 분기 유지: tab 파라미터가 있으면 'sales'만 매출, 그 외 값은 모두 매입으로 취급
+  const currentTab: InvoiceTab = tabParam
+    ? tabParam === 'sales'
+      ? 'sales'
+      : 'purchase'
+    : defaultTab;
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
 
@@ -63,17 +70,12 @@ const InvoiceList = () => {
       ? () => getSalesInvoicesList(queryParams)
       : () => getPurchaseInvoicesList(queryParams);
 
-  const queryKey = [
-    currentTab === 'sales' ? 'salesInvoiceList' : 'purchaseInvoiceList',
-    queryParams,
-  ];
-
   const {
     data: invoiceReq,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: queryKey,
+    queryKey: invoiceKeys.list(currentTab, queryParams),
     queryFn: queryFn,
     staleTime: 1000,
   });
@@ -102,8 +104,7 @@ const InvoiceList = () => {
       toast.error('등록 중 오류가 발생했습니다.');
     },
     onSettled: () => {
-      const key = currentTab === 'sales' ? 'salesInvoiceList' : 'purchaseInvoiceList';
-      queryClient.invalidateQueries({ queryKey: [key] });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.lists(currentTab) });
     },
   });
 
