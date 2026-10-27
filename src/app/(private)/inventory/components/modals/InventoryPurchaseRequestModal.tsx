@@ -3,13 +3,14 @@
 import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
-import IconButton from '@/app/components/common/IconButton';
 import Input from '@/app/components/common/Input';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 interface SelectedItem {
   itemId: string;
   itemNumber: string;
@@ -124,7 +125,7 @@ export default function InventoryPurchaseRequestModal({
                   <div className="col-span-2">
                     <div className="text-xs text-gray-500">단가</div>
                     <div className="text-sm font-medium text-gray-900">
-                      ₩{item.unitPrice.toLocaleString()}
+                      {formatCurrency(item.unitPrice)}
                     </div>
                   </div>
                   {/* 수량 입력 */}
@@ -147,14 +148,14 @@ export default function InventoryPurchaseRequestModal({
           <div className="flex items-center justify-between">
             <span className="text-lg font-semibold text-gray-900">총 발주 금액</span>
             <span className="text-2xl font-bold text-blue-600">
-              ₩{calculateGrandTotal().toLocaleString()}
+              {formatCurrency(calculateGrandTotal())}
             </span>
           </div>
         </div>
       </div>
       {/* Footer */}
       <div className="py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
-        <IconButton label="발주 요청" icon="ri-shopping-cart-line" onClick={handleSubmit} />
+        <Button label="발주 요청" onClick={handleSubmit} />
       </div>
     </>
   );

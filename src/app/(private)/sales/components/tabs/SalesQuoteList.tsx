@@ -16,11 +16,12 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import Input from '@/app/components/common/Input';
-import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 const SalesQuoteList = () => {
   const { openModal } = useModal();
 
@@ -117,7 +118,7 @@ const SalesQuoteList = () => {
       key: 'totalAmount',
       label: '총금액',
       align: 'right',
-      render: (_, q) => `₩${q.totalAmount.toLocaleString()}`,
+      render: (_, q) => formatCurrency(q.totalAmount),
     },
     {
       key: 'statusCode',
@@ -127,15 +128,15 @@ const SalesQuoteList = () => {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, quote) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleViewQuote(quote)}
-          className="text-blue-600 hover:text-blue-800 cursor-pointer"
-          title="상세보기"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];
@@ -168,8 +169,7 @@ const SalesQuoteList = () => {
               }}
               placeholder="검색어를 입력하세요"
             />
-            <IconButton
-              icon="ri-add-line"
+            <Button
               label="견적 검토 요청"
               onClick={handleViewReview}
               disabled={selectedQuotationId === ''}

@@ -117,7 +117,6 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
       key: 'mrpRunId',
       label: '',
       width: '48px',
-      align: 'center',
       headerRender: () => {
         const selectableOrders = plannedOrders
           .filter((o) => o.status === 'INITIAL' || o.status === 'REJECTED')
@@ -149,23 +148,20 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
     {
       key: 'quotationNumber',
       label: '참조 견적서',
-      align: 'center',
       render: (_, order) => (
         <span className="text-sm font-medium text-blue-600">{order.quotationNumber}</span>
       ),
     },
-    { key: 'itemName', label: '자재', align: 'center' },
+    { key: 'itemName', label: '자재' },
     {
       key: 'quantity',
       label: '수량',
-      align: 'center',
       render: (_, order) => <>{order.quantity.toLocaleString()}</>,
     },
-    { key: 'procurementStartDate', label: '구매 권장일', align: 'center' },
+    { key: 'procurementStartDate', label: '구매 권장일' },
     {
       key: 'status',
       label: '상태',
-      align: 'center',
       render: (_, order) => <StatusLabel statusCode={order.status} />,
     },
   ];

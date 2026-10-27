@@ -11,6 +11,7 @@ import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalTyp
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
 const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModalProps) => {
   const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
     customer: '',
@@ -304,7 +305,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                             />
                           </td>
                           <td className="px-4 py-3 text-right text-sm font-medium">
-                            ₩{item.totalPrice.toLocaleString()}
+                            {formatCurrency(item.totalPrice)}
                           </td>
                           <td className="px-4 py-3 text-center">
                             <button
@@ -329,7 +330,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                           총 견적금액
                         </td>
                         <td className="px-4 py-3 text-right font-bold text-lg text-blue-600">
-                          ₩{newQuoteData.totalAmount.toLocaleString()}
+                          {formatCurrency(newQuoteData.totalAmount)}
                         </td>
                       </tr>
                     </tfoot>

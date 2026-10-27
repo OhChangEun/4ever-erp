@@ -10,6 +10,7 @@ import { ItemResponse } from '@/app/(private)/inventory/types/ItemListType';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 interface ItemWithQuantity extends ItemResponse {
   quantity: number;
   totalPrice: number;
@@ -110,7 +111,7 @@ export default function MrpPurchaseRequestModal({
             </div>
             <div>
               <span className="text-blue-600">총 예상 금액:</span>
-              <span className="ml-2 font-medium">₩{totalAmount.toLocaleString()}</span>
+              <span className="ml-2 font-medium">{formatCurrency(totalAmount)}</span>
             </div>
             <div>
               <span className="text-blue-600">요청일:</span>
@@ -153,10 +154,10 @@ export default function MrpPurchaseRequestModal({
                   <td className="px-4 py-3 text-sm text-gray-900">{order.itemName}</td>
                   <td className="px-4 py-3">{order.quantity.toLocaleString()}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    ₩{order.unitPrice.toLocaleString()}
+                    {formatCurrency(order.unitPrice)}
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                    ₩{order.totalPrice.toLocaleString()}
+                    {formatCurrency(order.totalPrice)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{order.supplierName}</td>
                 </tr>

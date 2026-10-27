@@ -15,6 +15,8 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 const ShippingManagementList = () => {
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
@@ -115,20 +117,23 @@ const ShippingManagementList = () => {
                   key: 'totalAmount',
                   label: '총금액',
                   align: 'right',
-                  render: (_, row) => `₩${row.totalAmount.toLocaleString()}`,
+                  render: (_, row) => formatCurrency(row.totalAmount),
                 },
                 {
                   key: 'statusCode',
                   label: '상태',
-                  align: 'center',
                   render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
                 {
                   key: 'action',
                   label: '작업',
-                  align: 'center',
+                  align: 'right',
                   render: (_, row) => (
-                    <button
+                    <Button
+                      label="상세"
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-600 hover:bg-gray-100 px-2"
                       onClick={() => {
                         openModal(ShippingDetailModal, {
                           width: '900px',
@@ -137,11 +142,7 @@ const ShippingManagementList = () => {
                           selectedSubTab: selectedSubTab,
                         });
                       }}
-                      className="text-blue-600 hover:text-blue-800 cursor-pointer"
-                      title="상세보기"
-                    >
-                      <i className="ri-eye-line"></i>
-                    </button>
+                    />
                   ),
                 },
               ]}

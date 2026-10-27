@@ -21,6 +21,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 export default function PayrollManagement() {
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -138,25 +139,25 @@ export default function PayrollManagement() {
       key: 'basePay',
       label: '기본급',
       align: 'right',
-      render: (_, p) => `${p.pay.basePay.toLocaleString()}원`,
+      render: (_, p) => formatCurrency(p.pay.basePay),
     },
     {
       key: 'overtimePay',
       label: '초과근무비',
       align: 'right',
-      render: (_, p) => `${p.pay.overtimePay.toLocaleString()}원`,
+      render: (_, p) => formatCurrency(p.pay.overtimePay),
     },
     {
       key: 'deduction',
       label: '공제액',
       align: 'right',
-      render: (_, p) => `${p.pay.deduction.toLocaleString()}원`,
+      render: (_, p) => formatCurrency(p.pay.deduction),
     },
     {
       key: 'netPay',
       label: '실지급액',
       align: 'right',
-      render: (_, p) => `${p.pay.netPay.toLocaleString()}원`,
+      render: (_, p) => formatCurrency(p.pay.netPay),
     },
     {
       key: 'statusCode',
@@ -166,7 +167,7 @@ export default function PayrollManagement() {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, p) => (
         <Button
           label="상세보기"

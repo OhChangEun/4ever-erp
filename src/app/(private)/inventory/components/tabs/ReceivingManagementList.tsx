@@ -14,6 +14,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { receivingKeys } from '@/app/(private)/inventory/inventory.keys';
+import { formatCurrency } from '@/app/utils/number';
 const ReceivingManagementList = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -142,12 +143,11 @@ const ReceivingManagementList = () => {
                   key: 'totalAmount',
                   label: '총금액',
                   align: 'right',
-                  render: (_, row) => `₩${row.totalAmount.toLocaleString()}`,
+                  render: (_, row) => formatCurrency(row.totalAmount),
                 },
                 {
                   key: 'statusCode',
                   label: '상태',
-                  align: 'center',
                   render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
               ]}

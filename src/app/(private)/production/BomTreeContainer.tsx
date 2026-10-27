@@ -18,17 +18,15 @@ const BomTreeContainer: React.FC<BomTreeContainerProps> = ({ bomData }) => {
         setLoading(true);
 
         // BomLevelStructureNode[]를 BomApiNode[] 형태로 변환
-        const bomApiData: BomApiNode[] = bomData.map(
-          (node: BomLevelStructureNode): BomApiNode => ({
-            id: node.id,
-            code: node.code,
-            name: node.name,
-            quantity: node.quantity || undefined,
-            unit: node.unit || undefined,
-            level: node.level,
-            parentId: node.parentId || undefined,
-          }),
-        );
+        const bomApiData: BomApiNode[] = bomData.map((node: BomLevelStructureNode): BomApiNode => ({
+          id: node.id,
+          code: node.code,
+          name: node.name,
+          quantity: node.quantity || undefined,
+          unit: node.unit || undefined,
+          level: node.level,
+          parentId: node.parentId || undefined,
+        }));
 
         // 데이터를 트리 구조로 변환
         const transformedData: TreeNode | null = transformBomDataToTree(bomApiData);

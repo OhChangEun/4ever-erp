@@ -1,6 +1,5 @@
 'use client';
 
-import IconButton from '@/app/components/common/IconButton';
 import { BomListResponse } from '@/app/(private)/production/types/BomListApiType';
 import BomDetailModal from '@/app/(private)/production/components/modals/BomDetailModal';
 // import BomInputFormModal from '@/app/(private)/production/components/modals/BomInputFormModal';
@@ -77,7 +76,6 @@ export default function BomTab() {
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, bom) => <StatusLabel statusCode={bom.statusCode} />,
     },
     {
@@ -88,7 +86,7 @@ export default function BomTab() {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, bom) => (
         <Button
           label="상세보기"
@@ -103,7 +101,7 @@ export default function BomTab() {
   return (
     <div className="flex flex-col h-full gap-6">
       <div className="flex items-center justify-end shrink-0">
-        <IconButton label="BOM 생성" icon="ri-add-line" onClick={handleCreate} />
+        <Button label="BOM 생성" onClick={handleCreate} />
       </div>
 
       {isLoading ? (

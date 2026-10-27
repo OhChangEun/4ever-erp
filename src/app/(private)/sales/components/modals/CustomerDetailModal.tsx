@@ -12,6 +12,7 @@ import Button from '@/app/components/common/Button';
 import { useModal } from '@/app/components/common/modal/useModal';
 import CustomerEditModal from './CustomerEditModal';
 
+import { formatCurrency } from '@/app/utils/number';
 const CustomerDetailModal = ({
   onClose,
   selectedCustomerId,
@@ -144,7 +145,7 @@ const CustomerDetailModal = ({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">총 거래금액</label>
                 <div className="text-green-600 font-semibold">
-                  ₩{customer?.totalTransactionAmount.toLocaleString()}
+                  {formatCurrency(customer?.totalTransactionAmount)}
                 </div>
               </div>
             </div>

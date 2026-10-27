@@ -10,10 +10,10 @@ import AddWarehouseModal from './modals/AddWarehouseModal';
 import WarehouseDetailModal from './modals/WarehouseDetailModal';
 import ManageWarehouseModal from './modals/ManageWarehouseModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
+import Button from '@/app/components/common/Button';
 const Warehouse3DModal = dynamic(
   () => import('./warehouseVisualizer/components/Warehouse3DModal'),
   {
@@ -86,8 +86,7 @@ const WarehouseList = () => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">창고 목록</h2>
-          <IconButton
-            icon="ri-add-line mr-1"
+          <Button
             label="창고 추가"
             onClick={() => {
               openModal(AddWarehouseModal, { width: '700px', title: '새 창고 추가' });
@@ -141,25 +140,22 @@ const WarehouseList = () => {
               </div>
 
               <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 sm:flex-row">
-                <IconButton
-                  variant="outline"
+                <Button
+                  variant="secondary"
                   label="상세보기"
-                  icon="ri-eye-line"
                   onClick={() =>
                     handleWarehouseDetail(warehouse.warehouseId, warehouse.warehouseName)
                   }
                   className="w-[32%]"
                 />
-                <IconButton
-                  variant="outline"
+                <Button
+                  variant="secondary"
                   label="3D 보기"
-                  icon="ri-box-3-line"
                   onClick={() => handleWarehouse3D(warehouse.warehouseId, warehouse.warehouseName)}
                   className="w-[31%]"
                 />
-                <IconButton
+                <Button
                   label="관리"
-                  icon="ri-edit-line mr-1"
                   onClick={() =>
                     handleWarehouseManage(warehouse.warehouseId, warehouse.warehouseName)
                   }

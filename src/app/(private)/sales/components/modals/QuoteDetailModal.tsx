@@ -11,6 +11,7 @@ import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { ModalProps } from '@/app/components/common/modal/types';
 
+import { formatCurrency } from '@/app/utils/number';
 const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProps) => {
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.detail(selectedQuotationId),
@@ -101,11 +102,9 @@ const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProp
                     <td className="px-4 py-3 text-sm text-center">{item.quantity}</td>
                     <td className="px-4 py-3 text-sm text-center">{item.uomName}</td>
                     <td className="px-4 py-3 text-sm text-right">
-                      ₩{item.unitPrice.toLocaleString()}
+                      {formatCurrency(item.unitPrice)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-right">
-                      ₩{item.amount.toLocaleString()}
-                    </td>
+                    <td className="px-4 py-3 text-sm text-right">{formatCurrency(item.amount)}</td>
                   </tr>
                 ))}
                 {/* <tr className="border-b">
@@ -121,7 +120,7 @@ const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProp
                     총 견적금액
                   </td>
                   <td className="px-4 py-3 text-right font-bold text-lg text-blue-600">
-                    ₩{data?.totalAmount.toLocaleString()}
+                    {formatCurrency(data?.totalAmount)}
                   </td>
                 </tr>
               </tfoot>

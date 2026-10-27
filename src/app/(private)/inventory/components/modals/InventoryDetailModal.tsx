@@ -12,9 +12,10 @@ import { getInventoryDetail, postStockMovement } from '../../inventory.api';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { FormatDate, getMovementColor, getMovementIcon } from '../../inventory.utils';
-import IconButton from '@/app/components/common/IconButton';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
@@ -144,13 +145,13 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">단가:</span>
                 <span className="text-sm font-medium text-gray-900">
-                  ₩{inventoryDetailRes?.unitPrice.toLocaleString()}
+                  {formatCurrency(inventoryDetailRes?.unitPrice)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">총 가치:</span>
                 <span className="text-sm font-medium text-green-600">
-                  ₩{inventoryDetailRes?.totalAmount.toLocaleString()}
+                  {formatCurrency(inventoryDetailRes?.totalAmount)}
                 </span>
               </div>
             </div>
@@ -239,9 +240,8 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
           </div>
 
           <div className="mt-6 flex gap-2 ">
-            <IconButton
-              variant="green"
-              icon="ri-arrow-left-right-line"
+            <Button
+              variant="secondary"
               label="재고 이동"
               onClick={() => {
                 //   setShowDetailModal(false);
@@ -249,8 +249,7 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
               }}
               className="w-[49%]"
             />
-            <IconButton
-              icon="ri-edit-line mr-1"
+            <Button
               label="안전 재고 수정"
               onClick={() => {
                 // setShowDetailModal(false);

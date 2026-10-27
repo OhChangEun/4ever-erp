@@ -58,18 +58,16 @@ export default function SimulationResultModal({
               {
                 key: 'quotationNumber',
                 label: '견적번호',
-                align: 'center',
                 width: '140px',
                 render: (_, row: QuotationSimulationData) => (
                   <span className="font-medium text-blue-600">{row.quotationNumber}</span>
                 ),
               },
-              { key: 'customerCompanyName', label: '고객사', align: 'center', width: '120px' },
-              { key: 'productName', label: '제품명', align: 'center', width: '130px' },
+              { key: 'customerCompanyName', label: '고객사', width: '120px' },
+              { key: 'productName', label: '제품명', width: '130px' },
               {
                 key: 'status',
                 label: '상태',
-                align: 'center',
                 render: (_, row: QuotationSimulationData) => (
                   <StatusLabel statusCode={row.simulation.status} />
                 ),
@@ -77,7 +75,6 @@ export default function SimulationResultModal({
               {
                 key: 'shortage',
                 label: '부족 사유',
-                align: 'center',
                 width: '220px',
                 render: (_, row: QuotationSimulationData) =>
                   row.simulation.status === 'FAIL' && row.simulation.shortageReason ? (
@@ -89,7 +86,6 @@ export default function SimulationResultModal({
               {
                 key: 'suggestedDueDate',
                 label: '제안 납기',
-                align: 'center',
                 width: '120px',
                 render: (_, row: QuotationSimulationData) => (
                   <span className="text-sm">{row.simulation.suggestedDueDate}</span>

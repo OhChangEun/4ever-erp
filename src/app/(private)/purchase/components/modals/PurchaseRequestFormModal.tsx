@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { PURCHASE_REQUEST_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
-import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import Input from '@/app/components/common/Input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +17,7 @@ import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
 export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
   const [requestItems, setRequestItems] = useState<PurchaseRequestFormItem[]>([
     {
@@ -160,12 +160,11 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-semibold text-gray-900">구매 품목 목록</h4>
-          <IconButton
+          <Button
             type="button"
-            variant="soft"
+            variant="secondary"
             label="품목 추가"
             size="sm"
-            icon="ri-add-line"
             onClick={addRequestItem}
           />
         </div>
@@ -229,7 +228,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                     />
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                    ₩{calculateItemTotal(item.quantity, item.expectedUnitPrice).toLocaleString()}
+                    {formatCurrency(calculateItemTotal(item.quantity, item.expectedUnitPrice))}
                   </td>
                   <td className="px-4 py-3">
                     <Input
@@ -290,7 +289,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">총 예상 금액:</span>
               <span className="text-lg font-bold text-gray-900">
-                ₩{calculateGrandTotal().toLocaleString()}
+                {formatCurrency(calculateGrandTotal())}
               </span>
             </div>
           </div>
@@ -299,7 +298,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
 
       {/* 버튼 */}
       <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-        <Button label="취소" variant="whiteOutline" onClick={onClose} />
+        <Button label="취소" variant="secondary" onClick={onClose} />
         <Button
           label={isPending ? '제출 중...' : '구매 요청 제출'}
           type="submit"

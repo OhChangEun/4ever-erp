@@ -7,6 +7,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 interface PayrollDetailModalProps extends ModalProps {
   payrollId: string;
   payStatus: string;
@@ -80,14 +81,14 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="font-medium">합계</span>
-            <span className="text-blue-600 font-semibold">{pay.basePay.toLocaleString()}원</span>
+            <span className="text-blue-600 font-semibold">{formatCurrency(pay.basePay)}</span>
           </div>
           {pay.basePayItem && pay.basePayItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.basePayItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>- {item.itemContent}</span>
-                  <span>{item.itemSum.toLocaleString()}원</span>
+                  <span>{formatCurrency(item.itemSum)}</span>
                 </div>
               ))}
             </div>
@@ -101,16 +102,14 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="font-medium">합계</span>
-            <span className="text-green-600 font-semibold">
-              {pay.overtimePay.toLocaleString()}원
-            </span>
+            <span className="text-green-600 font-semibold">{formatCurrency(pay.overtimePay)}</span>
           </div>
           {pay.overtimePayItem && pay.overtimePayItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.overtimePayItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>- {item.itemContent}</span>
-                  <span>{item.itemSum.toLocaleString()}원</span>
+                  <span>{formatCurrency(item.itemSum)}</span>
                 </div>
               ))}
             </div>
@@ -124,14 +123,14 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="font-medium">합계</span>
-            <span className="text-red-600 font-semibold">{pay.deduction.toLocaleString()}원</span>
+            <span className="text-red-600 font-semibold">{formatCurrency(pay.deduction)}</span>
           </div>
           {pay.deductionItem && pay.deductionItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.deductionItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
                   <span>- {item.itemContent}</span>
-                  <span>{item.itemSum.toLocaleString()}원</span>
+                  <span>{formatCurrency(item.itemSum)}</span>
                 </div>
               ))}
             </div>
@@ -143,9 +142,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
       <div className="bg-gray-50 rounded-lg p-4">
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-gray-900">실지급액</span>
-          <span className="text-2xl font-bold text-purple-600">
-            {pay.netPay.toLocaleString()}원
-          </span>
+          <span className="text-2xl font-bold text-purple-600">{formatCurrency(pay.netPay)}</span>
         </div>
         <div className="mt-2">
           <StatusLabel statusCode={statusCode} />
@@ -164,7 +161,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
 
       {payStatus === 'PAYROLL_UNPAID' ? (
         <div className="flex justify-end">
-          <Button label="지급완료 처리" variant="green" onClick={handlePayrollComplete}></Button>
+          <Button label="지급완료 처리" onClick={handlePayrollComplete}></Button>
         </div>
       ) : null}
     </div>

@@ -20,7 +20,6 @@ import Link from 'next/link';
 import { Page } from '@/app/types/Page';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Button from '@/app/components/common/Button';
-import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -28,6 +27,7 @@ import InventoryPurchaseRequestModal from '../modals/InventoryPurchaseRequestMod
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 const InventoryList = () => {
   const { openModal } = useModal();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -126,13 +126,13 @@ const InventoryList = () => {
       key: 'unitPrice',
       label: '단가',
       align: 'right',
-      render: (_, inv) => `₩${inv.unitPrice.toLocaleString()}`,
+      render: (_, inv) => formatCurrency(inv.unitPrice),
     },
     {
       key: 'totalAmount',
       label: '재고가치',
       align: 'right',
-      render: (_, inv) => `₩${inv.totalAmount.toLocaleString()}`,
+      render: (_, inv) => formatCurrency(inv.totalAmount),
     },
     {
       key: 'warehouseName',
@@ -147,20 +147,20 @@ const InventoryList = () => {
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, inv) => <StatusLabel statusCode={inv.statusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, inv) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleItemDetail(inv.itemId)}
-          className="text-blue-600 hover:text-blue-900 cursor-pointer"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];
@@ -195,10 +195,9 @@ const InventoryList = () => {
                 />
 
                 <Link href="/warehouse">
-                  <Button label="창고 관리" variant="soft" />
+                  <Button label="창고 관리" variant="secondary" />
                 </Link>
-                <IconButton
-                  icon="ri-add-line mr-1"
+                <Button
                   label="원자재 추가"
                   onClick={() => {
                     openModal(AddInventoryModal, { title: '원자재 추가', width: '700px' });

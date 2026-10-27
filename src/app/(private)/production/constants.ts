@@ -72,7 +72,6 @@ export type AvailableStockStatus = 'ALL' | 'CHECKED' | 'UNCHECKED';
 //   { key: 'INSUFFICIENT', value: '부족' }, // 재고 부족
 // ];
 
-
 // 제품 목록
 export const PRODUCTS: KeyValueItem[] = [
   { key: 'ALL', value: '전체 제품' },
@@ -102,12 +101,7 @@ export const MES_STATUS_OPTIONS: KeyValueItem<MesStatusCode>[] = [
 ];
 
 export type ProductType =
-  | 'ALL'
-  | 'DOOR_PANEL'
-  | 'HOOD_PANEL'
-  | 'FENDER_PANEL'
-  | 'TRUNK_LID'
-  | 'ROOF_PANEL';
+  'ALL' | 'DOOR_PANEL' | 'HOOD_PANEL' | 'FENDER_PANEL' | 'TRUNK_LID' | 'ROOF_PANEL';
 
 // MRP 순소요 상태 필터
 export type MrpOrderStatus = 'ALL' | 'SUFFICIENT' | 'INSUFFICIENT';

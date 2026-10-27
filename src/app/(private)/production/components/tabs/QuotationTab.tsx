@@ -2,7 +2,6 @@
 import Dropdown from '@/app/components/common/Dropdown';
 import { useState, useMemo } from 'react'; // useMemo 추가
 import { AvailableStockStatus } from '@/app/(private)/production/constants';
-import IconButton from '@/app/components/common/IconButton';
 import {
   QuotationData,
   FetchQuotationParams,
@@ -26,6 +25,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 
+import Button from '@/app/components/common/Button';
 export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
   const toast = useToast();
@@ -178,7 +178,6 @@ export default function QuotationTab() {
       key: 'quotationId',
       label: '',
       width: '48px',
-      align: 'center',
       headerRender: () => (
         <input
           type="checkbox"
@@ -215,20 +214,18 @@ export default function QuotationTab() {
           />
         ),
     },
-    { key: 'quotationNumber', label: '견적 번호', align: 'center' },
-    { key: 'customerName', label: '고객사', align: 'center' },
-    { key: 'productName', label: '제품명', align: 'center' },
-    { key: 'requestDate', label: '요청 납기', align: 'center' },
+    { key: 'quotationNumber', label: '견적 번호' },
+    { key: 'customerName', label: '고객사' },
+    { key: 'productName', label: '제품명' },
+    { key: 'requestDate', label: '요청 납기' },
     {
       key: 'dueDate',
       label: '제안 납기',
-      align: 'center',
       render: (_, quote) => <>{quote.dueDate || '-'}</>,
     },
     {
       key: 'availableStatus',
       label: '가용 재고',
-      align: 'center',
       render: (_, quote) => <StatusLabel statusCode={quote.availableStatus} />,
     },
   ];
@@ -253,9 +250,9 @@ export default function QuotationTab() {
               setCurrentPage(1); // 필터 변경 시 첫 페이지로
             }}
           />
-          <IconButton
-            label={simulationPending ? '시뮬레이션 중...' : '시뮬레이션'}
-            icon={simulationPending ? 'ri-loader-4-line animate-spin' : 'ri-play-line'}
+          <Button
+            label="시뮬레이션"
+            loading={simulationPending}
             onClick={handleSimulation}
             disabled={selectedQuotes.length === 0 || simulationPending}
           />

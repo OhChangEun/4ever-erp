@@ -47,7 +47,7 @@ export default function Table<T = Record<string, unknown>>({
       case 'center':
         return 'text-center';
       case 'right':
-        return 'text-right';
+        return 'text-right tabular-nums';
       default:
         return 'text-left';
     }

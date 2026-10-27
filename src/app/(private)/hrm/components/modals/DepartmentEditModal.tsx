@@ -5,7 +5,6 @@ import {
   DepartmentsData,
   DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
-import IconButton from '@/app/components/common/IconButton';
 import { useState } from 'react';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +14,7 @@ import LoadingMessage from '@/app/components/common/LoadingMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;
 }
@@ -100,7 +100,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
       </div>
 
       <div className="flex justify-end pt-4 mt-6 border-t border-gray-200">
-        <IconButton label="저장" size="sm" icon="ri-save-line" onClick={handleSave} />
+        <Button label="저장" size="sm" onClick={handleSave} />
       </div>
     </>
   );

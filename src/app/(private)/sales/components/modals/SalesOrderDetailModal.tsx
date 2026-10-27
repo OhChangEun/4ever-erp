@@ -11,6 +11,7 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
+import { formatCurrency } from '@/app/utils/number';
 const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDetailProps) => {
   const {
     data: orderDetailRes,
@@ -125,10 +126,10 @@ const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDeta
                         <td className="px-4 py-3 text-sm text-gray-900">{item.quantity}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">{item.uonName}</td>
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          ₩{item.unitPrice.toLocaleString()}
+                          {formatCurrency(item.unitPrice)}
                         </td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          ₩{item.amount.toLocaleString()}
+                          {formatCurrency(item.amount)}
                         </td>
                       </tr>
                     ))}
@@ -142,7 +143,7 @@ const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDeta
                         총 주문금액
                       </td>
                       <td className="px-4 py-3 text-sm font-bold text-gray-900">
-                        ₩{order!.totalAmount.toLocaleString()}
+                        {formatCurrency(order!.totalAmount)}
                       </td>
                     </tr>
                   </tfoot>
