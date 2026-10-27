@@ -23,6 +23,8 @@ import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 const SalesOrderList = () => {
   const { openModal } = useModal();
   const [selectedSalesOrderId, setSelectedSalesOrderId] = useState<string>('');
@@ -101,26 +103,25 @@ const SalesOrderList = () => {
       key: 'totalAmount',
       label: '총금액',
       align: 'right',
-      render: (_, order) => `₩${order.totalAmount.toLocaleString()}`,
+      render: (_, order) => formatCurrency(order.totalAmount),
     },
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, order) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleViewOrder(order.salesOrderId)}
-          className="text-blue-600 hover:text-blue-900 cursor-pointer"
-          title="상세보기"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];

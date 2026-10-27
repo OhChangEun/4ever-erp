@@ -6,7 +6,6 @@ import {
   EmployeeListRequestParams,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import Dropdown from '@/app/components/common/Dropdown';
-import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -120,7 +119,7 @@ export default function EmployeesTab() {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, employee) => (
         <Button
           label="상세보기"
@@ -147,11 +146,7 @@ export default function EmployeesTab() {
           icon="ri-search-line"
           placeholder="직원 이름 검색"
         />
-        <IconButton
-          icon="ri-user-add-line"
-          label="신규 직원 등록"
-          onClick={handleViewEmployeeRegister}
-        />
+        <Button label="신규 직원 등록" onClick={handleViewEmployeeRegister} />
       </div>
 
       {isLoading ? (

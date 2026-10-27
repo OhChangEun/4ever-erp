@@ -2,7 +2,6 @@
 
 import { fetchProgramList } from '@/app/(private)/hrm/api/hrm.api';
 import { ProgramListData, ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
-import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +12,7 @@ import EditProgramModal from '../../../modals/ProgramEditModal';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 export default function AvailableProgramTab() {
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -64,7 +64,7 @@ export default function AvailableProgramTab() {
   return (
     <div>
       <div className="flex items-center justify-end mb-4">
-        <IconButton icon="ri-add-line" label="프로그램 추가" onClick={handleViewProgramRegister} />
+        <Button label="프로그램 추가" onClick={handleViewProgramRegister} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,17 +94,12 @@ export default function AvailableProgramTab() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <IconButton
-                icon="ri-eye-line mr-1"
+              <Button
                 label="상세보기"
-                variant="whiteOutline"
+                variant="secondary"
                 onClick={() => handleViewProgramDetail(program)}
               />
-              <IconButton
-                icon="ri-edit-line mr-1"
-                label="프로그램 관리"
-                onClick={() => handleEditProgram(program)}
-              />
+              <Button label="프로그램 관리" onClick={() => handleEditProgram(program)} />
             </div>
           </div>
         ))}

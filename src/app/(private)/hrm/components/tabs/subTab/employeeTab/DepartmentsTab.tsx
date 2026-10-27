@@ -5,9 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { DepartmentDetailModal } from '../../../modals/DepartmentDetailModal';
 import { DepartmentEditModal } from '../../../modals/DepartmentEditModal';
-import IconButton from '@/app/components/common/IconButton';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 export default function DepartmentsTab() {
   const { openModal, removeAllModals } = useModal();
 
@@ -50,8 +50,8 @@ export default function DepartmentsTab() {
           <div key={dept.departmentId} className="border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-gray-900">{dept.departmentName}팀</h4>
-              <IconButton
-                icon="ri-eye-line"
+              <Button
+                label="상세"
                 size="sm"
                 variant="ghost"
                 onClick={() => handleViewDepartment(dept)}

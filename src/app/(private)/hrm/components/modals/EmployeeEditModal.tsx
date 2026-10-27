@@ -1,5 +1,4 @@
 import { EmployeeData, EmployeeUpdateRequest } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import IconButton from '@/app/components/common/IconButton';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -11,6 +10,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { employeeKeys, positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;
 }
@@ -134,7 +134,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
       </div>
 
       <div className="flex justify-end">
-        <IconButton label="저장" size="sm" icon="ri-save-line" onClick={handleSave} />
+        <Button label="저장" size="sm" onClick={handleSave} />
       </div>
     </>
   );

@@ -10,12 +10,13 @@ import { getLowStockList } from '../lowStock.api';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import Dropdown from '@/app/components/common/Dropdown';
-import IconButton from '@/app/components/common/IconButton';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
 import InventoryPurchaseRequestModal from '../../inventory/components/modals/InventoryPurchaseRequestModal';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 export default function LowStockList() {
   const { openModal } = useModal();
   const toast = useToast();
@@ -160,15 +161,16 @@ export default function LowStockList() {
     },
     {
       key: 'unitPrice',
+      align: 'right',
       label: '단가',
-      render: (_, lowStock) => `₩${lowStock.unitPrice.toLocaleString()}`,
+      render: (_, lowStock) => formatCurrency(lowStock.unitPrice),
     },
     {
       key: 'totalAmount',
       label: '총 가치',
       render: (_, lowStock) => (
         <span className="text-sm font-medium text-gray-900">
-          ₩{lowStock.totalAmount.toLocaleString()}
+          {formatCurrency(lowStock.totalAmount)}
         </span>
       ),
     },
@@ -211,11 +213,7 @@ export default function LowStockList() {
                 autoSelectFirst
               />
 
-              <IconButton
-                icon="ri-shopping-cart-line mr-1"
-                label={`선택 품목 발주`}
-                onClick={handleBulkOrder}
-              />
+              <Button label={`선택 품목 발주`} onClick={handleBulkOrder} />
             </div>
           </div>
         </div>

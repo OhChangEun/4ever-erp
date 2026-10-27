@@ -134,7 +134,6 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       key: 'itemId',
       label: '',
       width: '48px',
-      align: 'center',
       headerRender: () => (
         <input
           type="checkbox"
@@ -157,35 +156,30 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
           />
         ),
     },
-    { key: 'itemName', label: '자재', align: 'center' },
+    { key: 'itemName', label: '자재' },
     {
       key: 'requiredQuantity',
       label: '소요 수량',
-      align: 'center',
       render: (_, item) => <>{item.requiredQuantity.toLocaleString()}</>,
     },
     {
       key: 'availableStock',
       label: '가용 재고',
-      align: 'center',
       render: (_, item) => <>{item.availableStock.toLocaleString()}</>,
     },
     {
       key: 'consumptionQuantity',
       label: '소모량',
-      align: 'center',
       render: (_, item) => <>{item.consumptionQuantity.toLocaleString()}</>,
     },
     {
       key: 'availableStatusCode',
       label: '가용 재고 상태',
-      align: 'center',
       render: (_, item) => <StatusLabel statusCode={item.availableStatusCode} />,
     },
     {
       key: 'shortageQuantity',
       label: '부족 재고',
-      align: 'center',
       render: (_, item) =>
         item.shortageQuantity > 0 ? (
           <span className="text-red-600 font-medium">{item.shortageQuantity.toLocaleString()}</span>
@@ -196,26 +190,22 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     {
       key: 'itemType',
       label: '자재 유형',
-      align: 'center',
       render: (_, item) => <StatusLabel statusCode={item.itemType} />,
     },
     {
       key: 'procurementStartDate',
       label: '구매 권장일',
-      align: 'center',
       render: (_, item) => <>{item.procurementStartDate || '-'}</>,
     },
     {
       key: 'expectedArrivalDate',
       label: '예상 도착일',
-      align: 'center',
       render: (_, item) => <>{item.expectedArrivalDate || '-'}</>,
     },
-    { key: 'supplierCompanyName', label: '공급사', align: 'center' },
+    { key: 'supplierCompanyName', label: '공급사' },
     {
       key: 'convertStatus',
       label: '전환 상태',
-      align: 'center',
       render: (_, item) => <StatusLabel statusCode={item.convertStatus} />,
     },
   ];

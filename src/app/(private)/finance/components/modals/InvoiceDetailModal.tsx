@@ -16,6 +16,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 import { useModal } from '@/app/components/common/modal/useModal';
 
+import { formatCurrency } from '@/app/utils/number';
 const InvoiceDetailModal = ({
   onClose,
   selectedInvoiceId,
@@ -146,10 +147,10 @@ const InvoiceDetailModal = ({
                     {item?.unitOfMaterialName}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                    ₩{item.unitPrice?.toLocaleString()}
+                    {formatCurrency(item.unitPrice)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                    ₩{item.totalPrice?.toLocaleString()}
+                    {formatCurrency(item.totalPrice)}
                   </td>
                 </tr>
               ))}
@@ -160,7 +161,7 @@ const InvoiceDetailModal = ({
                   총 금액
                 </td>
                 <td className="px-4 py-3 text-right font-medium text-green-600">
-                  ₩{invoiceRes?.totalAmount.toLocaleString()}
+                  {formatCurrency(invoiceRes?.totalAmount)}
                 </td>
               </tr>
             </tfoot>

@@ -12,7 +12,6 @@ import {
 import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
-import IconButton from '@/app/components/common/IconButton';
 import { mesKeys, productionStatsKeys } from '@/app/(private)/production/api/production.keys';
 
 interface MesDetailProps extends ModalProps {
@@ -195,16 +194,13 @@ export default function MesDetail({ mesId }: MesDetailProps) {
               <div className="text-sm font-bold text-blue-600">{mesDetail.progressPercent}%</div>
             </div>
             <div className="flex justify-end items-center space-x-3">
-              <IconButton
-                icon="ri-play-fill"
+              <Button
                 label="MES 시작"
                 disabled={!mesDetail.canStartMes || isProcessing}
                 onClick={() => startMesMutation.mutate()}
               />
-              <IconButton
-                icon="ri-check-line"
-                label="MES 시작"
-                variant="green"
+              <Button
+                label="MES 완료"
                 disabled={!mesDetail.canCompleteMes || isProcessing}
                 onClick={() => completeMesMutation.mutate()}
               />

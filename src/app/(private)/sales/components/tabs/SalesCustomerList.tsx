@@ -17,12 +17,13 @@ import {
 } from '@/app/(private)/sales/constant';
 import Pagination from '@/app/components/common/Pagination';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import IconButton from '@/app/components/common/IconButton';
 import SearchBar from '@/app/components/common/SearchBar';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
 
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 const CustomerList = () => {
   const { openModal } = useModal();
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,7 +113,7 @@ const CustomerList = () => {
       render: (_, customer) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
-            ₩{customer.totalTransactionAmount.toLocaleString()}
+            {formatCurrency(customer.totalTransactionAmount)}
           </div>
           <div className="text-xs text-gray-500">{customer.orderCount}건</div>
         </div>
@@ -121,21 +122,20 @@ const CustomerList = () => {
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, customer) => <StatusLabel statusCode={customer.statusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, customer) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleViewClick(customer.customerId)}
-          className="text-blue-600 hover:text-blue-800 cursor-pointer"
-          title="상세보기"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];
@@ -160,11 +160,7 @@ const CustomerList = () => {
           }}
           placeholder="검색어를 입력하세요"
         />
-        <IconButton
-          icon="ri-user-add-line"
-          onClick={handleCustomerRegisterClick}
-          label="고객 등록"
-        />
+        <Button onClick={handleCustomerRegisterClick} label="고객 등록" />
       </div>
 
       {/* 테이블 */}

@@ -11,7 +11,6 @@ import {
   approvePurchaseRequest,
   rejectPurchaseRequest,
 } from '@/app/(private)/purchase/api/purchase.api';
-import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import {
   PurchaseRequestListItem,
@@ -30,6 +29,8 @@ import { useDebounce } from 'use-debounce';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { formatCurrency } from '@/app/utils/number';
+import Button from '@/app/components/common/Button';
 // import CalendarButton from '@/app/components/common/Calendar';
 
 export default function PurchaseRequestListTab() {
@@ -147,62 +148,58 @@ export default function PurchaseRequestListTab() {
     {
       key: 'purchaseRequisitionNumber',
       label: '구매요청번호',
-      align: 'center',
       render: (_, r) => (
         <div className="flex flex-col">
           <span>{r.purchaseRequisitionNumber}</span>
         </div>
       ),
     },
-    { key: 'requesterName', label: '요청자', align: 'center' },
-    { key: 'departmentName', label: '부서', align: 'center' },
+    { key: 'requesterName', label: '요청자' },
+    { key: 'departmentName', label: '부서' },
     {
       key: 'requestDate',
       label: '요청일',
-      align: 'center',
       render: (_, r) => formatDateTime(r.requestDate),
     },
     {
       key: 'totalAmount',
       label: '총금액',
-      align: 'center',
-      render: (_, r) => `${r.totalAmount}원`,
+      render: (_, r) => formatCurrency(r.totalAmount),
     },
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, r) => <StatusLabel statusCode={r.statusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, r) => (
-        <div className="flex items-center justify-center space-x-2">
-          <button
+        <div className="flex items-center justify-end gap-0.5 -my-1">
+          <Button
+            label="상세"
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:bg-gray-100 px-2"
             onClick={() => handleViewDetail(r)}
-            className="w-8 h-8 flex items-center justify-center text-blue-500 hover:bg-blue-50 rounded cursor-pointer"
-            title="상세보기"
-          >
-            <i className="ri-eye-line"></i>
-          </button>
+          />
           {r.statusCode === 'PENDING' && (
             <>
-              <button
+              <Button
+                label="승인"
+                variant="ghost"
+                size="sm"
+                className="px-2"
                 onClick={() => handleApprove(r.purchaseRequisitionId)}
-                className="text-green-600 hover:text-green-900 cursor-pointer"
-                title="승인"
-              >
-                <i className="ri-check-line"></i>
-              </button>
-              <button
+              />
+              <Button
+                label="반려"
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:bg-red-50 px-2"
                 onClick={() => handleReject(r.purchaseRequisitionId)}
-                className="text-red-600 hover:text-red-900 cursor-pointer"
-                title="반려"
-              >
-                <i className="ri-close-line"></i>
-              </button>
+              />
             </>
           )}
         </div>
@@ -245,7 +242,7 @@ export default function PurchaseRequestListTab() {
           />
 
           {/* 구매 요청 작성 버튼 */}
-          <IconButton label="구매 요청 작성" icon="ri-add-line" onClick={handleViewRequestModal} />
+          <Button label="구매 요청 작성" onClick={handleViewRequestModal} />
         </div>
       </div>
 

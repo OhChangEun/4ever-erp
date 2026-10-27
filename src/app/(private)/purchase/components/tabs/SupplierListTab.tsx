@@ -9,7 +9,6 @@ import {
   SupplierListParams,
   SupplierListResponse,
 } from '@/app/(private)/purchase/types/SupplierType';
-import IconButton from '@/app/components/common/IconButton';
 import {
   fetchSupplierCategoryOptions,
   fetchSupplierList,
@@ -24,6 +23,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
+import Button from '@/app/components/common/Button';
 export default function SupplierListTab() {
   const { openModal } = useModal();
 
@@ -92,7 +92,6 @@ export default function SupplierListTab() {
     {
       key: 'supplierNumber',
       label: '공급업체 코드',
-      align: 'center',
       render: (_, item) => item.supplierInfo.supplierNumber,
     },
     {
@@ -103,7 +102,6 @@ export default function SupplierListTab() {
     {
       key: 'category',
       label: '카테고리',
-      align: 'center',
       render: (_, item) => item.supplierInfo.category,
     },
     {
@@ -129,27 +127,25 @@ export default function SupplierListTab() {
     {
       key: 'deliveryLeadTime',
       label: '배송 기간',
-      align: 'center',
       render: (_, item) => `${item.supplierInfo.deliveryLeadTime}일`,
     },
     {
       key: 'statusCode',
       label: '상태',
-      align: 'center',
       render: (_, item) => <StatusLabel statusCode={item.supplierInfo.supplierStatusCode} />,
     },
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, item) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleViewDetail(item.supplierInfo.supplierId)}
-          className="w-8 h-8 flex items-center justify-center text-blue-500 hover:bg-blue-50 rounded cursor-pointer"
-          title="상세보기"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];
@@ -187,7 +183,7 @@ export default function SupplierListTab() {
               setCurrentPage(1);
             }}
           />
-          <IconButton label="공급업체 등록" icon="ri-add-line" onClick={handleViewAddSupplier} />
+          <Button label="공급업체 등록" onClick={handleViewAddSupplier} />
         </div>
       </div>
 

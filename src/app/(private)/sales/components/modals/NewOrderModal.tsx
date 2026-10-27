@@ -16,6 +16,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import Button from '@/app/components/common/Button';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
 const NewOrderModal = ({ onClose }: ModalProps) => {
   const [newOrderItems, setNewOrderItems] = useState<NewOrderRequest>({
     items: [
@@ -82,7 +83,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
 
   const getItemTotalPrice = (item: NewOrderItem) => {
     const totalPrice = item.quantity * item.unitPrice;
-    return `₩${totalPrice.toLocaleString()}`;
+    return formatCurrency(totalPrice);
   };
 
   const getTotalAmount = () => {
@@ -234,7 +235,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                     <input
                       type="text"
                       name="unitPrice"
-                      value={`₩${item.unitPrice.toLocaleString()}`}
+                      value={formatCurrency(item.unitPrice)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
                       readOnly
                     />
@@ -281,7 +282,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-900">총 주문 금액</span>
               <span className="text-xl font-bold text-gray-600">
-                ₩{getTotalAmount().toLocaleString()}
+                {formatCurrency(getTotalAmount())}
               </span>
             </div>
           </div>

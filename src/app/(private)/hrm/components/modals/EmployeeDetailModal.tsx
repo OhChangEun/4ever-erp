@@ -1,7 +1,7 @@
 import { EmployeeData } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import IconButton from '@/app/components/common/IconButton';
 import { ModalProps } from '@/app/components/common/modal/types';
 
+import Button from '@/app/components/common/Button';
 interface EmployeeDetailModalProps extends ModalProps {
   employee: EmployeeData;
   onEdit: () => void;
@@ -48,7 +48,7 @@ export function EmployeeDetailModal({ employee, onEdit }: EmployeeDetailModalPro
       </div>
 
       <div className="flex justify-end">
-        <IconButton label="수정" size="sm" icon="ri-edit-line" onClick={onEdit} />
+        <Button label="수정" size="sm" onClick={onEdit} />
       </div>
     </>
   );

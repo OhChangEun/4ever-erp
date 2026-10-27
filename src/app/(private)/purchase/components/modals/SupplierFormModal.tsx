@@ -10,7 +10,6 @@ import {
   SupplierCategory,
 } from '@/app/(private)/purchase/types/SupplierType';
 import Button from '@/app/components/common/Button';
-import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -443,12 +442,11 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
               <h4 className="text-md font-semibold text-gray-900">
                 제공 가능한 자재 목록 ({filledMaterialCount}건 입력)
               </h4>
-              <IconButton
+              <Button
                 type="button"
                 label="자재 추가"
                 variant="secondary"
                 size="sm"
-                icon="ri-add-line"
                 onClick={handleAddMaterialRow}
               />
             </div>

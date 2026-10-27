@@ -21,6 +21,7 @@ import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
@@ -137,7 +138,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
             <div className="flex justify-between">
               <span className="text-gray-600">견적금액:</span>
               <span className="font-medium text-blue-600">
-                ₩{quote?.totalAmount?.toLocaleString()}
+                {formatCurrency(quote?.totalAmount)}
               </span>
             </div>
             <div className="flex justify-between">

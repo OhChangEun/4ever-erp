@@ -7,6 +7,7 @@ import Button from '@/app/components/common/Button';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 
+import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseOrderTableProps {
   orders: PurchaseOrderListItem[];
   onViewDetail: (purchaseOrderId: string) => void;
@@ -49,7 +50,7 @@ export default function PurchaseOrderTable({
       label: '총금액',
       align: 'right',
       width: '130px',
-      render: (_, order) => `₩${Number(order.totalAmount).toLocaleString('ko-KR')}`,
+      render: (_, order) => formatCurrency(Number(order.totalAmount)),
     },
     {
       key: 'orderDate',

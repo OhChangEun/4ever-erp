@@ -11,6 +11,7 @@ import { formatDateTime } from '@/app/utils/date';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseRequestDetailModalProps extends ModalProps {
   purchaseRequestId: string;
 }
@@ -108,8 +109,12 @@ export default function PurchaseRequestDetailModal({
                     <td className="px-4 py-3 text-sm text-gray-900">{item.itemName}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">{item.uomCode}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">{item.quantity}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">₩{item.unitPrice}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">₩{item.amount}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {formatCurrency(item.unitPrice)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {formatCurrency(item.amount)}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {formatDateTime(item.dueDate)}
                     </td>

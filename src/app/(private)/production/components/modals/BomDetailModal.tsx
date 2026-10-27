@@ -1,9 +1,5 @@
 import { BomDetailResponse } from '@/app/(private)/production/types/BomDetailApiType';
-import {
-  fetchBomDetail,
-  patchBomStatus,
-  simulateBomConflict,
-} from '../../api/production.api';
+import { fetchBomDetail, patchBomStatus, simulateBomConflict } from '../../api/production.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
@@ -185,9 +181,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
                 </button>
                 {/* 상태 변경 버튼 — version을 함께 전송해 낙관적 락 검증 */}
                 <button
-                  onClick={() =>
-                    updateStatus(bomDetail!.statusCode === '활성' ? '비활성' : '활성')
-                  }
+                  onClick={() => updateStatus(bomDetail!.statusCode === '활성' ? '비활성' : '활성')}
                   disabled={isUpdating}
                   className="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
                 >

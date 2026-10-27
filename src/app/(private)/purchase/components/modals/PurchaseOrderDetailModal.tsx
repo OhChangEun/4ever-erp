@@ -10,6 +10,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
+import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseOrderDetailModalProps extends ModalProps {
   purchaseOrderId: string;
 }
@@ -111,10 +112,10 @@ export default function PurchaseOrderDetailModal({
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.uomName}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    ₩{item.unitPrice.toLocaleString()}
+                    {formatCurrency(item.unitPrice)}
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-900 text-right">
-                    ₩{item.totalPrice.toLocaleString()}
+                    {formatCurrency(item.totalPrice)}
                   </td>
                 </tr>
               ))}
@@ -124,7 +125,7 @@ export default function PurchaseOrderDetailModal({
                 <td colSpan={5} className="px-4 py-3 text-right font-medium">
                   <span className="pr-6 text-sm text-gray-900">총 금액</span>
                   <span className="text-3xl text-green-600">
-                    {order.totalAmount.toLocaleString()}원
+                    {formatCurrency(order.totalAmount)}
                   </span>
                 </td>
               </tr>

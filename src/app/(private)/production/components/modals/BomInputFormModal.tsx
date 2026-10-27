@@ -1,7 +1,6 @@
 'use client';
 
 import Button from '@/app/components/common/Button';
-import IconButton from '@/app/components/common/IconButton';
 import Dropdown from '@/app/components/common/Dropdown';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useEffect, useState } from 'react';
@@ -234,12 +233,13 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
         />
       </td>
       <td className="px-3 py-2">
-        <IconButton
+        <Button
+          label="삭제"
           type="button"
           variant="secondary"
-          icon="ri-delete-bin-line"
           size="sm"
           onClick={() => onRemove(item.id)}
+          className="text-red-600 hover:bg-red-50"
         />
       </td>
     </tr>
@@ -378,10 +378,10 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
         <div>
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-md font-semibold text-gray-900">구성품 리스트</h4>
-            <IconButton
+            <Button
+              label="행 추가"
               type="button"
-              icon="ri-add-line"
-              variant="soft"
+              variant="secondary"
               size="sm"
               onClick={handleAddRow}
             />

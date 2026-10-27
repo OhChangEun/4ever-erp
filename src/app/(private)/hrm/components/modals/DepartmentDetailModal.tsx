@@ -1,7 +1,6 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 import { DepartmentsData } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
-import IconButton from '@/app/components/common/IconButton';
-
+import Button from '@/app/components/common/Button';
 interface DepartmentDetailModalProps extends ModalProps {
   departments: DepartmentsData;
   onEdit: () => void;
@@ -74,7 +73,7 @@ export function DepartmentDetailModal({ departments, onEdit }: DepartmentDetailM
       </div>
 
       <div className="flex justify-end pt-4 mt-6 border-t border-gray-200">
-        <IconButton label="수정" size="sm" icon="ri-edit-line" onClick={onEdit} />
+        <Button label="수정" size="sm" onClick={onEdit} />
       </div>
     </>
   );

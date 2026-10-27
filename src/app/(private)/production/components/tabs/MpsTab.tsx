@@ -80,31 +80,26 @@ export default function MpsTab() {
     {
       key: 'productName',
       label: '제품명',
-      align: 'center',
       render: (_, row) => <span className="font-medium text-gray-700">{row.productName}</span>,
     },
     {
       key: 'week',
       label: '주차',
-      align: 'center',
       render: (_, row) => <span className="text-gray-600">{row.week}</span>,
     },
     {
       key: 'demand',
       label: '수요',
-      align: 'center',
       render: (_, row) => <span className="text-gray-700">{row.demand ?? '-'}</span>,
     },
     {
       key: 'requiredInventory',
       label: '재고 필요량',
-      align: 'center',
       render: (_, row) => <span className="text-gray-700">{row.requiredInventory ?? '-'}</span>,
     },
     {
       key: 'productionNeeded',
       label: '생산 소요량',
-      align: 'center',
       render: (_, row) => (
         <span className="text-sm text-gray-700">{row.productionNeeded ?? '-'}</span>
       ),
@@ -112,7 +107,6 @@ export default function MpsTab() {
     {
       key: 'plannedProduction',
       label: '계획 생산 (MPS)',
-      align: 'center',
       render: (_, row) => (
         <span className="font-semibold text-blue-600">{row.plannedProduction ?? '-'}</span>
       ),

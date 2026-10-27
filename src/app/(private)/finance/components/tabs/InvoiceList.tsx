@@ -19,12 +19,12 @@ import Table, { TableColumn } from '@/app/components/common/Table';
 import InvoiceDetailModal from '@/app/(private)/finance/components/modals/InvoiceDetailModal';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
-import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
 
+import { formatCurrency } from '@/app/utils/number';
 const InvoiceList = () => {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -170,7 +170,7 @@ const InvoiceList = () => {
       key: 'totalAmount',
       label: '금액',
       align: 'right',
-      render: (_, invoice) => `₩${invoice.totalAmount.toLocaleString()}`,
+      render: (_, invoice) => formatCurrency(invoice.totalAmount),
     },
     { key: 'issueDate', label: '발행일' },
     { key: 'dueDate', label: '만기일' },
@@ -191,14 +191,15 @@ const InvoiceList = () => {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, invoice) => (
-        <button
+        <Button
+          label="상세"
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:bg-gray-100 px-2"
           onClick={() => handleViewDetail(invoice.invoiceId)}
-          className="text-blue-600 hover:text-blue-500 cursor-pointer"
-        >
-          <i className="ri-eye-line"></i>
-        </button>
+        />
       ),
     },
   ];
@@ -223,7 +224,6 @@ const InvoiceList = () => {
           />
 
           <Button
-            variant="green"
             label="미수 처리 신청"
             onClick={handleReceivableComplete}
             disabled={selectedInvoiceId ? false : true}

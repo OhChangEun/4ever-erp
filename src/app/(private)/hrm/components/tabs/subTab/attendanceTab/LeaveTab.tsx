@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 export default function LeaveTab() {
   // --- 모달 출력 ---
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
@@ -137,24 +138,23 @@ export default function LeaveTab() {
     {
       key: 'status',
       label: '작업',
-      align: 'center',
       render: (_, leave) =>
         leave.status === 'PENDING' ? (
-          <div className="flex justify-center space-x-2">
-            <button
+          <div className="flex items-center justify-end gap-0.5 -my-1">
+            <Button
+              label="승인"
+              variant="ghost"
+              size="sm"
+              className="px-2"
               onClick={() => handleApprove(leave.leaveRequestId)}
-              className="text-green-600 hover:text-green-900 cursor-pointer"
-              title="승인"
-            >
-              <i className="ri-check-line"></i>
-            </button>
-            <button
+            />
+            <Button
+              label="반려"
+              variant="ghost"
+              size="sm"
+              className="text-red-600 hover:bg-red-50 px-2"
               onClick={() => handleReject(leave.leaveRequestId)}
-              className="text-red-600 hover:text-red-900 cursor-pointer"
-              title="반려"
-            >
-              <i className="ri-close-line"></i>
-            </button>
+            />
           </div>
         ) : (
           <StatusLabel statusCode={leave.status} />

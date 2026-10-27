@@ -18,6 +18,7 @@ import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
+import Button from '@/app/components/common/Button';
 export default function EmployeeTrainingTab() {
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -76,7 +77,6 @@ export default function EmployeeTrainingTab() {
     {
       key: 'completedCount',
       label: '완료된 교육',
-      align: 'center',
       render: (_, t) => (
         <div className="flex items-center justify-center">
           <span className="text-sm font-medium text-green-600">{t.completedCount}</span>
@@ -87,7 +87,6 @@ export default function EmployeeTrainingTab() {
     {
       key: 'requiredMissingCount',
       label: '필수 교육',
-      align: 'center',
       render: (_, t) => (
         <div className="flex items-center justify-center">
           <span className="text-sm font-medium text-red-600">{t.requiredMissingCount}</span>
@@ -103,28 +102,28 @@ export default function EmployeeTrainingTab() {
     {
       key: 'action',
       label: '작업',
-      align: 'center',
+      align: 'right',
       render: (_, t) => (
-        <div className="flex justify-center space-x-2">
-          <button
+        <div className="flex items-center justify-end gap-0.5 -my-1">
+          <Button
+            label="상세"
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:bg-gray-100 px-2"
             onClick={() => handleViewTrainingDetail(t)}
-            className="text-blue-600 hover:text-blue-900 cursor-pointer"
-            title="교육 상세보기"
-          >
-            <i className="ri-eye-line"></i>
-          </button>
-          <button
+          />
+          <Button
+            label="교육 추가"
+            variant="ghost"
+            size="sm"
+            className="px-2"
             onClick={() =>
               handleViewAddEmployeeTraining({
                 employeeId: t.employeeId,
                 employeeName: t.name,
               })
             }
-            className="text-green-600 hover:text-green-900 cursor-pointer"
-            title="교육 추가"
-          >
-            <i className="ri-add-line"></i>
-          </button>
+          />
         </div>
       ),
     },

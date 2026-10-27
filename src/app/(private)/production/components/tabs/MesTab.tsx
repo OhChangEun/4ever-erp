@@ -96,7 +96,6 @@ export default function MesTab() {
     {
       key: 'status',
       label: '상태',
-      align: 'center',
       render: (_, row) => {
         const statusConfig: Record<string, { label: string; dot: string; class: string }> = {
           WAITING: { label: '대기중', dot: 'bg-gray-400', class: 'text-gray-500' },
@@ -119,18 +118,15 @@ export default function MesTab() {
     {
       key: 'quotationNumber',
       label: '견적번호',
-      align: 'center',
       render: (_, row) => <span className="font-medium text-gray-700">{row.quotationNumber}</span>,
     },
     {
       key: 'productName',
       label: '제품명',
-      align: 'center',
     },
     {
       key: 'quantity',
       label: '수량',
-      align: 'center',
       render: (_, row) => (
         <span className="text-gray-600">
           {row.quantity} <span className="text-gray-400">{row.uomName}</span>
@@ -140,19 +136,16 @@ export default function MesTab() {
     {
       key: 'startDate',
       label: '시작일',
-      align: 'center',
       render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.startDate}</span>,
     },
     {
       key: 'endDate',
       label: '종료일',
-      align: 'center',
       render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.endDate}</span>,
     },
     {
       key: 'sequence',
       label: '공정 진행',
-      align: 'center',
       render: (_, row) => {
         const currentOpNum = row.currentOperation || 0;
         return (
@@ -222,7 +215,6 @@ export default function MesTab() {
     {
       key: 'progressRate',
       label: '진행률',
-      align: 'center',
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <div className="w-40 bg-gray-100 rounded-full h-1.5 overflow-hidden">

@@ -9,7 +9,7 @@ export const createStatCard = (
 ): StatCardType => {
   const formattedValue =
     unit === '₩' ? `${unit}${value.toLocaleString()}` : `${value.toLocaleString()}${unit}`;
-  const change = `${delta > 0 ? '+' : ''}${delta}${unit}`;
+  const change = `${delta > 0 ? '+' : ''}${delta}%`;
   const changeType = delta >= 0 ? 'increase' : 'decrease';
 
   return {
