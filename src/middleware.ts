@@ -55,13 +55,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/purchase/:path*',
-    '/sales/:path*',
-    '/inventory/:path*',
-    '/finance/:path*',
-    '/hrm/:path*',
-    '/production/:path*',
-  ],
+  // allowlist(열거) 대신 공개 경로만 제외하는 denylist.
+  // 새 비공개 라우트가 생겨도 자동으로 인증이 걸린다(예전엔 alarm·low-stock·warehouse가 matcher 밖이라 무인증이었다).
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login|unauthorized|callback|profile|.*\\..*).*)'],
 };
