@@ -60,6 +60,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const removeModal = useCallback((id: string) => {
     setModals((prev) => prev.filter((m) => m.id !== id));
   }, []);
+
   const removeAllModals = useCallback(() => {
     setModals([]);
   }, []);
