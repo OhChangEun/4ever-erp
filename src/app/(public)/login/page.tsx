@@ -15,7 +15,9 @@ const VALID_IDS = new Set(DEMO_ACCOUNTS.map((a) => a.loginId.toUpperCase()));
 function readReturnTo(): string {
   if (typeof window === 'undefined') return '/dashboard';
   const value = new URLSearchParams(window.location.search).get('returnTo') ?? '';
-  return value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
+  // 같은 사이트 내부 경로만 허용: '/'로 시작하되 다음 글자가 '/'나 '\\'이면 거부한다.
+  // '//evil', '/\\evil'는 브라우저가 스킴 상대 URL로 정규화해 외부 도메인으로 나간다.
+  return /^\/(?![/\\])/.test(value) ? value : '/dashboard';
 }
 
 export default function LoginPage() {
