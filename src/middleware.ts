@@ -34,6 +34,7 @@ export async function middleware(req: NextRequest) {
   // 1. 세션 쿠키 검증 - 없거나 서명이 틀리면 로그인으로
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySession(token) : null;
+
   if (!session) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('returnTo', pathname);
