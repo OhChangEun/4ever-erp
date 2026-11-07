@@ -1,4 +1,5 @@
 import { SESSION_COOKIE, verifySession } from '@/lib/auth/session';
+import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { NextRequest, NextResponse } from 'next/server';
 
 // BFF 프록시 - 브라우저는 세션 쿠키만 보내고, 백엔드가 요구하는 Bearer 토큰은 서버에서 붙인다.
@@ -22,6 +23,15 @@ function resolveUpstreamBase(req: NextRequest): string {
 }
 
 async function handle(req: NextRequest, ctx: RouteContext) {
+  // 0. 상태 변경(POST/PUT/PATCH/DELETE) 요청은 같은 출처만 허용 - CSRF 방어
+  const isStateChanging = req.method !== 'GET' && req.method !== 'HEAD';
+  if (isStateChanging && !isSameOriginRequest(req)) {
+    return NextResponse.json(
+      { status: 403, success: false, message: '잘못된 요청 출처' },
+      { status: 403 },
+    );
+  }
+
   // 1. 세션 쿠키 검증 - 없거나 깨졌으면 업스트림에 가지도 않는다
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySession(token) : null;

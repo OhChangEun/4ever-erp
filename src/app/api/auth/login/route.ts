@@ -1,5 +1,6 @@
 import { SESSION_COOKIE, signSession } from '@/lib/auth/session';
 import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
+import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface LoginBody {
@@ -16,6 +17,11 @@ function isLoginBody(value: unknown): value is LoginBody {
 }
 
 export async function POST(req: NextRequest) {
+  // 0. CSRF 방어 - 다른 출처에서 온 로그인 요청 차단 (lax가 못 막는 같은 site 출처 포함)
+  if (!isSameOriginRequest(req)) {
+    return NextResponse.json({ message: '잘못된 요청 출처' }, { status: 403 });
+  }
+
   // 1. body 읽기 — { loginId: string } 형태
   const body: unknown = await req.json();
 
