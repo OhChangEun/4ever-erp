@@ -6,11 +6,14 @@ import {
   type QueryKey,
   type UseMutationResult,
 } from '@tanstack/react-query';
+import { isAppError } from '@/lib/AppError';
 
 /**
  * 도메인 mutation 훅의 공통 모양. 성공하면 `effects(variables)` 가 돌려준 키를 전부 무효화한 뒤
  * 컴포넌트가 준 onSuccess 를 부른다. 실패면 서버가 안 바뀌었으니 무효화하지 않는다.
  * 도메인별 `*_MUTATION_EFFECTS` 표가 effects 의 출처다. 토스트, confirm, 모달 닫기는 컴포넌트 몫.
+ *
+ * 409(conflict)는 예외로, 실패해도 무효화한다. 서버가 "화면이 옛 데이터"라고 알려 준 것이기 때문이다.
  *
  * 낙관적 업데이트(optimistic)를 주면 규칙이 바뀐다. 응답 전에 캐시를 고치고, 실패하면 되돌리고,
  * 성공과 실패 모두 끝나면 무효화해서 낙관적 값을 서버 값으로 덮는다.
@@ -151,9 +154,14 @@ export function useInvalidatingMutation<TData, TVariables>({
       if (!optimistic) await invalidateAll(queryClient, effects(variables));
       callbacks.onSuccess?.(data, variables);
     },
-    onError: (error, variables, context) => {
+    onError: async (error, variables, context) => {
       // 낙관적 값 되돌리기. 스냅샷은 onMutate 가 고치기 전의 값이다.
       restore(queryClient, context?.snapshot ?? []);
+      // 409 는 "화면이 옛 데이터"라는 서버의 신호다. 옛 값 위에서 다시 시도하지 않게 영향 키를 다시 가져온다.
+      // 낙관적 mutation 은 onSettled 가 무효화하므로 여기서 하지 않는다. 다른 오류는 서버가 안 바뀌었다.
+      if (!optimistic && isAppError(error) && error.kind === 'conflict') {
+        await invalidateAll(queryClient, effects(variables));
+      }
       callbacks.onError?.(error, variables);
     },
     onSettled: async (_data, _error, variables, context) => {
