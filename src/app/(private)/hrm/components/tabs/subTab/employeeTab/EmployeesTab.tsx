@@ -5,11 +5,11 @@ import {
   EmployeeData,
   EmployeeListRequestParams,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { EmployeeDetailModal } from '@/app/(private)/hrm/components/modals/EmployeeDetailModal';
@@ -17,8 +17,8 @@ import { EmployeeEditModal } from '@/app/(private)/hrm/components/modals/Employe
 import EmployeeRegisterModal from '@/app/(private)/hrm/components/modals/EmployeeRegisterModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
-import Input from '@/app/components/common/Input';
-import Button from '@/app/components/common/Button';
+import { Input } from '@everp/ui';
+import { Button } from '@everp/ui';
 import { employeeKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeesTab() {

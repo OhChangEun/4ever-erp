@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { errorMessageOf, isAppError } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
-import ConflictDialog from '@/app/components/common/ConflictDialog';
+import { ConflictDialog } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 const BomTreeContainer = dynamic(() => import('../../BomTreeContainer'), {

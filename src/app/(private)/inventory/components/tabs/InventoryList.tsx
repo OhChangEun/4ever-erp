@@ -5,7 +5,7 @@ import {
   INVENTORY_SEARCH_KEYWORD_OPTIONS,
   INVENTORY_STATUS_OPTIONS,
 } from '../../inventory.constants';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { useDebounce } from 'use-debounce';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { InventoryResponse } from '../../types/InventoryListType';
@@ -18,11 +18,11 @@ import AddInventoryModal from '../modals/AddInventoryModal';
 import Link from 'next/link';
 import { Page } from '@/app/types/Page';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Button from '@/app/components/common/Button';
-import Dropdown from '@/app/components/common/Dropdown';
-import SearchBar from '@/app/components/common/SearchBar';
+import { Button } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
+import { SearchBar } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 import { formatCurrency } from '@/app/utils/number';

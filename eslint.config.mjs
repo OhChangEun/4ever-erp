@@ -22,7 +22,7 @@ export default defineConfig([
   // 타입 정보를 쓰는 규칙. 근거는 ai/rules/react-typescript-antipatterns.md 의 R03, R12, R13, R14, R21.
   // 2026-11-09 측정값(현재 위반 수)을 주석에 적었다. 0이 되는 순서대로 warn → error 로 올린다.
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    files: ['src/**/*.ts', 'src/**/*.tsx', 'packages/ui/src/**/*.ts', 'packages/ui/src/**/*.tsx'],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -65,7 +65,7 @@ export default defineConfig([
 
   // EverP 로컬 규칙(packages/eslint-plugin, 커스텀 ESLint 규칙 카드). 문서 규칙을 린트로 지킨다. 위반 0 에서 켰다(2026-11-10).
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    files: ['src/**/*.ts', 'src/**/*.tsx', 'packages/ui/src/**/*.ts', 'packages/ui/src/**/*.tsx'],
     plugins: { everp },
     rules: {
       'everp/domain-boundary': 'error', // 다른 도메인은 그 도메인의 index.ts 로만
@@ -95,7 +95,12 @@ export default defineConfig([
 
   // 테스트 파일: 단언과 non-null 은 테스트 가독성을 위해 허용
   {
-    files: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'vitest.setup.ts'],
+    files: [
+      'src/**/*.test.ts',
+      'src/**/*.test.tsx',
+      'packages/*/src/**/*.test.tsx',
+      'vitest.setup.ts',
+    ],
     rules: {
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',

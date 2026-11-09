@@ -1,7 +1,7 @@
 'use client';
 
-import Button from '@/app/components/common/Button';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Button } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import {
@@ -30,7 +30,7 @@ import {
 import { useCreateBom } from '../../api/production.mutations';
 import { useQuery } from '@tanstack/react-query';
 import { BomRequestBody } from '../../types/BomType';
-import Input from '@/app/components/common/Input';
+import { Input } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

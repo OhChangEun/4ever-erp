@@ -8,14 +8,14 @@ import {
   ReadyToShipListResponse,
 } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import ShippingDetailModal from '../modals/ShippingDetailModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Table from '@/app/components/common/Table';
+import { Table } from '@everp/ui';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 const ShippingManagementList = () => {
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);

@@ -7,13 +7,13 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchBomList } from '../../api/production.api';
 import { useModal } from '@/app/components/common/modal/useModal';
 import BomInputFormModal from '../modals/BomInputFormModal';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { useMemo, useState } from 'react';
 import { PageRequest } from '@/app/types/Page';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function BomTab() {

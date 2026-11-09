@@ -1,10 +1,10 @@
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { CreateProgramRequest } from '../../types/HrmProgramApiType';
 import { fetchTrainingCategoryDropdown } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
 import { FormEvent, useState, useId } from 'react';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import IconButton from './IconButton';
+import { IconButton } from '@everp/ui';
 import { addDays, addMonths, isSameDay, startOfDay, toDateKey } from '@/app/utils/date';
 
 interface CalendarGridProps {

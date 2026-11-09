@@ -9,7 +9,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getItemInfo, getWarehouseInfo } from '../../inventory.api';
 import { useAddMaterial } from '../../inventory.mutations';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

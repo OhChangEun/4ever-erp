@@ -7,18 +7,18 @@ import {
   fetchPayrollStatusDropdown,
 } from '@/app/(private)/hrm/api/hrm.api';
 import { KeyValueItem } from '@/app/types/CommonType';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { PayrollDetailModal } from '@/app/(private)/hrm/components/modals/PayrollDetailModal';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { PayRollList, PayrollRequestParams } from '@/app/(private)/hrm/types/HrmPayrollApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
-import Input from '@/app/components/common/Input';
+import { Input } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { formatCurrency } from '@/app/utils/number';

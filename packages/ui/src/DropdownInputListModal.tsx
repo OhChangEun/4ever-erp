@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import IconButton from '@/app/components/common/IconButton';
-import Button from '@/app/components/common/Button';
-import InputList from '@/app/components/common/InputList';
-import { KeyValueItem } from '@/app/types/CommonType';
+import IconButton from './IconButton';
+import Button from './Button';
+import InputList from './InputList';
+import { KeyValueItem } from './types';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
-import { useCloseOnEscape } from '@/app/hooks/useCloseOnEscape';
+import { useCloseOnEscape } from './hooks/useCloseOnEscape';
 
 interface DropdownInputListModalProps {
   initialItems?: KeyValueItem<number>[];

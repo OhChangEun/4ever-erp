@@ -8,8 +8,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getWarehouseManagerInfo } from '../../warehouse.api';
 import { useAddWarehouse } from '../../warehouse.mutations';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import Button from '@/app/components/common/Button';
+import { ModalStatusBox } from '@everp/ui';
+import { Button } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

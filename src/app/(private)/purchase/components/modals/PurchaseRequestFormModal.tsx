@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { PURCHASE_REQUEST_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
-import Button from '@/app/components/common/Button';
-import Input from '@/app/components/common/Input';
+import { Button } from '@everp/ui';
+import { Input } from '@everp/ui';
 import { useCreatePurchaseRequest } from '@/app/(private)/purchase/api/purchase.mutations';
-import DropdownInputModal from '@/app/components/common/DropdownInputModal';
+import { DropdownInputModal } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import {
   CreatePurchaseRequestBody,

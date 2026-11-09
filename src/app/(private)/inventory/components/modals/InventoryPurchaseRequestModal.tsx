@@ -2,14 +2,14 @@
 
 import { useRequestPurchaseForLowStock } from '@/app/(private)/inventory/inventory.mutations';
 import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase';
-import Input from '@/app/components/common/Input';
+import { Input } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 interface SelectedItem {
   itemId: string;
   itemNumber: string;

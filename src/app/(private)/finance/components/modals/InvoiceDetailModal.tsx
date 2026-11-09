@@ -6,7 +6,7 @@ import {
   InvoiceDetailModalProps,
   InvoicetDetailRes,
 } from '@/app/(private)/finance/types/InvoiceDetailModalType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { useQuery } from '@tanstack/react-query';
 import { getPurchaseInvoiceDetail, getSalesInvoiceDetail } from '../../finance.api';
 import { invoiceKeys } from '@/app/(private)/finance/finance.keys';

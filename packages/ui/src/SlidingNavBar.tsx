@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { KeyValueItem } from '@/app/types/CommonType';
+import { KeyValueItem } from './types';
 
 // 키 타입(T)이 onSelect 까지 이어진다. 받는 쪽이 string 을 다시 단언하지 않는다
 interface SlidingNavBarProps<T extends string = string> {

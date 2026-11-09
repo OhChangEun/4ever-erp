@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { KeyValueItem } from '@/app/types/CommonType';
-import IconButton from '@/app/components/common/IconButton';
+import { KeyValueItem } from './types';
+import IconButton from './IconButton';
 
 // 키는 1부터 늘어나는 번호다. 예전엔 제네릭 T 를 받아 문자열 키면 "3" + 1 = "31" 이 됐다
 interface InputListProps {

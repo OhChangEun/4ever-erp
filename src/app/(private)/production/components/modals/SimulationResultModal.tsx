@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { QuotationSimulationData } from '@/app/(private)/production/types/QuotationSimulationApiType';
-import Button from '@/app/components/common/Button';
-import Flex from '@/app/components/common/Flex';
+import { Button } from '@everp/ui';
+import { Flex } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Table from '@/app/components/common/Table';
+import { Table } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 interface SimulationResultModalProps extends ModalProps {

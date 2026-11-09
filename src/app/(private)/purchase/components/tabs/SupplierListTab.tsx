@@ -15,15 +15,15 @@ import {
   fetchSupplierSearchTypeOptions,
   fetchSupplierStatusOptions,
 } from '@/app/(private)/purchase/api/purchase.api';
-import Dropdown from '@/app/components/common/Dropdown';
-import Pagination from '@/app/components/common/Pagination';
+import { Dropdown } from '@everp/ui';
+import { Pagination } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function SupplierListTab() {
   const { openModal } = useModal();
 

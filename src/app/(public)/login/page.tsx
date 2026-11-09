@@ -6,8 +6,8 @@ import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { readErrorMessage, readUserResponse } from '@/lib/auth/userInfo';
 import { safeReturnTo } from '@/lib/auth/returnTo';
-import Button from '@/app/components/common/Button';
-import Flex from '@/app/components/common/Flex';
+import { Button } from '@everp/ui';
+import { Flex } from '@everp/ui';
 import LogoMark from '@/app/components/header/LogoMark';
 
 const VALID_IDS = new Set(DEMO_ACCOUNTS.map((a) => a.loginId.toUpperCase()));

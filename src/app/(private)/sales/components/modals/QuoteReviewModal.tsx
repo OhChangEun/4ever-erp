@@ -7,7 +7,7 @@ import {
   InventoryCheckRes,
   QuoteReviewModalProps,
 } from '@/app/(private)/sales/types/QuoteReviewModalType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Inventories, QuoteDetail } from '../../types/QuoteDetailModalType';
 import { getQuoteDetail } from '../../sales.api';

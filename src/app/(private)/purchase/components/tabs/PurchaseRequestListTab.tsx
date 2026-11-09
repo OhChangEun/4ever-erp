@@ -14,7 +14,7 @@ import {
   useRejectPurchaseRequest,
 } from '@/app/(private)/purchase/api/purchase.mutations';
 import { errorMessageOf } from '@/lib/AppError';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import {
   PurchaseRequestListItem,
   PurchaseRequestListParams,
@@ -22,18 +22,18 @@ import {
 } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
-import Pagination from '@/app/components/common/Pagination';
+import { Table, TableColumn } from '@everp/ui';
+import { Pagination } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { formatDateTime } from '@/app/utils/date';
-import SearchBar from '@/app/components/common/SearchBar';
+import { SearchBar } from '@everp/ui';
 import { useDebounce } from 'use-debounce';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 // import CalendarButton from '@/app/components/common/Calendar';
 
 export default function PurchaseRequestListTab() {

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import IconButton from '@/app/components/common/IconButton';
+import IconButton from './IconButton';
 import Button from './Button';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
-import { useCloseOnEscape } from '@/app/hooks/useCloseOnEscape';
+import { useCloseOnEscape } from './hooks/useCloseOnEscape';
 
 // 모달 입력 컴포넌트 props 타입 정의
 interface DropdownModalProps {

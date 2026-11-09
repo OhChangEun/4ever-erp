@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Dropdown from '@/app/components/common/Dropdown';
-import Input from '@/app/components/common/Input';
-import { KeyValueItem } from '@/app/types/CommonType';
+import Dropdown from './Dropdown';
+import Input from './Input';
+import { KeyValueItem } from './types';
 
 interface SearchBarProps {
   /** 검색 타입 옵션 */

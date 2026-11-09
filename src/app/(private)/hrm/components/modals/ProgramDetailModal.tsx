@@ -1,7 +1,7 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 import { fetchProgramDetail } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 

@@ -6,7 +6,7 @@ import { WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
 import { getWarehouseDetail, getWarehouseManagerInfo } from '../../warehouse.api';
 import { useEditWarehouse } from '../../warehouse.mutations';
 import { useState, useId } from 'react';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';

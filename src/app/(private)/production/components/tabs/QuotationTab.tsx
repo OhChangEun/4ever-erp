@@ -1,5 +1,5 @@
 'use client';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useState, useMemo } from 'react'; // useMemo 추가
 import {
   QuotationData,
@@ -16,18 +16,18 @@ import {
   useSimulateQuotations,
 } from '@/app/(private)/production/api/production.mutations';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
   const toast = useToast();

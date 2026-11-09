@@ -5,9 +5,9 @@ import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailT
 import { getCustomerDetail } from '../../sales.api';
 import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useQuery } from '@tanstack/react-query';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import CustomerEditModal from './CustomerEditModal';
 

@@ -1,0 +1,30 @@
+{
+  "name": "@everp/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EverP 공통 UI 컴포넌트. 앱이 소스(TS)를 그대로 가져와 Next 가 변환한다(transpilePackages)",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.16"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@vitejs/plugin-react": "^6.3.0",
+    "jsdom": "^31.0.0",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,4 +1,4 @@
-import type { KeyValueItem } from '@/app/types/CommonType';
+import type { KeyValueItem } from './types';
 import {
   autoUpdate,
   offset,

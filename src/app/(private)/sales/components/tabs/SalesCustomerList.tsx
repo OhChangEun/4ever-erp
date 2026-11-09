@@ -14,15 +14,15 @@ import {
   CUSTOMER_SEARCH_KEYWORD_OPTIONS,
   CUSTOMER_STATUS_OPTIONS,
 } from '@/app/(private)/sales/constant';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import SearchBar from '@/app/components/common/SearchBar';
-import Dropdown from '@/app/components/common/Dropdown';
+import { SearchBar } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 const CustomerList = () => {
   const { openModal } = useModal();
   const [searchTerm, setSearchTerm] = useState('');

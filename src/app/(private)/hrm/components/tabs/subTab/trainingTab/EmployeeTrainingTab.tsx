@@ -2,20 +2,20 @@
 
 import { fetchDepartmentsDropdown, fetchTrainingList } from '@/app/(private)/hrm/api/hrm.api';
 import { TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import TrainingDetailModal from '@/app/(private)/hrm/components/modals/TrainingDetailModal';
 import AddEmployeeTrainingModal from '@/app/(private)/hrm/components/modals/AddEmployeeTrainingModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import Input from '@/app/components/common/Input';
+import { Input } from '@everp/ui';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function EmployeeTrainingTab() {
   // --- 모달 출력 ---
   const { openModal } = useModal();

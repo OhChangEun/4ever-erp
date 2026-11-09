@@ -5,7 +5,7 @@ import {
   WarehouseDetailModalProps,
   WarehouseDetailResponse,
 } from '../../types/WarehouseDetailModalType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { getWarehouseDetail } from '../../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';

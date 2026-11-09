@@ -10,9 +10,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getItemInfoForNewQuote } from '../../sales.api';
 import { useCreateQuote } from '../../sales.mutations';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 
