@@ -62,7 +62,7 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 
 한계: 메모리 저장소는 인스턴스 하나에서만 맞다(결정 9). Vercel 처럼 인스턴스가 여럿이면 외부 저장소(Redis 등)가 필요하다. 그래서 Vercel 은 데모 모드다. 페이지 프록시용 15분 role 클레임 쿠키도 그때 넣는다.
 
-로컬에서 돌리기: `bash dev/keycloak/start.sh`(Keycloak 26.8.1, 포트 8180, realm 은 `dev/keycloak/everp-realm.json` 을 가져온다) 뒤 `npm run dev:oidc`(앱 3100 포트. Keycloak 클라이언트의 콜백과 백채널 주소가 3100 하나다) 또는 `npm run e2e:oidc`. 값은 `dev/keycloak/.env.keycloak`, `.env.oidc`(git 에 안 올림, 변수 목록은 `start.sh` 머리말). 확인 항목 5개(`e2e-oidc/oidc.spec.ts`): 로그인과 sid 쿠키, 역할 차단, 60초 토큰 두 번 갱신 중 동시 요청 5개, RP 로그아웃 뒤 Keycloak 로그인 화면, 백채널 로그아웃 뒤 401. Keycloak 이 없는 CI 는 돌리지 않는다.
+로컬에서 돌리기: `bash dev/keycloak/start.sh`(Keycloak 26.8.1, 포트 8180, realm 은 `dev/keycloak/everp-realm.json` 을 가져온다) 뒤 `pnpm dev:oidc`(앱 3100 포트. Keycloak 클라이언트의 콜백과 백채널 주소가 3100 하나다) 또는 `pnpm e2e:oidc`. 값은 `dev/keycloak/.env.keycloak`, `.env.oidc`(git 에 안 올림, 변수 목록은 `start.sh` 머리말). 확인 항목 5개(`e2e-oidc/oidc.spec.ts`): 로그인과 sid 쿠키, 역할 차단, 60초 토큰 두 번 갱신 중 동시 요청 5개, RP 로그아웃 뒤 Keycloak 로그인 화면, 백채널 로그아웃 뒤 401. Keycloak 이 없는 CI 는 돌리지 않는다.
 
 ## 5. 서버 상태 레이어
 
@@ -129,7 +129,7 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 2026-11-10 OpenAPI 계약 1(창고), 2(나머지 도메인) 카드. 경로 129개, 요청 144개, 스키마 165개.
 
 1. 원본은 `openapi/everp.yaml`(OpenAPI 3.1). 백엔드가 없어 프론트엔드가 쓴다. 성공 응답은 `ApiEnvelope` 에 `data` 를 더한 `allOf`, 실패는 `ApiError`.
-2. 타입은 `npm run openapi` 가 `src/lib/api/openapi.gen.ts` 로 만든다(openapi-typescript). 손으로 고치지 않는다. 도메인 타입 파일의 응답, 요청 선언 160개는 `Schema<'이름'>`, `QueryOf<'경로'>` 별칭(`src/lib/api/contract.ts`)이다. 쿼리 파라미터 타입과 화면 props 는 아직 손 타입이다.
+2. 타입은 `pnpm openapi` 가 `src/lib/api/openapi.gen.ts` 로 만든다(openapi-typescript). 손으로 고치지 않는다. 도메인 타입 파일의 응답, 요청 선언 160개는 `Schema<'이름'>`, `QueryOf<'경로'>` 별칭(`src/lib/api/contract.ts`)이다. 쿼리 파라미터 타입과 화면 props 는 아직 손 타입이다.
 3. 창고 목은 `openapi-msw` 로 계약에 묶었다(`src/mocks/handlers/warehouse.handlers.ts`, 틀린 필드는 `tsc` 가 막는다). 나머지 목은 그대로 두고 4번의 런타임 검사로 묶는다. 새로 쓰는 핸들러는 openapi-msw 로 쓴다.
 4. `src/test/contract/openapi.contract.test.ts` 가 세 가지를 본다. api 파일이 쓰는 엔드포인트 상수가 전부 계약에 있는지, 계약의 GET 응답 전부가 MSW 응답과 맞는지(`z.fromJSONSchema`), 커밋된 생성 타입이 계약과 같은지(drift). CI 의 vitest 단계가 곧 계약 검사다.
 5. 처음 옮길 때는 변환 스크립트를 썼다(`scripts/codemods/api-to-openapi.mts`, `types-to-aliases.mts`). 이제 계약이 원본이라 다시 돌리지 않는다. 영업, 구매, 생산 읽기의 zod 스키마(`*.schemas.ts`)는 손으로 쓴 것이지만 별칭 타입에 묶여 있어 계약과 어긋나면 `tsc` 가 막는다.
@@ -183,7 +183,8 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 ## 8. 도구와 검증
 
-- Node 24 (`.nvmrc`, `package.json` engines). npm + lockfile, CI 는 `npm ci`. pnpm 전환은 모노레포 카드에서.
+- Node 24 (`.nvmrc`, `package.json` engines). pnpm 10(`packageManager` 고정, 2026-11-10 모노레포 1 카드), CI 는 `pnpm install --frozen-lockfile`. 설치 스크립트는 `pnpm-workspace.yaml` 의 `onlyBuiltDependencies`(msw, unrs-resolver)만 돈다.
+- 모노레포: 앱은 루트, 패키지는 `packages/*`(지금 `@everp/eslint-plugin` 하나). `pnpm verify` 가 Turborepo 로 lint, 타입 검사, 단위 테스트, 패키지 테스트를 돌리고 입력이 같으면 캐시에서 꺼낸다(`turbo.json`). CI 는 `.turbo/cache` 를 캐시한다. 앱을 `apps/erp` 로 옮기는 것은 Vercel Root Directory 설정(대시보드)을 바꿔야 해서 미뤘다.
 - CI: PR 과 main push 에서 lint → type-check → vitest → build (`.github/workflows/ci.yml`). Vercel 은 GitHub 연동으로 main 머지 때 Production 배포, PR 마다 preview.
 - 로컬 훅: commit-msg 는 commitlint(타입 `feat|fix|refac|test|chore|docs`), pre-commit 은 lint-staged.
 - 테스트: vitest + Testing Library + MSW. 설정 `vitest.config.mts`, 공통 `vitest.setup.ts`(핸들러 없는 요청은 실패시킴). 서버 전용 모듈 테스트는 파일 첫 줄에 `// @vitest-environment node`.
@@ -191,7 +192,7 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 ## 8-1. 성능 기준선 (2026-11-10)
 
-측정: `npm run build` 뒤 `npm run perf`. 같은 맥에서 전후를 비교하는 용도다. 절대값으로 쓰지 않는다.
+측정: `pnpm build` 뒤 `pnpm perf`. 같은 맥에서 전후를 비교하는 용도다. 절대값으로 쓰지 않는다.
 
 첫 로드 JS(정적 HTML 이 처음 받는 스크립트, gzip). `scripts/measure-bundle.mjs`:
 
@@ -269,13 +270,14 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 문서나 가정만 보고 쓴 것. 실제로 돌려 본 뒤 지운다.
 
-| 항목                                                                                                         | 근거                                                                                        | 확인 방법                             |
-| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------- |
-| 실 서버가 `version` 필드와 409 를 돌려준다                                                                   | 팀 기간 BOM 구현의 기억                                                                     | 서버 생기면 발주 수정으로 확인        |
-| 날짜는 UTC ISO 8601 로 온다                                                                                  | 가정                                                                                        | OpenAPI 계약에 명시 뒤 서버와 대조    |
-| Vercel 배포본에서 `proxy.ts` 가 Node 런타임으로 돈다                                                         | Next 16 문서                                                                                | 배포 뒤 함수 로그                     |
-| Keycloak 25 가 Java 17 에서 뜬다                                                                             | BFF 실습계획                                                                                | 실습 때                               |
-| 모달 틀 청크를 받기 전(idle 전)에 모달을 열면 오버레이만 잠깐 보이고 곧 뜬다. 청크 로드가 실패하면 처리 없음 | 접근성 2, 코드만 봄                                                                         | 느린 3G 로 첫 화면에서 바로 모달 열기 |
-| 실제 스크린리더(VoiceOver, NVDA)가 모달과 드롭다운을 의도대로 읽는다                                         | axe 와 aria 속성만 확인                                                                     | VoiceOver 로 창고 수정, 구매 필터     |
-| 드롭다운 글자 입력 이동이 한글에선 안 된다(IME 조합 중 key 가 `Process`)                                     | 접근성 3, floating-ui 코드                                                                  | 한글 입력기로 필터에서 글자 입력      |
-| Vercel 함수에서 서버 목(msw getResponse)이 응답한다                                                          | CI 의 next start e2e 로만 확인. 2026-11-10 Vercel 무료 플랜 하루 배포 제한으로 preview 실패 | 제한 풀린 뒤 운영 /warehouse 확인     |
+| 항목                                                                                                         | 근거                                                                                        | 확인 방법                              |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 실 서버가 `version` 필드와 409 를 돌려준다                                                                   | 팀 기간 BOM 구현의 기억                                                                     | 서버 생기면 발주 수정으로 확인         |
+| 날짜는 UTC ISO 8601 로 온다                                                                                  | 가정                                                                                        | OpenAPI 계약에 명시 뒤 서버와 대조     |
+| Vercel 배포본에서 `proxy.ts` 가 Node 런타임으로 돈다                                                         | Next 16 문서                                                                                | 배포 뒤 함수 로그                      |
+| Keycloak 25 가 Java 17 에서 뜬다                                                                             | BFF 실습계획                                                                                | 실습 때                                |
+| 모달 틀 청크를 받기 전(idle 전)에 모달을 열면 오버레이만 잠깐 보이고 곧 뜬다. 청크 로드가 실패하면 처리 없음 | 접근성 2, 코드만 봄                                                                         | 느린 3G 로 첫 화면에서 바로 모달 열기  |
+| 실제 스크린리더(VoiceOver, NVDA)가 모달과 드롭다운을 의도대로 읽는다                                         | axe 와 aria 속성만 확인                                                                     | VoiceOver 로 창고 수정, 구매 필터      |
+| 드롭다운 글자 입력 이동이 한글에선 안 된다(IME 조합 중 key 가 `Process`)                                     | 접근성 3, floating-ui 코드                                                                  | 한글 입력기로 필터에서 글자 입력       |
+| Vercel 함수에서 서버 목(msw getResponse)이 응답한다                                                          | CI 의 next start e2e 로만 확인. 2026-11-10 Vercel 무료 플랜 하루 배포 제한으로 preview 실패 | 제한 풀린 뒤 운영 /warehouse 확인      |
+| Vercel 이 pnpm-lock.yaml 을 보고 pnpm 10 으로 설치, 빌드한다                                                 | 2026-11-10 모노레포 1. CI 만 확인, Vercel 은 하루 배포 제한 중                              | 제한 풀린 뒤 배포 로그의 Installing 줄 |
