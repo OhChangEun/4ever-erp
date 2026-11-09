@@ -9,6 +9,10 @@ import { handlers } from './handlers';
  */
 const httpHandlers = handlers.filter((h): h is HttpHandler => h instanceof HttpHandler);
 
+// 경로 대신 함수(커스텀 predicate)로 맞추는 핸들러는 비교에서 뺀다
+const isPath = (path: unknown): path is string | RegExp =>
+  typeof path === 'string' || path instanceof RegExp;
+
 const isLiteral = (path: unknown): path is string =>
   typeof path === 'string' && !path.includes(':') && !path.includes('*');
 
@@ -22,6 +26,7 @@ describe('MSW 핸들러 순서', () => {
       const first = httpHandlers.find(
         (other) =>
           (other.info.method === method || other.info.method === 'all') &&
+          isPath(other.info.path) &&
           matchRequestUrl(url, other.info.path, location.origin).matches,
       );
       if (first && first !== httpHandlers[index]) {
