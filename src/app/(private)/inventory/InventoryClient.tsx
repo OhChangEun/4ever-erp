@@ -5,7 +5,7 @@ import TabNavigation from '@/app/components/common/TabNavigation';
 import { Suspense } from 'react';
 import { getInventoryStats } from '@/app/(private)/inventory/inventory.api';
 import { mapInventoryStatsToCards } from './inventory.service';
-import { INVENTORY_TABS } from '@/app/types/componentConstant';
+import { INVENTORY_TABS } from '@/app/(private)/inventory/inventory.tabs';
 import { useQuery } from '@tanstack/react-query';
 import { inventoryStatsKeys } from '@/app/(private)/inventory/inventory.keys';
 

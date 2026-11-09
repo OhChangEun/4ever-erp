@@ -9,6 +9,7 @@ import Pagination from '@/app/components/common/Pagination';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mpsKeys } from '@/app/(private)/production/api/production.keys';
+import { toDateKey } from '@/app/utils/date';
 
 interface MpsRow {
   productName: string;
@@ -23,7 +24,7 @@ interface MpsRow {
 export default function MpsTab() {
   const { options: dropdownOptions } = useDropdown('mpsBomsDropdown', fetchMpsBomDropdown);
 
-  const date = new Date().toISOString().split('T')[0];
+  const date = toDateKey(new Date());
   const [startDate, setStartDate] = useState(date);
   const [endDate, setEndDate] = useState(date);
   const [currentPage, setCurrentPage] = useState(1);

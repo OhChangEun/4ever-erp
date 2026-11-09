@@ -3,6 +3,7 @@
 import React from 'react';
 import { ReportDownloadModalProps } from '../types/ReportDownloadModalType';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { toDateKey } from '@/app/utils/date';
 
 const ReportDownloadModal = ({ isOpen, onClose, selectedPeriod }: ReportDownloadModalProps) => {
   const toast = useToast();
@@ -10,7 +11,7 @@ const ReportDownloadModal = ({ isOpen, onClose, selectedPeriod }: ReportDownload
 
   const handleReportDownload = (reportType: string, format: string) => {
     const today = new Date();
-    const dateString = today.toISOString().split('T')[0];
+    const dateString = toDateKey(today);
 
     let reportData = '';
     let fileName = '';

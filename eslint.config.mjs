@@ -48,6 +48,16 @@ export default defineConfig([
       '@typescript-eslint/no-unnecessary-condition': 'warn', // 89 (2026-11-10)
       // 타입 import 분리. --fix 로 한 번에 정리 가능. 린트 1차 브랜치가 머지된 뒤 돌린다
       '@typescript-eslint/consistent-type-imports': ['warn', { fixStyle: 'inline-type-imports' }], // 376 (2026-11-10)
+      // 날짜는 현지 기준(toDateKey). toISOString 은 UTC 라 한국 시간 오전 9시 전엔 어제가 된다(성능 2, 3 카드에서 8곳)
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.property.name='split'][callee.object.type='CallExpression'][callee.object.callee.property.name='toISOString']",
+          message:
+            "toISOString().split('T')[0] 은 UTC 날짜다. 현지 날짜는 '@/app/utils/date' 의 toDateKey 를 쓴다.",
+        },
+      ],
     },
   },
 

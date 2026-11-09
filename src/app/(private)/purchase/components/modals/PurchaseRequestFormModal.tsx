@@ -17,6 +17,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
+import { toDateKey } from '@/app/utils/date';
 export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
   const [requestItems, setRequestItems] = useState<PurchaseRequestFormItem[]>([
     {
@@ -141,13 +142,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       {/* 요청 정보 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input label="요청 부서" value="생산팀" readOnly disabled />
-        <Input
-          label="요청일"
-          type="text"
-          value={new Date().toISOString().split('T')[0]}
-          readOnly
-          disabled
-        />
+        <Input label="요청일" type="text" value={toDateKey(new Date())} readOnly disabled />
       </div>
 
       {/* 구매 품목 목록 */}

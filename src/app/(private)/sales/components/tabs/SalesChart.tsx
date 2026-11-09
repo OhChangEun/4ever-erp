@@ -21,6 +21,7 @@ import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
 import { SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
 import { formatCurrency } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
+import { toDateKey } from '@/app/utils/date';
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="h-full flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
@@ -34,10 +35,9 @@ const SalesChart = () => {
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(today.getMonth() - 5);
 
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
-
-  const [startDate, setStartDate] = useState(formatDate(sixMonthsAgo));
-  const [endDate, setEndDate] = useState(formatDate(today));
+  // 현지 날짜로. 예전 지역 함수는 toISOString(UTC)이라 한국 시간 오전 9시 전엔 기본 기간이 하루 앞당겨졌다
+  const [startDate, setStartDate] = useState(toDateKey(sixMonthsAgo));
+  const [endDate, setEndDate] = useState(toDateKey(today));
 
   const queryParams = useMemo(
     () => ({
