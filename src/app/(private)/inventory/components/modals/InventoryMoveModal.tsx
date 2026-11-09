@@ -27,7 +27,8 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // 수량은 숫자로 보낸다. input 값은 문자열이라 그대로 두면 서버에 "30" 이 간다
+    setFormData((prev) => ({ ...prev, [name]: name === 'stockQuantity' ? Number(value) : value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
