@@ -124,6 +124,16 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
   | 프로필: 교육 신청                   | `profileKeys.trainings()` + 인사 `trainingKeys.lists()`(교차)                                     |
   | 알림: 전체 읽음, 하나 읽음          | `notificationKeys.lists()`                                                                        |
 
+## 5-1. API 계약 (OpenAPI)
+
+2026-11-10 OpenAPI 계약 1 카드부터. 지금은 창고 도메인만 옮겼다.
+
+1. 원본은 `openapi/everp.yaml`(OpenAPI 3.1). 백엔드가 없어 프론트엔드가 쓴다. 성공 응답은 `ApiEnvelope` 에 `data` 를 더한 `allOf`, 실패는 `ApiError`.
+2. 타입은 `npm run openapi` 가 `src/lib/api/openapi.gen.ts` 로 만든다(openapi-typescript). 손으로 고치지 않는다. 도메인 타입 파일은 `Schema<'이름'>`, `QueryOf<'경로'>` 별칭(`src/lib/api/contract.ts`)으로 가리킨다.
+3. 목은 `openapi-msw` 로 계약에 묶는다(`src/mocks/handlers/warehouse.handlers.ts`). 계약에 없는 경로나 틀린 응답 필드는 `tsc` 가 막는다.
+4. `src/test/contract/openapi.contract.test.ts` 가 세 가지를 본다. 화면이 부르는 요청이 계약에 있는지, MSW 응답이 계약 스키마(`z.fromJSONSchema`)를 만족하는지, 커밋된 생성 타입이 계약과 같은지(drift). CI 의 vitest 단계가 곧 계약 검사다.
+5. 영업, 구매, 생산 읽기의 zod 스키마(`*.schemas.ts`)는 아직 손으로 쓴 것이다. 그 도메인을 계약으로 옮길 때 스키마도 계약에서 꺼낸다.
+
 ## 6. 폴더 규칙과 import 방향
 
 ```
@@ -248,12 +258,13 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 문서나 가정만 보고 쓴 것. 실제로 돌려 본 뒤 지운다.
 
-| 항목                                                                                                         | 근거                       | 확인 방법                             |
-| ------------------------------------------------------------------------------------------------------------ | -------------------------- | ------------------------------------- |
-| 실 서버가 `version` 필드와 409 를 돌려준다                                                                   | 팀 기간 BOM 구현의 기억    | 서버 생기면 발주 수정으로 확인        |
-| 날짜는 UTC ISO 8601 로 온다                                                                                  | 가정                       | OpenAPI 계약에 명시 뒤 서버와 대조    |
-| Vercel 배포본에서 `proxy.ts` 가 Node 런타임으로 돈다                                                         | Next 16 문서               | 배포 뒤 함수 로그                     |
-| Keycloak 25 가 Java 17 에서 뜬다                                                                             | BFF 실습계획               | 실습 때                               |
-| 모달 틀 청크를 받기 전(idle 전)에 모달을 열면 오버레이만 잠깐 보이고 곧 뜬다. 청크 로드가 실패하면 처리 없음 | 접근성 2, 코드만 봄        | 느린 3G 로 첫 화면에서 바로 모달 열기 |
-| 실제 스크린리더(VoiceOver, NVDA)가 모달과 드롭다운을 의도대로 읽는다                                         | axe 와 aria 속성만 확인    | VoiceOver 로 창고 수정, 구매 필터     |
-| 드롭다운 글자 입력 이동이 한글에선 안 된다(IME 조합 중 key 가 `Process`)                                     | 접근성 3, floating-ui 코드 | 한글 입력기로 필터에서 글자 입력      |
+| 항목                                                                                                         | 근거                                                                                        | 확인 방법                             |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------- |
+| 실 서버가 `version` 필드와 409 를 돌려준다                                                                   | 팀 기간 BOM 구현의 기억                                                                     | 서버 생기면 발주 수정으로 확인        |
+| 날짜는 UTC ISO 8601 로 온다                                                                                  | 가정                                                                                        | OpenAPI 계약에 명시 뒤 서버와 대조    |
+| Vercel 배포본에서 `proxy.ts` 가 Node 런타임으로 돈다                                                         | Next 16 문서                                                                                | 배포 뒤 함수 로그                     |
+| Keycloak 25 가 Java 17 에서 뜬다                                                                             | BFF 실습계획                                                                                | 실습 때                               |
+| 모달 틀 청크를 받기 전(idle 전)에 모달을 열면 오버레이만 잠깐 보이고 곧 뜬다. 청크 로드가 실패하면 처리 없음 | 접근성 2, 코드만 봄                                                                         | 느린 3G 로 첫 화면에서 바로 모달 열기 |
+| 실제 스크린리더(VoiceOver, NVDA)가 모달과 드롭다운을 의도대로 읽는다                                         | axe 와 aria 속성만 확인                                                                     | VoiceOver 로 창고 수정, 구매 필터     |
+| 드롭다운 글자 입력 이동이 한글에선 안 된다(IME 조합 중 key 가 `Process`)                                     | 접근성 3, floating-ui 코드                                                                  | 한글 입력기로 필터에서 글자 입력      |
+| Vercel 함수에서 서버 목(msw getResponse)이 응답한다                                                          | CI 의 next start e2e 로만 확인. 2026-11-10 Vercel 무료 플랜 하루 배포 제한으로 preview 실패 | 제한 풀린 뒤 운영 /warehouse 확인     |
