@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import {
   AddInventoryItemsRequest,
   AddInventoryItemsToggleResponse,
@@ -17,6 +17,8 @@ import { itemInfoKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inven
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [selectedItem, setSelectedItem] = useState<AddInventoryItemsToggleResponse | null>(null);
 
@@ -132,8 +134,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">공급사</label>
+          <label
+            htmlFor={`${fieldId}-field0`}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            공급사
+          </label>
           <input
+            id={`${fieldId}-field0`}
             type="text"
             readOnly
             value={selectedItem?.supplierCompanyName ?? ''}
@@ -155,8 +163,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">단위</label>
+          <label
+            htmlFor={`${fieldId}-field1`}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            단위
+          </label>
           <input
+            id={`${fieldId}-field1`}
             type="text"
             readOnly
             value={selectedItem?.uomName ?? ''}

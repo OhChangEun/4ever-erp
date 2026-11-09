@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getWarehouseInfo } from '../../inventory.api';
 import { useMoveStock } from '../../inventory.mutations';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useId } from 'react';
 import { InventoryMoveModalProps } from '../../types/InventoryMoveModalType';
 import {
   WarehouseToggleQueryParams,
@@ -16,6 +16,8 @@ import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [formData, setFormData] = useState({
     fromWarehouseId: selectedStock.warehouseId,
@@ -104,8 +106,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이동할 창고</label>
+            <label
+              htmlFor={`${fieldId}-toWarehouseId`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              이동할 창고
+            </label>
             <select
+              id={`${fieldId}-toWarehouseId`}
               onChange={handleInputChange}
               name="toWarehouseId"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
@@ -120,8 +128,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이동할 위치</label>
+            <label
+              htmlFor={`${fieldId}-field1`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              이동할 위치
+            </label>
             <input
+              id={`${fieldId}-field1`}
               type="text"
               readOnly
               disabled
@@ -136,8 +150,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이동 수량</label>
+            <label
+              htmlFor={`${fieldId}-stockQuantity`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              이동 수량
+            </label>
             <input
+              id={`${fieldId}-stockQuantity`}
               type="number"
               name="stockQuantity"
               value={formData.stockQuantity}
@@ -149,8 +169,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이동 사유</label>
+            <label
+              htmlFor={`${fieldId}-reason`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              이동 사유
+            </label>
             <input
+              id={`${fieldId}-reason`}
               type="text"
               name="reason"
               value={formData.reason}

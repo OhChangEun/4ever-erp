@@ -5,7 +5,7 @@ import { ManageWarehouseModalProps } from '../../types/ManageWarehouseModalType'
 import { WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
 import { getWarehouseDetail, getWarehouseManagerInfo } from '../../warehouse.api';
 import { useEditWarehouse } from '../../warehouse.mutations';
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
@@ -27,6 +27,8 @@ interface ManageWarehouseRequest {
 }
 
 const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   // 서버 값으로 한 번만 채우는 초안. 채운 뒤의 재조회는 입력을 덮지 않는다(예전엔 effect 가 매번 덮었다)
   const [formData, setFormData] = useState<ManageWarehouseRequest | null>(null);
@@ -136,8 +138,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">창고명</label>
+          <label
+            htmlFor={`${fieldId}-warehouseName`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            창고명
+          </label>
           <input
+            id={`${fieldId}-warehouseName`}
             type="text"
             value={formData.warehouseName}
             onChange={handleInputChange}
@@ -146,8 +154,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">창고 코드</label>
+          <label
+            htmlFor={`${fieldId}-warehouseNumber`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            창고 코드
+          </label>
           <input
+            id={`${fieldId}-warehouseNumber`}
             readOnly
             disabled
             type="text"
@@ -161,8 +175,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">창고 유형</label>
+          <label
+            htmlFor={`${fieldId}-warehouseType`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            창고 유형
+          </label>
           <select
+            id={`${fieldId}-warehouseType`}
             value={formData.warehouseType}
             onChange={handleInputChange}
             name="warehouseType"
@@ -174,8 +194,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+          <label
+            htmlFor={`${fieldId}-statusCode`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            상태
+          </label>
           <select
+            id={`${fieldId}-statusCode`}
             value={formData.statusCode}
             onChange={handleInputChange}
             name="statusCode"
@@ -188,8 +214,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+        <label
+          htmlFor={`${fieldId}-location`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          주소
+        </label>
         <input
+          id={`${fieldId}-location`}
           type="text"
           value={formData.location}
           onChange={handleInputChange}
@@ -200,8 +232,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">담당자</label>
+          <label
+            htmlFor={`${fieldId}-managerId`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            담당자
+          </label>
           <select
+            id={`${fieldId}-managerId`}
             onChange={(e) => {
               const managerId = e.target.value;
               const selectedManager = ManagerInfoRes?.find((m) => m.managerId === managerId);
@@ -230,8 +268,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+          <label
+            htmlFor={`${fieldId}-managerPhoneNumber`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            연락처
+          </label>
           <input
+            id={`${fieldId}-managerPhoneNumber`}
             readOnly
             disabled
             type="tel"
@@ -249,8 +293,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+        <label
+          htmlFor={`${fieldId}-managerEmail`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          이메일
+        </label>
         <input
+          id={`${fieldId}-managerEmail`}
           readOnly
           disabled
           type="email"
@@ -262,8 +312,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+        <label
+          htmlFor={`${fieldId}-description`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          설명
+        </label>
         <textarea
+          id={`${fieldId}-description`}
           value={formData.description}
           onChange={handleInputChange}
           name="description"

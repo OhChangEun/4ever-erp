@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
 import type {
   CustomerEditData,
@@ -12,6 +12,8 @@ import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 
 const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   // 폼 상태는 이 모달이 가진다. 열 때 받은 값으로 한 번 채운다.
   // 예전엔 목록 컴포넌트의 state(처음 값 null)를 setter 로 받아 써서 입력이 하나도 반영되지 않았다
   const [editFormData, setEditFormData] = useState<CustomerDetail | null>(initial);
@@ -90,8 +92,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">고객번호</label>
+              <label
+                htmlFor={`${fieldId}-field0`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                고객번호
+              </label>
               <input
+                id={`${fieldId}-field0`}
                 type="text"
                 value={editFormData.customerNumber}
                 readOnly
@@ -100,8 +108,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">고객명</label>
+              <label
+                htmlFor={`${fieldId}-field1`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                고객명
+              </label>
               <input
+                id={`${fieldId}-field1`}
                 type="text"
                 value={editFormData.customerName}
                 onChange={(e) => updateEditFormData('customerName', e.target.value)}
@@ -111,8 +125,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">대표이사</label>
+              <label
+                htmlFor={`${fieldId}-field2`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                대표이사
+              </label>
               <input
+                id={`${fieldId}-field2`}
                 type="text"
                 value={editFormData.ceoName}
                 onChange={(e) => updateEditFormData('ceoName', e.target.value)}
@@ -123,8 +143,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+              <label
+                htmlFor={`${fieldId}-field3`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                상태
+              </label>
               <select
+                id={`${fieldId}-field3`}
                 value={editFormData.statusCode}
                 onChange={(e) => {
                   // 선택지 표에 있는 코드만 받는다(문자열을 상태 유니온으로 단언하지 않는다)
@@ -139,8 +165,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+              <label
+                htmlFor={`${fieldId}-field4`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                전화번호
+              </label>
               <input
+                id={`${fieldId}-field4`}
                 type="tel"
                 value={editFormData.customerPhone}
                 onChange={(e) =>
@@ -150,8 +182,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">사업자번호</label>
+              <label
+                htmlFor={`${fieldId}-field5`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                사업자번호
+              </label>
               <input
+                id={`${fieldId}-field5`}
                 type="text"
                 value={editFormData.businessNumber}
                 onChange={(e) =>
@@ -168,8 +206,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
           <h4 className="text-lg font-semibold text-gray-900 mb-4">주소 정보</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">기본 주소</label>
+              <label
+                htmlFor={`${fieldId}-field6`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                기본 주소
+              </label>
               <input
+                id={`${fieldId}-field6`}
                 type="text"
                 value={editFormData.baseAddress}
                 onChange={(e) => updateEditFormData('baseAddress', e.target.value)}
@@ -178,8 +222,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">상세 주소</label>
+              <label
+                htmlFor={`${fieldId}-field7`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                상세 주소
+              </label>
               <input
+                id={`${fieldId}-field7`}
                 type="text"
                 value={editFormData.detailAddress}
                 onChange={(e) => updateEditFormData('detailAddress', e.target.value)}
@@ -194,8 +244,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
           <h4 className="text-lg font-semibold text-gray-900 mb-4">담당자 정보</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">담당자명</label>
+              <label
+                htmlFor={`${fieldId}-field8`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                담당자명
+              </label>
               <input
+                id={`${fieldId}-field8`}
                 type="text"
                 value={editFormData.manager.managerName}
                 onChange={(e) => updateManagerInfo('managerName', e.target.value)}
@@ -204,8 +260,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">담당자 휴대폰</label>
+              <label
+                htmlFor={`${fieldId}-field9`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                담당자 휴대폰
+              </label>
               <input
+                id={`${fieldId}-field9`}
                 type="tel"
                 value={editFormData.manager.managerPhone}
                 onChange={(e) =>
@@ -216,8 +278,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">담당자 이메일</label>
+              <label
+                htmlFor={`${fieldId}-field10`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                담당자 이메일
+              </label>
               <input
+                id={`${fieldId}-field10`}
                 type="email"
                 value={editFormData.manager.managerEmail}
                 onChange={(e) => updateManagerInfo('managerEmail', e.target.value)}
@@ -232,8 +300,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
           <h4 className="text-lg font-semibold text-gray-900 mb-4">거래 정보</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">총 주문건수</label>
+              <label
+                htmlFor={`${fieldId}-field11`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                총 주문건수
+              </label>
               <input
+                id={`${fieldId}-field11`}
                 type="number"
                 value={editFormData.totalOrders}
                 readOnly
@@ -243,8 +317,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">총 거래금액</label>
+              <label
+                htmlFor={`${fieldId}-field12`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                총 거래금액
+              </label>
               <input
+                id={`${fieldId}-field12`}
                 type="number"
                 value={editFormData.totalTransactionAmount}
                 readOnly
@@ -259,8 +339,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
 
         {/* 비고 */}
         <div className="border-t border-gray-200 pt-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">비고</label>
+          <label
+            htmlFor={`${fieldId}-field13`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            비고
+          </label>
           <textarea
+            id={`${fieldId}-field13`}
             value={editFormData.note}
             onChange={(e) => updateEditFormData('note', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"

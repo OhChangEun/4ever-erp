@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useId } from 'react';
 import { InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
 import { useUpdateSafetyStock } from '../../inventory.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -10,6 +10,8 @@ const InventorySafetyStockModal = ({
   setShowSafetyStockModal,
   selectedStock,
 }: InventorySafetyStockModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [newSafetyStock, setNewSafetyStock] = useState<number>(0);
 
@@ -49,8 +51,14 @@ const InventorySafetyStockModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">새 안전재고 수량</label>
+            <label
+              htmlFor={`${fieldId}-field0`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              새 안전재고 수량
+            </label>
             <input
+              id={`${fieldId}-field0`}
               type="number"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               placeholder="안전재고 수량"

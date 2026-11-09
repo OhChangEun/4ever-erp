@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import {
   NewOrderRequest,
   NewOrderItem,
@@ -19,6 +19,8 @@ import { errorMessageOf } from '@/lib/AppError';
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const NewOrderModal = ({ onClose }: ModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const [newOrderItems, setNewOrderItems] = useState<NewOrderRequest>({
     items: [
       {
@@ -176,8 +178,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
               <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">제품명 *</label>
+                    <label
+                      htmlFor={`${fieldId}-itemId-${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      제품명 *
+                    </label>
                     <select
+                      id={`${fieldId}-itemId-${index}`}
                       value={item.itemId}
                       name="itemId"
                       onChange={(e) => {
@@ -209,8 +217,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">수량 *</label>
+                    <label
+                      htmlFor={`${fieldId}-quantity-${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      수량 *
+                    </label>
                     <input
+                      id={`${fieldId}-quantity-${index}`}
                       type="number"
                       name="quantity"
                       value={item.quantity}
@@ -221,8 +235,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">단가</label>
+                    <label
+                      htmlFor={`${fieldId}-unitPrice-${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      단가
+                    </label>
                     <input
+                      id={`${fieldId}-unitPrice-${index}`}
                       type="text"
                       name="unitPrice"
                       value={formatCurrency(item.unitPrice)}
@@ -245,8 +265,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                         </div> */}
                   <div className="flex items-end">
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">금액</label>
+                      <label
+                        htmlFor={`${fieldId}-field4-${index}`}
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        금액
+                      </label>
                       <input
+                        id={`${fieldId}-field4-${index}`}
                         type="text"
                         value={getItemTotalPrice(item)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-medium"
@@ -280,8 +306,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
 
         {/* 비고 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">비고</label>
+          <label
+            htmlFor={`${fieldId}-note`}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            비고
+          </label>
           <textarea
+            id={`${fieldId}-note`}
             value={newOrderItems.note}
             name="note"
             onChange={handleFormChange}

@@ -5,7 +5,7 @@ import {
   DepartmentsData,
   DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDeptMemberDropdown } from '@/app/(private)/hrm/api/hrm.api';
@@ -23,6 +23,8 @@ interface DepartmentEditModalProps extends ModalProps {
 }
 
 export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const { removeAllModals } = useModal();
   const toast = useToast();
 
@@ -61,8 +63,14 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
     <>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">부서명</label>
+          <label
+            htmlFor={`${fieldId}-field0`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            부서명
+          </label>
           <input
+            id={`${fieldId}-field0`}
             type="text"
             required
             defaultValue={departments.departmentName + '팀'}
@@ -82,8 +90,14 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+          <label
+            htmlFor={`${fieldId}-field1`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            설명
+          </label>
           <textarea
+            id={`${fieldId}-field1`}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             rows={3}
             value={description}

@@ -3,7 +3,7 @@
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useState, useId } from 'react';
 import { fetchProgramStatusDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
@@ -23,6 +23,8 @@ export default function EditProgramModal({
   programName,
   onClose,
 }: EditProgramModalProps) {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const [selectedProgramStatus, setSelectedProgramStatus] = useState('');
 
   const { data: statusData } = useQuery({
@@ -65,8 +67,14 @@ export default function EditProgramModal({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 교육명 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">교육명</label>
+        <label
+          htmlFor={`${fieldId}-field0`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          교육명
+        </label>
         <input
+          id={`${fieldId}-field0`}
           type="text"
           value={editedName}
           onChange={(e) => setEditedName(e.target.value)}
