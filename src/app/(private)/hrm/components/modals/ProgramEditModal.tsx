@@ -11,6 +11,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { toKeyValueItems } from '@/lib/api/options';
 
 interface EditProgramModalProps extends ModalProps {
   programId: string;
@@ -27,6 +28,7 @@ export default function EditProgramModal({
   const { data: statusData } = useQuery({
     queryKey: programKeys.statusDropdown(),
     queryFn: fetchProgramStatusDropdown,
+    select: toKeyValueItems,
     staleTime: Infinity,
   });
   const toast = useToast();

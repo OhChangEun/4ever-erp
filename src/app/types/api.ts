@@ -21,6 +21,12 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
 }
+/** 드롭다운 옵션 응답 한 줄. 화면 옵션 KeyValueItem 과 나눠 둔다(변환은 src/lib/api/options.ts) */
+export interface OptionResponse {
+  key: string;
+  value: string;
+}
+
 export interface ApiResponseNoData {
   status: number;
   success: true;

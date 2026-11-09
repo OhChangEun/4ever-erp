@@ -12,6 +12,7 @@ import { errorMessageOf } from '@/lib/AppError';
 import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import Button from '@/app/components/common/Button';
+import { toKeyValueItems } from '@/lib/api/options';
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;
 }
@@ -33,6 +34,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const { data: positionData } = useQuery({
     queryKey: positionKeys.dropdown(selectedDepartment),
     queryFn: () => fetchPositionsDropdown(selectedDepartment),
+    select: toKeyValueItems,
     enabled: !!selectedDepartment,
   });
 

@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { KeyValueItem } from '@/app/types/CommonType';
+import type { KeyValueItem } from '@/app/types/CommonType';
+import type { OptionResponse } from '@/app/types/api';
+import { toKeyValueItems } from '@/lib/api/options';
 import { useMemo } from 'react';
 import { dropdownKeys } from '@/app/hooks/dropdown.keys';
 
@@ -9,12 +11,13 @@ const ALL_OPTION: KeyValueItem = { key: '', value: '전체' };
 
 export const useDropdown = (
   key: string,
-  fetchFn: () => Promise<KeyValueItem[]>,
+  fetchFn: () => Promise<OptionResponse[]>,
   mode: AllOptionMode = 'as-is',
 ) => {
-  const { data, isLoading, isError } = useQuery<KeyValueItem[]>({
+  const { data, isLoading, isError } = useQuery({
     queryKey: dropdownKeys.options(key),
     queryFn: fetchFn,
+    select: toKeyValueItems, // 응답(OptionResponse) → 화면 옵션(KeyValueItem)
     staleTime: Infinity,
   });
 

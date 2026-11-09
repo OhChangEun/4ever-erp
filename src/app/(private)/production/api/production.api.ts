@@ -1,3 +1,4 @@
+import type { OptionResponse } from '@/app/types/api';
 import { ProductionStatResponse } from '@/app/(private)/production/types/ProductionStatsType';
 import { ApiResponse, ApiResponseNoData, INVENTORY_ENDPOINTS } from '@/app/types/api';
 import { PRODUCTION_ENDPOINTS } from '@/app/(private)/production/api/production.endpoints';
@@ -16,7 +17,6 @@ import {
   MrpPlannedOrdersListResponse,
 } from '../types/MrpPlannedOrdersListApiType';
 import { MrpPlannedOrdersDetailResponse } from '../types/MrpPlannedOrdersDetailApiType';
-import { KeyValueItem } from '@/app/types/CommonType';
 import { BomRequestBody, MaterialResponse } from '../types/BomType';
 import { PageRequest } from '@/app/types/Page';
 import { MrpOrdersConvertReqeustBody } from '../types/MrpOrdersConvertApiType';
@@ -24,7 +24,7 @@ import { ItemResponse } from '../../inventory/types/ItemListType';
 import { FetchMrpOrdersListParams, MrpOrdersListResponse } from '../types/MrpOrdersApiType';
 import axios from '@/lib/axiosInstance';
 import { getParsed, parseData } from '@/lib/api/parse';
-import { keyValueListSchema } from '@/lib/api/schemas';
+import { optionListSchema } from '@/lib/api/schemas';
 import {
   bomDetailSchema,
   bomListSchema,
@@ -121,8 +121,8 @@ export const fetchProduction = async (productId: string): Promise<MaterialRespon
 };
 
 // BOM 공정 조회
-export const fetchOperationDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.OPERATIONS_DROPDOWN}`);
+export const fetchOperationDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.OPERATIONS_DROPDOWN}`);
 };
 
 // BOM 상세 조회
@@ -255,39 +255,39 @@ export const completeMesOperation = async (mesId: string, operationId: string) =
 
 // --- 드롭다운 조회 ---
 // mps 제품 드롭다운
-export const fetchMpsBomDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS}`);
+export const fetchMpsBomDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS}`);
 };
 
-export const fetchProductDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.PRODUCTS}`);
+export const fetchProductDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.PRODUCTS}`);
 };
 
-export const fetchAvailableStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.AVAILABLE_STATUS_DROPDOWN}`);
+export const fetchAvailableStatusDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.AVAILABLE_STATUS_DROPDOWN}`);
 };
 
 // mrp 순소요 - 견적 드롭다운
-export const fetchMrpQuotationsDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_QUOTATION_DROPDOWN}`);
+export const fetchMrpQuotationsDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MRP_QUOTATION_DROPDOWN}`);
 };
 
 // mrp 순소요 - 가용 재고 상태 드롭다운
-export const fetchMrpAvailableStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_AVAILABLE_STATUS_DROPDOWN}`);
+export const fetchMrpAvailableStatusDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MRP_AVAILABLE_STATUS_DROPDOWN}`);
 };
 
 // mrp 계획 주문 -견적 드롭다운
-export const fetchMrpPlannedOrderQuotationsDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_QUOTATIONS_DROPDOWN}`);
+export const fetchMrpPlannedOrderQuotationsDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_QUOTATIONS_DROPDOWN}`);
 };
 
 // mrp 계획 주문 - 상태 드롭다운
-export const fetchMrpPlannedOrderStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_STATUS_DROPDOWN}`);
+export const fetchMrpPlannedOrderStatusDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_STATUS_DROPDOWN}`);
 };
 
 // mes 상태 드롭다운
-export const fetchMesStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MES_STATUS_DROPDOWN}`);
+export const fetchMesStatusDropdown = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, `${PRODUCTION_ENDPOINTS.MES_STATUS_DROPDOWN}`);
 };

@@ -19,6 +19,7 @@ import Input from '@/app/components/common/Input';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { toKeyValueItems } from '@/lib/api/options';
 
 export default function AttendanceTab() {
   // --- 모달 출력 ---
@@ -36,6 +37,7 @@ export default function AttendanceTab() {
   const { data: statusData } = useQuery({
     queryKey: attendanceKeys.statusDropdown(),
     queryFn: fetchAttendanceStatusDropdown,
+    select: toKeyValueItems,
     staleTime: Infinity,
   });
 

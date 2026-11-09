@@ -10,6 +10,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useAssignProgramToEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { toKeyValueItems } from '@/lib/api/options';
 
 interface AddEmployeeTrainingModalProps extends ModalProps {
   employeeId: string;
@@ -27,6 +28,7 @@ export default function AddEmployeeTrainingModal({
   const { data: programData } = useQuery({
     queryKey: programKeys.dropdown(),
     queryFn: fetchProgramListDropdown,
+    select: toKeyValueItems,
     staleTime: Infinity,
   });
 
