@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { readStoredToken } from '@/lib/auth/tokenStorage';
 import { useAuthStore } from '@/store/authStore';
 import { notificationKeys } from '@/app/components/header/header.keys';
 
@@ -29,7 +28,6 @@ export function useNotificationSSE({
   onAlarm,
   onUnreadCountChange,
 }: UseNotificationSSEOptions) {
-  const { token } = readStoredToken(); // 토큰
   const { userInfo } = useAuthStore();
   const userId = userInfo?.id ? String(userInfo.id) : '';
   const sseEnabled = enabled && process.env.NEXT_PUBLIC_SSE_ENABLED === 'true';
@@ -53,20 +51,15 @@ export function useNotificationSSE({
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
-    // const getToken = () => {
-    //   return localStorage.getItem('accessToken') || '';
-    // };
-
     const connectSSE = async () => {
       const url = NOTIFICATION_ENDPOINTS.SUBSCRIBE;
       console.info('[SSE] Connecting to:', url);
 
       try {
+        // 같은 출처의 /api/proxy 로 붙어 세션 쿠키가 자동으로 간다. Bearer 는 프록시가 서버에서 붙인다.
+        // 예전엔 브라우저 저장소의 토큰(BFF 전환 뒤엔 없음)으로 `Bearer null` 을 보냈다
         await fetchEventSource(url, {
           signal: abortController.signal,
-          headers: {
-            Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
-          },
           onopen: async (response) => {
             if (response.ok) {
               console.info('[SSE] Connection opened successfully');

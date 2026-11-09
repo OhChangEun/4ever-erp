@@ -31,7 +31,10 @@ describe('알림 SSE 구독', () => {
   it('프록시 주소로 붙고 Authorization 헤더를 보내지 않는다(세션 쿠키로 인증)', () => {
     renderHook(() => useNotificationSSE({}), { wrapper });
     expect(fetchEventSource).toHaveBeenCalledTimes(1);
-    const [url, options] = fetchEventSource.mock.calls[0] as [string, { headers?: Record<string, string> }];
+    const [url, options] = fetchEventSource.mock.calls[0] as [
+      string,
+      { headers?: Record<string, string> },
+    ];
     expect(url).toBe(NOTIFICATION_ENDPOINTS.SUBSCRIBE);
     expect(url.startsWith('/api/proxy/')).toBe(true);
     expect(options.headers?.Authorization).toBeUndefined();

@@ -1,3 +1,5 @@
+// PKCE(RFC 7636) 도구. 3단계에서 BFF 가 OIDC 클라이언트가 되면 서버가 code_verifier 와 code_challenge 를 만든다.
+// 예전엔 src/lib/auth 에서 브라우저가 썼다(인증 1단계 카드에서 옮김). Node 24 의 Web Crypto 로 그대로 돈다.
 // 랜덤한 문자열을 Base 64 URL-safe 형태로 생성하는 함수
 export function generateRandomBase64Url(length: number): string {
   // 지정한 길이만큼 난수 배열 생성
