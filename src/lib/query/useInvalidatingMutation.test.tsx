@@ -90,7 +90,7 @@ describe('useInvalidatingMutation 낙관적 업데이트', () => {
         useInvalidatingMutation<string, { id: string; name: string }>({
           mutationKey: ['test', 'rename'],
           mutationFn: () =>
-            delayed('ok', 30).then((value) => (fail ? Promise.reject(new Error('500')) : value)),
+            delayed('ok', 200).then((value) => (fail ? Promise.reject(new Error('500')) : value)),
           effects: () => [LIST_PREFIX],
           optimistic: ({ id, name }) => [
             optimisticPatch<ListCache>(LIST_PREFIX, (old) => ({
@@ -124,5 +124,83 @@ describe('useInvalidatingMutation 낙관적 업데이트', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(queryClient.getQueryData<ListCache>(PAGE_0)?.data[0]?.name).toBe('옛 이름');
     await waitFor(() => expect(queryClient.getQueryState(PAGE_0)?.isInvalidated).toBe(true));
+  });
+});
+
+describe('낙관적 반영이 실패해도 저장은 간다', () => {
+  it('캐시 모양이 달라 patch 가 던져도 mutationFn 은 불리고 캐시는 원래대로다', async () => {
+    const queryClient = createTestQueryClient();
+    const KEY = ['test', 'odd'];
+    queryClient.setQueryData(KEY, { unexpected: true });
+    const mutationFn = vi.fn(() => delayed('ok', 10));
+    const local = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, void>({
+          mutationKey: ['test', 'odd'],
+          mutationFn,
+          effects: () => [KEY],
+          optimistic: () => [
+            optimisticPatch<{ data: string[] }>(KEY, (old) => ({ data: old.data.map((x) => x) })),
+          ],
+        }),
+      { wrapper: local },
+    );
+    act(() => result.current.mutate());
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mutationFn).toHaveBeenCalledTimes(1);
+    expect(queryClient.getQueryData(KEY)).toEqual({ unexpected: true });
+    warn.mockRestore();
+  });
+});
+
+describe('겹치는 낙관적 mutation 은 같은 범위에서 한 줄로 선다', () => {
+  it('같은 캐시를 고치는 두 요청이 둘 다 실패하면 원래 값으로 돌아간다 (리뷰 A1)', async () => {
+    interface Item {
+      stock: number;
+      safety: number;
+    }
+    const KEY = ['test', 'item', 'detail', 'item-1'];
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData<Item>(KEY, { stock: 100, safety: 10 });
+    const local = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const failLater = () => delayed('x', 80).then(() => Promise.reject(new Error('500')));
+
+    const { result } = renderHook(
+      () => ({
+        safety: useInvalidatingMutation<string, number>({
+          mutationKey: ['test', 'safety'],
+          mutationFn: failLater,
+          effects: () => [],
+          optimisticScope: 'test-item',
+          optimistic: (safety) => [optimisticPatch<Item>(KEY, (old) => ({ ...old, safety }))],
+        }),
+        move: useInvalidatingMutation<string, number>({
+          mutationKey: ['test', 'move'],
+          mutationFn: failLater,
+          effects: () => [],
+          optimisticScope: 'test-item',
+          optimistic: (qty) => [
+            optimisticPatch<Item>(KEY, (old) => ({ ...old, stock: old.stock - qty })),
+          ],
+        }),
+      }),
+      { wrapper: local },
+    );
+
+    act(() => {
+      result.current.safety.mutate(20);
+      result.current.move.mutate(30);
+    });
+    await waitFor(() => {
+      expect(result.current.safety.isError).toBe(true);
+      expect(result.current.move.isError).toBe(true);
+    });
+    expect(queryClient.getQueryData<Item>(KEY)).toEqual({ stock: 100, safety: 10 });
   });
 });

@@ -57,7 +57,7 @@ src/server/auth/
 - 서버 prefetch → `HydrationBoundary` (`src/app/providers.tsx:29`) 패턴이 15곳에 있다. 전 도메인 확대 예정.
 - 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:18`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
 - 낙관적 락은 BOM 상태 변경에만 있다. version 전송 (`src/app/(private)/production/components/modals/BomDetailModal.tsx:45`), 409 처리 (`:53`). 공통 패턴으로 뽑을 원형.
-- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8(`purchase.mutations.ts`), 인사 10(`hrm.mutations.ts`), 생산 10(`production.mutations.ts`), 재고 1(`inventory.mutations.ts`), 영업 3(`sales.mutations.ts`), 재무 1(`finance.mutations.ts`), 프로필 4(`profile.mutations.ts`), 알림 2(`header/notification.mutations.ts`) 완료. 컴포넌트에 남은 `useMutation` 은 낙관적 업데이트 모달 7곳(사용자 카드)과 읽기를 mutation 으로 쓴 4곳(별도 카드)뿐이다.
+- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8, 인사 10, 생산 10, 재고 4, 영업 4, 재무 1, 창고 2, 프로필 5, 알림 2 완료. 컴포넌트에 남은 `useMutation` 은 읽기를 mutation 으로 쓴 4곳뿐이다(`useQuery({ enabled })` 카드).
 
   구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
 
@@ -96,7 +96,8 @@ src/server/auth/
   | 제안납기 확정                        | `quotationKeys.lists()`                                                                                                                        |
   | MES 시작, 완료, 공정 시작, 공정 완료 | `mesKeys.detail(mesId)`, `mesKeys.lists()`, `productionStatsKeys.all`                                                                          |
 
-  나머지 도메인 무효화 매트릭스 (`INVENTORY_`, `SALES_`, `FINANCE_`, `PROFILE_`, `NOTIFICATION_MUTATION_EFFECTS`):
+  나머지 도메인 무효화 매트릭스 (`INVENTORY_`, `WAREHOUSE_`, `SALES_`, `FINANCE_`, `PROFILE_`, `NOTIFICATION_MUTATION_EFFECTS`).
+  "(낙관적)" 표시가 있는 4곳은 공통 빌더의 `optimistic` 옵션으로 응답 전에 캐시를 고친다. `setQueriesData`(prefix match)라 목록의 모든 페이지에 닿고, 실패하면 스냅샷으로 되돌리며, 성공과 실패 모두 끝나면 위 키를 무효화한다. 생성(고객, 자재, 창고 등록)은 낙관적 업데이트를 하지 않는다(결정 7, `ai/decisions.md` 2026-11-10 "낙관적 업데이트 범위").
 
   | mutation                            | 다시 가져오는 키                                                                                  |
   | ----------------------------------- | ------------------------------------------------------------------------------------------------- |

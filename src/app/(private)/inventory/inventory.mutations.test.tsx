@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { type ReactNode } from 'react';
-import { http } from 'msw';
+import { delay, http } from 'msw';
 import { server } from '@/test/msw-server';
 import { createTestQueryClient } from '@/test/render';
 import { expectMatrix } from '@/test/mutationMatrix';
@@ -145,7 +145,13 @@ const wrapperFor = (queryClient: QueryClient) => {
 
 describe('재고 낙관적 업데이트', () => {
   it('안전재고: 응답 전에 상세와 목록 행(같은 itemId)만 바꾸고, 500 이면 되돌린다', async () => {
-    server.use(http.all('*', () => scenarioResponse('500')));
+    // 응답을 늦춰 낙관적 값이 보이는 순간을 확인한다
+    server.use(
+      http.all('*', async () => {
+        await delay(200);
+        return scenarioResponse('500');
+      }),
+    );
     const qc = createTestQueryClient();
     qc.setQueryData(inventoryKeys.detail('item-1'), detail());
     qc.setQueryData<ListCache>(LIST_0, { data: [row('item-1', 10)], pageData: page });

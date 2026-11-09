@@ -1,7 +1,8 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getWarehouseInfo, postStockMovement } from '../../inventory.api';
+import { useQuery } from '@tanstack/react-query';
+import { getWarehouseInfo } from '../../inventory.api';
+import { useMoveStock } from '../../inventory.mutations';
 import { useEffect, useMemo, useState } from 'react';
 import { InventoryMoveModalProps } from '../../types/InventoryMoveModalType';
 import {
@@ -10,11 +11,10 @@ import {
 } from '../../types/AddInventoryModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
-import { inventoryKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
+import { errorMessageOf } from '@/lib/AppError';
+import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [formData, setFormData] = useState({
     fromWarehouseId: selectedStock.warehouseId,
@@ -53,68 +53,13 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
     queryFn: () => getWarehouseInfo(queryParams),
     enabled: !!selectedStock.itemId,
   });
-  // 낙관적 업데이트x
-  // const { mutate: moveStock } = useMutation({
-  //   mutationFn: postStockMovement,
-  //   onSuccess: (data) => {
-  //     alert(`${data.status} : ${data.message}
-  //     `);
-  //     setShowMoveModal(false);
-  //   },
-  //   onError: () => {
-  //     alert(` 등록 중 오류가 발생했습니다.`);
-  //   },
-  // });
-
-  // 낙관적 업데이트
-  const { mutate: moveStock } = useMutation({
-    mutationFn: postStockMovement,
-    onMutate: async (newMovement) => {
-      await queryClient.cancelQueries({ queryKey: inventoryKeys.detail(selectedStock?.itemId) });
-
-      const previousData = queryClient.getQueryData<InventoryDetailResponse[]>([
-        'inventoryDetail',
-        queryParams,
-      ]);
-
-      if (previousData) {
-        const updatedData = previousData.map((warehouse) => {
-          // 출발 창고 재고 감소
-          if (warehouse.warehouseId === newMovement.fromWarehouseId) {
-            return {
-              ...warehouse,
-              currentStock: warehouse.currentStock - newMovement.stockQuantity,
-            };
-          }
-          // 도착 창고 재고 증가
-          if (warehouse.warehouseId === newMovement.toWarehouseId) {
-            return {
-              ...warehouse,
-              currentStock: warehouse?.currentStock + newMovement.stockQuantity,
-            };
-          }
-          return warehouse;
-        });
-        queryClient.setQueryData(inventoryKeys.detail(selectedStock?.itemId), updatedData);
-      }
-      return { previousData };
-    },
-
-    onError: (_error, _newMovement, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(inventoryKeys.detail(selectedStock?.itemId), context.previousData);
-      }
-      toast.error('재고 이동 중 오류가 발생했습니다.');
-    },
-
+  // 낙관적 업데이트(출발 창고 상세의 현재고)와 무효화는 inventory.mutations.ts 한 곳.
+  const { mutate: moveStock, isPending: isMoving } = useMoveStock({
     onSuccess: () => {
       toast.success('재고가 이동되었습니다.');
       setShowMoveModal(false);
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(selectedStock?.itemId) });
-    },
+    onError: (error) => toast.error(`재고 이동 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const [errorModal, setErrorModal] = useState(false);
@@ -226,9 +171,10 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer"
+              disabled={isMoving}
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
-              이동
+              {isMoving ? '이동 중...' : '이동'}
             </button>
           </div>
         </form>

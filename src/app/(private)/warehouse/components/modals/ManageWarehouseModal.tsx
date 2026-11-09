@@ -1,28 +1,16 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  EditWarehouseRequest,
-  ManageWarehouseModalProps,
-} from '../../types/ManageWarehouseModalType';
+import { useQuery } from '@tanstack/react-query';
+import { ManageWarehouseModalProps } from '../../types/ManageWarehouseModalType';
 import { WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
-import {
-  getWarehouseDetail,
-  getWarehouseManagerInfo,
-  patchManageWarehouse,
-} from '../../warehouse.api';
+import { getWarehouseDetail, getWarehouseManagerInfo } from '../../warehouse.api';
+import { useEditWarehouse } from '../../warehouse.mutations';
 import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';
-import { ApiResponseNoData } from '@/app/types/api';
-import { WarehouseListResponse } from '../../types/WarehouseListType';
-import { Page } from '@/app/types/Page';
-import {
-  warehouseKeys,
-  warehouseManagerInfoKeys,
-  warehouseStatsKeys,
-} from '@/app/(private)/warehouse/warehouse.keys';
+import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 interface ManageWarehouseRequest {
   warehouseName: string;
@@ -38,7 +26,6 @@ interface ManageWarehouseRequest {
 }
 
 const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [formData, setFormData] = useState<ManageWarehouseRequest>({
     warehouseName: '',
@@ -97,69 +84,13 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     queryFn: getWarehouseManagerInfo,
   });
 
-  // const { mutate: editWarehouse } = useMutation<
-  //   ApiResponseNoData,
-  //   Error,
-  //   { warehouseId: string; payload: EditWarehouseRequest }
-  // >({
-  //   mutationFn: patchManageWarehouse,
-  //   onSuccess: (data) => {
-  //     alert(`${data.status} : ${data.message}`);
-  //   },
-  //   onError: (error) => {
-  //     alert(`창고 수정 중 오류가 발생했습니다. ${error}`);
-  //   },
-  // });
-
-  const { mutate: editWarehouse } = useMutation<
-    ApiResponseNoData,
-    Error,
-    {
-      warehouseId: string;
-      payload: EditWarehouseRequest;
-    },
-    { previousData?: { data: WarehouseListResponse[]; pageData: Page } }
-  >({
-    mutationFn: patchManageWarehouse,
-
-    onMutate: async (newWarehouse) => {
-      await queryClient.cancelQueries({ queryKey: warehouseKeys.lists() });
-
-      const previousData = queryClient.getQueryData<{
-        data: WarehouseListResponse[];
-        pageData: Page;
-      }>(warehouseKeys.lists());
-
-      queryClient.setQueryData<{ data: WarehouseListResponse[]; pageData: Page }>(
-        warehouseKeys.lists(),
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            data: [newWarehouse as unknown as WarehouseListResponse, ...oldData.data],
-          };
-        },
-      );
-
-      return { previousData };
-    },
-
-    onError: (_error, _variables, context) => {
-      if (context?.previousData)
-        queryClient.setQueryData(warehouseKeys.lists(), context.previousData);
-      toast.error('창고 수정 중 오류가 발생했습니다.');
-    },
-
+  // 낙관적 업데이트(목록 행의 이름, 유형, 위치, 상태)와 무효화는 warehouse.mutations.ts 한 곳.
+  const { mutate: editWarehouse, isPending: isEditing } = useEditWarehouse({
     onSuccess: () => {
       toast.success('창고 수정이 완료되었습니다.');
       onClose();
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: warehouseKeys.detail(selectedWarehouseId) });
-      queryClient.invalidateQueries({ queryKey: warehouseStatsKeys.all });
-    },
+    onError: (error) => toast.error(`창고 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   useEffect(() => {
@@ -216,7 +147,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     );
 
   return (
-    <form className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">창고명</label>
@@ -360,11 +291,11 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           취소
         </button>
         <button
-          // type="submit"
-          onClick={handleSubmit}
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer"
+          type="submit"
+          disabled={isEditing}
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
-          저장
+          {isEditing ? '저장 중...' : '저장'}
         </button>
       </div>
     </form>

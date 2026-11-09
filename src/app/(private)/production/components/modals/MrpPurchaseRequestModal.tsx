@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation } from '@tanstack/react-query';
-import { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
