@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { pageSchema, periodStatsSchema, statSchema } from '@/lib/api/schemas';
 import type { AvailableStockStatus } from './constants';
 import type { ProductionStatResponse } from './types/ProductionStatsType';
@@ -25,7 +25,7 @@ const AVAILABLE_STOCK_STATUSES = [
   'UNCHECKED',
 ] as const satisfies readonly AvailableStockStatus[];
 
-export const productionStatsSchema: z.ZodType<ProductionStatResponse> = periodStatsSchema(
+export const productionStatsSchema: z.ZodMiniType<ProductionStatResponse> = periodStatsSchema(
   z.looseObject({
     production_in: statSchema,
     production_completed: statSchema,
@@ -33,7 +33,7 @@ export const productionStatsSchema: z.ZodType<ProductionStatResponse> = periodSt
   }),
 );
 
-export const quotationListSchema: z.ZodType<QuotationListResponse> = z.looseObject({
+export const quotationListSchema: z.ZodMiniType<QuotationListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       quotationId: z.string(),
@@ -43,8 +43,8 @@ export const quotationListSchema: z.ZodType<QuotationListResponse> = z.looseObje
       requestDate: z.string(),
       dueDate: z.string(),
       availableStatus: z.enum(AVAILABLE_STOCK_STATUSES),
-      items: z
-        .array(
+      items: z.optional(
+        z.array(
           z.looseObject({
             productId: z.string(),
             productName: z.string(),
@@ -52,14 +52,14 @@ export const quotationListSchema: z.ZodType<QuotationListResponse> = z.looseObje
             uomName: z.string(),
             unitPrice: z.number(),
           }),
-        )
-        .optional(),
+        ),
+      ),
     }),
   ),
   page: pageSchema,
 });
 
-export const quotationSimulationSchema: z.ZodType<QuotationSimulationResponse> = z.looseObject({
+export const quotationSimulationSchema: z.ZodMiniType<QuotationSimulationResponse> = z.looseObject({
   page: pageSchema,
   content: z.array(
     z.looseObject({
@@ -75,7 +75,7 @@ export const quotationSimulationSchema: z.ZodType<QuotationSimulationResponse> =
         status: z.string(),
         availableQuantity: z.number(),
         shortageQuantity: z.number(),
-        shortageReason: z.string().optional(),
+        shortageReason: z.optional(z.string()),
         suggestedDueDate: z.string(),
         generatedAt: z.string(),
       }),
@@ -83,7 +83,7 @@ export const quotationSimulationSchema: z.ZodType<QuotationSimulationResponse> =
   ),
 });
 
-export const mpsListSchema: z.ZodType<MpsListResponse> = z.looseObject({
+export const mpsListSchema: z.ZodMiniType<MpsListResponse> = z.looseObject({
   bomId: z.string(),
   productName: z.string(),
   content: z.array(
@@ -98,7 +98,7 @@ export const mpsListSchema: z.ZodType<MpsListResponse> = z.looseObject({
   page: pageSchema,
 });
 
-export const bomListSchema: z.ZodType<BomListResponse> = z.looseObject({
+export const bomListSchema: z.ZodMiniType<BomListResponse> = z.looseObject({
   page: pageSchema,
   content: z.array(
     z.looseObject({
@@ -114,7 +114,7 @@ export const bomListSchema: z.ZodType<BomListResponse> = z.looseObject({
   ),
 });
 
-export const materialSchema: z.ZodType<MaterialResponse> = z.looseObject({
+export const materialSchema: z.ZodMiniType<MaterialResponse> = z.looseObject({
   productId: z.string(),
   productName: z.string(),
   category: z.string(),
@@ -124,7 +124,7 @@ export const materialSchema: z.ZodType<MaterialResponse> = z.looseObject({
   supplierName: z.string(),
 });
 
-export const bomDetailSchema: z.ZodType<BomDetailResponse> = z.looseObject({
+export const bomDetailSchema: z.ZodMiniType<BomDetailResponse> = z.looseObject({
   bomId: z.string(),
   bomNumber: z.string(),
   productId: z.string(),
@@ -152,10 +152,10 @@ export const bomDetailSchema: z.ZodType<BomDetailResponse> = z.looseObject({
       id: z.string(),
       code: z.string(),
       name: z.string(),
-      quantity: z.number().nullable(),
-      unit: z.string().nullable(),
+      quantity: z.nullable(z.number()),
+      unit: z.nullable(z.string()),
       level: z.number(),
-      parentId: z.string().nullable(),
+      parentId: z.nullable(z.string()),
     }),
   ),
   routing: z.array(
@@ -168,7 +168,7 @@ export const bomDetailSchema: z.ZodType<BomDetailResponse> = z.looseObject({
   ),
 });
 
-export const mrpOrdersListSchema: z.ZodType<MrpOrdersListResponse> = z.looseObject({
+export const mrpOrdersListSchema: z.ZodMiniType<MrpOrdersListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       quotationId: z.string(),
@@ -193,23 +193,24 @@ export const mrpOrdersListSchema: z.ZodType<MrpOrdersListResponse> = z.looseObje
   page: pageSchema,
 });
 
-export const mrpPlannedOrdersListSchema: z.ZodType<MrpPlannedOrdersListResponse> = z.looseObject({
-  page: pageSchema,
-  content: z.array(
-    z.looseObject({
-      mrpRunId: z.string(),
-      quotationNumber: z.string(),
-      itemId: z.string(),
-      itemName: z.string(),
-      quantity: z.number(),
-      status: z.string(),
-      procurementStartDate: z.string(),
-      expectedArrivalDate: z.string(),
-    }),
-  ),
-});
+export const mrpPlannedOrdersListSchema: z.ZodMiniType<MrpPlannedOrdersListResponse> =
+  z.looseObject({
+    page: pageSchema,
+    content: z.array(
+      z.looseObject({
+        mrpRunId: z.string(),
+        quotationNumber: z.string(),
+        itemId: z.string(),
+        itemName: z.string(),
+        quantity: z.number(),
+        status: z.string(),
+        procurementStartDate: z.string(),
+        expectedArrivalDate: z.string(),
+      }),
+    ),
+  });
 
-export const mrpPlannedOrdersDetailSchema: z.ZodType<MrpPlannedOrdersDetailResponse> =
+export const mrpPlannedOrdersDetailSchema: z.ZodMiniType<MrpPlannedOrdersDetailResponse> =
   z.looseObject({
     mrpId: z.string(),
     quotationId: z.string(),
@@ -232,7 +233,7 @@ export const mrpPlannedOrdersDetailSchema: z.ZodType<MrpPlannedOrdersDetailRespo
     totalAmount: z.number(),
   });
 
-export const mesListSchema: z.ZodType<MesListResponse> = z.looseObject({
+export const mesListSchema: z.ZodMiniType<MesListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       mesId: z.string(),
@@ -254,7 +255,7 @@ export const mesListSchema: z.ZodType<MesListResponse> = z.looseObject({
   page: pageSchema,
 });
 
-export const mesDetailSchema: z.ZodType<MesDetailResponse> = z.looseObject({
+export const mesDetailSchema: z.ZodMiniType<MesDetailResponse> = z.looseObject({
   mesId: z.string(),
   mesNumber: z.string(),
   productId: z.string(),
