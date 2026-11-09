@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getWarehouseInfo } from '../../inventory.api';
 import { useMoveStock } from '../../inventory.mutations';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { InventoryMoveModalProps } from '../../types/InventoryMoveModalType';
 import {
   WarehouseToggleQueryParams,
@@ -13,6 +13,7 @@ import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
   const toast = useToast();
@@ -63,20 +64,18 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
     onError: (error) => toast.error(`재고 이동 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading)
     return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="창고 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
   return (

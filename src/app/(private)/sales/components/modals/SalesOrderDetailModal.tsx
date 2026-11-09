@@ -4,7 +4,6 @@ import {
   SalesOrderDetailProps,
 } from '@/app/(private)/sales/types/SalesOrderDetailType';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
 import { getOrderDetail } from '@/app/(private)/sales/sales.api';
 import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
@@ -12,6 +11,7 @@ import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) => {
   const {
     data: orderDetailRes,
@@ -22,20 +22,17 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
     queryFn: () => getOrderDetail(selectedSalesOrderId),
     enabled: !!selectedSalesOrderId,
   });
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-    // onClose();
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading) return <ModalStatusBox type="loading" message="주문서를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="주문 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {} from '../../inventory.constants';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
@@ -17,10 +17,6 @@ const ReceivingManagementList = () => {
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubTab, setSelectedSubTab] = useState('pending');
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedSubTab]);
 
   const queryPendingParams = useMemo(() => {
     const params: ManageMentCommonQueryParams = {
@@ -102,7 +98,10 @@ const ReceivingManagementList = () => {
           {receivingStatusTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setSelectedSubTab(tab.id)}
+              onClick={() => {
+                setSelectedSubTab(tab.id);
+                setCurrentPage(1);
+              }}
               className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
                 selectedSubTab === tab.id
                   ? 'bg-white text-blue-600 shadow-sm'

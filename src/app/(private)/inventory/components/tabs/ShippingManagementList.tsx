@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getProductionList, getReadyToShipList } from '../../inventory.api';
 import {
@@ -65,10 +65,6 @@ const ShippingManagementList = () => {
     { id: 'readyToShip', name: '출고 준비 완료', count: ReadyToShipRes?.pageData.totalElements },
   ];
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedSubTab]);
-
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="p-6 border-b border-gray-200 shrink-0">
@@ -82,7 +78,10 @@ const ShippingManagementList = () => {
           {shippingStatusTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setSelectedSubTab(tab.id)}
+              onClick={() => {
+                setSelectedSubTab(tab.id);
+                setCurrentPage(1);
+              }}
               className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
                 selectedSubTab === tab.id
                   ? 'bg-white text-blue-600 shadow-sm'

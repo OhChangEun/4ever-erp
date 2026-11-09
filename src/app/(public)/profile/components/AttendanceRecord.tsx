@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { AttendanceRecordsResponse, RequestVacation, TodayAttendResponse } from '../ProfileType';
 import { useQuery } from '@tanstack/react-query';
 import { getAttendaceRecords, getTodayAttendance } from '../profile.api';
@@ -11,7 +11,6 @@ import { profileKeys } from '../profile.keys';
 
 export default function AttendanceRecord() {
   const toast = useToast();
-  const [currentStatus, setCurrentStatus] = useState('');
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveForm, setLeaveForm] = useState<RequestVacation>({
     leaveType: 'ANNUAL',
@@ -20,7 +19,8 @@ export default function AttendanceRecord() {
   });
 
   const handleCheckInOut = () => {
-    if (currentStatus === '출근전') {
+    // 상태는 서버 응답에서 바로 읽는다. 출퇴근 훅은 재조회가 끝날 때까지 pending 이라 두 번 눌리지 않는다
+    if (todayAttendanceRes?.status === '출근전') {
       checkIn();
     } else {
       checkOut();
@@ -41,14 +41,12 @@ export default function AttendanceRecord() {
   });
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn({
     onSuccess: () => {
-      setCurrentStatus('출근');
       toast.success('출근 처리가 완료되었습니다.');
     },
     onError: (error) => toast.error(`출근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
   const { mutate: checkOut, isPending: isCheckingOut } = useCheckOut({
     onSuccess: () => {
-      setCurrentStatus('퇴근');
       toast.success('퇴근 처리가 완료되었습니다.');
     },
     onError: (error) => toast.error(`퇴근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
@@ -69,11 +67,6 @@ export default function AttendanceRecord() {
     queryKey: profileKeys.todayAttendance(),
     queryFn: getTodayAttendance,
   });
-
-  useEffect(() => {
-    setCurrentStatus(todayAttendanceRes?.status as string);
-    console.log(todayAttendanceRes?.status);
-  }, [todayAttendanceRes]);
 
   const { data: AttendanceRecordsRes } = useQuery<AttendanceRecordsResponse[]>({
     queryKey: profileKeys.attendanceRecords(),
