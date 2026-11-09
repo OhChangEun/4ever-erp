@@ -33,6 +33,8 @@ export default function CalendarButton({
     whileElementsMounted: autoUpdate,
     open: isOpen,
   });
+  // floating-ui 의 콜백 ref. refs.setX 를 JSX 에서 읽으면 React 규칙이 렌더 중 ref 접근으로 본다
+  const { setReference, setFloating } = refs;
 
   const dateValue = selectedDate ? new Date(selectedDate) : null;
 
@@ -67,7 +69,7 @@ export default function CalendarButton({
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className="relative inline-block">
         {/* 버튼 */}
-        <div ref={refs.setReference}>
+        <div ref={setReference}>
           <IconButton
             type="button"
             icon="ri-calendar-line"
@@ -82,7 +84,7 @@ export default function CalendarButton({
         {isOpen && (
           <FloatingPortal>
             <div
-              ref={refs.setFloating}
+              ref={setFloating}
               style={floatingStyles}
               className="z-popover bg-white rounded-md shadow-lg border border-gray-200 pb-6 animate-fadeIn"
             >

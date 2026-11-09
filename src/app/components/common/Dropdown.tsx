@@ -31,6 +31,8 @@ export default function Dropdown<T extends string = string>({
     middleware: [offset(6), shift()],
     whileElementsMounted: autoUpdate,
   });
+  // floating-ui 의 콜백 ref. refs.setX 를 JSX 에서 읽으면 React 규칙이 렌더 중 ref 접근으로 본다
+  const { setReference, setFloating } = refs;
 
   const selectedItem = items.find((item) => item.key === value);
   const displayLabel = !value || value === '' ? placeholder : (selectedItem?.value ?? placeholder);
@@ -73,7 +75,7 @@ export default function Dropdown<T extends string = string>({
   return (
     <div className={`relative inline-block ${className}`}>
       {/* 버튼 */}
-      <div ref={refs.setReference}>
+      <div ref={setReference}>
         <button
           type="button"
           onClick={() => {
@@ -103,7 +105,7 @@ export default function Dropdown<T extends string = string>({
       {open && !disabled && (
         <FloatingPortal>
           <ul
-            ref={refs.setFloating}
+            ref={setFloating}
             style={floatingStyles}
             className="z-popover max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-md max-w-[200px] min-w-[112px] overscroll-contain"
           >

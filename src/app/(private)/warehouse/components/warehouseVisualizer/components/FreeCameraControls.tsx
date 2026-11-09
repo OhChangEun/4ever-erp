@@ -14,7 +14,8 @@ const MOVE_KEYS: Partial<Record<string, 'w' | 'a' | 's' | 'd'>> = {
 
 const FreeCameraControls = () => {
   const controlsRef = useRef<PointerLockControlsImpl | null>(null);
-  const direction = new THREE.Vector3();
+  // 프레임마다 다시 쓰는 벡터. 렌더 중 만든 지역 변수를 프레임 콜백이 바꾸면 안 돼서 ref 에 둔다
+  const directionRef = useRef<THREE.Vector3 | null>(null);
   const speed = 10;
   const keys = useRef({ w: false, a: false, s: false, d: false });
 
@@ -38,6 +39,7 @@ const FreeCameraControls = () => {
   useFrame((_, delta) => {
     if (!controlsRef.current?.getObject) return;
     const moveSpeed = speed * delta;
+    const direction = (directionRef.current ??= new THREE.Vector3());
     direction.set(0, 0, 0);
     if (keys.current.w) direction.z -= moveSpeed;
     if (keys.current.s) direction.z += moveSpeed;

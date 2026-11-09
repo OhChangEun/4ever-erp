@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { INVENTORY_NEED_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import {
@@ -19,6 +19,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
@@ -66,20 +67,17 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
-
-  const [errorModal, setErrorModal] = useState(false);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading) return <ModalStatusBox type="loading" message="견적서를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="견적서를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 
