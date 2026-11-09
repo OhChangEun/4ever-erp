@@ -161,8 +161,9 @@ export const buildCluster = (
   const racks = new Map<number, InventoryResponse[]>();
   for (const item of source) {
     const shelf = item.shelfNumber ?? 1;
-    if (!racks.has(shelf)) racks.set(shelf, []);
-    racks.get(shelf)!.push(item);
+    const rack = racks.get(shelf);
+    if (rack) rack.push(item);
+    else racks.set(shelf, [item]);
   }
 
   const items: VisualizerItem[] = [];

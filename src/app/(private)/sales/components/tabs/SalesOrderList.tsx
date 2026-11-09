@@ -69,7 +69,7 @@ const SalesOrderList = () => {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const role = useRole();
-  const orderOptions = getOrderSearchKeywordOptions(role as string);
+  const orderOptions = getOrderSearchKeywordOptions(role);
 
   type OrderItem = (typeof orders)[0];
   const columns: TableColumn<OrderItem>[] = [
@@ -137,7 +137,7 @@ const SalesOrderList = () => {
             placeholder="전체 상태"
             items={ORDER_STATUS_OPTIONS}
             value={statusFilter}
-            onChange={(status: string) => setStatusFilter(status as OrderStatus)}
+            onChange={setStatusFilter}
             autoSelectFirst
           />
           <SearchBar

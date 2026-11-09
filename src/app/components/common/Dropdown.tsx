@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 // size prop 추가
 interface DropdownProps<T extends string = string> {
   placeholder: string;
-  items: KeyValueItem[]; // options
+  items: KeyValueItem<T>[]; // options. 키 타입이 onChange 까지 이어진다
   value: T; // 선택된 값
   onChange?: (key: T) => void;
   className?: string;
@@ -35,17 +35,16 @@ export default function Dropdown<T extends string = string>({
   const selectedItem = items.find((item) => item.key === value);
   const displayLabel = !value || value === '' ? placeholder : (selectedItem?.value ?? placeholder);
 
-  const handleSelect = (key: string) => {
+  const handleSelect = (key: T) => {
     if (disabled) return;
-    onChange?.(key as T);
+    onChange?.(key);
     setOpen(false);
   };
 
   // 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (open && !refs.floating.current?.contains(target)) {
+      if (open && e.target instanceof Node && !refs.floating.current?.contains(e.target)) {
         setOpen(false);
       }
     };
@@ -57,7 +56,7 @@ export default function Dropdown<T extends string = string>({
   // items가 로드 되고, 값이 비어있을 때 자동으로 첫번째 선택
   useEffect(() => {
     if (autoSelectFirst && items.length > 0 && !value) {
-      onChange?.(items[0].key as T);
+      onChange?.(items[0].key);
     }
   }, [autoSelectFirst, items, value, onChange]);
 
@@ -133,8 +132,8 @@ export default function Dropdown<T extends string = string>({
               })
             ) : (
               <li
-                className="w-full px-4 py-2 text-sm text-gray-400 hover:bg-gray-50 cursor-pointer"
-                onClick={() => handleSelect('')} // 선택된 값이 없음을 의미
+                className="w-full px-4 py-2 text-sm text-gray-400"
+                onClick={() => setOpen(false)} // 고를 항목이 없다. 값을 '' 로 바꾸면 상태 유니온 밖의 값이 필터로 나간다
               >
                 항목 없음
               </li>

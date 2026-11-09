@@ -49,7 +49,7 @@ export default function CalendarButton({
   // 클릭 외부 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
+      const target = event.target instanceof Node ? event.target : null;
 
       if (
         isOpen &&

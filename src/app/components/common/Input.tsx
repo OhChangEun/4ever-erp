@@ -124,6 +124,9 @@ export default function Input({
     ${className}
   `;
 
+  // 다듬은 값(전화번호 하이픈, 숫자만, 길이 제한)을 입력 요소에 넣고 원래 이벤트를 넘긴다.
+  // 예전엔 { ...e.target } 로 새 이벤트를 만들어 단언했는데, DOM 속성(name, id)은 펼쳐지지 않아
+  // 받는 쪽의 e.target.name 이 undefined 였다. 제어 컴포넌트라 다음 렌더에서 부모 값으로 다시 맞춰진다
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     let newValue = value; // 변경된 값을 저장할 변수
@@ -132,15 +135,8 @@ export default function Input({
     if (type === 'tel') {
       newValue = formatPhoneNumber(value);
 
-      const newEvent = {
-        ...e,
-        target: {
-          ...e.target,
-          value: newValue, // 포맷팅된 값으로 변경
-        },
-      } as React.ChangeEvent<HTMLInputElement>; // 타입 단언 필요
-
-      onChange?.(newEvent);
+      e.target.value = newValue;
+      onChange?.(e);
       return;
     }
 
@@ -150,15 +146,8 @@ export default function Input({
       if (/^\d*$/.test(value)) {
         newValue = value.slice(0, maxLength); // 입력 자리수 제한
 
-        const newEvent = {
-          ...e,
-          target: {
-            ...e.target,
-            value: newValue, // 숫자만, 길이 제한된 값
-          },
-        } as React.ChangeEvent<HTMLInputElement>;
-
-        onChange?.(newEvent);
+        e.target.value = newValue;
+        onChange?.(e);
       }
       return;
     }
@@ -167,15 +156,8 @@ export default function Input({
     newValue = value.slice(0, maxLength);
 
     // 일반 텍스트도 길이 제한이 적용된 값으로 이벤트 전달
-    const newEvent = {
-      ...e,
-      target: {
-        ...e.target,
-        value: newValue,
-      },
-    } as React.ChangeEvent<HTMLInputElement>;
-
-    onChange?.(newEvent);
+    e.target.value = newValue;
+    onChange?.(e);
   };
 
   return (

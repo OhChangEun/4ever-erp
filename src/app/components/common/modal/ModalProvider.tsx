@@ -17,9 +17,9 @@ import { useIsClient } from '@/app/hooks/useMediaQuery';
 // ModalContext를 사용해서 addModal, removeModal에 접근하는 훅.
 // Context에서 관리할 함수들의 타입 정의
 interface ModalContextValue {
-  addModal: (
-    Component: React.ComponentType<ModalProps>, // 모달 컴포넌트
-    props: Omit<ModalProps, 'id' | 'onClose'>, // id와 onClose는 자동 주입
+  addModal: <P extends ModalProps>(
+    Component: ComponentType<P>, // 모달 컴포넌트
+    props: Omit<P, 'id' | 'onClose'>, // id와 onClose는 자동 주입
   ) => string; // 모달 고유 ID 반환
   removeModal: (id: string) => void; // 모달 닫기
   removeAllModals: () => void;
@@ -65,13 +65,23 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 
   // 모달 추가 함수
   const addModal = useCallback(
-    (Component: ComponentType<ModalProps>, props: Omit<ModalProps, 'id' | 'onClose'>): string => {
+    <P extends ModalProps>(
+      Component: ComponentType<P>,
+      props: Omit<P, 'id' | 'onClose'>,
+    ): string => {
       const id = crypto.randomUUID(); // 고유 ID 생성
-      // 새 모달 객체 생성
+      const onClose = () => removeModal(id); // 자동 주입된 닫기 함수
+      // Omit<P, 'id' | 'onClose'> 에 id 와 onClose 를 더하면 P 다. TS 는 제네릭 P 에서 이를 증명하지 못한다.
+      // 모달 열기의 단언은 이 한 줄뿐이다(예전엔 useModal 2곳과 여기 1곳에서 ModalProps 로 넓혔다).
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      const fullProps = { ...props, id, onClose } as P;
       const newModal: ModalItem = {
         id,
-        Component: Component,
-        props: { ...props, id, onClose: () => removeModal(id) } as ModalProps, // 자동 주입된 닫기 함수
+        title: fullProps.title,
+        width: fullProps.width,
+        height: fullProps.height,
+        onClose,
+        element: <Component {...fullProps} />,
       };
 
       // 상태 업데이트 → 렌더링 트리거
@@ -92,15 +102,15 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
             {/* 배경 오버레이 */}
             <div className="fixed inset-0 bg-black/50" />
             {/* 각 모달 */}
-            {modals.map(({ id, Component, props }) => (
+            {modals.map(({ id, title, width, height, onClose, element }) => (
               <ModalContainer
                 key={id}
-                title={props.title}
-                onClose={props.onClose}
-                width={props.width}
-                height={props.height}
+                title={title}
+                onClose={onClose}
+                width={width}
+                height={height}
               >
-                <Component {...props} />
+                {element}
               </ModalContainer>
             ))}
           </>,

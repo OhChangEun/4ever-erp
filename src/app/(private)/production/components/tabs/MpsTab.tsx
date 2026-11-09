@@ -4,7 +4,6 @@ import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { fetchMpsBomDropdown, fetchMpsList } from '@/app/(private)/production/api/production.api';
-import { MpsListParams, MpsListResponse } from '@/app/(private)/production/types/MpsApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import Pagination from '@/app/components/common/Pagination';
 import Table, { TableColumn } from '@/app/components/common/Table';
@@ -40,7 +39,7 @@ export default function MpsTab() {
           endDate,
           page: 0,
           size: 100,
-        } as MpsListParams),
+        }),
       enabled: !!startDate && !!endDate,
     })),
   });
@@ -51,7 +50,7 @@ export default function MpsTab() {
   const allRows: MpsRow[] = useMemo(() => {
     const rows: MpsRow[] = [];
     mpsQueries.forEach((query) => {
-      const data = query.data as MpsListResponse | undefined;
+      const data = query.data;
       if (!data?.content) return;
       data.content.forEach((week) => {
         rows.push({

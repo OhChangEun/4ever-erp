@@ -70,7 +70,7 @@ const WarehouseDetailModal = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">상태:</span>
-                {<StatusLabel statusCode={warehouseInfo?.statusCode as string} />}
+                {<StatusLabel statusCode={warehouseInfo?.statusCode} />}
               </div>
             </div>
           </div>

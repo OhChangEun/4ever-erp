@@ -17,7 +17,7 @@ const DOT_CLASS_BY_HUE: Record<string, string> = {
 /**
  * 상태 표시. 색 채운 배지 대신 "● 텍스트" 로, 색만으로 상태를 전달하지 않는다.
  */
-const StatusLabel = ({ statusCode }: { statusCode: string }) => {
+const StatusLabel = ({ statusCode = '' }: { statusCode?: string }) => {
   const hue = getStatusColor(statusCode).match(/text-([a-z]+)-/)?.[1] ?? 'gray';
   const dotClass = DOT_CLASS_BY_HUE[hue] ?? DOT_CLASS_BY_HUE.gray;
 

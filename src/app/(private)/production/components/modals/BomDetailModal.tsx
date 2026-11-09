@@ -158,7 +158,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
                   ) : (
                     <i className="ri-toggle-line mr-1"></i>
                   )}
-                  {bomDetail!.statusCode === '활성' ? '비활성화' : '활성화'}
+                  {bomDetail.statusCode === '활성' ? '비활성화' : '활성화'}
                 </button>
               </div>
             </div>

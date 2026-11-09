@@ -9,6 +9,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { formText, formTexts } from '@/lib/formData';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
   const toast = useToast();
@@ -34,8 +35,8 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
     const formData = new FormData(e.currentTarget);
 
     // 체크박스 값들 수집
-    const departments = formData.getAll('departments') as string[];
-    const positions = formData.getAll('positions') as string[];
+    const departments = formTexts(formData, 'departments');
+    const positions = formTexts(formData, 'positions');
 
     // 필수 체크
     if (!selectedCategory) {
@@ -54,15 +55,15 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
     }
 
     const programData: CreateProgramRequest = {
-      programName: formData.get('programName') as string,
+      programName: formText(formData, 'programName'),
       category: selectedCategory,
       trainingHour: Number(formData.get('trainingHour')),
       isOnline: true,
-      startDate: formData.get('startDate') as string,
+      startDate: formText(formData, 'startDate'),
       capacity: Number(formData.get('capacity')),
       requiredDepartments: departments,
       requiredPositions: positions,
-      description: formData.get('description') as string,
+      description: formText(formData, 'description'),
     };
 
     mutation.mutate(programData);

@@ -85,12 +85,13 @@ const D3TreeChart: React.FC<D3TreeChartProps> = ({ data, width = 600, height = 4
 
     // 링크(연결선) 생성 (간단한 직선)
     g.selectAll('.link')
+      // 뿌리 노드는 빼서 모든 노드에 부모가 있다. 그래도 단언 대신 부모가 없으면 자기 위치로 둔다
       .data(treeData.descendants().slice(1))
       .enter()
       .append('line')
       .attr('class', 'link')
-      .attr('x1', (d: HierarchyPointNode) => d.parent!.x)
-      .attr('y1', (d: HierarchyPointNode) => d.parent!.y + 30)
+      .attr('x1', (d: HierarchyPointNode) => (d.parent ?? d).x)
+      .attr('y1', (d: HierarchyPointNode) => (d.parent ?? d).y + 30)
       .attr('x2', (d: HierarchyPointNode) => d.x)
       .attr('y2', (d: HierarchyPointNode) => d.y - 30)
       .style('stroke', '#9ca3af')

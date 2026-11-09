@@ -143,7 +143,7 @@ const CustomerList = () => {
           placeholder="전체 상태"
           items={CUSTOMER_STATUS_OPTIONS}
           value={statusFilter}
-          onChange={(status: string) => setStatusFilter(status as CustomerStatus)}
+          onChange={setStatusFilter}
           autoSelectFirst
         />
         <SearchBar

@@ -203,7 +203,7 @@ const InvoiceList = () => {
             placeholder="전체 상태"
             items={VOUCHER_STATUS_OPTIONS}
             value={statusFilter}
-            onChange={(status: string) => setStatusFilter(status as InvoiceStatus)}
+            onChange={setStatusFilter}
             autoSelectFirst
           />
 

@@ -6,42 +6,36 @@ import {
 } from '@/app/(private)/sales/types/SalesStatsType';
 
 export const mapSalesStatsToCards = (data: SalesStatResponse): Record<string, StatCardType[]> => {
-  return Object.entries(data).reduce(
-    (acc, [period, stats]) => {
-      const cards: StatCardType[] = [
-        createStatCard('매출', stats.sales_amount.value, stats.sales_amount.delta_rate, '₩'),
-        createStatCard(
-          '신규 주문',
-          stats.new_orders_count.value,
-          stats.new_orders_count.delta_rate,
-          '건',
-        ),
-      ];
+  return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
+    const cards: StatCardType[] = [
+      createStatCard('매출', stats.sales_amount.value, stats.sales_amount.delta_rate, '₩'),
+      createStatCard(
+        '신규 주문',
+        stats.new_orders_count.value,
+        stats.new_orders_count.delta_rate,
+        '건',
+      ),
+    ];
 
-      acc[period] = cards;
-      return acc;
-    },
-    {} as Record<string, StatCardType[]>,
-  );
+    acc[period] = cards;
+    return acc;
+  }, {});
 };
 
 export const mapCustomerSalesStatsToCards = (
   data: CustomerSalesStatResponse,
 ): Record<string, StatCardType[]> => {
-  return Object.entries(data).reduce(
-    (acc, [period, stats]) => {
-      const cards: StatCardType[] = [
-        createStatCard(
-          '견적 건수',
-          stats.quotation_count.value,
-          stats.quotation_count.delta_rate,
-          '건',
-        ),
-      ];
+  return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
+    const cards: StatCardType[] = [
+      createStatCard(
+        '견적 건수',
+        stats.quotation_count.value,
+        stats.quotation_count.delta_rate,
+        '건',
+      ),
+    ];
 
-      acc[period] = cards;
-      return acc;
-    },
-    {} as Record<string, StatCardType[]>,
-  );
+    acc[period] = cards;
+    return acc;
+  }, {});
 };

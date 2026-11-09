@@ -44,21 +44,19 @@ export default function Navigation() {
   // const role = 'PP_USER';
 
   // role에 따라 label 변경
-  const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role as string)).map(
-    (item) => {
-      let label = item.label;
+  const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role)).map((item) => {
+    let label = item.label;
 
-      if (role === 'SUPPLIER_ADMIN' && item.href === '/purchase') {
-        label = '영업관리'; // SUPPLIER_ADMIN이면 구매관리 -> 영업관리
-      }
+    if (role === 'SUPPLIER_ADMIN' && item.href === '/purchase') {
+      label = '영업관리'; // SUPPLIER_ADMIN이면 구매관리 -> 영업관리
+    }
 
-      if (role === 'CUSTOMER_ADMIN' && item.href === '/sales') {
-        label = '구매관리'; // CUSTOMER_ADMIN이면 영업관리 -> 구매관리
-      }
+    if (role === 'CUSTOMER_ADMIN' && item.href === '/sales') {
+      label = '구매관리'; // CUSTOMER_ADMIN이면 영업관리 -> 구매관리
+    }
 
-      return { ...item, label };
-    },
-  );
+    return { ...item, label };
+  });
 
   const isActive = (href: string) => pathname === href;
 

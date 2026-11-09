@@ -48,10 +48,5 @@
     "react-hooks/refs": {
       "count": 1
     }
-  },
-  "src/mocks/handlers/sales.handlers.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 20
-    }
   }
 }

@@ -30,7 +30,7 @@ export default function DropdownInputModal({
   // 모달 바깥 클릭 시 모달 닫기 및 값 제출
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
+      const target = e.target instanceof Node ? e.target : null;
       if (isOpen && !refs.floating.current?.contains(target)) {
         onSubmit(inputValue); // 빈 값도 포함해서 부모 상태 업데이트
         setIsOpen(false); // 모달 닫기

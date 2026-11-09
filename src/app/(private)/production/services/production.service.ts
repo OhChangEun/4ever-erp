@@ -6,27 +6,24 @@ import { ProductionStatResponse } from '@/app/(private)/production/types/Product
 export const mapProductionStatsToCards = (
   data: ProductionStatResponse,
 ): Record<string, StatCardType[]> => {
-  return Object.entries(data).reduce(
-    (acc, [period, stats]) => {
-      const cards: StatCardType[] = [
-        createStatCard(
-          '생산중인 품목',
-          stats.production_in.value,
-          stats.production_in.delta_rate,
-          '건',
-        ),
-        createStatCard(
-          '생산 완료된 품목',
-          stats.production_completed.value,
-          stats.production_completed.delta_rate,
-          '건',
-        ),
-        createStatCard('Bom 개수', stats.bom_count.value, stats.bom_count.delta_rate, '건'),
-      ];
+  return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
+    const cards: StatCardType[] = [
+      createStatCard(
+        '생산중인 품목',
+        stats.production_in.value,
+        stats.production_in.delta_rate,
+        '건',
+      ),
+      createStatCard(
+        '생산 완료된 품목',
+        stats.production_completed.value,
+        stats.production_completed.delta_rate,
+        '건',
+      ),
+      createStatCard('Bom 개수', stats.bom_count.value, stats.bom_count.delta_rate, '건'),
+    ];
 
-      acc[period] = cards;
-      return acc;
-    },
-    {} as Record<string, StatCardType[]>,
-  );
+    acc[period] = cards;
+    return acc;
+  }, {});
 };

@@ -54,9 +54,7 @@ const ShippingManagementList = () => {
   const isCurrentError = selectedSubTab === 'producing' ? isProductionError : isReadyError;
   const currentRes = selectedSubTab === 'producing' ? ProductionRes : ReadyToShipRes;
 
-  const currentData = (currentRes?.data ?? []) as (
-    ProductionListResponse | ReadyToShipListResponse
-  )[];
+  const currentData: (ProductionListResponse | ReadyToShipListResponse)[] = currentRes?.data ?? [];
   const pageInfo = currentRes?.pageData;
   const totalPages = pageInfo?.totalPages ?? 1;
 

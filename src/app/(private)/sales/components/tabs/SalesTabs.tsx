@@ -9,7 +9,7 @@ export default function SalesTabs({ header }: { header?: ReactNode }) {
   const role = useRole();
   //   const role = 'CUSTOMER_ADMIN';
   //   const role = 'SUPPLIER_ADMIN';
-  const allowedTabs = getSalesTabsByRole(role as string);
+  const allowedTabs = getSalesTabsByRole(role);
 
   return <TabNavigation tabs={allowedTabs} header={header} />;
 }

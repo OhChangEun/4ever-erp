@@ -10,13 +10,14 @@ export interface ModalProps {
 }
 
 /**
- * 실제로 관리될 모달 스택 데이터 구조 단순화
- * 모든 모달 아이템은 동일한 기본 ModalProps를 갖는 것으로 간주합니다.
+ * 모달 스택 한 칸. 컴포넌트와 props 를 따로 들고 있으면 모든 모달을 ModalProps 로 단언해야 해서,
+ * 열 때 만든 요소(element)와 틀(ModalContainer)에 필요한 값만 둔다.
  */
 export interface ModalItem {
   id: string;
-  // Component 타입은 ModalProps만 받는 컴포넌트로 고정
-  Component: React.ComponentType<ModalProps>;
-  // props 타입도 ModalProps로 고정
-  props: ModalProps;
+  title?: string;
+  width?: string;
+  height?: string;
+  onClose: () => void;
+  element: React.ReactNode;
 }

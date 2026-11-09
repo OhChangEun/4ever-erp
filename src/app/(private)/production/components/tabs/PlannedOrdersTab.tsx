@@ -2,7 +2,6 @@
 import { useState, useMemo } from 'react';
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
-import { MrpPlannedOrderStatus } from '@/app/(private)/production/constants';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMrpPlannedOrderQuotationsDropdown,
@@ -45,7 +44,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
   // 드롭다운 상태
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [selectedQutations, setSelectedQutations] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<MrpPlannedOrderStatus>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<string>('ALL'); // 코드 목록은 서버 드롭다운이 정한다
 
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -185,7 +184,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
             placeholder="전체 상태"
             items={mrpStatusOptions}
             value={selectedStatus}
-            onChange={(status: MrpPlannedOrderStatus) => {
+            onChange={(status) => {
               setSelectedStatus(status);
               setCurrentPage(1);
             }}

@@ -80,7 +80,7 @@ export default function MesTab() {
 
   useEffect(() => {
     stepperRefs.current.forEach((el) => {
-      const activeStep = el.querySelector('[data-active="true"]') as HTMLElement | null;
+      const activeStep = el.querySelector<HTMLElement>('[data-active="true"]');
       if (activeStep) {
         const containerWidth = el.clientWidth;
         const stepLeft = activeStep.offsetLeft;

@@ -60,7 +60,9 @@ export default function Table<T = Record<string, unknown>>({
   };
 
   const getCellValue = (row: T, column: TableColumn<T>, index: number): ReactNode => {
-    const value = (row as Record<string, unknown>)[column.key];
+    // 열 key 는 행 필드 이름이거나(값 표시) 가상 열 이름이다(render 만 씀). 객체일 때만 꺼낸다
+    const value: unknown =
+      typeof row === 'object' && row !== null ? Reflect.get(row, column.key) : undefined;
     if (column.render) {
       return column.render(value, row, index);
     }

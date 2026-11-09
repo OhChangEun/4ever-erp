@@ -35,9 +35,6 @@ export default function StatSection({ statsData, error }: StatSectionProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(DEFAULT_PERIOD);
 
   const stats = statsData?.[selectedPeriod] ?? [];
-  const handlePeriodSelect = (key: string) => {
-    setSelectedPeriod(key as Period);
-  };
 
   if (error != null) {
     return (
@@ -58,7 +55,7 @@ export default function StatSection({ statsData, error }: StatSectionProps) {
       <SlidingNavBar
         items={STAT_PERIODS}
         selectedKey={selectedPeriod}
-        onSelect={handlePeriodSelect}
+        onSelect={setSelectedPeriod}
       />
     </section>
   );

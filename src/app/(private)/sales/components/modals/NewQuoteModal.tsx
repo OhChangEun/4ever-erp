@@ -82,11 +82,10 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
         if (item.id !== itemId) {
           return item;
         }
-        const nextItem: QuoteFormItem = { ...item, [field]: value } as QuoteFormItem;
+        const nextItem: QuoteFormItem = { ...item };
+        nextItem[field] = value;
         if (field === 'quantity' || field === 'unitPrice') {
-          const quantity = field === 'quantity' ? (value as number) : nextItem.quantity;
-          const unitPrice = field === 'unitPrice' ? (value as number) : nextItem.unitPrice;
-          nextItem.totalPrice = quantity * unitPrice;
+          nextItem.totalPrice = nextItem.quantity * nextItem.unitPrice;
         }
         return nextItem;
       });

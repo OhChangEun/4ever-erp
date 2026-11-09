@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, type PathParams } from 'msw';
 import {
   PRODUCTION_BASE_PATH,
   PRODUCTION_ENDPOINTS,
@@ -85,85 +85,88 @@ export const productionHandlers = [
     const start = page * size;
     return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
   }),
-  http.post(PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE, async ({ request }) => {
-    if (shouldError(request)) return error('Failed to simulate quotation', 500);
+  http.post<PathParams, { quotationIds?: string[] }>(
+    PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to simulate quotation', 500);
 
-    const body = (await request.json()) as { quotationIds: string[] };
-    const quotationIds = body.quotationIds || [];
+      const body = await request.json();
+      const quotationIds = body.quotationIds || [];
 
-    const customers = [
-      '삼성전자',
-      'LG Display',
-      'SK Hynix',
-      '현대모비스',
-      '두산중공업',
-      'LG화학',
-      '포스코',
-      '한빛전자',
-      '대양상사',
-      'KT&G',
-    ];
-    const products = [
-      '센서 모듈',
-      'LCD Panel 32"',
-      '메모리칩 16GB',
-      '모터 A',
-      '펌프 B',
-      '밸브 C',
-      '기어 D',
-      '베어링 E',
-      '실린더 F',
-      '피스톤 G',
-    ];
-    const selectedQuotations = quotationIds.map((quotationId) => {
-      const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
-      const requestQty = ((num % 10) + 1) * 1000;
-      // 가용 수량은 요청 수량의 40~130% 범위에서 결정
-      const availableRatio = [0.4, 0.6, 0.8, 1.0, 1.1, 1.3][num % 6];
-      const availableQty = Math.floor(requestQty * availableRatio);
-      const shortageQty = Math.max(0, requestQty - availableQty);
-      // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 경우 내부 사정으로 약 30% FAIL
-      const isFail = shortageQty > 0 && (num * 7 + 3) % 10 < 2;
-      const simulationStatus = shortageQty === 0 ? 'STOCK_SUFFICIENT' : isFail ? 'FAIL' : 'PASS';
-      const year = 2025 + Math.floor(num / 300);
-      const month = String((num % 12) + 1).padStart(2, '0');
-      const day = String((num % 28) + 1).padStart(2, '0');
-      const nextMonth = String((((num % 12) + 1) % 12) + 1).padStart(2, '0');
+      const customers = [
+        '삼성전자',
+        'LG Display',
+        'SK Hynix',
+        '현대모비스',
+        '두산중공업',
+        'LG화학',
+        '포스코',
+        '한빛전자',
+        '대양상사',
+        'KT&G',
+      ];
+      const products = [
+        '센서 모듈',
+        'LCD Panel 32"',
+        '메모리칩 16GB',
+        '모터 A',
+        '펌프 B',
+        '밸브 C',
+        '기어 D',
+        '베어링 E',
+        '실린더 F',
+        '피스톤 G',
+      ];
+      const selectedQuotations = quotationIds.map((quotationId) => {
+        const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
+        const requestQty = ((num % 10) + 1) * 1000;
+        // 가용 수량은 요청 수량의 40~130% 범위에서 결정
+        const availableRatio = [0.4, 0.6, 0.8, 1.0, 1.1, 1.3][num % 6];
+        const availableQty = Math.floor(requestQty * availableRatio);
+        const shortageQty = Math.max(0, requestQty - availableQty);
+        // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 경우 내부 사정으로 약 30% FAIL
+        const isFail = shortageQty > 0 && (num * 7 + 3) % 10 < 2;
+        const simulationStatus = shortageQty === 0 ? 'STOCK_SUFFICIENT' : isFail ? 'FAIL' : 'PASS';
+        const year = 2025 + Math.floor(num / 300);
+        const month = String((num % 12) + 1).padStart(2, '0');
+        const day = String((num % 28) + 1).padStart(2, '0');
+        const nextMonth = String((((num % 12) + 1) % 12) + 1).padStart(2, '0');
 
-      return {
-        quotationId,
-        quotationNumber: `QT-${year}-${String(num).padStart(3, '0')}`,
-        customerCompanyId: `cus-${String((num % customers.length) + 1).padStart(3, '0')}`,
-        customerCompanyName: customers[num % customers.length],
-        productId: `prod-${String((num % products.length) + 1).padStart(3, '0')}`,
-        productName: products[num % products.length],
-        requestQuantity: requestQty,
-        requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
-        simulation: {
-          status: simulationStatus,
-          availableQuantity: availableQty,
-          shortageQuantity: shortageQty,
-          shortageReason: isFail
-            ? [
-                '주요 원자재(실리콘 웨이퍼) 입고 지연',
-                '협력사 생산 차질',
-                '공정 설비 점검으로 인한 생산 중단',
-                '긴급 오더로 인한 재고 소진',
-                '예상치 못한 불량률 증가',
-                '납기일 내 입고 불가',
-              ][num % 6]
-            : '',
-          suggestedDueDate: `${year}-${nextMonth}-${day}`,
-          generatedAt: isoNow,
-        },
-      };
-    });
+        return {
+          quotationId,
+          quotationNumber: `QT-${year}-${String(num).padStart(3, '0')}`,
+          customerCompanyId: `cus-${String((num % customers.length) + 1).padStart(3, '0')}`,
+          customerCompanyName: customers[num % customers.length],
+          productId: `prod-${String((num % products.length) + 1).padStart(3, '0')}`,
+          productName: products[num % products.length],
+          requestQuantity: requestQty,
+          requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
+          simulation: {
+            status: simulationStatus,
+            availableQuantity: availableQty,
+            shortageQuantity: shortageQty,
+            shortageReason: isFail
+              ? [
+                  '주요 원자재(실리콘 웨이퍼) 입고 지연',
+                  '협력사 생산 차질',
+                  '공정 설비 점검으로 인한 생산 중단',
+                  '긴급 오더로 인한 재고 소진',
+                  '예상치 못한 불량률 증가',
+                  '납기일 내 입고 불가',
+                ][num % 6]
+              : '',
+            suggestedDueDate: `${year}-${nextMonth}-${day}`,
+            generatedAt: isoNow,
+          },
+        };
+      });
 
-    return ok({
-      page: makePage(0, selectedQuotations.length, selectedQuotations.length),
-      content: selectedQuotations,
-    });
-  }),
+      return ok({
+        page: makePage(0, selectedQuotations.length, selectedQuotations.length),
+        content: selectedQuotations,
+      });
+    },
+  ),
   http.post(PRODUCTION_ENDPOINTS.QUOTATION_PREVIEW, ({ request }) => {
     if (shouldError(request)) return error('Failed to preview quotation', 500);
     return ok([
@@ -242,9 +245,9 @@ export const productionHandlers = [
       { key: 'OP20', value: '조립' },
     ]);
   }),
-  http.get(`${PRODUCTION_BASE_PATH}/boms/:bomId`, ({ request, params }) => {
+  http.get<{ bomId: string }>(`${PRODUCTION_BASE_PATH}/boms/:bomId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load BOM detail', 500);
-    const bomId = params.bomId as string;
+    const { bomId } = params;
     return ok({
       bomId,
       bomNumber: 'BOM-2026-001',
@@ -290,38 +293,44 @@ export const productionHandlers = [
     });
   }),
   // BOM 상태 수정 요청 — 낙관적 락 버전 검증
-  http.patch(`${PRODUCTION_BASE_PATH}/boms/:bomId`, async ({ request, params }) => {
-    if (shouldError(request)) return error('Failed to update BOM', 500);
-    const bomId = params.bomId as string;
-    const body = (await request.json()) as { version: string; statusCode?: string };
-    const serverVersion = getBomVersion(bomId);
+  http.patch<{ bomId: string }, { version: string; statusCode?: string }>(
+    `${PRODUCTION_BASE_PATH}/boms/:bomId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update BOM', 500);
+      const { bomId } = params;
+      const body = await request.json();
+      const serverVersion = getBomVersion(bomId);
 
-    if (body.version !== serverVersion) {
-      return HttpResponse.json(
-        {
-          status: 409,
-          success: false,
-          message: `다른 사용자가 이미 이 BOM을 수정했습니다. (서버: ${serverVersion} / 요청: ${body.version})`,
-        },
-        { status: 409 },
-      );
-    }
+      if (body.version !== serverVersion) {
+        return HttpResponse.json(
+          {
+            status: 409,
+            success: false,
+            message: `다른 사용자가 이미 이 BOM을 수정했습니다. (서버: ${serverVersion} / 요청: ${body.version})`,
+          },
+          { status: 409 },
+        );
+      }
 
-    const newVersion = bumpBomVersion(bomId);
-    return HttpResponse.json({
-      status: 200,
-      success: true,
-      message: `BOM이 수정되었습니다. (버전: ${newVersion})`,
-    });
-  }),
+      const newVersion = bumpBomVersion(bomId);
+      return HttpResponse.json({
+        status: 200,
+        success: true,
+        message: `BOM이 수정되었습니다. (버전: ${newVersion})`,
+      });
+    },
+  ),
   // [개발 테스트 전용] 서버 버전을 강제로 올려서 충돌 상황 시뮬레이션
-  http.post(`${PRODUCTION_BASE_PATH}/boms/:bomId/simulate-conflict`, ({ params }) => {
-    const bomId = params.bomId as string;
-    const newVersion = bumpBomVersion(bomId);
-    return HttpResponse.json({
-      message: `[테스트] 서버 버전이 ${newVersion}로 변경되었습니다. 다음 수정 요청은 409를 반환합니다.`,
-    });
-  }),
+  http.post<{ bomId: string }>(
+    `${PRODUCTION_BASE_PATH}/boms/:bomId/simulate-conflict`,
+    ({ params }) => {
+      const { bomId } = params;
+      const newVersion = bumpBomVersion(bomId);
+      return HttpResponse.json({
+        message: `[테스트] 서버 버전이 ${newVersion}로 변경되었습니다. 다음 수정 요청은 409를 반환합니다.`,
+      });
+    },
+  ),
   http.post(PRODUCTION_ENDPOINTS.BOMS, ({ request }) => {
     if (shouldError(request)) return error('Failed to create BOM', 500);
     return okNoData();

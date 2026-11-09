@@ -7,17 +7,17 @@ import InputList from '@/app/components/common/InputList';
 import { KeyValueItem } from '@/app/types/CommonType';
 import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react';
 
-interface DropdownInputListModalProps<T extends string> {
-  initialItems?: KeyValueItem<T>[];
-  onSubmit: (items: KeyValueItem<T>[]) => void;
+interface DropdownInputListModalProps {
+  initialItems?: KeyValueItem<number>[];
+  onSubmit: (items: KeyValueItem<number>[]) => void;
 }
 
-export default function DropdownInputListModal<T extends string>({
+export default function DropdownInputListModal({
   initialItems = [],
   onSubmit,
-}: DropdownInputListModalProps<T>) {
+}: DropdownInputListModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [items, setItems] = useState<KeyValueItem<T>[]>(initialItems);
+  const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
 
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-start',
@@ -28,7 +28,7 @@ export default function DropdownInputListModal<T extends string>({
   // 외부 클릭 시 모달 닫기 + 값 제출
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
+      const target = e.target instanceof Node ? e.target : null;
       if (isOpen && !refs.floating.current?.contains(target)) {
         onSubmit(items);
         setIsOpen(false);
