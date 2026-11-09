@@ -6,6 +6,7 @@ import ProfileInfoModal from './ProfileInfoModal';
 import { useRole } from '@/app/hooks/useRole';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { requestLogout } from '@/lib/auth/logout';
 
 export function mapRoleToKorean(role: string | undefined): string {
   if (!role) return '';
@@ -75,11 +76,11 @@ export default function ProfileDropdown() {
 
   const handleLogout = async () => {
     // 세션 쿠키는 httpOnly라 브라우저 JS가 못 지운다 - 서버가 지운다
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(
-      () => null,
-    );
+    const idpLogoutUrl = await requestLogout();
     clearUserInfo();
-    router.replace('/login');
+    // OIDC 면 IdP 로그아웃 화면을 거쳐 /login 으로 돌아온다(전체 페이지 이동)
+    if (idpLogoutUrl) window.location.assign(idpLogoutUrl);
+    else router.replace('/login');
   };
 
   const handleProfile = (e: React.MouseEvent) => {

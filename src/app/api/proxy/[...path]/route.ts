@@ -1,4 +1,4 @@
-import { readSession } from '@/server/auth/session';
+import { readFreshSession } from '@/server/auth/session';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { canAccessApi } from '@/lib/authz/policy';
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,7 +37,8 @@ async function handle(req: NextRequest, ctx: RouteContext) {
   }
 
   // 1. 세션 쿠키 검증 - 없거나 깨졌으면 업스트림에 가지도 않는다
-  const session = await readSession(req.cookies);
+  // OIDC 세션은 access token 이 곧 만료되면 여기서 갱신된다(sid 별 single-flight)
+  const session = await readFreshSession(req.cookies);
   if (!session) {
     return NextResponse.json(
       { status: 401, success: false, message: '로그인이 필요합니다.' },

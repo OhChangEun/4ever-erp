@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { readErrorMessage, readUserResponse } from '@/lib/auth/userInfo';
+import { safeReturnTo } from '@/lib/auth/returnTo';
 import Button from '@/app/components/common/Button';
 import Flex from '@/app/components/common/Flex';
 import LogoMark from '@/app/components/header/LogoMark';
@@ -14,13 +15,58 @@ const VALID_IDS = new Set(DEMO_ACCOUNTS.map((a) => a.loginId.toUpperCase()));
 // middleware가 붙여준 returnTo - 같은 사이트 안의 경로만 허용
 function readReturnTo(): string {
   if (typeof window === 'undefined') return '/dashboard';
-  const value = new URLSearchParams(window.location.search).get('returnTo') ?? '';
-  // 같은 사이트 내부 경로만 허용: '/'로 시작하되 다음 글자가 '/'나 '\\'이면 거부한다.
-  // '//evil', '/\\evil'는 브라우저가 스킴 상대 URL로 정규화해 외부 도메인으로 나간다.
-  return /^\/(?![/\\])/.test(value) ? value : '/dashboard';
+  return safeReturnTo(new URLSearchParams(window.location.search).get('returnTo'));
+}
+
+// AUTH_PROVIDER=oidc 로 띄우면 데모 계정 대신 IdP 로그인 버튼 하나만 보인다(인증 4단계 카드)
+const IS_OIDC = process.env.NEXT_PUBLIC_AUTH_PROVIDER === 'oidc';
+
+const OIDC_ERROR_TEXT: Record<string, string> = {
+  access_denied: '로그인을 취소했습니다.',
+  no_role: '이 계정에는 EverP 역할이 없습니다. 관리자에게 역할을 요청하세요.',
+  invalid_transaction:
+    '로그인 시간이 지났거나 다른 창에서 시작한 로그인입니다. 다시 시도해 주세요.',
+  state_mismatch: '로그인 요청을 확인할 수 없습니다. 다시 시도해 주세요.',
+};
+
+function readOidcError(): string {
+  if (typeof window === 'undefined') return '';
+  const code = new URLSearchParams(window.location.search).get('error');
+  if (!code) return '';
+  return OIDC_ERROR_TEXT[code] ?? '로그인에 실패했습니다. 다시 시도해 주세요.';
+}
+
+function OidcLogin() {
+  const [error] = useState(readOidcError);
+  const startLogin = () => {
+    // 서버가 state, nonce, PKCE 를 만들고 IdP 로 302 한다. Next 페이지가 아니라 라우트 핸들러라
+    // 클라이언트 라우터 대신 전체 페이지 이동을 한다
+    const url = new URL('/api/auth/login', window.location.origin);
+    url.searchParams.set('returnTo', readReturnTo());
+    window.location.assign(url.toString());
+  };
+  return (
+    <Flex justify="center" align="center" className="min-h-screen bg-gray-50 px-4 pb-20">
+      <Flex direction="col" align="center" gap={4} className="w-full max-w-sm">
+        <LogoMark size={60} />
+        <h1 className="text-2xl font-semibold text-slate-900">4Ever 로그인</h1>
+        {error && (
+          <p role="alert" className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
+        <Button label="회사 계정으로 로그인" onClick={startLogin} className="w-full" />
+      </Flex>
+    </Flex>
+  );
 }
 
 export default function LoginPage() {
+  if (IS_OIDC) return <OidcLogin />;
+  return <DemoLogin />;
+}
+
+function DemoLogin() {
   const router = useRouter();
   const { setUserInfo } = useAuthStore();
   const [inputId, setInputId] = useState('');

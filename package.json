@@ -18,7 +18,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "e2e:oidc": "playwright test -c playwright.oidc.config.ts",
+    "dev:oidc": "node --env-file=dev/keycloak/.env.oidc ./node_modules/next/dist/bin/next dev --port 3100"
   },
   "lint-staged": {
     "*.{ts,tsx,mjs,js}": "eslint --no-warn-ignored",

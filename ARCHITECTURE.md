@@ -35,17 +35,33 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
 - 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽 `src/server/auth/pkce.ts` 로 옮겼다(3단계 OIDC 클라이언트용).
 
-## 4. 인증과 인가 (목표)
+## 4. 인증과 인가: OIDC 모드
 
-OAuth2/OIDC 서버가 있다고 가정하고 네 모듈로 가른다. 서버가 생기면 구현체와 env 만 바꾼다. 세부는 옵시디언 `프론트엔드/4ever-erp_아키텍처와_루프_계획_2026-11-09.md` 8절과 `4ever-erp_BFF_인증_진단과_실습계획.md` Part D.
+`AUTH_PROVIDER=oidc` 면 BFF 가 OIDC confidential client 가 된다(2026-11-10 인증 4단계). 기본값 `demo` 는 3절 그대로라 Vercel 데모는 바뀌지 않는다. 세부 배경은 옵시디언 `프론트엔드/4ever-erp_아키텍처와_루프_계획_2026-11-09.md` 8절과 `4ever-erp_BFF_인증_진단과_실습계획.md` Part D.
 
 ```
 src/server/auth/
-  idp/        IdentityProvider 인터페이스. DemoIdp(지금 데모 계정), OidcIdp(discovery + JWKS)   verified=false
-  session/    SessionStore 인터페이스. Memory(개발) → 외부 스토어(실서버). 쿠키엔 sid 와 15분 role 클레임만
-  authz/      policy.ts 하나. 페이지 규칙과 API 규칙을 같은 표에서 파생
-  handlers/   login(GET→302), callback, logout 3종, me, backchannel-logout
+  config.ts         AUTH_PROVIDER 와 OIDC env. IdP 는 쓰는 시점에 만든다
+  idp/              IdentityProvider 인터페이스, oidc.ts(discovery, PKCE, JWKS 로 ID 토큰과 로그아웃 토큰 검증)
+  session/          SessionStore. cookieStore(데모, 서명 JWT) / memoryStore(OIDC, sid 쿠키 + 서버 Map) / refresh.ts(single-flight)
+  oidcLogin.ts      로그인 시작(state, nonce, verifier 를 10분 서명 쿠키에) / 콜백(state, nonce 확인, 역할 고르기)
+  pkce.ts           code_verifier, S256 challenge
+src/lib/authz/policy.ts   역할 표(3절)
+src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그아웃 주소 반환), backchannel-logout
 ```
+
+흐름:
+
+1. `/login` 은 버튼 하나다. `/api/auth/login?returnTo=` 가 IdP 로 302 한다. state, nonce, PKCE verifier, returnTo 는 서명한 10분짜리 httpOnly 쿠키(`oidc_tx`, path `/api/auth`)에 있다.
+2. 콜백(`src/server/auth/oidcLogin.ts:76`)이 state 를 비교하고 code 를 토큰으로 바꾼 뒤 ID 토큰을 JWKS 로 검증하고 nonce 를 비교한다. `realm_access.roles` 중 역할 표에 있는 첫 역할로 세션을 연다. 없으면 `/login?error=no_role`.
+3. 쿠키에는 추측할 수 없는 sid(43자)만 있다. 토큰은 서버 메모리에 있다. API 프록시가 업스트림에 IdP access token 을 Bearer 로 붙인다.
+4. access token 이 30초 안에 만료되면 API 프록시가 갱신한다 (`src/server/auth/session/index.ts:35`). 같은 sid 의 동시 요청은 갱신 하나를 같이 기다린다 (`src/server/auth/session/refresh.ts:28`). Keycloak 의 refresh token rotation 때문에 두 번 부르면 두 번째가 실패해 세션이 끊긴다. 갱신이 실패하면 세션을 지우고 401.
+5. 로그아웃은 앱 세션을 지우고 IdP 로그아웃 주소(id_token_hint)를 돌려준다. 브라우저가 그 주소로 가야 IdP 세션도 끝나 SSO 로 바로 다시 들어오지 않는다.
+6. IdP 에서 세션이 끊기면(관리자 강제 로그아웃 등) IdP 가 `/api/auth/backchannel-logout` 에 서명한 logout_token 을 보낸다. 그 사용자의 앱 세션을 지워 다음 요청이 401 이 된다.
+
+한계: 메모리 저장소는 인스턴스 하나에서만 맞다(결정 9). Vercel 처럼 인스턴스가 여럿이면 외부 저장소(Redis 등)가 필요하다. 그래서 Vercel 은 데모 모드다. 페이지 프록시용 15분 role 클레임 쿠키도 그때 넣는다.
+
+로컬에서 돌리기: `bash dev/keycloak/start.sh`(Keycloak 26.8.1, 포트 8180, realm 은 `dev/keycloak/everp-realm.json` 을 가져온다) 뒤 `npm run dev:oidc`(앱 3100 포트. Keycloak 클라이언트의 콜백과 백채널 주소가 3100 하나다) 또는 `npm run e2e:oidc`. 값은 `dev/keycloak/.env.keycloak`, `.env.oidc`(git 에 안 올림, 변수 목록은 `start.sh` 머리말). 확인 항목 5개(`e2e-oidc/oidc.spec.ts`): 로그인과 sid 쿠키, 역할 차단, 60초 토큰 두 번 갱신 중 동시 요청 5개, RP 로그아웃 뒤 Keycloak 로그인 화면, 백채널 로그아웃 뒤 401. Keycloak 이 없는 CI 는 돌리지 않는다.
 
 ## 5. 서버 상태 레이어
 
@@ -131,12 +147,15 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 ## 7. 환경 변수
 
-| 이름                       | 어디서   | 뜻                                                                                             |
-| -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `SESSION_SECRET`           | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:9`) |
-| `BACKEND_API_URL`          | 서버     | 업스트림. 없으면 `/api/[...slug]` 목                                                           |
-| `NEXT_PUBLIC_API_BASE_URL` | 브라우저 | 기본 `/api/proxy`                                                                              |
-| `NEXT_PUBLIC_API_MOCKING`  | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                        |
+| 이름                                                  | 어디서   | 뜻                                                                                             |
+| ----------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `SESSION_SECRET`                                      | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:9`) |
+| `BACKEND_API_URL`                                     | 서버     | 업스트림. 없으면 `/api/[...slug]` 목                                                           |
+| `NEXT_PUBLIC_API_BASE_URL`                            | 브라우저 | 기본 `/api/proxy`                                                                              |
+| `NEXT_PUBLIC_API_MOCKING`                             | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                        |
+| `AUTH_PROVIDER`                                       | 서버     | `demo`(기본) 또는 `oidc`. 4절                                                                  |
+| `NEXT_PUBLIC_AUTH_PROVIDER`                           | 브라우저 | `oidc` 면 로그인 화면이 IdP 버튼 하나                                                          |
+| `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | 서버     | OIDC 모드에서만. 없으면 로그인 시작 때 throw                                                   |
 
 CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 로그인이 된다. 2026-11-09 PR #1 머지 뒤 배포 7건이 Vercel 에 env 가 하나도 없어 `session.ts` import 시점 throw 로 실패했다. 같은 날 비밀키 읽기를 호출 시점으로 옮겨 빌드는 env 없이도 통과하게 했고, `vercel env add SESSION_SECRET production|preview` 로 환경마다 다른 값을 넣었다(`openssl rand -base64 32`). 교체는 `vercel env rm` 뒤 다시 add.
 
