@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModalProvider } from './ModalProvider';
 import { useModal } from './useModal';
@@ -76,6 +76,19 @@ function LayerPage() {
   return (
     <button type="button" onClick={() => openModal(FormWithLayers, { title: '폼' })}>
       폼 열기
+    </button>
+  );
+}
+
+function Broken(_: ModalProps): never {
+  throw new Error('모달 안에서 깨짐');
+}
+
+function BrokenPage() {
+  const { openModal } = useModal();
+  return (
+    <button type="button" onClick={() => openModal(Broken, { title: '깨지는 모달' })}>
+      깨지는 모달 열기
     </button>
   );
 }
@@ -178,5 +191,22 @@ describe('모달(포커스와 키보드)', () => {
     expect(screen.getByRole('dialog', { name: '폼' })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog', { name: '폼' })).not.toBeInTheDocument();
+  });
+
+  // 옵저버빌리티 1: 모달 안에서 던져도 화면 전체가 오류 페이지로 바뀌지 않는다
+  it('모달 안 컴포넌트가 던지면 그 모달만 오류로 바뀌고 닫을 수 있다', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <ModalProvider>
+        <BrokenPage />
+      </ModalProvider>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: '깨지는 모달 열기' }));
+    const dialog = await screen.findByRole('dialog', { name: '깨지는 모달' });
+    expect(dialog).toHaveTextContent('이 창을 그리는 중 오류가 발생했습니다');
+    await userEvent.click(within(dialog).getByRole('button', { name: '창 닫기' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '깨지는 모달 열기' })).toBeInTheDocument();
+    spy.mockRestore();
   });
 });
