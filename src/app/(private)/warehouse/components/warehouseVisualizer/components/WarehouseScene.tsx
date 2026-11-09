@@ -8,7 +8,6 @@ const WarehouseScene = ({
   clusters,
   viewMode,
   activeWarehouseKey,
-  selectedItemId,
   onSelectWarehouse,
   onSelectItem,
 }: SceneProps) => {
@@ -151,7 +150,7 @@ const WarehouseScene = ({
                   );
                 });
                 // Render boxes based on clusterItems
-                const boxes = clusterItems.map((item, i) => {
+                const boxes = clusterItems.map((item) => {
                   // ShelfNumber-based indexing
                   const maxBoxesPerRack = levelsPerRack * boxesPerLevel; // 15
                   const shelfNumber = (item.shelfNumber ?? 1) - 1;

@@ -40,7 +40,6 @@ const InvoiceList = () => {
       ? 'sales'
       : 'purchase'
     : defaultTab;
-  const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
 
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus>('ALL');

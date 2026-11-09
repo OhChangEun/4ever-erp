@@ -28,11 +28,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   const [selectedManager, setSelectedManager] = useState<string>(departments.managerId);
   const [description, setDescription] = useState<string>(departments.description);
 
-  const {
-    data: memberOptions,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: memberOptions } = useQuery({
     queryKey: departmentKeys.memberDropdown(departments.departmentId),
     queryFn: () => fetchDeptMemberDropdown(departments.departmentId),
   });

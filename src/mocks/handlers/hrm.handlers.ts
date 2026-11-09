@@ -322,7 +322,7 @@ export const hrmHandlers = [
       { key: 'dept-002', value: '구매팀' },
     ]);
   }),
-  http.get(`${HRM_BASE_PATH}/:departmentId/positions/all`, ({ request, params }) => {
+  http.get(`${HRM_BASE_PATH}/:departmentId/positions/all`, ({ request }) => {
     if (shouldError(request)) return error('Failed to load positions dropdown', 500);
     return ok([
       { key: 'pos-001', value: '팀장' },
@@ -336,7 +336,7 @@ export const hrmHandlers = [
       { key: 'LATE', value: '지각' },
     ]);
   }),
-  http.get(`${HRM_BASE_PATH}/departments/:departmentId/members`, ({ request, params }) => {
+  http.get(`${HRM_BASE_PATH}/departments/:departmentId/members`, ({ request }) => {
     if (shouldError(request)) return error('Failed to load dept members dropdown', 500);
     return ok([{ key: 'emp-001', value: '홍길동' }]);
   }),

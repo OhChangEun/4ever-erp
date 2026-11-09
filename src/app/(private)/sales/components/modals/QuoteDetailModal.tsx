@@ -9,10 +9,9 @@ import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { ModalProps } from '@/app/components/common/modal/types';
 
 import { formatCurrency } from '@/app/utils/number';
-const QuoteDetailModal = ({ onClose, selectedQuotationId }: QuoteDetailModalProps) => {
+const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.detail(selectedQuotationId),
     queryFn: () => getQuoteDetail(selectedQuotationId),

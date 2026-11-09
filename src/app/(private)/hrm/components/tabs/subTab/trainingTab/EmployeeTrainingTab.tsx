@@ -1,10 +1,7 @@
 'use client';
 
 import { fetchDepartmentsDropdown, fetchTrainingList } from '@/app/(private)/hrm/api/hrm.api';
-import {
-  TrainingListData,
-  TrainingRequestParams,
-} from '@/app/(private)/hrm/types/HrmTrainingApiType';
+import { TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
@@ -48,11 +45,7 @@ export default function EmployeeTrainingTab() {
     [selectedDepartment, debouncedKeyword, currentPage],
   );
 
-  const {
-    data: trainingData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: trainingData } = useQuery({
     queryKey: trainingKeys.list(trainingQueryParams),
     queryFn: () => fetchTrainingList(trainingQueryParams),
   });

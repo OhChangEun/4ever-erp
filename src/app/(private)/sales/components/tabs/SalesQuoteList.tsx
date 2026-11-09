@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { QuoteStatus, Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
 import QuoteDetailModal from '../modals/QuoteDetailModal';
 import { useQuery } from '@tanstack/react-query';
@@ -15,7 +15,6 @@ import Pagination from '@/app/components/common/Pagination';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import Input from '@/app/components/common/Input';
 import Dropdown from '@/app/components/common/Dropdown';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';

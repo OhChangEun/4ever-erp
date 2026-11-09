@@ -12,7 +12,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import Table from '@/app/components/common/Table';
 import { receivingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 const ReceivingManagementList = () => {

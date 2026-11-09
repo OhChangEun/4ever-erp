@@ -39,11 +39,7 @@ export default function AttendanceTab() {
     'with-all',
   );
 
-  const {
-    data: statusData,
-    isLoading: statusLoading,
-    isError: errorLoading,
-  } = useQuery({
+  const { data: statusData } = useQuery({
     queryKey: attendanceKeys.statusDropdown(),
     queryFn: fetchAttendanceStatusDropdown,
     staleTime: Infinity,

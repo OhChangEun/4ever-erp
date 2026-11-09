@@ -5,7 +5,6 @@ import {
   EditWarehouseRequest,
   ManageWarehouseModalProps,
 } from '../../types/ManageWarehouseModalType';
-import { InventoryDetailResponse } from '@/app/(private)/inventory/types/InventoryDetailModalType';
 import { WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
 import {
   getWarehouseDetail,
@@ -13,7 +12,6 @@ import {
   patchManageWarehouse,
 } from '../../warehouse.api';
 import { useEffect, useState } from 'react';
-import { getStatusText } from '@/lib/status.constants';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';

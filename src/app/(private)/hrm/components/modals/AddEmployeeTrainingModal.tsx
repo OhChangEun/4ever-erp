@@ -3,11 +3,10 @@
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { FormEvent, useMemo, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { fetchProgramListDropdown, postProgramToEmployee } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramToEmployeeRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
-import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { programKeys, trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
@@ -25,11 +24,7 @@ export default function AddEmployeeTrainingModal({
   const toast = useToast();
 
   // 교육 프로그램 드롭다운 조회
-  const {
-    data: programData,
-    isLoading: programLoading,
-    isError: programError,
-  } = useQuery({
+  const { data: programData } = useQuery({
     queryKey: programKeys.dropdown(),
     queryFn: fetchProgramListDropdown,
     staleTime: Infinity,

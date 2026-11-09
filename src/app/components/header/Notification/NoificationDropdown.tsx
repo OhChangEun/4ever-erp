@@ -22,7 +22,6 @@ import {
 import NotificationHeader from './NotificationHeader';
 import NotificationPagination from './NotificationPagination';
 import NotificationList from './NotificationList';
-import ErrorMessage from '../../common/ErrorMessage';
 import { notificationKeys } from '../header.keys';
 
 export default function NotificationDropdown() {
@@ -46,11 +45,7 @@ export default function NotificationDropdown() {
   const queryClient = useQueryClient();
 
   // 알림 목록 조회
-  const {
-    data: notificationData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: notificationData } = useQuery({
     queryKey: notificationKeys.list(currentPage),
     queryFn: () => fetchNotifications(currentPage, ITEMS_PER_PAGE),
   });

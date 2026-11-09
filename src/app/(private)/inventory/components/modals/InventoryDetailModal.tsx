@@ -7,8 +7,8 @@ import {
   InventoryDetailModalProps,
   InventoryDetailResponse,
 } from '../../types/InventoryDetailModalType';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { getInventoryDetail, postStockMovement } from '../../inventory.api';
+import { useQuery } from '@tanstack/react-query';
+import { getInventoryDetail } from '../../inventory.api';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { FormatDate, getMovementColor, getMovementIcon } from '../../inventory.utils';

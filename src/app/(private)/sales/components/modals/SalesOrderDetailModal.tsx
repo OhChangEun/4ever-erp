@@ -12,7 +12,7 @@ import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
 import { formatCurrency } from '@/app/utils/number';
-const SalesOrderDetailModal = ({ onClose, selectedSalesOrderId }: SalesOrderDetailProps) => {
+const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) => {
   const {
     data: orderDetailRes,
     isLoading,

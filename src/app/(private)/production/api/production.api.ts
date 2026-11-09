@@ -5,7 +5,6 @@ import {
   FetchQuotationSimulationParams,
   QuotationSimulationResponse,
 } from '@/app/(private)/production/types/QuotationSimulationApiType';
-import { QuotationPreviewResponse } from '@/app/(private)/production/types/QuotationPreviewApiType';
 import { MpsListParams, MpsListResponse } from '@/app/(private)/production/types/MpsApiType';
 import { FetchMesListParams, MesListResponse } from '../types/MesListApiType';
 import { MesDetailResponse } from '../types/MesDetailApiType';

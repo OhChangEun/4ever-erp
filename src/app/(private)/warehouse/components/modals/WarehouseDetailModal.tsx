@@ -12,7 +12,6 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 const WarehouseDetailModal = ({
-  onClose,
   handleWarehouseManage,
   selectedWarehouseId,
   selectedWarehouseName,

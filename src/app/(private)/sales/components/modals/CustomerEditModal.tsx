@@ -94,13 +94,13 @@ const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerE
     },
 
     // 성공 시: 알림 + 모달 닫기 + 최신 데이터 갱신
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('고객 정보가 성공적으로 수정되었습니다.');
       onClose();
       queryClient.invalidateQueries({ queryKey: customerKeys.details() });
     },
 
-    onError: (error) => {
+    onError: () => {
       toast.error(`고객 수정 중 오류가 발생했습니다.`);
     },
 

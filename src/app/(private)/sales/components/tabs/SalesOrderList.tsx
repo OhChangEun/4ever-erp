@@ -8,16 +8,11 @@ import { useDebounce } from 'use-debounce';
 import { getOrderList } from '../../sales.api';
 import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import {
-  getOrderSearchKeywordOptions,
-  ORDER_LIST_TABLE_HEADERS,
-  ORDER_STATUS_OPTIONS,
-} from '@/app/(private)/sales/constant';
+import { getOrderSearchKeywordOptions, ORDER_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 import Pagination from '@/app/components/common/Pagination';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import Input from '@/app/components/common/Input';
 import Dropdown from '@/app/components/common/Dropdown';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';

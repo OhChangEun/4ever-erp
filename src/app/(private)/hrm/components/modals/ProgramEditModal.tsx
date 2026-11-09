@@ -3,11 +3,10 @@
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { FormEvent, useMemo, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { fetchProgramStatusDropdown, patchProgram } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
-import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
@@ -23,11 +22,7 @@ export default function EditProgramModal({
 }: EditProgramModalProps) {
   const [selectedProgramStatus, setSelectedProgramStatus] = useState('');
 
-  const {
-    data: statusData,
-    isLoading: statusLoading,
-    isError: errorLoading,
-  } = useQuery({
+  const { data: statusData } = useQuery({
     queryKey: programKeys.statusDropdown(),
     queryFn: fetchProgramStatusDropdown,
     staleTime: Infinity,

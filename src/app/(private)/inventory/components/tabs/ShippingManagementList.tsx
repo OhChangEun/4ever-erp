@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { SHIPPING_TABLE_HEADERS } from '../../inventory.constants';
 import { useQuery } from '@tanstack/react-query';
 import { getProductionList, getReadyToShipList } from '../../inventory.api';
 import {
@@ -13,7 +12,7 @@ import Pagination from '@/app/components/common/Pagination';
 import ShippingDetailModal from '../modals/ShippingDetailModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import Table from '@/app/components/common/Table';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
@@ -21,8 +20,6 @@ const ShippingManagementList = () => {
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubTab, setSelectedSubTab] = useState('producing');
-  const [showShipDetailModal, setShowShipDetailModal] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState('');
 
   const queryParams = useMemo(
     () => ({

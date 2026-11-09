@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  NewOrderModalProps,
-  Product,
   NewOrderRequest,
   NewOrderItem,
   ItemResponse,

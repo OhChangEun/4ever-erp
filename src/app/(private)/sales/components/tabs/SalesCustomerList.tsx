@@ -11,7 +11,6 @@ import { useDebounce } from 'use-debounce';
 import { CustomerDetail } from '../../types/SalesCustomerDetailType';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import {
-  CUSTOMER_LIST_TABLE_HEADERS,
   CUSTOMER_SEARCH_KEYWORD_OPTIONS,
   CUSTOMER_STATUS_OPTIONS,
 } from '@/app/(private)/sales/constant';
@@ -71,7 +70,6 @@ const CustomerList = () => {
     });
   };
 
-  const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState<CustomerDetail | null>(null);
 
   const totalPages = pageInfo?.totalPages ?? 1;
