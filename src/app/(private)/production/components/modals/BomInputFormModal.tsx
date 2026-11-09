@@ -26,14 +26,15 @@ import {
   fetchOperationDropdown,
   fetchProductDropdown,
   fetchProduction,
-  postBomItem,
 } from '../../api/production.api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCreateBom } from '../../api/production.mutations';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { bomKeys, productionStatsKeys } from '@/app/(private)/production/api/production.keys';
+import { errorMessageOf } from '@/lib/AppError';
+import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -242,25 +243,17 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
 }
 
 export default function BomInputFormModal({ editMode = false, onClose }: BomInputFormModalProps) {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [productName, setProductName] = useState('');
   const [unit, setUnit] = useState('');
   const [bomItems, setBomItems] = useState<BomItem[]>([]);
 
-  const { mutate: updateBomItem, isPending } = useMutation({
-    mutationFn: (body: BomRequestBody) => postBomItem(body),
-    onSuccess: async () => {
+  const { mutate: updateBomItem, isPending } = useCreateBom({
+    onSuccess: () => {
       toast.success('BOM 생성이 완료되었습니다.');
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
-      onClose(); // 모달 닫기
+      onClose();
     },
-    onError: (error) => {
-      console.log(`BOM 생성 중 오류 발생: ${error}`);
-      toast.error('BOM 생성 중 오류가 발생했습니다.');
-    },
+    onError: (error) => toast.error(`BOM 생성 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const sensors = useSensors(

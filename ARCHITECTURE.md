@@ -57,7 +57,7 @@ src/server/auth/
 - 서버 prefetch → `HydrationBoundary` (`src/app/providers.tsx:29`) 패턴이 15곳에 있다. 전 도메인 확대 예정.
 - 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:18`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
 - 낙관적 락은 BOM 상태 변경에만 있다. version 전송 (`src/app/(private)/production/components/modals/BomDetailModal.tsx:45`), 409 처리 (`:53`). 공통 패턴으로 뽑을 원형.
-- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8곳(`purchase.mutations.ts`)과 인사 10곳(`hrm.mutations.ts`) 완료, 나머지(생산 6, 재고 4, 영업 3, 프로필 3, 재무 1, 창고 1, 헤더 1)는 도메인별 카드.
+- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8곳(`purchase.mutations.ts`), 인사 10곳(`hrm.mutations.ts`), 생산 쓰기 10곳(`production.mutations.ts`) 완료. 나머지(재고 4, 영업 3, 프로필 3, 재무 1, 창고 1, 헤더 1)와 읽기를 mutation 으로 한 생산 3곳은 도메인별 카드.
 
   구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
 
@@ -83,6 +83,18 @@ src/server/auth/
   | 직원 등록       | `employeeKeys.lists()`, `hrmStatsKeys.all`, `departmentKeys.memberDropdown(departmentId)` |
   | 직원 수정       | `employeeKeys.lists()`, `departmentKeys.all`(옛 부서 id 를 몰라 부서 키 전부)             |
   | 급여 완료       | `payrollKeys.lists()`, `.detail(payrollId)`                                               |
+
+  생산 무효화 매트릭스 (`PRODUCTION_MUTATION_EFFECTS`):
+
+  | mutation                             | 다시 가져오는 키                                                                                                                               |
+  | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+  | BOM 상태 변경                        | `bomKeys.detail(id)`, `bomKeys.lists()`                                                                                                        |
+  | BOM 충돌 시뮬레이션(테스트 전용)     | 없음(옛 값을 유지해야 409 를 볼 수 있다)                                                                                                       |
+  | BOM 생성                             | `bomKeys.lists()`, `productionStatsKeys.all`                                                                                                   |
+  | 자재 구매 요청                       | `mrpPlannedOrderKeys.lists()` + 구매 `purchaseRequestKeys.lists()`, `purchaseStatsKeys.all` (구매 데이터를 만드는 요청이라 의도한 도메인 교차) |
+  | 계획 주문 전환                       | `mrpOrderKeys.lists()`, `mrpPlannedOrderKeys.lists()`                                                                                          |
+  | 제안납기 확정                        | `quotationKeys.lists()`                                                                                                                        |
+  | MES 시작, 완료, 공정 시작, 공정 완료 | `mesKeys.detail(mesId)`, `mesKeys.lists()`, `productionStatsKeys.all`                                                                          |
 
 ## 6. 폴더 규칙과 import 방향
 

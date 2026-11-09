@@ -11,9 +11,9 @@ import SimulationResultModal from '@/app/(private)/production/components/modals/
 import {
   fetchQuotationSimulationResult,
   fetchQuotationList,
-  fetchQuotationConfirm,
   fetchAvailableStatusDropdown,
 } from '@/app/(private)/production/api/production.api';
+import { useConfirmQuotations } from '@/app/(private)/production/api/production.mutations';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Pagination from '@/app/components/common/Pagination';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
@@ -23,6 +23,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 
 import Button from '@/app/components/common/Button';
@@ -112,18 +113,13 @@ export default function QuotationTab() {
     },
   });
 
-  const { mutate: confirmQuotations } = useMutation({
-    mutationFn: (params: string[]) => fetchQuotationConfirm(params),
+  const { mutate: confirmQuotations } = useConfirmQuotations({
     onSuccess: () => {
       toast.success('제안납기를 확정하였습니다.');
-      removeAllModals(); // 모든 탭 닫기
-
-      queryClient.invalidateQueries({ queryKey: quotationKeys.lists() });
+      removeAllModals();
     },
-    onError: (error) => {
-      console.error('제안납기 확정 실패:', error);
-      toast.success('제안납기를 확정하는데 실패했습니다.');
-    },
+    // 실패를 success 토스트로 알리던 버그 수정
+    onError: (error) => toast.error(`제안납기를 확정하는데 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleQuoteSelect = (quotationId: string) => {

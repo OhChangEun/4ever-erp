@@ -1,25 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { fetchMesDetail } from '@/app/(private)/production/api/production.api';
 import {
-  fetchMesDetail,
-  startMes,
-  completeMes,
-  startMesOperation,
-  completeMesOperation,
-} from '@/app/(private)/production/api/production.api';
+  useCompleteMes,
+  useCompleteMesOperation,
+  useStartMes,
+  useStartMesOperation,
+} from '@/app/(private)/production/api/production.mutations';
 import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Button from '@/app/components/common/Button';
-import { mesKeys, productionStatsKeys } from '@/app/(private)/production/api/production.keys';
+import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 interface MesDetailProps extends ModalProps {
   mesId: string;
 }
 
 export default function MesDetail({ mesId }: MesDetailProps) {
-  const queryClient = useQueryClient();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // MES 상세 정보 조회
@@ -33,60 +32,22 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     enabled: !!mesId,
   });
 
-  // MES 시작 Mutation
-  const startMesMutation = useMutation({
-    mutationFn: () => startMes(mesId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
-      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
-      setMessage({ type: 'success', text: 'MES 작업이 시작되었습니다.' });
-    },
-    onError: () => {
-      setMessage({ type: 'error', text: 'MES 시작 중 오류가 발생했습니다.' });
-    },
+  // mutation 과 무효화 범위(상세, 목록, 통계)는 production.mutations.ts 한 곳. 여기선 결과 메시지만.
+  const startMesMutation = useStartMes({
+    onSuccess: () => setMessage({ type: 'success', text: 'MES 작업이 시작되었습니다.' }),
+    onError: () => setMessage({ type: 'error', text: 'MES 시작 중 오류가 발생했습니다.' }),
   });
-
-  // MES 완료 Mutation
-  const completeMesMutation = useMutation({
-    mutationFn: () => completeMes(mesId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
-      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
-      setMessage({ type: 'success', text: 'MES 작업이 완료되었습니다.' });
-    },
-    onError: () => {
-      setMessage({ type: 'error', text: 'MES 완료 중 오류가 발생했습니다.' });
-    },
+  const completeMesMutation = useCompleteMes({
+    onSuccess: () => setMessage({ type: 'success', text: 'MES 작업이 완료되었습니다.' }),
+    onError: () => setMessage({ type: 'error', text: 'MES 완료 중 오류가 발생했습니다.' }),
   });
-
-  // 공정 시작 Mutation
-  const startOperationMutation = useMutation({
-    mutationFn: (operationId: string) => startMesOperation(mesId, operationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
-      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
-      setMessage({ type: 'success', text: '공정이 시작되었습니다.' });
-    },
-    onError: () => {
-      setMessage({ type: 'error', text: '공정 시작 중 오류가 발생했습니다.' });
-    },
+  const startOperationMutation = useStartMesOperation({
+    onSuccess: () => setMessage({ type: 'success', text: '공정이 시작되었습니다.' }),
+    onError: () => setMessage({ type: 'error', text: '공정 시작 중 오류가 발생했습니다.' }),
   });
-
-  // 공정 완료 Mutation
-  const completeOperationMutation = useMutation({
-    mutationFn: (operationId: string) => completeMesOperation(mesId, operationId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mesKeys.detail(mesId) });
-      queryClient.invalidateQueries({ queryKey: mesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productionStatsKeys.all });
-      setMessage({ type: 'success', text: '공정이 완료되었습니다.' });
-    },
-    onError: () => {
-      setMessage({ type: 'error', text: '공정 완료 중 오류가 발생했습니다.' });
-    },
+  const completeOperationMutation = useCompleteMesOperation({
+    onSuccess: () => setMessage({ type: 'success', text: '공정이 완료되었습니다.' }),
+    onError: () => setMessage({ type: 'error', text: '공정 완료 중 오류가 발생했습니다.' }),
   });
 
   const formatDuration = (hours: number): string => {
@@ -197,12 +158,12 @@ export default function MesDetail({ mesId }: MesDetailProps) {
               <Button
                 label="MES 시작"
                 disabled={!mesDetail.canStartMes || isProcessing}
-                onClick={() => startMesMutation.mutate()}
+                onClick={() => startMesMutation.mutate(mesId)}
               />
               <Button
                 label="MES 완료"
                 disabled={!mesDetail.canCompleteMes || isProcessing}
-                onClick={() => completeMesMutation.mutate()}
+                onClick={() => completeMesMutation.mutate(mesId)}
               />
             </div>
           </div>
@@ -258,7 +219,12 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                 {/* 공정 제어 버튼 */}
                 <div className="mt-4 pt-3 border-t flex justify-end gap-2">
                   <button
-                    onClick={() => startOperationMutation.mutate(operation.mesOperationLogId)}
+                    onClick={() =>
+                      startOperationMutation.mutate({
+                        mesId,
+                        operationId: operation.mesOperationLogId,
+                      })
+                    }
                     disabled={!operation.canStart || isProcessing}
                     className={`px-4 py-1.5 text-sm rounded-md border transition duration-150 
                       ${
@@ -270,7 +236,12 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                     <i className="ri-play-line mr-1"></i>공정 시작
                   </button>
                   <button
-                    onClick={() => completeOperationMutation.mutate(operation.mesOperationLogId)}
+                    onClick={() =>
+                      completeOperationMutation.mutate({
+                        mesId,
+                        operationId: operation.mesOperationLogId,
+                      })
+                    }
                     disabled={!operation.canComplete || isProcessing}
                     className={`px-4 py-1.5 text-sm rounded-md border transition duration-150 
                       ${

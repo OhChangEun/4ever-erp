@@ -35,9 +35,14 @@ const BOM_LIST = bomKeys.list({ page: 0, size: 10 });
 const BOM_DETAIL = bomKeys.detail('bom-001');
 const MES_LIST = mesKeys.list({ page: 0, size: 10 });
 const MES_DETAIL = mesKeys.detail('mes-001');
-const MRP_ORDER_LIST = mrpOrderKeys.list({ page: 0, size: 10 });
+const MRP_ORDER_LIST = mrpOrderKeys.list({
+  page: 0,
+  size: 10,
+  quotationId: 'q-1',
+  availableStatusCode: 'ALL',
+});
 const MRP_PLANNED_LIST = mrpPlannedOrderKeys.list({ page: 0, size: 10 });
-const QUOTATION_LIST = quotationKeys.list({ page: 0, size: 10 });
+const QUOTATION_LIST = quotationKeys.list({ page: 0, size: 10, availableStatusCode: 'ALL' });
 const STATS = productionStatsKeys.all;
 const PURCHASE_REQUEST_LIST = purchaseRequestKeys.list({ page: 0, size: 10 });
 const PURCHASE_STATS = purchaseStatsKeys.byRole('ALL_ADMIN');
