@@ -11,16 +11,19 @@ import {
   inventoryKeys,
   inventoryStatsKeys,
   lowStockItemKeys,
+  shippingKeys,
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
 import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
 import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import type { InventoryDetailResponse } from './types/InventoryDetailModalType';
 import type { InventoryResponse } from './types/InventoryListType';
 import type { Page } from '@/app/types/Page';
 import {
   useAddMaterial,
+  useMarkReadyToShip,
   useMoveStock,
   useRequestPurchaseForLowStock,
   useUpdateSafetyStock,
@@ -93,6 +96,24 @@ describe('재고 mutation 훅 무효화 범위', () => {
         lowStockStatsKeys.all,
       ],
       keeps: [inventoryKeys.detail('item-2'), FOREIGN],
+    }));
+});
+
+describe('출하 준비', () => {
+  it('출하 준비 → 출하 키 전부, 재고 통계 + 영업 주문 목록과 그 주문 상세(의도한 교차)', () =>
+    expectMatrix({
+      name: '',
+      useHook: useMarkReadyToShip,
+      variables: { orderId: 'so-1', itemIds: { itemIds: ['item-1'] } },
+      invalidates: [
+        shippingKeys.productionList({ page: 0, size: 10 }),
+        shippingKeys.readyToShipList({ page: 0, size: 10 }),
+        shippingKeys.detail('so-1'),
+        inventoryStatsKeys.all,
+        salesOrderKeys.lists(),
+        salesOrderKeys.detail('so-1'),
+      ],
+      keeps: [LIST_0, salesOrderKeys.detail('so-2'), FOREIGN],
     }));
 });
 
