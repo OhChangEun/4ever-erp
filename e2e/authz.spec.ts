@@ -48,6 +48,9 @@ test('로그아웃하면 세션 쿠키가 실제로 지워지고 다음 요청�
   const after = (await context.cookies()).map((c) => c.name);
   expect(after.some((name) => name.endsWith('session'))).toBe(false);
   expect((await page.request.get('/api/auth/me')).status()).toBe(401);
-  await page.goto('/dashboard');
-  await page.waitForURL(/\/login/);
+  // 페이지 이동 대신 서버 응답을 본다. 열려 있던 화면의 클라이언트 가드가 /login 으로 옮기는 이동과
+  // page.goto 가 부딪혀 흔들렸다(CI 에서 한 번 실패)
+  const dashboard = await page.request.get('/dashboard', { maxRedirects: 0 });
+  expect(dashboard.status()).toBe(307);
+  expect(dashboard.headers()['location']).toContain('/login');
 });
