@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import IconButton from '@/app/components/common/IconButton';
-import Flex from '@/app/components/common/Flex';
+import { IconButton } from '@everp/ui';
+import { Flex } from '@everp/ui';
 
 /** 앱 층 오류 경계. (private) 밖(로그인 등)에서 깨지면 여기로 온다. 운영에서는 stack 대신 digest(옵저버빌리티 1) */
 export default function AppError({

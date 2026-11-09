@@ -8,8 +8,8 @@ import {
   ManagerInfo,
   Material,
 } from '@/app/(private)/purchase/types/SupplierType';
-import Button from '@/app/components/common/Button';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Button } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
 import {
   fetchSupplierCategoryOptions,
   fetchSupplierStatusOptions,
@@ -21,8 +21,8 @@ import {
 import { errorMessageOf } from '@/lib/AppError';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import LoadingMessage from '@/app/components/common/LoadingMessage';
-import Input, { InputLabel } from '@/app/components/common/Input';
+import { LoadingMessage } from '@everp/ui';
+import { Input, InputLabel } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 
 interface SupplierFormModalProps extends ModalProps {

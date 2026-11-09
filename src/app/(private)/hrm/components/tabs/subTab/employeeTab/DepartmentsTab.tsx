@@ -7,7 +7,7 @@ import { DepartmentDetailModal } from '../../../modals/DepartmentDetailModal';
 import { DepartmentEditModal } from '../../../modals/DepartmentEditModal';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function DepartmentsTab() {
   const { openModal, removeAllModals } = useModal();
 

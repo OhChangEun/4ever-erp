@@ -9,7 +9,7 @@ import {
   WarehouseToggleQueryParams,
   WarehouseToggleResponse,
 } from '../../types/AddInventoryModalType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';

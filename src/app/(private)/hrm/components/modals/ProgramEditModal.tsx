@@ -1,12 +1,12 @@
 'use client';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import React, { FormEvent, useState, useId } from 'react';
 import { fetchProgramStatusDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';

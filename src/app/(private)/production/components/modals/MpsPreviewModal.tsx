@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { QuotationPreviewData } from '@/app/(private)/production/types/QuotationPreviewApiType';
-import Pagination from '@/app/components/common/Pagination'; // Pagination 경로 맞춰서 import
+import { Pagination } from '@everp/ui'; // Pagination 경로 맞춰서 import
 import { ModalProps } from '@/app/components/common/modal/types';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 
 interface MpsPreviewModalProps extends ModalProps {
   previewResults: QuotationPreviewData[]; // 배열 형태

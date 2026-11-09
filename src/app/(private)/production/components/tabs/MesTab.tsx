@@ -6,7 +6,7 @@ import {
   MesListResponse,
   MesSummaryItem,
 } from '@/app/(private)/production/types/MesListApiType';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMesList,
@@ -16,8 +16,8 @@ import {
 import { useModal } from '@/app/components/common/modal/useModal';
 import ProcessDetailModal from '../modals/ProcessDetailModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import Pagination from '@/app/components/common/Pagination';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Pagination } from '@everp/ui';
+import { Table, TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
 

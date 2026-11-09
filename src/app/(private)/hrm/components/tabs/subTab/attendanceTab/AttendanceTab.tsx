@@ -6,16 +6,16 @@ import {
   fetchDepartmentsDropdown,
 } from '@/app/(private)/hrm/api/hrm.api';
 import { AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
-import Dropdown from '@/app/components/common/Dropdown';
-import Pagination from '@/app/components/common/Pagination';
+import { Dropdown } from '@everp/ui';
+import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { formatMinutesToHourMin, formatTime } from '@/app/utils/date';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
-import Input from '@/app/components/common/Input';
+import { Input } from '@everp/ui';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';

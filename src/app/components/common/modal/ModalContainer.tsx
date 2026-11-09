@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { NESTED_LAYER_SELECTOR, PopoverRootContext } from '../PopoverPortal';
-import ErrorBoundary from '../ErrorBoundary';
+import { NESTED_LAYER_SELECTOR, PopoverRootContext } from '@everp/ui';
+import { ErrorBoundary } from '@everp/ui';
 
 interface ModalContainerProps {
   children: React.ReactNode;

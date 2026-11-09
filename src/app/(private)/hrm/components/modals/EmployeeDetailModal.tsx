@@ -1,7 +1,7 @@
 import { EmployeeData } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import { ModalProps } from '@/app/components/common/modal/types';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 interface EmployeeDetailModalProps extends ModalProps {
   employee: EmployeeData;
   onEdit: () => void;

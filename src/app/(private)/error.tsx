@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import IconButton from '@/app/components/common/IconButton';
+import { IconButton } from '@everp/ui';
 
 /**
  * 화면 층 오류 경계(옵저버빌리티 1, Error Boundary 3층 중 가운데).

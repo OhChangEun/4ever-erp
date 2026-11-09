@@ -43,6 +43,7 @@ const SHARED = [
   'src/app/utils/',
   'src/store/',
   'src/server/',
+  'packages/', // 워크스페이스 패키지(모노레포 2). 앱 도메인을 가져오지 않는다
 ];
 const isTest = (posix) => /\.test\.[jt]sx?$/.test(posix);
 

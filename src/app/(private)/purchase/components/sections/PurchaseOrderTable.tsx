@@ -3,9 +3,9 @@ import React from 'react';
 import { PurchaseOrderListItem } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { formatDateTime } from '@/app/utils/date';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseOrderTableProps {

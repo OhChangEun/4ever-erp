@@ -6,7 +6,7 @@ import {
   ShippingDetailModalProps,
   ShippingDetailResponse,
 } from '../../types/ShippingDetailModalType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { getProductionDetail, getReadyToShipDetail } from '../../inventory.api';
 import { useMarkReadyToShip } from '../../inventory.mutations';
 import { errorMessageOf } from '@/lib/AppError';

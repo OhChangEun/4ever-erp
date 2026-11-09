@@ -10,4 +10,17 @@ describe('워크스페이스 패키지', () => {
       'no-component-mutation',
     ]);
   });
+
+  it('@everp/ui 를 이름으로 불러 공통 컴포넌트를 본다(모노레포 2)', async () => {
+    const ui = await import('@everp/ui');
+    for (const name of [
+      'Button',
+      'Dropdown',
+      'Table',
+      'ConflictDialog',
+      'PopoverPortal',
+    ] as const) {
+      expect(typeof ui[name]).toBe('function');
+    }
+  });
 });

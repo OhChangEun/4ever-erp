@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { LowStockItemResponse } from '@/app/(private)/low-stock';
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../inventory.api';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { lowStockItemKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function LowStockAlert() {

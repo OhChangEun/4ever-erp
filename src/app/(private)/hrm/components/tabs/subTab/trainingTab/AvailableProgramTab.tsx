@@ -3,7 +3,7 @@
 import { fetchProgramList } from '@/app/(private)/hrm/api/hrm.api';
 import { ProgramListData, ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDetailModal';
@@ -12,7 +12,7 @@ import EditProgramModal from '../../../modals/ProgramEditModal';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function AvailableProgramTab() {
   // --- 모달 출력 ---
   const { openModal } = useModal();

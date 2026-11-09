@@ -9,18 +9,18 @@ import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import { getQuoteSearchKeywordOptions, QUOTE_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import Dropdown from '@/app/components/common/Dropdown';
-import SearchBar from '@/app/components/common/SearchBar';
+import { Dropdown } from '@everp/ui';
+import { SearchBar } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 const SalesQuoteList = () => {
   const { openModal } = useModal();
 

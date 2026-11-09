@@ -6,7 +6,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getOrderDetail } from '@/app/(private)/sales/sales.api';
 import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 

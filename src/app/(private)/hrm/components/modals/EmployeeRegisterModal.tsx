@@ -1,11 +1,11 @@
 'use client';
 
 import { ModalProps } from '@/app/components/common/modal/types';
-import Button from '@/app/components/common/Button';
-import Dropdown from '@/app/components/common/Dropdown';
-import Input from '@/app/components/common/Input';
+import { Button } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
+import { Input } from '@everp/ui';
 import CalendarButton from '@/app/components/common/CalendarButton';
-import LoadingMessage from '@/app/components/common/LoadingMessage';
+import { LoadingMessage } from '@everp/ui';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '@/app/(private)/hrm/api/hrm.api';

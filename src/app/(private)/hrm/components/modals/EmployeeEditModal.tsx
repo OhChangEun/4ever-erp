@@ -4,14 +4,14 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '../../api/hrm.api';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Dropdown } from '@everp/ui';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { toKeyValueItems } from '@/lib/api/options';
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;

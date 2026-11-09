@@ -9,14 +9,14 @@ import { useState, useId } from 'react';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDeptMemberDropdown } from '@/app/(private)/hrm/api/hrm.api';
-import Dropdown from '@/app/components/common/Dropdown';
-import LoadingMessage from '@/app/components/common/LoadingMessage';
+import { Dropdown } from '@everp/ui';
+import { LoadingMessage } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateDepartment } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { toKeyValueItems } from '@/lib/api/options';
 interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;

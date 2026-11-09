@@ -1,7 +1,7 @@
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPayRollDetail } from '@/app/(private)/hrm/api/hrm.api';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCompletePayroll } from '@/app/(private)/hrm/api/hrm.mutations';

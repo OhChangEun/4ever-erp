@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { ModalProvider } from './ModalProvider';
 import { useModal } from './useModal';
 import type { ModalProps } from './types';
-import Dropdown from '../Dropdown';
+import { Dropdown } from '@everp/ui';
 import CalendarButton from '../CalendarButton';
-import ConflictDialog from '../ConflictDialog';
+import { ConflictDialog } from '@everp/ui';
 
 function Inner({ onClose }: ModalProps) {
   return (

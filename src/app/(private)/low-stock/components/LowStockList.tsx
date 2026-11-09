@@ -4,19 +4,19 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { LOW_STOCK_STATUS_OPTIONS } from '@/app/(private)/inventory';
 import { getLowStockList } from '../lowStock.api';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Table, { TableColumn } from '@/app/components/common/Table';
-import Dropdown from '@/app/components/common/Dropdown';
+import { Table, TableColumn } from '@everp/ui';
+import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { InventoryPurchaseRequestModal } from '@/app/(private)/inventory/ui';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function LowStockList() {
   const { openModal } = useModal();
   const toast = useToast();

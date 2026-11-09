@@ -3,7 +3,7 @@ import {
   AttendanceListData,
   UpdateTimeRecord,
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { FormEvent, useId } from 'react';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MRP_TABS } from '@/app/(private)/production/constants';
-import TabButtons from '@/app/components/common/TabButtons';
+import { TabButtons } from '@everp/ui';
 
 export default function MrpTab() {
   const router = useRouter();

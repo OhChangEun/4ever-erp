@@ -2,11 +2,11 @@
 'use client';
 import { fetchDepartmentsDropdown, fetchLeaveList } from '@/app/(private)/hrm/api/hrm.api';
 import { LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
-import Dropdown from '@/app/components/common/Dropdown';
-import Input from '@/app/components/common/Input';
-import Pagination from '@/app/components/common/Pagination';
+import { Dropdown } from '@everp/ui';
+import { Input } from '@everp/ui';
+import { Pagination } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Table, TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -17,7 +17,7 @@ import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mut
 import { errorMessageOf } from '@/lib/AppError';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 export default function LeaveTab() {
   // --- 모달 출력 ---
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();

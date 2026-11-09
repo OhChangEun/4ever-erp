@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchPurchaseOrderDetail } from '@/app/(private)/purchase/api/purchase.api';
 import { PurchaseOrderDetail } from '@/app/(private)/purchase/types/PurchaseOrderType';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';

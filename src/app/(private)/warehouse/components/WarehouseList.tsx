@@ -3,7 +3,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import { getWarehouseList } from '../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import AddWarehouseModal from './modals/AddWarehouseModal';
@@ -13,7 +13,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 const Warehouse3DModal = dynamic(
   () => import('./warehouseVisualizer/components/Warehouse3DModal'),
   {

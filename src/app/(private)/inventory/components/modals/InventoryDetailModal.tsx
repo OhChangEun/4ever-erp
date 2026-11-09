@@ -9,13 +9,13 @@ import {
 } from '../../types/InventoryDetailModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getInventoryDetail } from '../../inventory.api';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { FormatDate, getMovementColor, getMovementIcon } from '../../inventory.utils';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 import { formatCurrency } from '@/app/utils/number';
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);

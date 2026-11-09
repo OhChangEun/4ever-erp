@@ -6,10 +6,10 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
 import { ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import Pagination from '@/app/components/common/Pagination';
+import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
-import Table from '@/app/components/common/Table';
+import { Table } from '@everp/ui';
 import { receivingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 const ReceivingManagementList = () => {

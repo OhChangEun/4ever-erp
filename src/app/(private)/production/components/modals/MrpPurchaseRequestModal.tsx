@@ -1,7 +1,7 @@
-import Button from '@/app/components/common/Button';
+import { Button } from '@everp/ui';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { mrpItemsInfoKeys } from '../../api/production.keys';
 import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';

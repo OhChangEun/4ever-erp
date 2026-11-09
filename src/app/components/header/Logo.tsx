@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Flex from '../common/Flex';
+import { Flex } from '@everp/ui';
 import LogoMark from './LogoMark';
 
 export default function Logo() {

@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
-import Dropdown from '@/app/components/common/Dropdown';
-import Button from '@/app/components/common/Button';
+import { Dropdown } from '@everp/ui';
+import { Button } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMrpAvailableStatusDropdown,
@@ -10,8 +10,8 @@ import {
 } from '../../api/production.api';
 import { useConvertMrpOrders } from '../../api/production.mutations';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import Pagination from '@/app/components/common/Pagination';
-import Table, { TableColumn } from '@/app/components/common/Table';
+import { Pagination } from '@everp/ui';
+import { Table, TableColumn } from '@everp/ui';
 import {
   FetchMrpOrdersListParams,
   MrpOrdersListData,

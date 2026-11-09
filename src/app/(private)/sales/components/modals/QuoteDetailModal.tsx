@@ -5,7 +5,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getQuoteDetail } from '../../sales.api';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
-import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { ModalStatusBox } from '@everp/ui';
 import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
