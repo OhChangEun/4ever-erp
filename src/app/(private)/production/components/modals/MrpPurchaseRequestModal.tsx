@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import ModalStatusBox from '@/app/components/common/ModalStatusBox';
+import { mrpItemsInfoKeys } from '../../api/production.keys';
 import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
@@ -27,48 +28,35 @@ export default function MrpPurchaseRequestModal({
   onConfirm,
   onClose,
 }: PurchaseRequestModalProps) {
-  const [editableOrders, setEditableOrders] = useState<ItemWithQuantity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const toast = useToast();
+  const itemIds = orders.map((order) => order.itemId);
 
-  // 아이템 상세 정보 조회
-  const { mutate: fetchItemsInfo } = useMutation({
-    mutationFn: (itemIds: string[]) => postItemsInfo(itemIds),
-    onSuccess: (data: ItemResponse[]) => {
-      const ordersWithQuantity: ItemWithQuantity[] = orders
-        .map((order) => {
-          const item = data.find((d) => d.itemId === order.itemId);
-          if (!item) {
-            console.warn(`Item not found: ${order.itemId}`);
-            return null;
-          }
-          return {
-            ...item,
-            quantity: order.quantity,
-            totalPrice: order.quantity * item.unitPrice,
-            mrpRunId: order.mrpRunId,
-            quotationNumber: order.quotationNumber,
-          };
-        })
-        .filter((item): item is ItemWithQuantity => item !== null);
-
-      setEditableOrders(ordersWithQuantity);
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      console.error('자재 정보 조회 실패:', error);
-      toast.error('자재 정보를 불러오는데 실패했습니다.');
-      setIsLoading(false);
-    },
+  // 품목 정보는 읽기라 useQuery. 결과를 state 에 복사하지 않고 아래에서 계산한다(R01, R02)
+  const {
+    data: items,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: mrpItemsInfoKeys.byIds(itemIds),
+    queryFn: () => postItemsInfo(itemIds),
+    enabled: itemIds.length > 0,
   });
 
-  useEffect(() => {
-    const itemIds = orders.map((o) => o.itemId);
-    if (itemIds.length > 0) fetchItemsInfo(itemIds);
-  }, [orders, fetchItemsInfo]);
+  const editableOrders: ItemWithQuantity[] = orders.flatMap((order) => {
+    const item = items?.find((candidate) => candidate.itemId === order.itemId);
+    if (!item) return [];
+    return [
+      {
+        ...item,
+        quantity: order.quantity,
+        totalPrice: order.quantity * item.unitPrice,
+        mrpRunId: order.mrpRunId,
+        quotationNumber: order.quotationNumber,
+      },
+    ];
+  });
 
-  // 구매 요청 API
   // 구매 도메인 데이터를 만드는 요청. 구매 요청 목록과 통계도 훅이 같이 무효화한다.
   const { mutate: createStockPurchase, isPending } = useCreateStockPurchaseRequest({
     onSuccess: () => {
@@ -76,17 +64,37 @@ export default function MrpPurchaseRequestModal({
       onConfirm();
       onClose();
     },
-    onError: (error) => toast.error(`자재 구매 요청에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (err) => toast.error(`자재 구매 요청에 실패했습니다. ${errorMessageOf(err)}`),
   });
 
   // 총 금액 계산
   const totalAmount = editableOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+  // 요청할 품목이 없으면 확정 버튼을 보이지 않는다. 빈 구매 요청이 나가면 안 된다(리뷰 A1, R14)
+  if (editableOrders.length === 0 && !isLoading && !isError) {
+    return (
+      <div className="min-w-3xl flex justify-center items-center p-8">
+        <div className="text-gray-500">구매 요청할 자재가 없습니다.</div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
       <div className="min-w-3xl flex justify-center items-center p-8">
         <div className="text-gray-500">자재 정보를 불러오는 중...</div>
       </div>
+    );
+  }
+
+  // 조회가 실패하면 확정 버튼을 보이지 않는다. 빈 표로 구매 요청이 나가면 안 된다(우선순위 2)
+  if (isError) {
+    return (
+      <ModalStatusBox
+        type="error"
+        message={`자재 정보를 불러오지 못했습니다. ${errorMessageOf(error)}`}
+        onClose={onClose}
+      />
     );
   }
 

@@ -67,3 +67,9 @@ export const quotationKeys = {
 
   list: (params: FetchQuotationParams) => [...quotationKeys.lists(), params] as const,
 };
+
+/** MRP 구매 요청 모달의 품목 정보. id 순서와 무관하게 같은 키가 되도록 정렬한다 */
+export const mrpItemsInfoKeys = {
+  all: ['production', 'mrpItemsInfo'] as const,
+  byIds: (itemIds: readonly string[]) => [...mrpItemsInfoKeys.all, [...itemIds].sort()] as const,
+};

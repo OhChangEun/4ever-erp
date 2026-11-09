@@ -9,12 +9,14 @@ import {
 } from '@/app/(private)/production/types/QuotationApiType';
 import SimulationResultModal from '@/app/(private)/production/components/modals/SimulationResultModal';
 import {
-  fetchQuotationSimulationResult,
   fetchQuotationList,
   fetchAvailableStatusDropdown,
 } from '@/app/(private)/production/api/production.api';
-import { useConfirmQuotations } from '@/app/(private)/production/api/production.mutations';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useConfirmQuotations,
+  useSimulateQuotations,
+} from '@/app/(private)/production/api/production.mutations';
+import { useQuery } from '@tanstack/react-query';
 import Pagination from '@/app/components/common/Pagination';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -73,44 +75,21 @@ export default function QuotationTab() {
   const totalPages = quotationListData?.page?.totalPages || 1;
   const totalElements = quotationListData?.page?.totalElements || 0;
 
-  const queryClient = useQueryClient();
-  const { mutate: simulationQuotations, isPending: simulationPending } = useMutation({
-    mutationFn: async (quotationIds: string[]) => {
-      // 선택된 각 견적마다 개별 API 호출
-      const results = await Promise.all(
-        quotationIds.map((quotationId) =>
-          fetchQuotationSimulationResult({
-            quotationIds: [quotationId],
-            page: 0,
-            size: 1,
-          }),
-        ),
-      );
-      // 모든 결과의 content를 합치기
-      return {
-        page: results[0]?.page,
-        content: results.flatMap((r) => r.content || []),
-      };
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      // 시뮬레이션 결과 모달
-      if (data?.content && data.content.length > 0) {
+  // 시뮬레이션은 서버 상태를 바꾸는 쓰기라 mutation. 무효화는 production.mutations.ts 한 곳.
+  const { mutate: simulationQuotations, isPending: simulationPending } = useSimulateQuotations({
+    onSuccess: (simulationResults) => {
+      if (simulationResults.length > 0) {
         openModal(SimulationResultModal, {
           title: '시뮬레이션 결과',
-          simulationResults: data.content,
+          simulationResults,
           onConfirm: handleConfirmMps,
         });
       } else {
         toast.info('시뮬레이션 결과가 없습니다.');
       }
-
-      queryClient.invalidateQueries({ queryKey: quotationKeys.lists() });
     },
-    onError: (error) => {
-      console.error('시뮬레이션 실패:', error);
-      toast.error('시뮬레이션 결과를 가져오는데 실패했습니다.');
-    },
+    onError: (error) =>
+      toast.error(`시뮬레이션 결과를 가져오는데 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const { mutate: confirmQuotations } = useConfirmQuotations({

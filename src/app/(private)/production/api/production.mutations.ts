@@ -7,6 +7,7 @@ import {
   completeMes,
   completeMesOperation,
   fetchQuotationConfirm,
+  simulateQuotations,
   patchBomStatus,
   postBomItem,
   postMrpConvert,
@@ -28,6 +29,7 @@ import type { BomRequestBody } from '@/app/(private)/production/types/BomType';
 import type { MrpOrdersConvertReqeustBody } from '@/app/(private)/production/types/MrpOrdersConvertApiType';
 import type { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import type { ApiResponse } from '@/app/types/api';
+import type { QuotationSimulationResponse } from '@/app/(private)/production/types/QuotationSimulationApiType';
 
 /**
  * 생산 도메인 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
@@ -46,6 +48,8 @@ export const PRODUCTION_MUTATION_EFFECTS = {
   // 전환된 계획 주문은 계획 주문 탭에서 빠진다
   convertMrpOrders: (): readonly QueryKey[] => [mrpOrderKeys.lists(), mrpPlannedOrderKeys.lists()],
   confirmQuotations: (): readonly QueryKey[] => [quotationKeys.lists()],
+  // 시뮬레이션은 견적의 가용 재고 상태를 바꾼다
+  simulateQuotations: (): readonly QueryKey[] => [quotationKeys.lists()],
   startMes: (mesId: string): readonly QueryKey[] => [
     mesKeys.detail(mesId),
     mesKeys.lists(),
@@ -192,5 +196,16 @@ export const useCompleteMesOperation = (
     'completeMesOperation',
     ({ mesId, operationId }: MesOperationVariables) => completeMesOperation(mesId, operationId),
     ({ mesId }) => PRODUCTION_MUTATION_EFFECTS.completeMesOperation(mesId),
+    callbacks,
+  );
+
+/** 견적 시뮬레이션. 결과(제안 납기)를 돌려주고 견적 목록을 다시 가져온다 */
+export const useSimulateQuotations = (
+  callbacks?: MutationCallbacks<QuotationSimulationResponse['content'], string[]>,
+) =>
+  useProductionMutation(
+    'simulateQuotations',
+    (quotationIds: string[]) => simulateQuotations(quotationIds),
+    () => PRODUCTION_MUTATION_EFFECTS.simulateQuotations(),
     callbacks,
   );

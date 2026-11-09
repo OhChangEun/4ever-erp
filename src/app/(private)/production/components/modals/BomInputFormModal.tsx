@@ -28,7 +28,7 @@ import {
   fetchProduction,
 } from '../../api/production.api';
 import { useCreateBom } from '../../api/production.mutations';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -142,21 +142,13 @@ interface SortableRowProps {
 
 function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: SortableRowProps) {
   const { options: productsOptions } = useDropdown('productsDropdown', fetchProductDropdown);
-  const toast = useToast();
   const { options: operationOptions } = useDropdown('operationsDropdown', fetchOperationDropdown);
 
-  const { data: materialInfo } = useQuery({
+  // 자재를 고르면 itemId 가 바뀌어 이 쿼리가 다시 가져온다(따로 부르던 mutation 은 중복이라 지움)
+  const { data: materialInfo, isError: isMaterialError } = useQuery({
     queryKey: bomKeys.materialInfo(item.itemId),
     queryFn: () => fetchProduction(item.itemId),
     enabled: !!item.itemId, // 선택된 자재가 있을 때만 호출
-  });
-
-  const { mutate: loadMaterialData } = useMutation({
-    mutationFn: (productionId: string) => fetchProduction(productionId),
-    onError: (error) => {
-      console.log(`자재 목록 호출 중 오류 발생: ${error}`);
-      toast.error('자재 목록 호출 중 오류가 발생했습니다.');
-    },
   });
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -183,13 +175,18 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
           value={item.itemId}
           onChange={(selectedMaterialId) => {
             onMaterialChange(item.id, selectedMaterialId);
-            loadMaterialData(selectedMaterialId);
           }}
           placeholder="자재 선택"
         />
       </td>
       <td className="px-3 py-2">
-        <Input type="text" value={materialInfo?.productNumber || ''} disabled />
+        {isMaterialError ? (
+          <span role="alert" className="text-xs text-red-600">
+            불러오지 못함
+          </span>
+        ) : (
+          <Input type="text" value={materialInfo?.productNumber || ''} disabled />
+        )}
       </td>
       <td className="px-3 py-2">
         <StatusLabel statusCode={materialInfo?.category ?? ''} />
