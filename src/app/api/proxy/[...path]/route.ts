@@ -77,14 +77,20 @@ async function handle(req: NextRequest, ctx: RouteContext) {
   // path를 그대로 join해 검사하면 dashboard%2f..%2fbusiness%2fhrm 같은 traversal이 인가를 우회한다.
   if (target.pathname !== basePath && !target.pathname.startsWith(`${basePath}/`)) {
     // 정규화 결과가 업스트림 base(/api 등)를 벗어남
-    return NextResponse.json({ status: 400, success: false, message: '잘못된 경로' }, { status: 400 });
+    return NextResponse.json(
+      { status: 400, success: false, message: '잘못된 경로' },
+      { status: 400 },
+    );
   }
   const upstreamPath = target.pathname.slice(basePath.length).replace(/^\/+/, '');
 
   // 잔여 퍼센트 인코딩 거부 - new URL은 %62 등을 안 풀지만 업스트림 라우트가 한 번 더 풀어
   // 인가를 우회(%2562usiness → %62usiness → business)할 수 있다. 정상 경로엔 %가 없다.
   if (upstreamPath.includes('%')) {
-    return NextResponse.json({ status: 400, success: false, message: '잘못된 경로' }, { status: 400 });
+    return NextResponse.json(
+      { status: 400, success: false, message: '잘못된 경로' },
+      { status: 400 },
+    );
   }
 
   const role = session.role.trim().toUpperCase();

@@ -1,0 +1,6 @@
+# 도구가 생성하는 파일. 손으로 포맷하지 않는다.
+eslint-suppressions.json
+package-lock.json
+public/mockServiceWorker.js
+.next/
+coverage/
