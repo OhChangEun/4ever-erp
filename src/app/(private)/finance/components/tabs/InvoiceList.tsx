@@ -76,7 +76,6 @@ const InvoiceList = () => {
   } = useQuery({
     queryKey: invoiceKeys.list(currentTab, queryParams),
     queryFn: queryFn,
-    staleTime: 1000,
   });
 
   const invoices = invoiceReq?.data ?? [];

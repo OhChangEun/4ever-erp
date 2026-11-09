@@ -73,7 +73,6 @@ const WarehouseList = () => {
   } = useQuery({
     queryKey: warehouseKeys.list(queryParams),
     queryFn: () => getWarehouseList(queryParams),
-    staleTime: 1000,
   });
 
   const warehouses = warehouseRes?.data ?? [];

@@ -53,7 +53,6 @@ export default function MesTab() {
   } = useQuery<MesListResponse>({
     queryKey: mesKeys.list(queryParams),
     queryFn: () => fetchMesList(queryParams),
-    staleTime: 1000,
   });
 
   const mesListData: MesSummaryItem[] = useMemo(() => mesResponse?.content || [], [mesResponse]);

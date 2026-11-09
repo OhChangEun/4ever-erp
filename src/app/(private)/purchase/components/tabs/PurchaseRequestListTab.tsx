@@ -83,7 +83,6 @@ export default function PurchaseRequestListTab() {
   } = useQuery<PurchaseRequestListResponse>({
     queryKey: purchaseRequestKeys.list(queryParams),
     queryFn: () => fetchPurchaseRequestList(queryParams),
-    staleTime: 1000,
   });
 
   // 승인 mutation

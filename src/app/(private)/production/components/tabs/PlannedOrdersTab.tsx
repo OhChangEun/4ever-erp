@@ -70,7 +70,6 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
   } = useQuery<MrpPlannedOrdersListResponse>({
     queryKey: mrpPlannedOrderKeys.list(queryParams),
     queryFn: () => fetchMrpPlannedOrdersList(queryParams),
-    staleTime: 1000,
   });
 
   // content 배열 추출

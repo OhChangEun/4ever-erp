@@ -77,7 +77,6 @@ export default function PurchaseOrderListTab() {
   } = useQuery({
     queryKey: purchaseOrderKeys.list(queryParams),
     queryFn: () => fetchPurchaseOrderList(queryParams),
-    staleTime: 1000,
   });
 
   // 발주서 승인

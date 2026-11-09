@@ -15,7 +15,6 @@ export default function StockMovement() {
   } = useQuery<StockMovementResponse[]>({
     queryKey: stockMovementKeys.all,
     queryFn: getCurrentStockMovement,
-    staleTime: 1000,
   });
 
   const stockMovementCount = stockMovementRes?.length ?? 0;

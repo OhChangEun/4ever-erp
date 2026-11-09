@@ -65,7 +65,6 @@ export default function QuotationTab() {
   } = useQuery<QuotationListResponse>({
     queryKey: quotationKeys.list(quotationListQueryParams),
     queryFn: () => fetchQuotationList(quotationListQueryParams),
-    staleTime: 1000,
   });
 
   // API에서 가져온 견적 데이터 리스트

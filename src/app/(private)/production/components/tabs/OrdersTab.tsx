@@ -66,7 +66,6 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   } = useQuery<MrpOrdersListResponse>({
     queryKey: mrpOrderKeys.list(queryParams),
     queryFn: () => fetchMrpOrdersList(queryParams),
-    staleTime: 1000,
   });
 
   const orderItems: MrpOrdersListData[] = orders?.content ?? [];

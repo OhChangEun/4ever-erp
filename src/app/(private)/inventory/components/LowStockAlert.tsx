@@ -15,7 +15,6 @@ export default function LowStockAlert() {
   } = useQuery<LowStockItemResponse[]>({
     queryKey: lowStockItemKeys.all,
     queryFn: getLowStockItems,
-    staleTime: 1000,
   });
 
   const lowStockCount = lowStockRes?.length ?? 0;

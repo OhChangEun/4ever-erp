@@ -7,9 +7,10 @@ import { createQueryClient } from './queryClient';
 
 const wrapperFor = (onUnauthorized: (error: AppError) => void) => {
   const client = createQueryClient({ onUnauthorized });
-  return ({ children }: { children: ReactNode }) => (
+  const Wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
+  return Wrapper;
 };
 
 const reject = (kind: 'unauthorized' | 'notFound') => () =>

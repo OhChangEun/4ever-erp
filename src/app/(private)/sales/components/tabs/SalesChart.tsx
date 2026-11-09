@@ -50,8 +50,6 @@ const SalesChart = () => {
   const { data: analyticsData } = useQuery<SalesAnalysis>({
     queryKey: analyticsKeys.byParams(queryParams),
     queryFn: () => getAnalytics(queryParams),
-
-    staleTime: 1000,
   });
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280'];
