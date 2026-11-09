@@ -1,0 +1,86 @@
+import { describe, expect, it } from 'vitest';
+import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import {
+  AppError,
+  ERROR_MESSAGE_BY_KIND,
+  errorMessageOf,
+  isAppError,
+  toAppError,
+} from './AppError';
+
+const config = { headers: {} } as InternalAxiosRequestConfig;
+
+const httpError = (
+  status: number,
+  body: unknown = { success: false, message: `서버 메시지 ${status}` },
+) =>
+  new AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, {}, {
+    status,
+    statusText: '',
+    headers: {},
+    config,
+    data: body,
+  } as AxiosResponse);
+
+describe('toAppError', () => {
+  it('연결 끊김(ERR_NETWORK) → network', () => {
+    const e = toAppError(new AxiosError('Network Error', 'ERR_NETWORK', config));
+    expect(e.kind).toBe('network');
+    expect(e.status).toBeUndefined();
+  });
+
+  it('타임아웃(ECONNABORTED, ETIMEDOUT) → timeout', () => {
+    expect(
+      toAppError(new AxiosError('timeout of 4000ms exceeded', 'ECONNABORTED', config)).kind,
+    ).toBe('timeout');
+    expect(toAppError(new AxiosError('timeout', 'ETIMEDOUT', config)).kind).toBe('timeout');
+  });
+
+  it.each([
+    [401, 'unauthorized'],
+    [403, 'forbidden'],
+    [404, 'notFound'],
+    [409, 'conflict'],
+    [400, 'badRequest'],
+    [422, 'badRequest'],
+    [500, 'server'],
+    [503, 'server'],
+  ] as const)('HTTP %i → %s, status 와 서버 message 보존', (status, kind) => {
+    const e = toAppError(httpError(status));
+    expect(e.kind).toBe(kind);
+    expect(e.status).toBe(status);
+    expect(e.message).toBe(`서버 메시지 ${status}`);
+  });
+
+  it('서버 message 가 없으면 axios message 를 쓴다', () => {
+    const e = toAppError(httpError(500, 'not json'));
+    expect(e.message).toBe('Request failed');
+  });
+
+  it('이미 AppError 면 그대로 돌려준다', () => {
+    const original = new AppError('invalidShape', '형식');
+    expect(toAppError(original)).toBe(original);
+  });
+
+  it('axios 오류가 아니면 server 로 감싸고 cause 를 남긴다', () => {
+    const cause = new TypeError('boom');
+    const e = toAppError(cause);
+    expect(e.kind).toBe('server');
+    expect(e.cause).toBe(cause);
+  });
+});
+
+describe('isAppError, errorMessageOf', () => {
+  it('AppError 는 Error 의 인스턴스이고 가드를 통과한다', () => {
+    const e = new AppError('notFound', '없음', { status: 404 });
+    expect(e).toBeInstanceOf(Error);
+    expect(isAppError(e)).toBe(true);
+    expect(isAppError(new Error('x'))).toBe(false);
+    expect(isAppError(null)).toBe(false);
+  });
+
+  it('kind 별 문구를 돌려주고, AppError 가 아니면 공통 문구', () => {
+    expect(errorMessageOf(new AppError('timeout', 't'))).toBe(ERROR_MESSAGE_BY_KIND.timeout);
+    expect(errorMessageOf(new Error('x'))).toBe('알 수 없는 오류가 발생했습니다.');
+  });
+});
