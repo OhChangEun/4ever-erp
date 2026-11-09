@@ -1,23 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { canAccessPage } from '@/lib/authz/policy';
-import { SESSION_COOKIE, verifySession } from '@/lib/auth/session';
+import { SESSION_COOKIE, clearSessionCookie, readSession } from '@/server/auth/session';
 
 // 접근 제어는 서버가 한다.
 // 브라우저가 쓸 수 있는 role 쿠키 대신, 서버가 서명한 세션 쿠키(httpOnly)를 검증해서 role을 꺼낸다.
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 1. 세션 쿠키 검증 - 없거나 서명이 틀리면 로그인으로
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const session = token ? await verifySession(token) : null;
+  // 1. 세션 확인 - 없거나 깨졌으면 로그인으로(세션 처리는 src/server/auth/session 한 곳)
+  const session = await readSession(req.cookies);
 
   if (!session) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('returnTo', pathname);
     const res = NextResponse.redirect(loginUrl);
     // 깨진 쿠키는 여기서 지운다 - 다음 요청부터 다시 검증하지 않게
-    if (token) res.cookies.delete({ name: SESSION_COOKIE, path: '/' });
+    if (req.cookies.has(SESSION_COOKIE)) clearSessionCookie(res);
     return res;
   }
 

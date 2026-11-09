@@ -1,4 +1,4 @@
-import { SESSION_COOKIE, verifySession } from '@/lib/auth/session';
+import { readSession } from '@/server/auth/session';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { canAccessApi } from '@/lib/authz/policy';
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,9 +37,8 @@ async function handle(req: NextRequest, ctx: RouteContext) {
   }
 
   // 1. 세션 쿠키 검증 - 없거나 깨졌으면 업스트림에 가지도 않는다
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const session = token ? await verifySession(token) : null;
-  if (!token || !session) {
+  const session = await readSession(req.cookies);
+  if (!session) {
     return NextResponse.json(
       { status: 401, success: false, message: '로그인이 필요합니다.' },
       { status: 401 },
@@ -83,7 +82,7 @@ async function handle(req: NextRequest, ctx: RouteContext) {
   // 3. 헤더 교환 - 쿠키를 떼고 Authorization: Bearer 를 붙인다
   const headers = new Headers(req.headers);
   for (const name of DROP_REQUEST_HEADERS) headers.delete(name);
-  headers.set('authorization', `Bearer ${token}`);
+  headers.set('authorization', `Bearer ${session.upstreamToken}`);
   headers.set('x-session-role', session.role);
 
   // 4. 업스트림 호출 - body는 GET/HEAD 외에만 전달

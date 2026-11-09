@@ -1,8 +1,8 @@
-import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
+import type { UserInfo } from '@/lib/auth/userInfo';
 import type { Role } from '@/lib/authz/policy';
 
 /** 데모 사용자. 세션에 넣는 role 이 역할 표에 있는 값임을 타입으로 보장한다 */
-export interface DemoUser extends userInfoResponse {
+export interface DemoUser extends UserInfo {
   role: Role;
 }
 
