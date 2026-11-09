@@ -65,3 +65,23 @@ describe('SESSION_SECRET 이 없을 때', () => {
     await expect(fresh.verifySession('a.b.c')).rejects.toThrow(/SESSION_SECRET/);
   });
 });
+
+describe('세션 토큰 알고리즘 고정', () => {
+  it('alg 를 none 으로 바꾼 토큰(서명 없음)은 null 이다', async () => {
+    const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(
+      JSON.stringify({ sub: 'admin', role: 'ALL_ADMIN', exp: Math.floor(Date.now() / 1000) + 60 }),
+    ).toString('base64url');
+    await expect(verifySession(`${header}.${payload}.`)).resolves.toBeNull();
+  });
+
+  it('역할 표 밖의 role 이 든 세션은 null 이다', async () => {
+    const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+    const token = await new SignJWT({ role: 'ROOT' })
+      .setSubject('admin')
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('1h')
+      .sign(secret);
+    await expect(verifySession(token)).resolves.toBeNull();
+  });
+});
