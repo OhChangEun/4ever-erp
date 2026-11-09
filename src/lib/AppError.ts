@@ -19,16 +19,19 @@ export type ErrorKind =
 export class AppError extends Error {
   readonly kind: ErrorKind;
   readonly status: number | undefined;
+  /** 프록시가 붙인 x-request-id. 화면 오류와 서버 로그를 잇는다(옵저버빌리티 1) */
+  readonly requestId: string | undefined;
 
   constructor(
     kind: ErrorKind,
     message: string,
-    options: { status?: number; cause?: unknown } = {},
+    options: { status?: number; cause?: unknown; requestId?: string } = {},
   ) {
     super(message, { cause: options.cause });
     this.name = 'AppError';
     this.kind = kind;
     this.status = options.status;
+    this.requestId = options.requestId;
   }
 }
 
@@ -47,6 +50,10 @@ export const ERROR_MESSAGE_BY_KIND: Record<ErrorKind, string> = {
 };
 
 const UNKNOWN_MESSAGE = '알 수 없는 오류가 발생했습니다.';
+
+/** 오류 상자에 덧붙일 요청 ID(앞 8자). 보고할 때 이 값으로 서버 로그를 찾는다 */
+export const requestIdLabelOf = (error: unknown): string | null =>
+  isAppError(error) && error.requestId ? `요청 ID ${error.requestId.slice(0, 8)}` : null;
 
 /** 화면에 보여줄 한 줄. AppError 가 아니면 공통 문구. */
 export const errorMessageOf = (error: unknown): string =>
@@ -78,6 +85,8 @@ export const toAppError = (error: unknown): AppError => {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
     const message = serverMessageOf(error.response?.data) ?? error.message;
+    const header: unknown = error.response?.headers['x-request-id'];
+    const requestId = typeof header === 'string' ? header : undefined;
 
     if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
       return new AppError('timeout', message, { cause: error });
@@ -85,7 +94,7 @@ export const toAppError = (error: unknown): AppError => {
     if (status === undefined) {
       return new AppError('network', message, { cause: error });
     }
-    return new AppError(kindOfStatus(status), message, { status, cause: error });
+    return new AppError(kindOfStatus(status), message, { status, cause: error, requestId });
   }
 
   const message = error instanceof Error ? error.message : String(error);

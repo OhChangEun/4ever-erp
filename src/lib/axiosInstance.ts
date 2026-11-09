@@ -21,20 +21,26 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const assertResponseShape = (response: AxiosResponse): AxiosResponse => {
   const method = (response.config.method ?? 'get').toLowerCase();
   const body: unknown = response.data;
+  // 형식 오류도 서버 로그와 잇는다(옵저버빌리티 1)
+  const header: unknown = response.headers['x-request-id'];
+  const meta = {
+    status: response.status,
+    requestId: typeof header === 'string' ? header : undefined,
+  };
 
   if (method !== 'get' && (body === '' || body === undefined || body === null)) {
     return response;
   }
   if (!isRecord(body)) {
-    throw new AppError('invalidShape', '응답 본문이 객체가 아닙니다.', { status: response.status });
+    throw new AppError('invalidShape', '응답 본문이 객체가 아닙니다.', meta);
   }
   if (body.success === false) {
     const message =
       typeof body.message === 'string' ? body.message : 'success 가 false 인 2xx 응답';
-    throw new AppError('invalidShape', message, { status: response.status });
+    throw new AppError('invalidShape', message, meta);
   }
   if (method === 'get' && !('data' in body)) {
-    throw new AppError('invalidShape', 'data 필드가 없는 응답입니다.', { status: response.status });
+    throw new AppError('invalidShape', 'data 필드가 없는 응답입니다.', meta);
   }
   return response;
 };

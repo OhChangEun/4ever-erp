@@ -7,14 +7,14 @@ import PrivateError from './error';
 describe('(private) 오류 경계', () => {
   it('문구, digest, 다시 시도. 운영 기준으로 stack 은 보이지 않는다', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const reset = vi.fn();
+    const retry = vi.fn();
     const error = Object.assign(new Error('목록 계산 중 깨짐'), { digest: 'dg-778899' });
-    render(<PrivateError error={error} reset={reset} />);
+    render(<PrivateError error={error} retry={retry} />);
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('화면을 그리는 중 오류가 발생했습니다');
     expect(alert).toHaveTextContent('dg-778899');
     expect(alert).not.toHaveTextContent('at ');
     await userEvent.click(screen.getByRole('button', { name: '다시 시도' }));
-    expect(reset).toHaveBeenCalledTimes(1);
+    expect(retry).toHaveBeenCalledTimes(1);
   });
 });

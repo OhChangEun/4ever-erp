@@ -5,7 +5,7 @@ import { Period, StatCardType } from '@/app/types/StatType';
 import { KeyValueItem } from '@/app/types/CommonType';
 import StatCardList from '@/app/components/statCard/StatCardList';
 import SlidingNavBar from './SlidingNavBar';
-import { errorMessageOf } from '@/lib/AppError';
+import { errorMessageOf, requestIdLabelOf } from '@/lib/AppError';
 
 // 지표 기간 선택 항목
 const STAT_PERIODS: KeyValueItem<Period>[] = [
@@ -41,6 +41,11 @@ export default function StatSection({ statsData, error }: StatSectionProps) {
       <section aria-label="지표" className="py-3 border-b border-gray-200">
         <p role="alert" className="text-sm text-gray-700">
           지표를 불러오지 못했습니다. <span className="text-gray-500">{errorMessageOf(error)}</span>
+          {requestIdLabelOf(error) && (
+            <span className="ml-2 text-xs text-gray-500 tabular-nums">
+              {requestIdLabelOf(error)}
+            </span>
+          )}
         </p>
       </section>
     );

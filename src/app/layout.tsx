@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Noto_Sans_KR } from 'next/font/google';
 import '../styles/globals.css';
+import WebVitalsLazy from './components/WebVitalsLazy';
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} ${notoSansKR.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <WebVitalsLazy />
+        {children}
+      </body>
     </html>
   );
 }
