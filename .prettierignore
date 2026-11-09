@@ -7,5 +7,6 @@ DESIGN_GUIDELINES.md
 eslint-suppressions.json
 package-lock.json
 public/mockServiceWorker.js
+src/lib/api/openapi.gen.ts
 .next/
 coverage/

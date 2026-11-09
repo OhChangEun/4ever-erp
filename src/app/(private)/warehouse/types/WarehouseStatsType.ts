@@ -1,8 +1,4 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
-interface WarehouseStat {
-  total_warehouse: Stat;
-  in_operation_warehouse: Stat;
-}
-
-export type WarehouseStatResponse = StatResponse<WarehouseStat>;
+// 응답 모양은 OpenAPI 계약이 원본이다(openapi/everp.yaml)
+export type WarehouseStatResponse = Schema<'WarehouseStats'>;

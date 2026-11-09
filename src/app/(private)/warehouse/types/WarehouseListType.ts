@@ -1,15 +1,6 @@
-export interface WarehouseListResponse {
-  warehouseId: string;
-  warehouseNumber: string;
-  warehouseName: string;
-  statusCode: 'ACTIVE' | 'INACTIVE' | string;
-  warehouseType: string;
-  location: string;
-  manager: string;
-  managerPhone: string;
-}
+import type { QueryOf, Schema } from '@/lib/api/contract';
 
-export interface WarehouseListQueryParams {
-  page?: number;
-  size?: number;
-}
+// 응답 모양은 OpenAPI 계약이 원본이다(openapi/everp.yaml)
+export type WarehouseListResponse = Schema<'WarehouseListItem'>;
+
+export type WarehouseListQueryParams = QueryOf<'/scm-pp/iv/warehouses'>;

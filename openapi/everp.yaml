@@ -1,0 +1,279 @@
+openapi: 3.1.0
+info:
+  title: EverP API
+  version: 0.1.0
+  description: |
+    EverP 프론트엔드가 부르는 API 계약. 백엔드가 없어 프론트엔드가 쓴다(OpenAPI 계약 1 카드).
+    원본은 이 파일이다. 타입(src/lib/api/openapi.gen.ts)은 `npm run openapi` 로 만들고,
+    목(src/mocks/handlers)은 openapi-msw 로 이 계약에 묶인다. 도메인은 창고부터 하나씩 옮긴다.
+    모든 성공 응답은 `ApiEnvelope` 에 `data` 를 더한 모양이다. 실패는 `ApiError`.
+servers:
+  - url: /api/proxy
+    description: 브라우저가 부르는 BFF 프록시. 서버는 세션을 Bearer 로 바꿔 업스트림에 넘긴다
+
+paths:
+  /scm-pp/iv/warehouses/statistic:
+    get:
+      operationId: getWarehouseStats
+      tags: [warehouse]
+      summary: 창고 통계(주, 월, 분기, 연)
+      responses:
+        '200':
+          description: 기간별 창고 수와 운영 중 창고 수
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: { $ref: '#/components/schemas/WarehouseStats' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /scm-pp/iv/warehouses:
+    get:
+      operationId: getWarehouseList
+      tags: [warehouse]
+      summary: 창고 목록(페이지)
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Size' }
+      responses:
+        '200':
+          description: 창고 목록 한 페이지
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: { $ref: '#/components/schemas/WarehouseListPage' }
+        default: { $ref: '#/components/responses/Error' }
+    post:
+      operationId: addWarehouse
+      tags: [warehouse]
+      summary: 창고 등록
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddWarehouseRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/NoData' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /scm-pp/iv/warehouses/{warehouseId}:
+    parameters:
+      - name: warehouseId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: getWarehouseDetail
+      tags: [warehouse]
+      summary: 창고 상세
+      responses:
+        '200':
+          description: 창고 정보와 담당자
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: { $ref: '#/components/schemas/WarehouseDetail' }
+        default: { $ref: '#/components/responses/Error' }
+    put:
+      operationId: editWarehouse
+      tags: [warehouse]
+      summary: 창고 수정
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EditWarehouseRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/NoData' }
+        default: { $ref: '#/components/responses/Error' }
+
+  /scm-pp/iv/warehouses/managers/toggle:
+    get:
+      operationId: getWarehouseManagers
+      tags: [warehouse]
+      summary: 창고 담당자 선택 목록
+      responses:
+        '200':
+          description: 담당자 목록
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/WarehouseManager' }
+        default: { $ref: '#/components/responses/Error' }
+
+components:
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: 0부터 시작하는 페이지 번호
+      schema: { type: integer, minimum: 0 }
+    Size:
+      name: size
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1 }
+
+  responses:
+    NoData:
+      description: 성공. 본문에 data 없음
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiEnvelope' }
+    Error:
+      description: 실패. AppError 가 message 를 꺼낸다(src/lib/AppError.ts)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+  schemas:
+    # ---------- 공통 ----------
+    ApiEnvelope:
+      type: object
+      required: [status, success, message]
+      properties:
+        status: { type: integer }
+        success: { type: boolean, const: true }
+        message: { type: string }
+    ApiError:
+      type: object
+      required: [status, success, message]
+      properties:
+        status: { type: integer }
+        success: { type: boolean, const: false }
+        message: { type: string }
+    Page:
+      type: object
+      required: [number, size, totalElements, totalPages, hasNext]
+      properties:
+        number: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+        hasNext: { type: boolean }
+    Stat:
+      type: object
+      description: 지표 하나. delta_rate 는 직전 기간 대비 변화율(0.12 = 12%)
+      required: [value, delta_rate]
+      properties:
+        value: { type: number }
+        delta_rate: { type: number }
+
+    # ---------- 창고 ----------
+    WarehouseStat:
+      type: object
+      required: [total_warehouse, in_operation_warehouse]
+      properties:
+        total_warehouse: { $ref: '#/components/schemas/Stat' }
+        in_operation_warehouse: { $ref: '#/components/schemas/Stat' }
+    WarehouseStats:
+      type: object
+      required: [week, month, quarter, year]
+      properties:
+        week: { $ref: '#/components/schemas/WarehouseStat' }
+        month: { $ref: '#/components/schemas/WarehouseStat' }
+        quarter: { $ref: '#/components/schemas/WarehouseStat' }
+        year: { $ref: '#/components/schemas/WarehouseStat' }
+    WarehouseListItem:
+      type: object
+      required:
+        [
+          warehouseId,
+          warehouseNumber,
+          warehouseName,
+          statusCode,
+          warehouseType,
+          location,
+          manager,
+          managerPhone,
+        ]
+      properties:
+        warehouseId: { type: string }
+        warehouseNumber: { type: string }
+        warehouseName: { type: string }
+        statusCode: { type: string, description: 'ACTIVE(운영중) 또는 INACTIVE(비활성)' }
+        warehouseType: { type: string, description: 'MATERIAL, ITEM, ETC 등' }
+        location: { type: string }
+        manager: { type: string, description: 담당자 이름 }
+        managerPhone: { type: string }
+    WarehouseListPage:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/WarehouseListItem' }
+        page: { $ref: '#/components/schemas/Page' }
+    WarehouseDetail:
+      type: object
+      required: [warehouseInfo, manager]
+      properties:
+        warehouseInfo:
+          type: object
+          required:
+            [warehouseName, warehouseNumber, warehouseType, statusCode, location, description]
+          properties:
+            warehouseName: { type: string }
+            warehouseNumber: { type: string }
+            warehouseType: { type: string }
+            statusCode: { type: string }
+            location: { type: string }
+            description: { type: string }
+        manager:
+          type: object
+          required: [managerId, managerName, managerPhoneNumber, managerEmail]
+          properties:
+            managerId: { type: string }
+            managerName: { type: string }
+            managerPhoneNumber: { type: string }
+            managerEmail: { type: string }
+    WarehouseManager:
+      type: object
+      required: [managerId, managerName, managerPhone, managerEmail]
+      properties:
+        managerId: { type: string }
+        managerName: { type: string }
+        managerPhone: { type: string }
+        managerEmail: { type: string }
+    AddWarehouseRequest:
+      type: object
+      required: [warehouseName, warehouseType, location, managerId, note]
+      properties:
+        warehouseName: { type: string }
+        warehouseType: { type: string }
+        location: { type: string }
+        managerId: { type: string }
+        note: { type: string }
+        managerPhone: { type: string }
+    EditWarehouseRequest:
+      type: object
+      required: [warehouseName, warehouseType, location, managerId, warehouseStatusCode, note]
+      properties:
+        warehouseName: { type: string }
+        warehouseType: { type: string }
+        location: { type: string }
+        managerId: { type: string }
+        warehouseStatusCode: { type: string }
+        note: { type: string }

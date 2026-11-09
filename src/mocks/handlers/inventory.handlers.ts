@@ -1,10 +1,5 @@
 import { http } from 'msw';
-import {
-  INVENTORY_BASE_PATH,
-  INVENTORY_ENDPOINTS,
-  WAREHOUSE_ENDPOINTS,
-  LOWSTOCK_ENDPOINTS,
-} from '@/app/types/api';
+import { INVENTORY_BASE_PATH, INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
 const mockInventoryStats = statResponse({
@@ -13,11 +8,6 @@ const mockInventoryStats = statResponse({
   store_pending: stat,
   delivery_complete: stat,
   delivery_pending: stat,
-});
-
-const mockWarehouseStats = statResponse({
-  total_warehouse: stat,
-  in_operation_warehouse: stat,
 });
 
 const mockLowStockStats = statResponse({
@@ -281,71 +271,6 @@ export const inventoryHandlers = [
         supplierName: '대양상사',
       },
     ]);
-  }),
-
-  // ----------------------- Warehouse -----------------------
-  http.get(WAREHOUSE_ENDPOINTS.STATS, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load warehouse stats', 500);
-    return ok(mockWarehouseStats);
-  }),
-  http.get(WAREHOUSE_ENDPOINTS.WAREHOUSE_LIST, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load warehouse list', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          warehouseId: 'wh-001',
-          warehouseNumber: 'WH-001',
-          warehouseName: '1공장 창고',
-          statusCode: 'ACTIVE',
-          warehouseType: 'RAW',
-          location: '서울 강서구',
-          manager: '이자재',
-          managerPhone: '010-2222-3333',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
-  }),
-  http.get(`${INVENTORY_BASE_PATH}/iv/warehouses/:warehouseId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load warehouse detail', 500);
-    return ok({
-      warehouseInfo: {
-        warehouseName: '1공장 창고',
-        warehouseNumber: 'WH-001',
-        warehouseType: 'RAW',
-        statusCode: 'ACTIVE',
-        location: '서울 강서구',
-        description: '주 원자재 보관',
-      },
-      manager: {
-        managerId: 'mgr-001',
-        managerName: '이자재',
-        managerPhoneNumber: '010-2222-3333',
-        managerEmail: 'manager@everp.co.kr',
-      },
-    });
-  }),
-  http.post(WAREHOUSE_ENDPOINTS.ADD_WAREHOUSE, ({ request }) => {
-    if (shouldError(request)) return error('Failed to add warehouse', 500);
-    return okNoData();
-  }),
-  http.get(WAREHOUSE_ENDPOINTS.WAREHOUSE_MANAGER_INFO, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load warehouse managers', 500);
-    return ok([
-      {
-        managerEmail: 'manager@everp.co.kr',
-        managerId: 'mgr-001',
-        managerName: '이자재',
-        managerPhone: '010-2222-3333',
-      },
-    ]);
-  }),
-  http.put(`${INVENTORY_BASE_PATH}/iv/warehouses/:warehouseId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update warehouse', 500);
-    return okNoData();
   }),
 
   // ----------------------- Low Stock -----------------------
