@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import Button from '@/app/components/common/Button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMrpAvailableStatusDropdown,
   fetchMrpOrdersList,
@@ -61,10 +61,12 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
 
   const {
     data: orders,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<MrpOrdersListResponse>({
     queryKey: mrpOrderKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchMrpOrdersList(queryParams),
   });
 
@@ -242,6 +244,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
         <TableStatusBox type="error" message="순소요 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={orderItems}
           keyExtractor={(row) => row.itemId}

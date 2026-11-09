@@ -5,7 +5,7 @@ import { TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiT
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import TrainingDetailModal from '@/app/(private)/hrm/components/modals/TrainingDetailModal';
 import AddEmployeeTrainingModal from '@/app/(private)/hrm/components/modals/AddEmployeeTrainingModal';
@@ -45,8 +45,9 @@ export default function EmployeeTrainingTab() {
     [selectedDepartment, debouncedKeyword, currentPage],
   );
 
-  const { data: trainingData } = useQuery({
+  const { data: trainingData, isPlaceholderData: isPlaceholderData } = useQuery({
     queryKey: trainingKeys.list(trainingQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchTrainingList(trainingQueryParams),
   });
 
@@ -167,6 +168,7 @@ export default function EmployeeTrainingTab() {
       </div>
 
       <Table
+        isStale={isPlaceholderData}
         columns={columns}
         data={trainingList}
         keyExtractor={(row) => row.employeeId}

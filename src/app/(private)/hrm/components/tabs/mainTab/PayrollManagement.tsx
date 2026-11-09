@@ -1,5 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import {
   fetchDepartmentsDropdown,
@@ -97,10 +97,12 @@ export default function PayrollManagement() {
 
   const {
     data: payrollData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: payrollKeys.list(payrollQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchPayRollList(payrollQueryParams),
   });
 
@@ -231,6 +233,7 @@ export default function PayrollManagement() {
         <TableStatusBox type="error" message="급여 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={payrollList}
           keyExtractor={(row) => row.payrollId}

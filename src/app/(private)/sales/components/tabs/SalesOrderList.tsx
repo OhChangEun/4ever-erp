@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import SalesOrderDetailModal from '@/app/(private)/sales/components/modals/SalesOrderDetailModal';
 import { OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { getOrderList } from '../../sales.api';
 import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
@@ -46,10 +46,12 @@ const SalesOrderList = () => {
   );
   const {
     data: orderRes,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: salesOrderKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getOrderList(queryParams),
   });
 
@@ -157,6 +159,7 @@ const SalesOrderList = () => {
         <TableStatusBox type="error" message="주문 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={orders}
           keyExtractor={(row) => row.salesOrderId}

@@ -10,7 +10,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { EmployeeDetailModal } from '@/app/(private)/hrm/components/modals/EmployeeDetailModal';
 import { EmployeeEditModal } from '@/app/(private)/hrm/components/modals/EmployeeEditModal';
@@ -50,11 +50,13 @@ export default function EmployeesTab() {
 
   const {
     data: employeesData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
     error,
   } = useQuery({
     queryKey: employeeKeys.list(employeesQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchEmployeesList(employeesQueryParams),
   });
 
@@ -165,6 +167,7 @@ export default function EmployeesTab() {
         />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={employees}
           keyExtractor={(row) => row.employeeId}

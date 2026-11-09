@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { QuoteStatus, Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
 import QuoteDetailModal from '../modals/QuoteDetailModal';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getQuoteList } from '@/app/(private)/sales/sales.api';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
@@ -49,10 +49,12 @@ const SalesQuoteList = () => {
 
   const {
     data: quoteRes,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: quoteKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getQuoteList(queryParams),
   });
 
@@ -182,6 +184,7 @@ const SalesQuoteList = () => {
           <TableStatusBox type="error" message="견적서 목록을 불러오는 중 오류가 발생했습니다." />
         ) : (
           <Table
+            isStale={isPlaceholderData}
             columns={columns}
             data={quotes}
             keyExtractor={(row) => row.quotationId}

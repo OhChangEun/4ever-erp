@@ -25,6 +25,11 @@ export interface TableProps<T = Record<string, unknown>> {
    * 테이블 내부 스크롤 영역의 고정 높이 (ex: '400px', '60vh')
    */
   height?: string;
+  /**
+   * 이전 페이지 데이터를 보이는 중(placeholderData). 흐리게 하고 aria-busy 로 갱신 중을 알린다.
+   * 목록 쿼리에 keepPreviousData 를 쓸 때 isPlaceholderData 를 넘긴다.
+   */
+  isStale?: boolean;
 }
 
 /**
@@ -41,6 +46,7 @@ export default function Table<T = Record<string, unknown>>({
   className = '',
   maxHeight,
   height,
+  isStale = false,
 }: TableProps<T>) {
   const getAlignClass = (align?: string) => {
     switch (align) {
@@ -72,7 +78,10 @@ export default function Table<T = Record<string, unknown>>({
           height: height,
         }}
       >
-        <table className="w-full table-fixed text-[13px] tabular-nums">
+        <table
+          aria-busy={isStale || undefined}
+          className={`w-full table-fixed text-[13px] tabular-nums transition-opacity ${isStale ? 'opacity-60' : ''}`}
+        >
           <thead className="sticky top-0 z-local bg-gray-50">
             <tr className="h-10">
               {columns.map((column) => (

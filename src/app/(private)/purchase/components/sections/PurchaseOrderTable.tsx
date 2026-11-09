@@ -16,6 +16,8 @@ export interface PurchaseOrderTableProps {
   onStartDelivery: (purchaseOrderId: string) => void;
   /** 승인, 반려, 배송 시작 중 하나가 진행 중이면 행 버튼 전부 잠근다(중복 제출 방지) */
   actionsDisabled?: boolean;
+  /** 이전 페이지 데이터를 보이는 중 */
+  isStale?: boolean;
   className?: string;
 }
 
@@ -26,6 +28,7 @@ export default function PurchaseOrderTable({
   onReject,
   onStartDelivery,
   actionsDisabled = false,
+  isStale = false,
   className,
 }: PurchaseOrderTableProps) {
   const role = useRole();
@@ -126,6 +129,7 @@ export default function PurchaseOrderTable({
 
   return (
     <Table
+      isStale={isStale}
       className={className}
       columns={columns}
       data={orders}

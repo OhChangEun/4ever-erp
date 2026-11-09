@@ -7,7 +7,7 @@ import {
   MesSummaryItem,
 } from '@/app/(private)/production/types/MesListApiType';
 import Dropdown from '@/app/components/common/Dropdown';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMesList,
   fetchMesStatusDropdown,
@@ -48,10 +48,12 @@ export default function MesTab() {
 
   const {
     data: mesResponse,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<MesListResponse>({
     queryKey: mesKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchMesList(queryParams),
   });
 
@@ -258,6 +260,7 @@ export default function MesTab() {
           <TableStatusBox type="error" message="데이터를 불러오는데 실패했습니다." />
         ) : (
           <Table
+            isStale={isPlaceholderData}
             columns={columns}
             data={mesListData}
             keyExtractor={(row) => row.mesId}
