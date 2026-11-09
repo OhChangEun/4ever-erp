@@ -214,6 +214,22 @@ Next.js Middleware에서 쿠키 기반 역할 검증으로 페이지 접근 제�
 
 ---
 
+## AI 활용 (어떻게 만들고 있나)
+
+2026-11-07부터 리팩토링 코드는 Claude Code가 쓰고, 사람은 diff를 읽고 결정한다. 규칙은 전부 [`CLAUDE.md`](CLAUDE.md)에 있다. 지시문 원문도 그 파일이다.
+
+| 역할 | 누가 | 근거 |
+|---|---|---|
+| 구현, 테스트, 린트 정리 | Claude Code (Opus) | `CLAUDE.md`의 Architecture, Coding Conventions, Key Patterns |
+| 코드 리뷰 | Codex (`codex_review`) | `CLAUDE.md`의 "AI 리뷰 규칙" P0~P3 |
+| diff 검토, 리뷰 반영 여부, AI가 못 정하는 결정 | 사람 | [`ai/decisions.md`](ai/decisions.md) |
+
+- **우선순위는 정합성 > 성능 > 유지보수성.** ERP라 틀린 값이 느린 값보다 나쁘다. 실제로 최근 수정 2건(mutation 뒤 통계 카드 캐시 무효화 누락, 재고 화면이 인사 교육 목록을 무효화하던 버그)이 전부 정합성 문제였다.
+- **리뷰는 P0·P1만 필수 수정.** P2·P3는 사람이 반영 여부를 정하고 이유를 남긴다. 기록은 [`ai/reviews/`](ai/reviews/).
+- **AI가 정하지 못하는 것**(라이브러리 선택, 동률 정렬, 빈 상태, 권한 없는 사용자 처리)은 사람이 정하고 `decisions.md`에 한 줄 남긴다.
+
+---
+
 ## 스택 & 라이브러리
 
 ### Core
