@@ -131,7 +131,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
     queryFn: getItemInfoForNewQuote,
   });
 
-  const { mutate: addOrder } = useCreateQuote({
+  const { mutate: addOrder, isPending: isCreating } = useCreateQuote({
     onError: (error) => toast.error(`견적 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
@@ -302,7 +302,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
           >
             취소
           </button>
-          <Button type="submit" label="견적 요청 등록" />
+          <Button type="submit" label="견적 요청 등록" loading={isCreating} />
         </div>
       </form>
     </>

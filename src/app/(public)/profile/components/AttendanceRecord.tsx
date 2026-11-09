@@ -35,18 +35,18 @@ export default function AttendanceRecord() {
   };
 
   // 무효화(내 근태 + 인사 근태, 휴가 목록)는 profile.mutations.ts 한 곳.
-  const { mutate: sendVacation } = useRequestVacation({
+  const { mutate: sendVacation, isPending: isRequestingVacation } = useRequestVacation({
     onSuccess: () => toast.success('휴가 신청이 접수되었습니다.'),
     onError: (error) => toast.error(`휴가 신청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: checkIn } = useCheckIn({
+  const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn({
     onSuccess: () => {
       setCurrentStatus('출근');
       toast.success('출근 처리가 완료되었습니다.');
     },
     onError: (error) => toast.error(`출근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: checkOut } = useCheckOut({
+  const { mutate: checkOut, isPending: isCheckingOut } = useCheckOut({
     onSuccess: () => {
       setCurrentStatus('퇴근');
       toast.success('퇴근 처리가 완료되었습니다.');
@@ -145,7 +145,7 @@ export default function AttendanceRecord() {
 
             <button
               onClick={handleCheckInOut}
-              disabled={todayAttendanceRes?.status === '퇴근완료'}
+              disabled={todayAttendanceRes?.status === '퇴근완료' || isCheckingIn || isCheckingOut}
               className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
     ${
       todayAttendanceRes?.status === '퇴근완료'
@@ -283,6 +283,7 @@ export default function AttendanceRecord() {
                 </button>
                 <button
                   type="submit"
+                  disabled={isRequestingVacation}
                   className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700 sm:w-auto"
                 >
                   신청하기

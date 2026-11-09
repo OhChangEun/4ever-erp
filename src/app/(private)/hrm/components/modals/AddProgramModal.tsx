@@ -185,7 +185,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" label="교육 프로그램 추가" />
+          <Button type="submit" label="교육 프로그램 추가" loading={mutation.isPending} />
         </div>
       </form>
     </>

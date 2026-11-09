@@ -14,6 +14,8 @@ export interface PurchaseOrderTableProps {
   onApprove: (purchaseOrderId: string) => void;
   onReject: (purchaseOrderId: string) => void;
   onStartDelivery: (purchaseOrderId: string) => void;
+  /** 승인, 반려, 배송 시작 중 하나가 진행 중이면 행 버튼 전부 잠근다(중복 제출 방지) */
+  actionsDisabled?: boolean;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export default function PurchaseOrderTable({
   onApprove,
   onReject,
   onStartDelivery,
+  actionsDisabled = false,
   className,
 }: PurchaseOrderTableProps) {
   const role = useRole();
@@ -94,6 +97,7 @@ export default function PurchaseOrderTable({
                 size="sm"
                 className="px-2"
                 onClick={() => onApprove(order.purchaseOrderId)}
+                disabled={actionsDisabled}
               />
               <Button
                 label="반려"
@@ -101,6 +105,7 @@ export default function PurchaseOrderTable({
                 size="sm"
                 className="text-red-600 hover:bg-red-50 px-2"
                 onClick={() => onReject(order.purchaseOrderId)}
+                disabled={actionsDisabled}
               />
             </>
           )}
@@ -111,6 +116,7 @@ export default function PurchaseOrderTable({
               size="sm"
               className="px-2"
               onClick={() => onStartDelivery(order.purchaseOrderId)}
+              disabled={actionsDisabled}
             />
           )}
         </div>

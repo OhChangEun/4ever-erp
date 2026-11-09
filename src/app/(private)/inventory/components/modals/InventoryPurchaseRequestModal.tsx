@@ -62,7 +62,7 @@ export default function InventoryPurchaseRequestModal({
   const toast = useToast();
 
   // 무효화(부족 재고 목록, 구매 요청 목록, 구매 통계)는 inventory.mutations.ts 한 곳.
-  const { mutate: registerStockPurchaseReq } = useRequestPurchaseForLowStock({
+  const { mutate: registerStockPurchaseReq, isPending } = useRequestPurchaseForLowStock({
     onSuccess: () => {
       toast.success('발주 요청이 생성되었습니다.');
       onClose();
@@ -147,7 +147,7 @@ export default function InventoryPurchaseRequestModal({
       </div>
       {/* Footer */}
       <div className="py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
-        <Button label="발주 요청" onClick={handleSubmit} />
+        <Button label="발주 요청" onClick={handleSubmit} loading={isPending} />
       </div>
     </>
   );

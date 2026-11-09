@@ -124,7 +124,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
       </div>
 
       <div className="flex justify-end">
-        <Button label="저장" size="sm" onClick={handleSave} />
+        <Button label="저장" size="sm" onClick={handleSave} loading={mutation.isPending} />
       </div>
     </>
   );

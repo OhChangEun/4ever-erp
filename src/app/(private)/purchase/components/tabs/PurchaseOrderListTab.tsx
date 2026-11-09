@@ -81,15 +81,15 @@ export default function PurchaseOrderListTab() {
   });
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 결과를 알리기만 한다.
-  const { mutate: approveOrder } = useApprovePurchaseOrder({
+  const { mutate: approveOrder, isPending: isApproving } = useApprovePurchaseOrder({
     onSuccess: () => toast.success('발주서 승인 완료되었습니다.'),
     onError: (error) => toast.error(`발주서 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: rejectOrder } = useRejectPurchaseOrder({
+  const { mutate: rejectOrder, isPending: isRejecting } = useRejectPurchaseOrder({
     onSuccess: () => toast.success('반려 처리되었습니다.'),
     onError: (error) => toast.error(`반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: startDelivery } = useStartPurchaseOrderDelivery({
+  const { mutate: startDelivery, isPending: isStartingDelivery } = useStartPurchaseOrderDelivery({
     onSuccess: () => toast.info('배송이 시작되었습니다.'),
     onError: (error) =>
       toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
@@ -178,6 +178,7 @@ export default function PurchaseOrderListTab() {
           onApprove={handleApprove}
           onReject={handleReject}
           onStartDelivery={handleStartDelivery}
+          actionsDisabled={isApproving || isRejecting || isStartingDelivery}
           className="flex-1 min-h-0"
         />
       )}

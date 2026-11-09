@@ -84,7 +84,7 @@ const InvoiceList = () => {
   // 어느 API 를 부를지는 역할과 탭이 정한다. 무효화 범위는 finance.mutations.ts 한 곳.
   const invoiceAction: InvoiceAction =
     role === 'SUPPLIER_ADMIN' ? 'supplierAp' : currentTab === 'sales' ? 'ar' : 'ap';
-  const { mutate: sendReq } = useCompleteInvoice({
+  const { mutate: sendReq, isPending: isCompleting } = useCompleteInvoice({
     onSuccess: (data) => toast.success(data.message),
     onError: (error) => toast.error(`등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
@@ -205,6 +205,7 @@ const InvoiceList = () => {
           <Button
             label="미수 처리 신청"
             onClick={handleReceivableComplete}
+            loading={isCompleting}
             disabled={selectedInvoiceId ? false : true}
           />
         </div>

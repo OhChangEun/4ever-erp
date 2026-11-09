@@ -86,7 +86,7 @@ export default function EditProgramModal({
 
       {/* 버튼 */}
       <div className="flex justify-end">
-        <Button type="submit" label="수정" />
+        <Button type="submit" label="수정" loading={mutation.isPending} />
       </div>
     </form>
   );

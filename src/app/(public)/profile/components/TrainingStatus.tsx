@@ -39,7 +39,7 @@ const TrainingStatus = () => {
     },
   });
 
-  const { mutate: registerTraining } = useRegisterTraining({
+  const { mutate: registerTraining, isPending: isRegistering } = useRegisterTraining({
     onSuccess: () => toast.success('교육 신청이 완료되었습니다.'),
     onError: (error) => toast.error(`교육 신청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
@@ -154,6 +154,7 @@ const TrainingStatus = () => {
 
                     <button
                       onClick={() => handleApplyTraining(training.trainingId)}
+                      disabled={isRegistering}
                       className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                     >
                       교육 신청하기

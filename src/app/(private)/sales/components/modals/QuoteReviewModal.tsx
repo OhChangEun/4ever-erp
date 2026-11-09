@@ -65,7 +65,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     },
   });
 
-  const { mutate: delieveryProcessReq } = useProcessDelivery({
+  const { mutate: delieveryProcessReq, isPending: isProcessingDelivery } = useProcessDelivery({
     onSuccess: (data) => toast.info(`${data.status} : ${quote?.quotationNumber}`),
     onError: (error) =>
       toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
@@ -249,6 +249,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
               <div className="flex gap-3">
                 <button
                   onClick={handleDelieveryProcess}
+                  disabled={isProcessingDelivery}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2"
                 >
                   <i className="ri-truck-line"></i>

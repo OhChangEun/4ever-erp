@@ -1,5 +1,9 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useAuthStore } from '@/store/authStore';
+import { delay, HttpResponse } from 'msw';
+import { ok } from '@/mocks/utils';
 import { http } from 'msw';
 import { AxiosError, type AxiosAdapter } from 'axios';
 import axios from '@/lib/axiosInstance';
@@ -7,7 +11,10 @@ import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { MOCK_SCENARIOS, scenarioResponse, type MockScenario } from '@/mocks/scenario';
 import { ERROR_MESSAGE_BY_KIND, type ErrorKind } from '@/lib/AppError';
-import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
+import {
+  PURCHASE_BASE_PATH,
+  PURCHASE_ENDPOINTS,
+} from '@/app/(private)/purchase/api/purchase.endpoints';
 import PurchaseOrderListTab from './PurchaseOrderListTab';
 
 const KIND_OF: Record<MockScenario, ErrorKind> = {
@@ -71,4 +78,72 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
       expect(screen.queryByText('PO-2026-001')).not.toBeInTheDocument();
     },
   );
+});
+
+describe('발주 승인 중복 제출 방지', () => {
+  afterEach(() => {
+    useAuthStore.getState().clearUserInfo();
+    vi.restoreAllMocks();
+  });
+
+  it('승인 버튼을 빠르게 두 번 눌러도 요청은 한 번, 진행 중엔 버튼이 잠긴다', async () => {
+    // 승인 버튼은 공급사 역할 + PENDING 상태에서만 보인다
+    useAuthStore.getState().setUserInfo({
+      id: 2,
+      name: '대양상사',
+      email: 'supplier@everp.local',
+      role: 'SUPPLIER_ADMIN',
+    });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    let approveCalls = 0;
+    let listCalls = 0;
+    server.use(
+      http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, () => {
+        listCalls += 1;
+        return ok({
+          content: [
+            {
+              purchaseOrderId: 'po-001',
+              purchaseOrderNumber: 'PO-2026-001',
+              supplierName: '대양상사',
+              itemsSummary: '원자재 A 외 2건',
+              orderDate: '2026-01-08',
+              dueDate: '2026-01-30',
+              totalAmount: 4200000,
+              statusCode: 'PENDING',
+            },
+          ],
+          page: { number: 0, size: 10, totalElements: 1, totalPages: 1, hasNext: false },
+        });
+      }),
+      http.post(`${PURCHASE_BASE_PATH}/purchase-orders/:poId/approve`, async () => {
+        approveCalls += 1;
+        await delay(200);
+        return HttpResponse.json({ status: 200, success: true, message: 'OK', data: null });
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderWithProviders(<PurchaseOrderListTab />);
+    // 옵션 로드 뒤 검색 타입이 바뀌며 목록을 한 번 더 가져온다(두 번째 요청). 그 뒤의 표를 잡아야 한다.
+    await waitFor(
+      () => {
+        expect(listCalls).toBeGreaterThanOrEqual(2);
+        expect(screen.queryByText(/불러오는 중입니다/)).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '승인' })).toBeEnabled();
+      },
+      { timeout: 3000 },
+    );
+    const approve = screen.getByRole('button', { name: '승인' });
+
+    await user.click(approve);
+    await user.click(approve); // 두 번째 클릭. 버튼이 잠겨 있거나 안전망이 버려야 한다
+    expect(screen.getByRole('button', { name: '승인' })).toBeDisabled();
+
+    await waitFor(() => expect(screen.getByRole('button', { name: '승인' })).toBeEnabled(), {
+      timeout: 3000,
+    });
+    expect(approveCalls).toBe(1);
+  });
 });
