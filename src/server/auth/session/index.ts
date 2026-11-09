@@ -10,7 +10,9 @@ import type { SessionData, SessionStore, StoredSession } from './store';
  * 세션 처리 한 곳(인증 3단계 카드). 페이지 프록시, API 프록시, 로그인, 로그아웃, me 가 이 함수들만 쓴다.
  * 쿠키 이름과 옵션은 여기에만 있다. 저장소를 바꾸려면 sessionStore() 만 고친다.
  */
-export const SESSION_COOKIE = 'session';
+// 운영(https)은 __Host- 접두사. 브라우저가 Secure, Path=/, Domain 없음을 강제해 서브도메인이 같은 이름의
+// 쿠키를 심어 바꿔치기하는 것(cookie tossing)을 막는다. 개발 http 는 Secure 를 못 걸어 접두사 없이(결정 7)
+export const SESSION_COOKIE = process.env.NODE_ENV === 'production' ? '__Host-session' : 'session';
 
 export type { SessionData, StoredSession };
 
@@ -41,16 +43,28 @@ export const readFreshSession = async (cookies: CookieReader): Promise<StoredSes
   return ensureFreshSession(sid, session, store, getIdp());
 };
 
+/**
+ * 심을 때와 지울 때 같은 속성. __Host- 쿠키는 지우는 Set-Cookie 에도 Secure 와 Path=/ 가 있어야 브라우저가
+ * 받아들인다. 리뷰 지적(P1): res.cookies.delete 는 Secure 를 안 붙여 운영에서 로그아웃이 쿠키를 못 지웠다
+ */
+const cookieAttributes = () =>
+  ({
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+  }) as const;
+
+const deleteSessionCookie = (res: NextResponse) =>
+  res.cookies.set({ name: SESSION_COOKIE, value: '', maxAge: 0, ...cookieAttributes() });
+
 export const startSession = async (res: NextResponse, data: SessionData): Promise<void> => {
   const store = sessionStore();
   res.cookies.set({
     name: SESSION_COOKIE,
     value: await store.create(data),
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
     maxAge: store.maxAgeSeconds,
+    ...cookieAttributes(),
   });
 };
 
@@ -66,7 +80,7 @@ export const endSession = async (
   const store = sessionStore();
   const ended = value ? await store.get(value) : null;
   if (value) await store.delete(value);
-  res.cookies.delete({ name: SESSION_COOKIE, path: '/' });
+  deleteSessionCookie(res);
   return ended;
 };
 
@@ -76,5 +90,5 @@ export const endSessionsMatching = (match: { sub?: string; idpSid?: string }): P
 
 /** 쿠키는 있는데 세션이 없을 때(깨짐, 만료) 쿠키만 지운다 */
 export const clearSessionCookie = (res: NextResponse): void => {
-  res.cookies.delete({ name: SESSION_COOKIE, path: '/' });
+  deleteSessionCookie(res);
 };
