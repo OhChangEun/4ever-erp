@@ -61,4 +61,17 @@ describe('MRP 자재 구매 요청 모달', () => {
     );
     expect(screen.queryByRole('button', { name: '구매 요청 확정' })).not.toBeInTheDocument();
   });
+
+  it('주문이 없으면 안내만 보이고 확정 버튼이 없다(리뷰 A1)', () => {
+    renderWithProviders(
+      <MrpPurchaseRequestModal
+        id="m2"
+        onClose={() => undefined}
+        orders={[]}
+        onConfirm={() => undefined}
+      />,
+    );
+    expect(screen.getByText('구매 요청할 자재가 없습니다.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '구매 요청 확정' })).not.toBeInTheDocument();
+  });
 });

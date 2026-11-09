@@ -43,6 +43,18 @@ export const fetchQuotationList = async (
 };
 
 // 견적에 대한 ATP(Available to Promise), MPS, MRP 시뮬레이션 실행 결과
+/** 선택된 견적마다 시뮬레이션을 따로 호출하고 결과를 합친다 */
+export const simulateQuotations = async (
+  quotationIds: string[],
+): Promise<QuotationSimulationResponse['content']> => {
+  const results = await Promise.all(
+    quotationIds.map((quotationId) =>
+      fetchQuotationSimulationResult({ quotationIds: [quotationId], page: 0, size: 1 }),
+    ),
+  );
+  return results.flatMap((r) => r.content);
+};
+
 export const fetchQuotationSimulationResult = async (
   params: FetchQuotationSimulationParams,
 ): Promise<QuotationSimulationResponse> => {

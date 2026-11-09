@@ -3,9 +3,17 @@ import {
   useInvalidatingMutation,
   type MutationCallbacks,
 } from '@/lib/query/useInvalidatingMutation';
-import { postCustomer, postDeliveryProcess, postNewQuote, postQuotationConfirm } from './sales.api';
+import {
+  postCustomer,
+  postDeliveryProcess,
+  postInventoryCheck,
+  postNewQuote,
+  postQuotationConfirm,
+} from './sales.api';
 import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
+import type { Inventories } from '@/app/(private)/sales/types/QuoteDetailModalType';
+import type { InventoryCheckRes } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import type {
   CustomerData,
   ServerResponse,
@@ -17,6 +25,8 @@ import type { ApiResponseNoData } from '@/app/types/api';
  * 재고 확인은 읽기라 여기 없다.
  */
 export const SALES_MUTATION_EFFECTS = {
+  // 재고 확인은 버튼으로 한 번 하는 계산 요청이다. 서버 상태를 안 바꿔 무효화할 것이 없다
+  checkInventory: (): readonly QueryKey[] => [],
   createCustomer: (): readonly QueryKey[] => [customerKeys.lists()],
   createQuote: (): readonly QueryKey[] => [quoteKeys.lists(), salesStatsKeys.all],
   confirmQuotation: (quotationId: string): readonly QueryKey[] => [
@@ -68,5 +78,16 @@ export const useCreateCustomer = (callbacks?: MutationCallbacks<ServerResponse, 
     mutationKey: salesMutationKey('createCustomer'),
     mutationFn: (body) => postCustomer(body),
     effects: () => SALES_MUTATION_EFFECTS.createCustomer(),
+    callbacks,
+  });
+
+/** 견적 검토의 재고 확인. 캐시할 이유가 없는 한 번짜리 계산이라 mutation 으로 둔다 */
+export const useCheckInventory = (
+  callbacks?: MutationCallbacks<InventoryCheckRes[], Inventories[]>,
+) =>
+  useInvalidatingMutation<InventoryCheckRes[], Inventories[]>({
+    mutationKey: salesMutationKey('checkInventory'),
+    mutationFn: (items) => postInventoryCheck(items),
+    effects: () => SALES_MUTATION_EFFECTS.checkInventory(),
     callbacks,
   });

@@ -8,10 +8,10 @@ import {
   QuoteReviewModalProps,
 } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Inventories, QuoteDetail } from '../../types/QuoteDetailModalType';
-import { getQuoteDetail, postInventoryCheck } from '../../sales.api';
-import { useConfirmQuotation, useProcessDelivery } from '../../sales.mutations';
+import { getQuoteDetail } from '../../sales.api';
+import { useCheckInventory, useConfirmQuotation, useProcessDelivery } from '../../sales.mutations';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -55,14 +55,9 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     onError: (error) => toast.error(`검토 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
-  const { mutate: inventoryCheckReq, isPending } = useMutation({
-    mutationFn: (items: Inventories[]) => postInventoryCheck(items),
-    onSuccess: (data) => {
-      setInventoryCheckResult(data);
-    },
-    onError: (error) => {
-      toast.error(`재고 확인 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: inventoryCheckReq, isPending } = useCheckInventory({
+    onSuccess: (data) => setInventoryCheckResult(data),
+    onError: (error) => toast.error(`재고 확인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const { mutate: delieveryProcessReq, isPending: isProcessingDelivery } = useProcessDelivery({
