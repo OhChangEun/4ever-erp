@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { pageSchema, periodStatsSchema, statSchema } from '@/lib/api/schemas';
 import type { CustomerSalesStatResponse, SalesStatResponse } from './types/SalesStatsType';
 import type { Quote, QuoteStatus } from './types/SalesQuoteListType';
@@ -11,7 +11,7 @@ import type { SalesAnalysis } from './types/SalesChartType';
 import type { ItemResponse } from './types/NewOrderModalType';
 
 /**
- * 영업 GET 응답 스키마(타입 2차 카드). 각 스키마는 기존 타입에 묶여 있어(`z.ZodType<기존 타입>`)
+ * 영업 GET 응답 스키마(타입 2차 카드). 각 스키마는 기존 타입에 묶여 있어(`z.ZodMiniType<기존 타입>`)
  * 타입을 고치면 여기도 컴파일 오류로 같이 고치게 된다. 객체는 looseObject 라 모르는 필드를 지우지 않는다.
  */
 
@@ -37,15 +37,15 @@ const managerSchema = z.looseObject({
   managerEmail: z.string(),
 });
 
-export const salesStatsSchema: z.ZodType<SalesStatResponse> = periodStatsSchema(
+export const salesStatsSchema: z.ZodMiniType<SalesStatResponse> = periodStatsSchema(
   z.looseObject({ sales_amount: statSchema, new_orders_count: statSchema }),
 );
 
-export const customerSalesStatsSchema: z.ZodType<CustomerSalesStatResponse> = periodStatsSchema(
+export const customerSalesStatsSchema: z.ZodMiniType<CustomerSalesStatResponse> = periodStatsSchema(
   z.looseObject({ quotation_count: statSchema }),
 );
 
-const quoteSchema: z.ZodType<Quote> = z.looseObject({
+const quoteSchema: z.ZodMiniType<Quote> = z.looseObject({
   quotationId: z.string(),
   quotationNumber: z.string(),
   customerName: z.string(),
@@ -58,7 +58,7 @@ const quoteSchema: z.ZodType<Quote> = z.looseObject({
 
 export const quoteListSchema = z.looseObject({ content: z.array(quoteSchema), page: pageSchema });
 
-export const quoteDetailSchema: z.ZodType<QuoteDetail> = z.looseObject({
+export const quoteDetailSchema: z.ZodMiniType<QuoteDetail> = z.looseObject({
   quotationId: z.string(),
   quotationNumber: z.string(),
   quotationDate: z.string(),
@@ -79,7 +79,7 @@ export const quoteDetailSchema: z.ZodType<QuoteDetail> = z.looseObject({
   totalAmount: z.number(),
 });
 
-const orderSchema: z.ZodType<Order> = z.looseObject({
+const orderSchema: z.ZodMiniType<Order> = z.looseObject({
   salesOrderId: z.string(),
   salesOrderNumber: z.string(),
   customerName: z.string(),
@@ -92,7 +92,7 @@ const orderSchema: z.ZodType<Order> = z.looseObject({
 
 export const orderListSchema = z.looseObject({ content: z.array(orderSchema), page: pageSchema });
 
-export const orderDetailSchema: z.ZodType<OrderDetail> = z.looseObject({
+export const orderDetailSchema: z.ZodMiniType<OrderDetail> = z.looseObject({
   order: z.looseObject({
     salesOrderId: z.string(),
     salesOrderNumber: z.string(),
@@ -122,7 +122,7 @@ export const orderDetailSchema: z.ZodType<OrderDetail> = z.looseObject({
   note: z.string(),
 });
 
-const salesCustomerSchema: z.ZodType<SalesCustomer> = z.looseObject({
+const salesCustomerSchema: z.ZodMiniType<SalesCustomer> = z.looseObject({
   customerId: z.string(),
   customerNumber: z.string(),
   customerName: z.string(),
@@ -139,7 +139,7 @@ export const customerListSchema = z.looseObject({
   page: pageSchema,
 });
 
-export const customerDetailSchema: z.ZodType<CustomerDetail> = z.looseObject({
+export const customerDetailSchema: z.ZodMiniType<CustomerDetail> = z.looseObject({
   customerId: z.string(),
   customerNumber: z.string(),
   customerName: z.string(),
@@ -158,7 +158,7 @@ export const customerDetailSchema: z.ZodType<CustomerDetail> = z.looseObject({
 
 const minMaxSchema = z.looseObject({ min: z.number(), max: z.number() });
 
-export const salesAnalysisSchema: z.ZodType<SalesAnalysis> = z.looseObject({
+export const salesAnalysisSchema: z.ZodMiniType<SalesAnalysis> = z.looseObject({
   period: z.looseObject({
     start: z.string(),
     end: z.string(),
@@ -195,7 +195,7 @@ export const salesAnalysisSchema: z.ZodType<SalesAnalysis> = z.looseObject({
   ),
 });
 
-const itemResponseSchema: z.ZodType<ItemResponse> = z.looseObject({
+const itemResponseSchema: z.ZodMiniType<ItemResponse> = z.looseObject({
   itemId: z.string(),
   itemNumber: z.string(),
   itemName: z.string(),

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { pageSchema, periodStatsSchema, statSchema } from '@/lib/api/schemas';
 import type { PurchaseStatResponse, SupplierPurchaseStatResponse } from './types/PurchaseStatsType';
 import type {
@@ -37,14 +37,14 @@ const SUPPLIER_CATEGORIES = [
   'ETC',
 ] as const satisfies readonly SupplierCategory[];
 
-export const purchaseStatsSchema: z.ZodType<PurchaseStatResponse> = periodStatsSchema(
+export const purchaseStatsSchema: z.ZodMiniType<PurchaseStatResponse> = periodStatsSchema(
   z.looseObject({ purchaseOrderAmount: statSchema, purchaseRequestCount: statSchema }),
 );
 
-export const supplierPurchaseStatsSchema: z.ZodType<SupplierPurchaseStatResponse> =
+export const supplierPurchaseStatsSchema: z.ZodMiniType<SupplierPurchaseStatResponse> =
   periodStatsSchema(z.looseObject({ orderCount: statSchema }));
 
-export const purchaseRequestListSchema: z.ZodType<PurchaseRequestListResponse> = z.looseObject({
+export const purchaseRequestListSchema: z.ZodMiniType<PurchaseRequestListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       purchaseRequisitionId: z.string(),
@@ -61,7 +61,7 @@ export const purchaseRequestListSchema: z.ZodType<PurchaseRequestListResponse> =
   page: pageSchema,
 });
 
-export const purchaseRequestDetailSchema: z.ZodType<PurchaseRequestDetail> = z.looseObject({
+export const purchaseRequestDetailSchema: z.ZodMiniType<PurchaseRequestDetail> = z.looseObject({
   id: z.string(),
   purchaseRequisitionNumber: z.string(),
   requesterId: z.string(),
@@ -84,7 +84,7 @@ export const purchaseRequestDetailSchema: z.ZodType<PurchaseRequestDetail> = z.l
   totalAmount: z.number(),
 });
 
-export const purchaseOrderListSchema: z.ZodType<PurchaseOrderListResponse> = z.looseObject({
+export const purchaseOrderListSchema: z.ZodMiniType<PurchaseOrderListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       purchaseOrderId: z.string(),
@@ -100,7 +100,7 @@ export const purchaseOrderListSchema: z.ZodType<PurchaseOrderListResponse> = z.l
   page: pageSchema,
 });
 
-export const purchaseOrderDetailSchema: z.ZodType<PurchaseOrderDetail> = z.looseObject({
+export const purchaseOrderDetailSchema: z.ZodMiniType<PurchaseOrderDetail> = z.looseObject({
   statusCode: z.string(),
   dueDate: z.string(),
   purchaseOrderId: z.string(),
@@ -125,25 +125,25 @@ export const purchaseOrderDetailSchema: z.ZodType<PurchaseOrderDetail> = z.loose
   note: z.string(),
 });
 
-const supplierInfoSchema: z.ZodType<SupplierInfo> = z.looseObject({
+const supplierInfoSchema: z.ZodMiniType<SupplierInfo> = z.looseObject({
   supplierId: z.string(),
   supplierName: z.string(),
   supplierNumber: z.string(),
   supplierEmail: z.string(),
   supplierPhone: z.string(),
   supplierBaseAddress: z.string(),
-  supplierDetailAddress: z.string().nullable(),
+  supplierDetailAddress: z.nullable(z.string()),
   supplierStatusCode: z.enum(SUPPLIER_STATUSES),
   category: z.enum(SUPPLIER_CATEGORIES),
   deliveryLeadTime: z.number(),
 });
 
-export const supplierListSchema: z.ZodType<SupplierListResponse> = z.looseObject({
+export const supplierListSchema: z.ZodMiniType<SupplierListResponse> = z.looseObject({
   content: z.array(z.looseObject({ statusCode: z.string(), supplierInfo: supplierInfoSchema })),
   page: pageSchema,
 });
 
-export const supplierDetailSchema: z.ZodType<SupplierDetail> = z.looseObject({
+export const supplierDetailSchema: z.ZodMiniType<SupplierDetail> = z.looseObject({
   supplierInfo: supplierInfoSchema,
   managerInfo: z.looseObject({
     managerName: z.string(),

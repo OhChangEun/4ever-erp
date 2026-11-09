@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
+import * as z from 'zod/mini';
 import { isAppError } from '@/lib/AppError';
 import { parseData } from './parse';
 import { pageSchema, periodStatsSchema, statSchema } from './schemas';
