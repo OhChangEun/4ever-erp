@@ -78,11 +78,33 @@ test('모달 안 드롭다운에서 항목을 고를 수 있다(교육 프로그
   await page.getByRole('button', { name: '교육 프로그램 목록' }).click();
   await page.getByRole('button', { name: '프로그램 추가' }).click();
   const dialog = page.getByRole('dialog', { name: '프로그램 추가' });
-  await dialog.getByRole('button', { name: /카테고리 선택/ }).click();
-  const option = dialog.getByRole('listitem').first();
+  await dialog.getByRole('combobox', { name: '카테고리 선택' }).click();
+  const option = dialog.getByRole('option').first();
   const label = (await option.textContent())?.trim() ?? '';
   expect(label).not.toBe('');
   await option.click();
-  await expect(dialog.getByRole('button', { name: label })).toBeVisible();
+  await expect(dialog.getByRole('combobox', { name: '카테고리 선택' })).toHaveText(label);
   await expect(dialog).toBeVisible();
+});
+
+// 접근성 3: 드롭다운은 키보드로 열고 고른다. 연 상태도 axe 위반 0
+test('드롭다운을 키보드로 열고 고른다(구매 필터)', async ({ page }) => {
+  await page.goto('/purchase');
+  const combobox = page.getByRole('combobox').first();
+  await expect(combobox).toBeVisible();
+  const before = (await combobox.textContent())?.trim();
+  await combobox.focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('listbox')).toBeVisible();
+  await expect(combobox).toHaveAttribute('aria-expanded', 'true');
+  const result = await scan(page);
+  expect(summarize(result.violations)).toEqual([]);
+  await page.keyboard.press('ArrowDown');
+  const activeId = await combobox.getAttribute('aria-activedescendant');
+  const picked = (await page.locator(`[id="${activeId}"]`).textContent())?.trim();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('listbox')).toHaveCount(0);
+  await expect(combobox).toHaveText(picked ?? '');
+  expect(picked).not.toBe(before);
+  await expect(combobox).toBeFocused();
 });

@@ -144,10 +144,10 @@ describe('모달(포커스와 키보드)', () => {
   // 리뷰 지적 P1: Radix 는 모달이 열리면 body 에 pointer-events: none 을 건다. body 로 portal 되는 목록은 못 누른다
   it('모달 안 드롭다운 목록의 항목을 누를 수 있다', async () => {
     const modal = await setupLayers();
-    await userEvent.click(screen.getByRole('button', { name: /유형/ }));
-    await userEvent.click(screen.getByText('부품'));
-    expect(screen.getByRole('button', { name: /부품/ })).toBeInTheDocument();
-    expect(modal).toContainElement(screen.getByRole('button', { name: /부품/ }));
+    await userEvent.click(screen.getByRole('combobox', { name: '유형' }));
+    await userEvent.click(screen.getByRole('option', { name: '부품' }));
+    expect(screen.getByRole('combobox', { name: '유형' })).toHaveTextContent('부품');
+    expect(modal).toContainElement(screen.getByRole('combobox', { name: '유형' }));
   });
 
   it('달력이 열려 있으면 Esc 는 달력만 닫는다', async () => {
@@ -171,10 +171,10 @@ describe('모달(포커스와 키보드)', () => {
   // 리뷰 지적 P2: 모달은 안쪽 층이 있으면 Esc 를 넘긴다. 드롭다운이 Esc 를 안 받으면 아무것도 안 닫힌다
   it('드롭다운이 열려 있으면 Esc 는 목록만 닫고, 한 번 더 누르면 모달을 닫는다', async () => {
     await setupLayers();
-    await userEvent.click(screen.getByRole('button', { name: /유형/ }));
-    expect(screen.getByText('부품')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('combobox', { name: '유형' }));
+    expect(screen.getByRole('option', { name: '부품' })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
-    expect(screen.queryByText('부품')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: '폼' })).toBeInTheDocument();
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog', { name: '폼' })).not.toBeInTheDocument();
