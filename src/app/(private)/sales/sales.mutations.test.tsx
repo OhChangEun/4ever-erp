@@ -5,6 +5,7 @@ import {
   useConfirmQuotation,
   useCreateCustomer,
   useCreateQuote,
+  useCheckInventory,
   useProcessDelivery,
 } from './sales.mutations';
 
@@ -78,5 +79,14 @@ describe('영업 mutation 훅', () => {
       },
       invalidates: [CUSTOMER_LIST],
       keeps: [QUOTE_LIST, ORDER_LIST, FOREIGN],
+    }));
+
+  it('재고 확인(계산 요청) → 아무것도 무효화하지 않는다', () =>
+    expectMatrix({
+      name: '',
+      useHook: useCheckInventory,
+      variables: [{ itemId: 'item-1', requiredQuantity: 3 }],
+      invalidates: [],
+      keeps: [QUOTE_LIST, ORDER_LIST, CUSTOMER_LIST],
     }));
 });
