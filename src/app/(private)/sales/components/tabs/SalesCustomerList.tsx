@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import CustomerDetailModal from '@/app/(private)/sales/components/modals/CustomerDetailModal';
 import NewCustomerModal from '@/app/(private)/sales/components/modals/NewCustomerModal';
 import { CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getCustomerList } from '../../sales.api';
 import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
@@ -47,10 +47,12 @@ const CustomerList = () => {
   );
   const {
     data: customerRes,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: customerKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getCustomerList(queryParams),
   });
 
@@ -166,6 +168,7 @@ const CustomerList = () => {
         <TableStatusBox type="error" message="고객 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={customers}
           keyExtractor={(row) => row.customerId}

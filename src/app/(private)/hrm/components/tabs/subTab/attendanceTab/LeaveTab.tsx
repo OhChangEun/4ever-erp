@@ -10,7 +10,7 @@ import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mutations';
@@ -49,10 +49,12 @@ export default function LeaveTab() {
 
   const {
     data: leaveData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: leaveKeys.list(leaveQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchLeaveList(leaveQueryParams),
   });
 
@@ -176,6 +178,7 @@ export default function LeaveTab() {
         <TableStatusBox type="error" message="휴가 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={leaveList}
           keyExtractor={(row) => row.leaveRequestId}

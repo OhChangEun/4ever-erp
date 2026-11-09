@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import PurchaseOrderDetailModal from '@/app/(private)/purchase/components/modals/PurchaseOrderDetailModal';
 import PurchaseOrderTable from '@/app/(private)/purchase/components/sections/PurchaseOrderTable';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchPurchaseOrderList,
   fetchPurchaseOrderSearchTypeOptions,
@@ -72,11 +72,13 @@ export default function PurchaseOrderListTab() {
 
   const {
     data: orderData,
+    isPlaceholderData,
     isLoading,
     isError,
     error,
   } = useQuery({
     queryKey: purchaseOrderKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchPurchaseOrderList(queryParams),
   });
 
@@ -178,6 +180,7 @@ export default function PurchaseOrderListTab() {
           onApprove={handleApprove}
           onReject={handleReject}
           onStartDelivery={handleStartDelivery}
+          isStale={isPlaceholderData}
           actionsDisabled={isApproving || isRejecting || isStartingDelivery}
           className="flex-1 min-h-0"
         />

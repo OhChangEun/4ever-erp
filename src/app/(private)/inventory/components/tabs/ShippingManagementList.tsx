@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getProductionList, getReadyToShipList } from '../../inventory.api';
 import {
   ProductionListResponse,
@@ -30,19 +30,23 @@ const ShippingManagementList = () => {
   );
   const {
     data: ProductionRes,
+    isPlaceholderData: isProductionPlaceholder,
     isLoading: isProductionLoading,
     isError: isProductionError,
   } = useQuery({
     queryKey: shippingKeys.productionList(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getProductionList(queryParams),
   });
 
   const {
     data: ReadyToShipRes,
+    isPlaceholderData: isReadyPlaceholder,
     isLoading: isReadyLoading,
     isError: isReadyError,
   } = useQuery({
     queryKey: shippingKeys.readyToShipList(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getReadyToShipList(queryParams),
   });
 
@@ -97,6 +101,9 @@ const ShippingManagementList = () => {
             <TableStatusBox type="error" message="출고 목록을 불러오는 중 오류가 발생했습니다." />
           ) : (
             <Table
+              isStale={
+                selectedSubTab === 'producing' ? isProductionPlaceholder : isReadyPlaceholder
+              }
               columns={[
                 { key: 'salesOrderNumber', label: '주문번호' },
                 { key: 'customerName', label: '고객사' },

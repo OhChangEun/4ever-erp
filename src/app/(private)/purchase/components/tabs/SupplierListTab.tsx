@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
 import SupplierDetailModal from '@/app/(private)/purchase/components/modals/SupplierDetailModal';
 import {
@@ -64,10 +64,12 @@ export default function SupplierListTab() {
   // React Query로 데이터 가져오기 - 쿼리 파라미터 전달
   const {
     data: supplierData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<SupplierListResponse>({
     queryKey: supplierKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchSupplierList(queryParams),
   });
 
@@ -186,6 +188,7 @@ export default function SupplierListTab() {
       </div>
 
       <Table
+        isStale={isPlaceholderData}
         columns={columns}
         data={suppliers}
         keyExtractor={(row) => row.supplierInfo.supplierId}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Pagination from '@/app/components/common/Pagination';
@@ -68,10 +68,12 @@ const WarehouseList = () => {
   );
   const {
     data: warehouseRes,
+    isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: warehouseKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getWarehouseList(queryParams),
   });
 
@@ -99,7 +101,10 @@ const WarehouseList = () => {
       ) : !warehouses || warehouses.length === 0 ? (
         <TableStatusBox type="empty" message="등록된 창고가 없습니다." />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        <div
+          aria-busy={isPlaceholderData || undefined}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
+        >
           {warehouses.map((warehouse) => (
             <div
               key={warehouse.warehouseId}

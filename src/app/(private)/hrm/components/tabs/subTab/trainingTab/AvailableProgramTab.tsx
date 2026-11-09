@@ -4,7 +4,7 @@ import { fetchProgramList } from '@/app/(private)/hrm/api/hrm.api';
 import { ProgramListData, ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDetailModal';
 import AddTrainingModal from '@/app/(private)/hrm/components/modals/AddProgramModal';
@@ -29,8 +29,9 @@ export default function AvailableProgramTab() {
     [currentPage],
   );
 
-  const { data: programData } = useQuery({
+  const { data: programData, isPlaceholderData } = useQuery({
     queryKey: programKeys.list(programQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchProgramList(programQueryParams),
   });
 
@@ -63,7 +64,10 @@ export default function AvailableProgramTab() {
         <Button label="프로그램 추가" onClick={handleViewProgramRegister} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        aria-busy={isPlaceholderData || undefined}
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
+      >
         {programList.map((program) => (
           <div key={program.programId} className="border border-gray-200 rounded-lg p-6">
             <div className="flex items-start justify-between mb-4">

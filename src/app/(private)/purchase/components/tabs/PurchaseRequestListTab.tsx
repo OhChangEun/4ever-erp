@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import PurchaseRequestFormModal from '@/app/(private)/purchase/components/modals/PurchaseRequestFormModal';
 import PurchaseRequestDetailModal from '@/app/(private)/purchase/components/modals/PurchaseRequestDetailModal';
 import {
@@ -78,11 +78,13 @@ export default function PurchaseRequestListTab() {
 
   const {
     data: requestData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
     error,
   } = useQuery<PurchaseRequestListResponse>({
     queryKey: purchaseRequestKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchPurchaseRequestList(queryParams),
   });
 
@@ -242,6 +244,7 @@ export default function PurchaseRequestListTab() {
         />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={requests}
           keyExtractor={(row) => row.purchaseRequisitionId}

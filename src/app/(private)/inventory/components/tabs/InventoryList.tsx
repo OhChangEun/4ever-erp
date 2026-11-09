@@ -7,7 +7,7 @@ import {
 } from '../../inventory.constants';
 import Pagination from '@/app/components/common/Pagination';
 import { useDebounce } from 'use-debounce';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { InventoryResponse } from '../../types/InventoryListType';
 import { getInventoryList } from '../../inventory.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -59,6 +59,7 @@ const InventoryList = () => {
 
   const {
     data: InventoryRes,
+    isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<{
@@ -66,6 +67,7 @@ const InventoryList = () => {
     pageData: Page;
   }>({
     queryKey: inventoryKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getInventoryList(queryParams),
   });
 
@@ -209,6 +211,7 @@ const InventoryList = () => {
           <TableStatusBox type="error" message="재고 목록을 불러오는 중 오류가 발생했습니다." />
         ) : (
           <Table
+            isStale={isPlaceholderData}
             columns={columns}
             data={inventories}
             keyExtractor={(row) => row.itemId}

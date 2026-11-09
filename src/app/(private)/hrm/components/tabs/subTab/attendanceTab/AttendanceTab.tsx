@@ -10,7 +10,7 @@ import Dropdown from '@/app/components/common/Dropdown';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { formatMinutesToHourMin, formatTime } from '@/app/utils/date';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -64,10 +64,12 @@ export default function AttendanceTab() {
 
   const {
     data: attendanceData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: attendanceKeys.list(attendanceQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchAttendanceList(attendanceQueryParams),
   });
 
@@ -160,6 +162,7 @@ export default function AttendanceTab() {
         <TableStatusBox type="error" message="근태 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={attendanceList}
           keyExtractor={(row) => row.timerecordId}

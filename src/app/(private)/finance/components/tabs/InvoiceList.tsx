@@ -66,10 +66,14 @@ const InvoiceList = () => {
 
   const {
     data: invoiceReq,
+    isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: invoiceKeys.list(currentTab, queryParams),
+    // 같은 탭(매출/매입) 안에서만 이전 페이지를 유지한다. 탭이 바뀌면 다른 탭의 전표가 보이면 안 된다
+    placeholderData: (previous, previousQuery) =>
+      previousQuery?.queryKey[3] === currentTab ? previous : undefined,
     queryFn: queryFn,
   });
 
@@ -217,6 +221,7 @@ const InvoiceList = () => {
         <TableStatusBox type="error" message="전표 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={invoices}
           keyExtractor={(row) => row.invoiceId}

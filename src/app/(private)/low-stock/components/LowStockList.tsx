@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -37,10 +37,12 @@ export default function LowStockList() {
 
   const {
     data: lowStockRes,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery({
     queryKey: lowStockKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getLowStockList(queryParams),
   });
 
@@ -227,6 +229,7 @@ export default function LowStockList() {
             />
           ) : (
             <Table
+              isStale={isPlaceholderData}
               columns={columns}
               data={lowStocks}
               keyExtractor={(row) => row.itemId}

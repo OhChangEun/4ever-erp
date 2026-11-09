@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {} from '../../inventory.constants';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
 import { ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -32,10 +32,12 @@ const ReceivingManagementList = () => {
 
   const {
     data: PendingRes,
+    isPlaceholderData: isPendingPlaceholder,
     isLoading: isPendingLoading,
     isError: isPendingError,
   } = useQuery({
     queryKey: receivingKeys.pendingList(queryPendingParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getPendingList(queryPendingParams),
   });
 
@@ -51,10 +53,12 @@ const ReceivingManagementList = () => {
 
   const {
     data: ReceivedRes,
+    isPlaceholderData: isReceivedPlaceholder,
     isLoading: isReceivedLoading,
     isError: isReceivedError,
   } = useQuery({
     queryKey: receivingKeys.receivedList(queryReceivedParams),
+    placeholderData: keepPreviousData,
     queryFn: () => getReceivedList(queryReceivedParams),
   });
 
@@ -117,6 +121,7 @@ const ReceivingManagementList = () => {
             <TableStatusBox type="error" message="입고 목록을 불러오는 중 오류가 발생했습니다." />
           ) : (
             <Table
+              isStale={selectedSubTab === 'pending' ? isPendingPlaceholder : isReceivedPlaceholder}
               columns={[
                 { key: 'purchaseOrderNumber', label: '납품서 번호' },
                 { key: 'supplierCompanyName', label: '공급업체' },

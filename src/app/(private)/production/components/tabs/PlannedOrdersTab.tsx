@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import { MrpPlannedOrderStatus } from '@/app/(private)/production/constants';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   fetchMrpPlannedOrderQuotationsDropdown,
   fetchMrpPlannedOrdersList,
@@ -65,10 +65,12 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
   // API 호출
   const {
     data: plannedOrdersData,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<MrpPlannedOrdersListResponse>({
     queryKey: mrpPlannedOrderKeys.list(queryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchMrpPlannedOrdersList(queryParams),
   });
 
@@ -202,6 +204,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
         <TableStatusBox type="error" message="계획 주문 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={plannedOrders}
           keyExtractor={(row) => row.mrpRunId}

@@ -3,7 +3,7 @@
 import { BomListResponse } from '@/app/(private)/production/types/BomListApiType';
 import BomDetailModal from '@/app/(private)/production/components/modals/BomDetailModal';
 // import BomInputFormModal from '@/app/(private)/production/components/modals/BomInputFormModal';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchBomList } from '../../api/production.api';
 import { useModal } from '@/app/components/common/modal/useModal';
 import BomInputFormModal from '../modals/BomInputFormModal';
@@ -33,10 +33,12 @@ export default function BomTab() {
   // bom 목록 조회
   const {
     data: bomResponse,
+    isPlaceholderData: isPlaceholderData,
     isLoading,
     isError,
   } = useQuery<BomListResponse>({
     queryKey: bomKeys.list(bomQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchBomList(bomQueryParams),
   });
 
@@ -115,6 +117,7 @@ export default function BomTab() {
         </div>
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={bomList}
           keyExtractor={(row) => row.bomId}

@@ -16,7 +16,7 @@ import {
   useConfirmQuotations,
   useSimulateQuotations,
 } from '@/app/(private)/production/api/production.mutations';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import Pagination from '@/app/components/common/Pagination';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -63,10 +63,12 @@ export default function QuotationTab() {
 
   const {
     data: quotationListData,
+    isPlaceholderData: isPlaceholderData,
     isLoading: isQuotationListLoading,
     isError: isQuotationListError,
   } = useQuery<QuotationListResponse>({
     queryKey: quotationKeys.list(quotationListQueryParams),
+    placeholderData: keepPreviousData,
     queryFn: () => fetchQuotationList(quotationListQueryParams),
   });
 
@@ -238,6 +240,7 @@ export default function QuotationTab() {
         <TableStatusBox type="error" message="견적 목록을 불러오는 중 오류가 발생했습니다." />
       ) : (
         <Table
+          isStale={isPlaceholderData}
           columns={columns}
           data={quotationDataList}
           keyExtractor={(row) => row.quotationId}
