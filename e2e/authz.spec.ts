@@ -33,3 +33,21 @@ test('재무 관리자는 인사 API 를 직접 불러도 403', async ({ page })
   const res = await page.request.get('/api/proxy/business/hrm/employee');
   expect(res.status()).toBe(403);
 });
+
+test('로그아웃하면 세션 쿠키가 실제로 지워지고 다음 요청은 401(운영 빌드의 __Host- 쿠키 포함)', async ({
+  page,
+  context,
+}) => {
+  await loginAs(page, 'ADMIN');
+  const before = (await context.cookies()).map((c) => c.name);
+  expect(before.some((name) => name.endsWith('session'))).toBe(true);
+
+  // 화면의 로그아웃과 같은 요청(같은 출처 POST)
+  await page.evaluate(() => fetch('/api/auth/logout', { method: 'POST' }));
+
+  const after = (await context.cookies()).map((c) => c.name);
+  expect(after.some((name) => name.endsWith('session'))).toBe(false);
+  expect((await page.request.get('/api/auth/me')).status()).toBe(401);
+  await page.goto('/dashboard');
+  await page.waitForURL(/\/login/);
+});
