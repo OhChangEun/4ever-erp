@@ -42,6 +42,13 @@ jobs:
       - name: Build
         run: npm run build
 
+      # 라우트별 첫 로드 JS 를 기준선(perf/bundle-baseline.json)과 비교한다. 표는 job summary 에.
+      # 한 라우트라도 +5KB(gzip) 넘게 늘면 실패. 의도한 증가면 같은 PR 에서 npm run bundle:baseline
+      # shell: bash 를 적어야 pipefail 이 켜진다. 없으면 bash -e 로 돌아 tee 의 종료 코드 0 이 실패를 가린다(리뷰 P1)
+      - name: Bundle size
+        shell: bash
+        run: npm run --silent bundle:check | tee -a "$GITHUB_STEP_SUMMARY"
+
       # 방금 만든 빌드를 next start 로 띄워 화면을 시험한다. 브라우저는 러너에 설치된 Chrome(channel: 'chrome')
       - name: E2E (Playwright)
         run: npm run e2e

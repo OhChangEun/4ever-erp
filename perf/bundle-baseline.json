@@ -1,0 +1,107 @@
+[
+  {
+    "route": "/production",
+    "chunks": 19,
+    "raw": 974894,
+    "gzip": 305290,
+    "packages": ["dnd-kit", "zod"]
+  },
+  {
+    "route": "/purchase",
+    "chunks": 19,
+    "raw": 908471,
+    "gzip": 283834,
+    "packages": ["zod"]
+  },
+  {
+    "route": "/inventory",
+    "chunks": 19,
+    "raw": 910559,
+    "gzip": 283595,
+    "packages": ["zod"]
+  },
+  {
+    "route": "/sales",
+    "chunks": 19,
+    "raw": 914206,
+    "gzip": 283371,
+    "packages": ["zod"]
+  },
+  {
+    "route": "/low-stock",
+    "chunks": 18,
+    "raw": 866174,
+    "gzip": 274333,
+    "packages": ["zod"]
+  },
+  {
+    "route": "/hrm",
+    "chunks": 18,
+    "raw": 866608,
+    "gzip": 269780,
+    "packages": []
+  },
+  {
+    "route": "/finance",
+    "chunks": 16,
+    "raw": 805559,
+    "gzip": 256412,
+    "packages": []
+  },
+  {
+    "route": "/dashboard",
+    "chunks": 16,
+    "raw": 795361,
+    "gzip": 250068,
+    "packages": ["zod"]
+  },
+  {
+    "route": "/warehouse",
+    "chunks": 16,
+    "raw": 746105,
+    "gzip": 234348,
+    "packages": []
+  },
+  {
+    "route": "/profile",
+    "chunks": 13,
+    "raw": 732576,
+    "gzip": 229881,
+    "packages": []
+  },
+  {
+    "route": "/alarm",
+    "chunks": 15,
+    "raw": 708134,
+    "gzip": 224938,
+    "packages": []
+  },
+  {
+    "route": "/login",
+    "chunks": 10,
+    "raw": 588681,
+    "gzip": 182346,
+    "packages": []
+  },
+  {
+    "route": "/unauthorized",
+    "chunks": 10,
+    "raw": 586859,
+    "gzip": 181980,
+    "packages": []
+  },
+  {
+    "route": "/callback",
+    "chunks": 10,
+    "raw": 577767,
+    "gzip": 178331,
+    "packages": []
+  },
+  {
+    "route": "/",
+    "chunks": 6,
+    "raw": 551478,
+    "gzip": 170001,
+    "packages": []
+  }
+]
