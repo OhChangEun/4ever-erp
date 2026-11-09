@@ -21,6 +21,17 @@ const PAGES = [
 const scan = async (page: Page) =>
   new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
 
+// 등장 페이드(150ms)가 도는 중엔 반투명이라 글자 대비가 낮게 잡힌다. 끝이 있는 애니메이션이 끝난 뒤 검사
+const animationsDone = (page: Page) =>
+  page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+        .map((a) => a.finished),
+    ),
+  );
+
 const summarize = (violations: Awaited<ReturnType<typeof scan>>['violations']) =>
   violations
     .filter((v) => v.impact === 'critical' || v.impact === 'serious')
@@ -53,15 +64,7 @@ test('axe 모달을 연 상태(창고 수정)와 키보드', async ({ page }) =>
   await expect(page.locator('input[name="warehouseName"]')).not.toHaveValue('', {
     timeout: 20_000,
   });
-  // 등장 페이드(150ms)가 도는 중엔 반투명이라 글자 대비가 낮게 잡힌다. 끝이 있는 애니메이션이 끝난 뒤 검사
-  await page.evaluate(() =>
-    Promise.all(
-      document
-        .getAnimations()
-        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
-        .map((a) => a.finished),
-    ),
-  );
+  await animationsDone(page);
   const result = await scan(page);
   expect(summarize(result.violations)).toEqual([]);
   // 포커스는 모달 안, Esc 로 닫으면 연 버튼으로 돌아온다
@@ -90,6 +93,8 @@ test('모달 안 드롭다운에서 항목을 고를 수 있다(교육 프로그
 // 접근성 3: 드롭다운은 키보드로 열고 고른다. 연 상태도 axe 위반 0
 test('드롭다운을 키보드로 열고 고른다(구매 필터)', async ({ page }) => {
   await page.goto('/purchase');
+  // 표가 데이터를 받는 중이면 흐리게 그려져 대비가 낮게 잡힌다. 다른 화면 검사처럼 요청이 끝난 뒤
+  await page.waitForLoadState('networkidle');
   const combobox = page.getByRole('combobox').first();
   await expect(combobox).toBeVisible();
   const before = (await combobox.textContent())?.trim();
@@ -97,6 +102,7 @@ test('드롭다운을 키보드로 열고 고른다(구매 필터)', async ({ pa
   await page.keyboard.press('ArrowDown');
   await expect(page.getByRole('listbox')).toBeVisible();
   await expect(combobox).toHaveAttribute('aria-expanded', 'true');
+  await animationsDone(page);
   const result = await scan(page);
   expect(summarize(result.violations)).toEqual([]);
   await page.keyboard.press('ArrowDown');
@@ -107,4 +113,10 @@ test('드롭다운을 키보드로 열고 고른다(구매 필터)', async ({ pa
   await expect(combobox).toHaveText(picked ?? '');
   expect(picked).not.toBe(before);
   await expect(combobox).toBeFocused();
+  // Space 로 고른 뒤 keyup 의 버튼 click 이 목록을 다시 열지 않는다
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('listbox')).toHaveCount(0);
+  await expect(combobox).not.toHaveText(picked ?? '');
 });
