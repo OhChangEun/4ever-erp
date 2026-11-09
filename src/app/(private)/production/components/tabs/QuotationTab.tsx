@@ -156,6 +156,7 @@ export default function QuotationTab() {
       headerRender: () => (
         <input
           type="checkbox"
+          aria-label="미확인 견적 전체 선택"
           className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
@@ -178,10 +179,16 @@ export default function QuotationTab() {
       ),
       render: (_, quote) =>
         quote.availableStatus === 'CHECKED' ? (
-          <input type="checkbox" className="rounded border-gray-300 text-gray-300" disabled />
+          <input
+            type="checkbox"
+            aria-label={`${quote.quotationNumber} 가용재고 확인 완료(선택할 수 없음)`}
+            className="rounded border-gray-300 text-gray-300"
+            disabled
+          />
         ) : (
           <input
             type="checkbox"
+            aria-label={`${quote.quotationNumber} 선택`}
             className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
             checked={selectedQuotes.includes(quote.quotationId)}
             onClick={(e) => e.stopPropagation()}

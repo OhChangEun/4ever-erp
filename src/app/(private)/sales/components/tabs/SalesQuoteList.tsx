@@ -95,6 +95,7 @@ const SalesQuoteList = () => {
       render: (_, quote) => (
         <input
           type="checkbox"
+          aria-label={`${quote.quotationNumber} 선택`}
           checked={selectedQuotationId === quote.quotationId}
           onChange={() => handleCheckboxChange(quote.quotationId)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"

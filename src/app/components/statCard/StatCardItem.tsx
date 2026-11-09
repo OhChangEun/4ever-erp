@@ -23,7 +23,7 @@ export default function StatCardItem({ stat, currentPeriodLabel }: StatCardProps
         <span className={`text-xs tabular-nums ${isUp ? 'text-green-600' : 'text-red-500'}`}>
           {isUp ? '▲' : '▼'} {stat.change}
         </span>
-        <span className="text-xs text-gray-400">{currentPeriodLabel}</span>
+        <span className="text-xs text-gray-500">{currentPeriodLabel}</span>
       </dd>
     </div>
   );

@@ -128,7 +128,7 @@ function DemoLogin() {
             </h1>
           </Flex>
 
-          <p className="text-sm text-gray-400">역할 카드를 선택하거나 아이디를 직접 입력하세요.</p>
+          <p className="text-sm text-gray-500">역할 카드를 선택하거나 아이디를 직접 입력하세요.</p>
         </Flex>
 
         {/* 역할 버튼 목록 */}
@@ -161,9 +161,9 @@ function DemoLogin() {
                       <span className="text-sm font-medium text-gray-800">
                         {account.displayName}
                       </span>
-                      <span className="text-[13px] font-mono text-gray-400">{account.role}</span>
+                      <span className="text-[13px] font-mono text-gray-500">{account.role}</span>
                     </Flex>
-                    <p className="mt-1 text-xs text-gray-400 truncate">
+                    <p className="mt-1 text-xs text-gray-500 truncate">
                       {account.menus.join(' · ')}
                     </p>
                   </Flex>

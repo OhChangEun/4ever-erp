@@ -127,6 +127,7 @@ const InvoiceList = () => {
       render: (_, invoice) => (
         <input
           type="checkbox"
+          aria-label={`${invoice.invoiceNumber} 선택`}
           checked={selectedInvoiceId === invoice.invoiceId}
           disabled={
             currentTab === 'sales'
