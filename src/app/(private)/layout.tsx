@@ -3,25 +3,14 @@
 import Sidebar from '@/app/components/sidebar/Sidebar';
 import PrivateGuard from './_PrivateGuard';
 import { useSidebarStore } from '@/store/sidebarStore';
-import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@/app/hooks/useMediaQuery';
 
 export const dynamic = 'force-dynamic';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const isExpanded = useSidebarStore((state) => state.isExpanded);
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  // 서버 렌더와 첫 하이드레이션은 false, 그 뒤 창 크기를 따른다
+  const isMobile = useMediaQuery('(max-width: 1023px)');
 
   return (
     <>
@@ -29,7 +18,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <div
         className="flex flex-col transition-all duration-300"
         style={{
-          marginLeft: mounted && isMobile ? '0' : isExpanded ? '224px' : '64px',
+          marginLeft: isMobile ? '0' : isExpanded ? '224px' : '64px',
         }}
       >
         <main className="h-screen overflow-auto bg-gray-50 flex flex-col">

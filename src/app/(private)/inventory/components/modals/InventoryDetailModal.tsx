@@ -17,7 +17,7 @@ import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
-const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDetailModalProps) => {
+const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState({
@@ -33,7 +33,6 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
   });
 
   const handleStockMove = (itemId: string) => {
-    setSelectedItemId(itemId);
     setSelectedStock({
       itemId: inventoryDetailRes?.itemId || '',
       itemName: inventoryDetailRes?.itemName || '',

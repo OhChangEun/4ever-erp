@@ -12,6 +12,7 @@ import {
 import { ModalItem, ModalProps } from '@/app/components/common/modal/types';
 import ModalContainer from '@/app/components/common/modal/ModalContainer';
 import { createPortal } from 'react-dom';
+import { useIsClient } from '@/app/hooks/useMediaQuery';
 
 // ModalContext를 사용해서 addModal, removeModal에 접근하는 훅.
 // Context에서 관리할 함수들의 타입 정의
@@ -38,11 +39,8 @@ export const useModalContext = () => {
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modals, setModals] = useState<ModalItem[]>([]); // 현재 열린 모달 목록
-  const [mounted, setMounted] = useState<boolean>(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // 포털은 document 가 있어야 한다. 서버 렌더와 첫 하이드레이션은 false
+  const mounted = useIsClient();
 
   // Body 스크롤 잠금 처리
   useEffect(() => {

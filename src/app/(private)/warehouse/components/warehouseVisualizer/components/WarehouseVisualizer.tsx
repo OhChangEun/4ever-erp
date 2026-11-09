@@ -2,7 +2,7 @@
 
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls } from '@react-three/drei';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import {
   ViewMode,
   VisualizerItem,
@@ -25,21 +25,16 @@ const WarehouseVisualizer = ({
   );
 
   const clusters = useWarehouseClusters(filterOptions);
-  const [activeWarehouseKey, setActiveWarehouseKey] = useState<string | null>(
-    filterOptions?.warehouseId ?? null,
-  );
-  const [selectedItem, setSelectedItem] = useState<VisualizerItem | null>(null);
+  // 활성 창고: 특정 창고 화면이면 그 창고, 아니면 사용자가 들어간 창고(지금 목록에 있을 때만)
+  const [chosenWarehouseKey, setChosenWarehouseKey] = useState<string | null>(null);
+  const activeWarehouseKey =
+    filterOptions?.warehouseId ??
+    (chosenWarehouseKey && clusters.some((cluster) => cluster.key === chosenWarehouseKey)
+      ? chosenWarehouseKey
+      : null);
+  // 선택 품목: 사용자가 고른 것이 지금 창고에 있으면 그것, 아니면 창고의 첫 품목. 전체 보기면 없음
+  const [pickedItem, setPickedItem] = useState<VisualizerItem | null>(null);
   const [freeMode, setFreeMode] = useState(false);
-
-  useEffect(() => {
-    if (filterOptions?.warehouseId) {
-      setActiveWarehouseKey(filterOptions.warehouseId);
-    } else if (!filterOptions) {
-      setActiveWarehouseKey((prev) =>
-        prev && clusters.some((cluster) => cluster.key === prev) ? prev : null,
-      );
-    }
-  }, [filterOptions?.warehouseId, clusters, filterOptions]);
 
   const activeCluster = useMemo(
     () => clusters.find((cluster) => cluster.key === activeWarehouseKey) ?? null,
@@ -50,26 +45,25 @@ const WarehouseVisualizer = ({
   const allowWarehouseNavigation = !filterOptions;
   const canvasHeight = 600;
 
-  useEffect(() => {
-    if (viewMode === 'warehouse' && !selectedItem) {
-      setSelectedItem(activeCluster?.items[0] ?? null);
-    }
-
-    if (viewMode === 'overview') {
-      setSelectedItem(null);
-    }
-  }, [viewMode]);
+  // 재조회로 품목 객체가 새로 만들어져도 같은 itemId 면 선택을 유지하고 최신 값을 보여준다
+  const selectedItem =
+    viewMode === 'overview'
+      ? null
+      : (activeCluster?.items.find((item) => item.itemId === pickedItem?.itemId) ??
+        activeCluster?.items[0] ??
+        null);
 
   const summaries = useMemo(() => summarizeClusters(clusters), [clusters]);
 
   const handleEnterWarehouse = (key: string) => {
-    setActiveWarehouseKey(key);
+    setChosenWarehouseKey(key);
+    setPickedItem(null);
   };
 
   const handleExitWarehouse = () => {
     if (!allowWarehouseNavigation) return;
-    setActiveWarehouseKey(null);
-    setSelectedItem(null);
+    setChosenWarehouseKey(null);
+    setPickedItem(null);
   };
 
   return (
@@ -148,7 +142,7 @@ const WarehouseVisualizer = ({
                 activeWarehouseKey={activeCluster?.key ?? null}
                 selectedItemId={selectedItem?.itemId ?? null}
                 onSelectWarehouse={handleEnterWarehouse}
-                onSelectItem={setSelectedItem}
+                onSelectItem={setPickedItem}
               />
               <Environment preset="warehouse" />
             </Suspense>

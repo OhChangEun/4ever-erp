@@ -50,10 +50,6 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  // useEffect(() => {
-  //   setSelectedInvoiceId('');
-  // }, [onClose]);
-
   if (isLoading)
     return <ModalStatusBox type="loading" message="고객 상세 데이터를 불러오는 중입니다..." />;
 

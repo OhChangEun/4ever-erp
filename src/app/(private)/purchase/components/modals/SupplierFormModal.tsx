@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   CreateSupplierBody,
   UpdateSupplierBody,
   SupplierDetail,
   ManagerInfo,
   Material,
-  SupplierCategory,
 } from '@/app/(private)/purchase/types/SupplierType';
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
@@ -80,14 +79,6 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   ]);
 
   // 카테고리 변경 시 supplierInfo 업데이트
-  useEffect(() => {
-    if (selectedCategory) {
-      setSupplierInfo((prev) => ({
-        ...prev,
-        category: selectedCategory as SupplierCategory,
-      }));
-    }
-  }, [selectedCategory]);
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 알리고 닫는다.
   const { mutate: submitSupplierCreate, isPending: isCreating } = useCreateSupplier({
@@ -329,7 +320,11 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                   placeholder="카테고리 선택"
                   items={supplierCategoryOptions}
                   value={selectedCategory}
-                  onChange={setSelectedCategory}
+                  onChange={(category: string) => {
+                    // 선택값과 제출용 값을 한 번에 바꾼다(예전엔 effect 로 옮겼다)
+                    setSelectedCategory(category);
+                    setSupplierInfo((prev) => ({ ...prev, category }));
+                  }}
                 />
               </div>
 

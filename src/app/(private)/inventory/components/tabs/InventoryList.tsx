@@ -29,18 +29,15 @@ import { formatCurrency } from '@/app/utils/number';
 const InventoryList = () => {
   const { openModal } = useModal();
   const [searchType, setSearchType] = useState('warehouse');
-  const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleItemDetail = (itemId: string) => {
-    setSelectedItemId(itemId);
     openModal(InventoryDetailModal, {
       title: '재고 이동 기록',
       width: '1000px',
       height: '1600px',
       selectedItemId: itemId,
-      setSelectedItemId: setSelectedItemId,
     });
   };
 
