@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 // types/BomType.ts
 
 export type BomStatus = '활성' | '비활성';
@@ -25,12 +26,7 @@ export interface Process {
   runTime: number;
 }
 
-export interface ItemData {
-  itemId: string;
-  quantity: number;
-  operationId: string;
-  sequence: number;
-}
+export type ItemData = Schema<'ItemData'>;
 
 export type ComponentRow = Component;
 
@@ -38,19 +34,7 @@ export type MaterialSupplierMap = Record<string, string[]>;
 export type SupplierProcessMap = Record<string, string[]>;
 
 // bom 생성 시 body
-export interface BomRequestBody {
-  productName: string;
-  unit: string;
-  items: ItemData[];
-}
+export type BomRequestBody = Schema<'BomRequestBody'>;
 
 // bom 자재 목록 자동 load
-export interface MaterialResponse {
-  productId: string;
-  productName: string;
-  category: string;
-  productNumber: string;
-  uomName: string;
-  unitPrice: number;
-  supplierName: string;
-}
+export type MaterialResponse = Schema<'MaterialResponse'>;

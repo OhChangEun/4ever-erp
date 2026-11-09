@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 // 공통 API Base URL
 // 기본값: /api/proxy (BFF) - 브라우저는 세션 쿠키만 보내고, 프록시가 서버에서 Bearer로 바꿔 백엔드에 전달
 // 백엔드 주소는 서버 전용 env BACKEND_API_URL 로 지정 (없으면 이 앱의 목 API /api 로 전달)
@@ -22,10 +23,7 @@ export interface ApiResponse<T> {
   data: T;
 }
 /** 드롭다운 옵션 응답 한 줄. 화면 옵션 KeyValueItem 과 나눠 둔다(변환은 src/lib/api/options.ts) */
-export interface OptionResponse {
-  key: string;
-  value: string;
-}
+export type OptionResponse = Schema<'OptionResponse'>;
 
 export interface ApiResponseNoData {
   status: number;

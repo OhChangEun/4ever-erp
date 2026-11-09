@@ -1,17 +1,5 @@
-export interface LowStockListResponse {
-  itemId: string;
-  itemName: string;
-  itemNumber: string;
-  category: string;
-  currentStock: number;
-  uomName: string;
-  safetyStock: number;
-  unitPrice: number;
-  totalAmount: number;
-  warehouseName: string;
-  warehouseNumber: string;
-  statusCode: 'NORMAL' | 'CAUTION' | 'URGENT';
-}
+import type { Schema } from '@/lib/api/contract';
+export type LowStockListResponse = Schema<'LowStockListResponse'>;
 
 export interface LowStockListQueryParams {
   statusCode?: string;

@@ -76,6 +76,2095 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboard/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDashboardStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/workflows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDashboardWorkflows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/statictics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmStatictics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/statistics/customer/total-purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmStatisticsCustomerTotalPurchases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/statistics/supplier/total-sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmStatisticsSupplierTotalSales"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmInvoiceAp"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ap/{invoiceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmInvoiceApByInvoiceId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ap/receivable/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessFcmInvoiceApReceivableRequestByInvoiceId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ar/{invoiceId}/receivable/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessFcmInvoiceArReceivableCompleteByInvoiceId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ap/{invoiceId}/payable/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessFcmInvoiceApPayableCompleteByInvoiceId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmInvoiceAr"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/invoice/ar/{invoiceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessFcmInvoiceArByInvoiceId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/employee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmEmployee"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPositions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/positions/{positionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                positionId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPositionsByPositionId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/departments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmDepartments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/departments/{departmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessHrmDepartmentsByDepartmentId"];
+        trace?: never;
+    };
+    "/business/hrm/payroll": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPayroll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/payroll/{payrollId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payrollId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPayrollByPayrollId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/training-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTrainingStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/training/employee/{employeeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTrainingEmployeeByEmployeeId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/program": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmProgram"];
+        put?: never;
+        post: operations["postBusinessHrmProgram"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/program/{programId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                programId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmProgramByProgramId"];
+        put?: never;
+        post: operations["postBusinessHrmProgramByProgramId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessHrmProgramByProgramId"];
+        trace?: never;
+    };
+    "/business/hrm/time-record": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTimeRecord"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/leave-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmLeaveRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/employee/{employeeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessHrmEmployeeByEmployeeId"];
+        trace?: never;
+    };
+    "/business/hrm/leave/request/{requestId}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessHrmLeaveRequestReleaseByRequestId"];
+        trace?: never;
+    };
+    "/business/hrm/leave/request/{requestId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessHrmLeaveRequestRejectByRequestId"];
+        trace?: never;
+    };
+    "/business/hrm/time-record/{timeRecordId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                timeRecordId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["putBusinessHrmTimeRecordByTimeRecordId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/payroll/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessHrmPayrollComplete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/employee/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessHrmEmployeeSignup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/departments/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmDepartmentsAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/{departmentId}/positions/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPositionsAllByDepartmentId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/attendance/statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmAttendanceStatuses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/departments/{departmentId}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmDepartmentsMembersByDepartmentId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/payroll/statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmPayrollStatuses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/trainings/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTrainingsCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/trainings/programs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTrainingsPrograms"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/hrm/trainings/completion-statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessHrmTrainingsCompletionStatuses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/statistic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvStatistic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/inventory-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvInventoryItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpIvItemsByItemId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/shortage/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvShortagePreview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/stock-transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvStockTransfers"];
+        put?: never;
+        post: operations["postScmPpIvStockTransfers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/items/{itemId}/safety-stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+                safetyStock: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchScmPpIvItemsSafetyStockByItemIdBySafetyStock"];
+        trace?: never;
+    };
+    "/scm-pp/sales-orders/production": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpSalesOrdersProduction"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/sales-orders/ready-to-ship": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpSalesOrdersReadyToShip"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/sales-orders/production/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpSalesOrdersProductionByItemId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/sales-orders/ready-to-ship/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpSalesOrdersReadyToShipByItemId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/sales-orders/{orderId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchScmPpSalesOrdersStatusByOrderId"];
+        trace?: never;
+    };
+    "/scm-pp/purchase-orders/receiving": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPurchaseOrdersReceiving"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/purchase-orders/received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPurchaseOrdersReceived"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/items/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvItemsToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/warehouses/dropdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvWarehousesDropdown"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpIvItems"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/shortage/count/critical/statistic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvShortageCountCriticalStatistic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/shortage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpIvShortage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/statistic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpStatistic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/quotations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpQuotations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/quotations/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpPpQuotationsSimulate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/quotations/mps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpQuotationsMps"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/quotations/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpPpQuotationsConfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/boms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpBoms"];
+        put?: never;
+        post: operations["postScmPpPpBoms"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpPpProductsByProductId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpOperations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/boms/{bomId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpPpBomsByBomId"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteScmPpPpBomsByBomId"];
+        options?: never;
+        head?: never;
+        patch: operations["patchScmPpPpBomsByBomId"];
+        trace?: never;
+    };
+    "/scm-pp/pp/boms/{bomId}/simulate-conflict": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpPpBomsSimulateConflictByBomId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/quotations/mrp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpQuotationsMrp"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpPpMrpConvert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/planned-orders/detail/{mrpId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mrpId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpPlannedOrdersDetailByMrpId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/iv/items/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpIvItemsInfo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/{mesId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMesByMesId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/{mesId}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["putScmPpPpMesStartByMesId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/{mesId}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["putScmPpPpMesCompleteByMesId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/{mesId}/operations/{operationId}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+                operationId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["putScmPpPpMesOperationsStartByMesIdByOperationId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/{mesId}/operations/{operationId}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+                operationId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["putScmPpPpMesOperationsCompleteByMesIdByOperationId"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mps/boms/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMpsBomsToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/available/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpAvailableStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/quotations/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpQuotationsToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/available/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpAvailableStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/runs/quotations/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpRunsQuotationsToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mrp/runs/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMrpRunsStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/pp/mes/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpPpMesStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier/orders/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplierOrdersStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseRequisitions"];
+        put?: never;
+        post: operations["postScmPpMmPurchaseRequisitions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisitions/{purchaseRequestId}/release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmPurchaseRequisitionsReleaseByPurchaseRequestId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisitions/{purchaseRequestId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmPurchaseRequisitionsRejectByPurchaseRequestId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisitions/{purchaseRequestId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseRequisitionsByPurchaseRequestId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/stock-purchase-requisitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmStockPurchaseRequisitions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders/{purchaseOrderId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmPurchaseOrdersApproveByPurchaseOrderId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders/{purchaseOrderId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmPurchaseOrdersRejectByPurchaseOrderId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/{purchaseOrderId}/start-delivery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postScmPpMmStartDeliveryByPurchaseOrderId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders/{purchaseOrderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseOrdersByPurchaseOrderId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplier"];
+        put?: never;
+        post: operations["postScmPpMmSupplier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier/{supplierId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplierId: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplierBySupplierId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchScmPpMmSupplierBySupplierId"];
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisition/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseRequisitionStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-requisition/search-type/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseRequisitionSearchTypeToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseOrdersStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/purchase-orders/search-type/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmPurchaseOrdersSearchTypeToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier/category/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplierCategoryToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier/search-type/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplierSearchTypeToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/mm/supplier/status/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpMmSupplierStatusToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations/customer/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdQuotationsCustomerCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdQuotations"];
+        put?: never;
+        post: operations["postBusinessSdQuotations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessSdQuotationsById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessSdOrdersById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessSdQuotationsConfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations/inventory/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessSdQuotationsInventoryCheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/quotations/{id}/approve-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["postBusinessSdQuotationsApproveOrderById"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdCustomers"];
+        put?: never;
+        post: operations["postBusinessSdCustomers"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/sd/customers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get: operations["getBusinessSdCustomersById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchBusinessSdCustomersById"];
+        trace?: never;
+    };
+    "/business/sd/analytics/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBusinessSdAnalyticsSales"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scm-pp/product/item/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getScmPpProductItemToggle"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alarm/notifications/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAlarmNotificationsList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alarm/notifications/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAlarmNotificationsCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/alarm/notifications/{notificationId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchAlarmNotificationsReadByNotificationId"];
+        trace?: never;
+    };
+    "/alarm/notifications/all/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchAlarmNotificationsAllRead"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -168,6 +2257,1287 @@ export interface components {
             managerId: string;
             warehouseStatusCode: string;
             note: string;
+        };
+        DashboardStatRes: {
+            week: components["schemas"]["DashboardStat"];
+            month: components["schemas"]["DashboardStat"];
+            quarter: components["schemas"]["DashboardStat"];
+            year: components["schemas"]["DashboardStat"];
+        };
+        DashboardStat: {
+            total_sales: components["schemas"]["Stat"];
+            total_purchases: components["schemas"]["Stat"];
+            net_profit: components["schemas"]["Stat"];
+            total_employees: components["schemas"]["Stat"];
+        };
+        DashboardWorkflowRes: {
+            tabs: {
+                tabCode: string;
+                items: {
+                    itemId: string;
+                    itemTitle: string;
+                    itemNumber: string;
+                    name: string;
+                    statusCode: string;
+                    date: string;
+                }[];
+            }[];
+        };
+        FinanceStatResponse: {
+            week: components["schemas"]["FinanceStat"];
+            month: components["schemas"]["FinanceStat"];
+            quarter: components["schemas"]["FinanceStat"];
+            year: components["schemas"]["FinanceStat"];
+        };
+        FinanceStat: {
+            total_purchases: components["schemas"]["Stat"];
+            net_profit: components["schemas"]["Stat"];
+            total_sales: components["schemas"]["Stat"];
+        };
+        CustomerSupplierStatResponse: {
+            week: components["schemas"]["CustomerSupplierStat"];
+            month: components["schemas"]["CustomerSupplierStat"];
+            quarter: components["schemas"]["CustomerSupplierStat"];
+            year: components["schemas"]["CustomerSupplierStat"];
+        };
+        CustomerSupplierStat: {
+            total_amount: components["schemas"]["Stat"];
+        };
+        InvoiceListRes: {
+            invoiceId: string;
+            invoiceNumber: string;
+            connection: {
+                connectionId: string;
+                connectionCode: string;
+                connectionName: string;
+            };
+            totalAmount: number;
+            issueDate: string;
+            dueDate: string;
+            statusCode: string;
+            referenceNumber: string;
+        };
+        InvoicetDetailRes: {
+            invoiceId: string;
+            invoiceNumber: string;
+            invoiceType: string;
+            statusCode: string;
+            issueDate: string;
+            dueDate: string;
+            name: string;
+            referenceNumber: string;
+            totalAmount: number;
+            note: string;
+            items: {
+                itemId: string;
+                itemName: string;
+                quantity: number;
+                unitOfMaterialName: string;
+                unitPrice: number;
+                totalPrice: number;
+            }[];
+        };
+        HrmStatResponse: {
+            week: components["schemas"]["HrmStat"];
+            month: components["schemas"]["HrmStat"];
+            quarter: components["schemas"]["HrmStat"];
+            year: components["schemas"]["HrmStat"];
+        };
+        HrmStat: {
+            totalEmployeeCount: components["schemas"]["Stat"];
+            newEmployeeCount: components["schemas"]["Stat"];
+        };
+        EmployeeListResponse: {
+            content: components["schemas"]["EmployeeData"][];
+            page: components["schemas"]["Page"];
+        };
+        EmployeeData: {
+            employeeId: string;
+            employeeNumber: string;
+            name: string;
+            email: string;
+            phone: string;
+            position: string;
+            department: string;
+            statusCode: string;
+            hireDate: string;
+            birthDate: string;
+            address: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        PositionData: {
+            positionId: string;
+            positionName: string;
+            headCount: number;
+            payment: number;
+        };
+        PositionDetailResponse: {
+            employees: components["schemas"]["EmployeeSummary"][];
+            positionId: string;
+            positionName: string;
+            headCount: number;
+            payment: number;
+        };
+        EmployeeSummary: {
+            employeeId: string;
+            employeeCode: string;
+            employeeName: string;
+            positionId: string;
+            position: string;
+            departmentId: string;
+            department: string;
+            hireDate: string;
+        };
+        DepartmentsListResponse: {
+            content: components["schemas"]["DepartmentsData"][];
+        };
+        DepartmentsData: {
+            departmentId: string;
+            departmentNumber: string;
+            departmentName: string;
+            description: string;
+            managerName: string;
+            managerId: string;
+            location: string;
+            statusCode: string;
+            employeeCount: number;
+            establishedDate: string;
+            employees: components["schemas"]["HrmEmployeeData"][];
+        };
+        HrmEmployeeData: {
+            employeeId: string;
+            employeeName: string;
+            position: string;
+            hireDate: string;
+        };
+        DepartmentsRequestBody: {
+            managerId: string;
+            description: string;
+        };
+        PayRollListResponse: {
+            content: components["schemas"]["PayRollList"][];
+            page: components["schemas"]["Page"];
+        };
+        PayRollList: {
+            payrollId: string;
+            employee: components["schemas"]["HrmEmployeeSummary"];
+            pay: components["schemas"]["PaySummary"];
+        };
+        HrmEmployeeSummary: {
+            employeeId: string;
+            employeeName: string;
+            departmentId: string;
+            department: string;
+            positionId: string;
+            position: string;
+        };
+        PaySummary: {
+            basePay: number;
+            overtimePay: number;
+            deduction: number;
+            netPay: number;
+            statusCode: string;
+        };
+        PayRollDetailResponse: {
+            payrollId: string;
+            employee: components["schemas"]["HrmEmployeeSummary"];
+            pay: {
+                basePay: number;
+                basePayItem: components["schemas"]["PayItemData"][];
+                overtimePay: number;
+                overtimePayItem: components["schemas"]["PayItemData"][];
+                deduction: number;
+                deductionItem: components["schemas"]["PayItemData"][];
+                netPay: number;
+            };
+            statusCode: string;
+            expectedDate: string;
+        };
+        PayItemData: {
+            itemContent: string;
+            itemSum: number;
+        };
+        TrainingListResponse: {
+            items: components["schemas"]["TrainingListData"][];
+            page: components["schemas"]["Page"];
+        };
+        TrainingListData: {
+            employeeId: string;
+            name: string;
+            department: string;
+            position: string;
+            completedCount: number;
+            inProgressCount: number;
+            requiredMissingCount: number;
+            lastTrainingDate: string;
+        };
+        TrainingDetailResponse: {
+            employeeId: string;
+            employeeName: string;
+            department: string;
+            position: string;
+            completedCount: number;
+            requiredMissingCount: number;
+            lastTrainingDate: string;
+            programHistory: {
+                programId: string;
+                programName: string;
+                /** @enum {string} */
+                programStatus: "COMPLETED" | "INCOMPLETED";
+                completedAt: string;
+            }[];
+        };
+        ProgramListResponse: {
+            content: components["schemas"]["ProgramListData"][];
+            page: components["schemas"]["Page"];
+        };
+        ProgramListData: {
+            programId: string;
+            programName: string;
+            statusCode: string;
+            category: string;
+            trainingHour: number;
+            isOnline: boolean;
+            capacity: number;
+        };
+        ProgramDetailResponse: {
+            startDate: string;
+            designatedEmployee: components["schemas"]["designatedEmployeeSummary"][];
+            number: number;
+            size: number;
+            totalElements: number;
+            totalPages: number;
+            hasNext: boolean;
+            programId: string;
+            programName: string;
+            statusCode: string;
+            category: string;
+            trainingHour: number;
+            isOnline: boolean;
+        };
+        designatedEmployeeSummary: {
+            employeeId: string;
+            employeeName: string;
+            department: string;
+            position: string;
+            statusCode: string;
+            completedAt: null;
+        };
+        AttendanceListResponse: {
+            content: components["schemas"]["AttendanceListData"][];
+            page: components["schemas"]["Page"];
+        };
+        AttendanceListData: {
+            timerecordId: string;
+            employee: components["schemas"]["EmployeeInfo"];
+            workDate: string;
+            checkInTime: string;
+            checkOutTime: string;
+            totalWorkMinutes: number;
+            overtimeMinutes: number;
+            statusCode: string;
+        };
+        EmployeeInfo: {
+            employeeId: string;
+            employeeName: string;
+            departmentId: string;
+            department: string;
+            positionId: string;
+            position: string;
+        };
+        LeaveListResponse: {
+            content: components["schemas"]["LeaveListData"][];
+            page: components["schemas"]["Page"];
+        };
+        LeaveListData: {
+            leaveRequestId: string;
+            employee: components["schemas"]["HrmEmployeeSummary2"];
+            leaveType: string;
+            startDate: string;
+            endDate: string;
+            numberOfLeaveDays: number;
+            remainingLeaveDays: number;
+            status: string;
+        };
+        HrmEmployeeSummary2: {
+            employeeId: string;
+            employeeName: string;
+            department: string;
+            position: string;
+        };
+        EmployeeUpdateRequest: {
+            employeeName: string;
+            departmentId: string;
+            positionId: string;
+        };
+        CreateProgramRequest: {
+            programName: string;
+            category: string;
+            trainingHour: number;
+            isOnline: boolean;
+            startDate: string;
+            capacity: number;
+            requiredDepartments: string[];
+            requiredPositions: string[];
+            description: string;
+        };
+        PayRollCompleteRequestParams: {
+            payrollId: string;
+        };
+        EmployeeRegisterRequest: {
+            name: string;
+            departmentId: string;
+            positionId: string;
+            email: string;
+            phoneNumber: string;
+            hireDate: string;
+            birthDate: string;
+            baseAddress: string;
+            detailAddress: string;
+        };
+        OptionResponse: {
+            key: string;
+            value: string;
+        };
+        InventoryStatResponse: {
+            week: components["schemas"]["InventoryStat"];
+            month: components["schemas"]["InventoryStat"];
+            quarter: components["schemas"]["InventoryStat"];
+            year: components["schemas"]["InventoryStat"];
+        };
+        InventoryStat: {
+            total_stock: components["schemas"]["Stat"];
+            store_complete: components["schemas"]["Stat"];
+            store_pending: components["schemas"]["Stat"];
+            delivery_complete: components["schemas"]["Stat"];
+            delivery_pending: components["schemas"]["Stat"];
+        };
+        InventoryResponse: {
+            itemId: string;
+            itemNumber: string;
+            itemName: string;
+            category: string;
+            currentStock: number;
+            forShipmentStock: number;
+            reservedStock: number;
+            safetyStock: number;
+            uomName: string;
+            unitPrice: number;
+            totalAmount: number;
+            warehouseName: string;
+            warehouseType: string;
+            statusCode: string;
+            shelfNumber?: number;
+        };
+        InventoryDetailResponse: {
+            itemId: string;
+            itemNumber: string;
+            itemName: string;
+            category: string;
+            supplierCompanyName: string;
+            statusCode: string;
+            currentStock: number;
+            safetyStock: number;
+            uomName: string;
+            unitPrice: number;
+            totalAmount: number;
+            warehouseId: string;
+            warehouseName: string;
+            warehouseNumber: string;
+            location: string;
+            lastModified: string;
+            description: string;
+            stockMovement: components["schemas"]["StockMovement"][];
+        };
+        StockMovement: {
+            type: string;
+            quantity: number;
+            uomName: string;
+            from: string;
+            to: string;
+            movementDate: string;
+            managerName: string;
+            referenceNumber: string;
+            note: string;
+        };
+        LowStockItemResponse: {
+            itemId: string;
+            itemName: string;
+            currentStock: number;
+            uomName: string;
+            safetyStock: number;
+            statusCode: string;
+        };
+        StockMovementResponse: {
+            type: string;
+            quantity: number;
+            uomName: string;
+            itemName: string;
+            workDate: string;
+            managerName: string;
+        };
+        StockMovementRequest: {
+            fromWarehouseId: string;
+            toWarehouseId: string;
+            itemId: string;
+            stockQuantity: number;
+            uomName: string;
+            reason: string;
+        };
+        ProductionListResponse: {
+            salesOrderId: string;
+            salesOrderNumber: string;
+            customerName: string;
+            orderDate: string;
+            dueDate: string;
+            progress: number;
+            totalAmount: number;
+            /** @constant */
+            statusCode: "PRODUCTION";
+        };
+        ReadyToShipListResponse: {
+            salesOrderId: string;
+            salesOrderNumber: string;
+            customerName: string;
+            orderDate: string;
+            dueDate: string;
+            productionCompletionDate: string;
+            readyToShipDate: string;
+            totalAmount: number;
+            /** @constant */
+            statusCode: "READT_TO_SHIP";
+        };
+        ShippingDetailResponse: {
+            salesOrderId: string;
+            salesOrderNumber: string;
+            customerCompanyName: string;
+            dueDate: string;
+            statusCode: string;
+            orderItems: {
+                itemId: string;
+                itemName: string;
+                quantity: number;
+                uomName: string;
+            }[];
+        };
+        markAsReadyToShipResponse: {
+            salesOrderId: string;
+            salesOrderCode: string;
+            status: string;
+        };
+        markAsReadyRequest: {
+            itemIds: string[];
+        };
+        ReceivedListResponse: {
+            purchaseOrderId: string;
+            purchaseOrderNumber: string;
+            supplierCompanyName: string;
+            orderDate: string;
+            dueDate: string;
+            totalAmount: number;
+            /** @enum {string} */
+            statusCode: "PENDING" | "RECEIVED";
+        };
+        AddInventoryItemsToggleResponse: {
+            itemId: string;
+            unitPrice: number;
+            supplierCompanyName: string;
+            uomName: string;
+            supplierCompanyId: string;
+            itemName: string;
+        };
+        WarehouseToggleResponse: {
+            warehouseId: string;
+            warehouseName: string;
+            warehouseNumber: string;
+        };
+        AddInventoryItemsRequest: {
+            itemId: string;
+            safetyStock: number;
+            currentStock: number;
+            warehouseId: string;
+        };
+        LowStockStatResponse: {
+            week: components["schemas"]["LowStockStat"];
+            month: components["schemas"]["LowStockStat"];
+            quarter: components["schemas"]["LowStockStat"];
+            year: components["schemas"]["LowStockStat"];
+        };
+        LowStockStat: {
+            total_emergency: components["schemas"]["Stat"];
+            total_warning: components["schemas"]["Stat"];
+        };
+        LowStockListResponse: {
+            itemId: string;
+            itemName: string;
+            itemNumber: string;
+            category: string;
+            currentStock: number;
+            uomName: string;
+            safetyStock: number;
+            unitPrice: number;
+            totalAmount: number;
+            warehouseName: string;
+            warehouseNumber: string;
+            /** @enum {string} */
+            statusCode: "NORMAL" | "CAUTION" | "URGENT";
+        };
+        ProductionStatResponse: {
+            week: components["schemas"]["ProductionStat"];
+            month: components["schemas"]["ProductionStat"];
+            quarter: components["schemas"]["ProductionStat"];
+            year: components["schemas"]["ProductionStat"];
+        };
+        ProductionStat: {
+            production_in: components["schemas"]["Stat"];
+            production_completed: components["schemas"]["Stat"];
+            bom_count: components["schemas"]["Stat"];
+        };
+        QuotationListResponse: {
+            content: components["schemas"]["QuotationData"][];
+            page: components["schemas"]["Page"];
+        };
+        QuotationData: {
+            quotationId: string;
+            quotationNumber: string;
+            customerName: string;
+            productName: string;
+            requestDate: string;
+            dueDate: string;
+            /** @enum {string} */
+            availableStatus: "ALL" | "CHECKED" | "UNCHECKED";
+            items?: components["schemas"]["itemsData"][];
+        };
+        itemsData: {
+            productId: string;
+            productName: string;
+            quantity: number;
+            uomName: string;
+            unitPrice: number;
+        };
+        QuotationSimulationResponse: {
+            page: components["schemas"]["Page"];
+            content: components["schemas"]["QuotationSimulationData"][];
+        };
+        QuotationSimulationData: {
+            quotationId: string;
+            quotationNumber: string;
+            customerCompanyId: string;
+            customerCompanyName: string;
+            productId: string;
+            productName: string;
+            requestQuantity: number;
+            requestDueDate: number;
+            simulation: components["schemas"]["SimulationData"];
+        };
+        SimulationData: {
+            status: string;
+            availableQuantity: number;
+            shortageQuantity: number;
+            shortageReason?: string;
+            suggestedDueDate: string;
+            generatedAt: string;
+        };
+        MpsListResponse: {
+            bomId: string;
+            productName: string;
+            content: components["schemas"]["WeekData"][];
+            page: components["schemas"]["Page"];
+        };
+        WeekData: {
+            week: string;
+            demand: number;
+            requiredInventory: number;
+            productionNeeded: number;
+            plannedProduction: number;
+        };
+        BomListResponse: {
+            page: components["schemas"]["Page"];
+            content: components["schemas"]["BomListData"][];
+        };
+        BomListData: {
+            bomId: string;
+            bomNumber: string;
+            productId: string;
+            productNumber: string;
+            productName: string;
+            version: string;
+            statusCode: string;
+            lastModifiedAt: string;
+        };
+        MaterialResponse: {
+            productId: string;
+            productName: string;
+            category: string;
+            productNumber: string;
+            uomName: string;
+            unitPrice: number;
+            supplierName: string;
+        };
+        BomDetailResponse: {
+            bomId: string;
+            bomNumber: string;
+            productId: string;
+            productNumber: string;
+            productName: string;
+            version: string;
+            statusCode: string;
+            lastModifiedAt: string;
+            components: components["schemas"]["BomComponent"][];
+            levelStructure: components["schemas"]["BomLevelStructureNode"][];
+            routing: components["schemas"]["BomRouting"][];
+        };
+        BomComponent: {
+            itemId: string;
+            code: string;
+            name: string;
+            quantity: number;
+            unit: string;
+            level: string;
+            supplierName: string;
+            operationId: string;
+            operationName: string;
+            componentType: string;
+        };
+        BomLevelStructureNode: {
+            id: string;
+            code: string;
+            name: string;
+            quantity: null | number;
+            unit: null | string;
+            level: number;
+            parentId: null | string;
+        };
+        BomRouting: {
+            itemName: string;
+            sequence: number;
+            operationName: string;
+            runTime: number;
+        };
+        BomRequestBody: {
+            productName: string;
+            unit: string;
+            items: components["schemas"]["ItemData"][];
+        };
+        ItemData: {
+            itemId: string;
+            quantity: number;
+            operationId: string;
+            sequence: number;
+        };
+        PatchBomStatusRequest: {
+            statusCode: string;
+            version: string;
+        };
+        MrpOrdersListResponse: {
+            content: components["schemas"]["MrpOrdersListData"][];
+            page: components["schemas"]["Page"];
+        };
+        MrpOrdersListData: {
+            quotationId: string;
+            itemId: string;
+            itemName: string;
+            requiredQuantity: number;
+            currentStock: number;
+            reservedStock: number;
+            actualAvailableStock: number;
+            safetyStock: number;
+            availableStock: number;
+            availableStatusCode: string;
+            shortageQuantity: number;
+            consumptionQuantity: number;
+            itemType: string;
+            procurementStartDate: string;
+            expectedArrivalDate: string;
+            supplierCompanyName: string;
+            convertStatus: string;
+        };
+        MrpOrdersConvertReqeustBody: {
+            items: components["schemas"]["MrpOrdersSelectedItems"][];
+        };
+        MrpOrdersSelectedItems: {
+            quotationId: string;
+            itemId: string;
+            quantity: number;
+        };
+        MrpPlannedOrdersListResponse: {
+            page: components["schemas"]["Page"];
+            content: components["schemas"]["MrpPlannedOrderList"][];
+        };
+        MrpPlannedOrderList: {
+            mrpRunId: string;
+            quotationNumber: string;
+            itemId: string;
+            itemName: string;
+            quantity: number;
+            status: string;
+            procurementStartDate: string;
+            expectedArrivalDate: string;
+        };
+        MrpPlannedOrdersDetailResponse: {
+            mrpId: string;
+            quotationId: string;
+            quotationCode: string;
+            requesterId: string;
+            requesterName: string;
+            departmentName: string;
+            requestDate: string;
+            desiredDueDate: string;
+            status: string;
+            orderItems: components["schemas"]["OrderItemData"][];
+            totalAmount: number;
+        };
+        OrderItemData: {
+            itemId: string;
+            itemName: string;
+            quantity: number;
+            uomName: string;
+            unitPrice: number;
+        };
+        ItemResponse: {
+            itemId: string;
+            itemName: string;
+            itemNmber: string;
+            unitPrice: number;
+            supplierName: string;
+        };
+        MesListResponse: {
+            content: components["schemas"]["MesSummaryItem"][];
+            page: components["schemas"]["Page"];
+        };
+        MesSummaryItem: {
+            mesId: string;
+            mesNumber: string;
+            productId: string;
+            productName: string;
+            quantity: number;
+            uomName: string;
+            quotationId: string;
+            quotationNumber: string;
+            status: string;
+            currentOperation: number;
+            startDate: string;
+            endDate: string;
+            progressRate: number;
+            sequence: string[];
+        };
+        MesDetailResponse: {
+            mesId: string;
+            mesNumber: string;
+            productId: string;
+            productName: string;
+            quantity: number;
+            uomName: string;
+            progressPercent: number;
+            statusCode: string;
+            plan: components["schemas"]["MesPlanData"];
+            currentOperation: string;
+            operations: components["schemas"]["MesOperationData"][];
+            canStartMes: boolean;
+            canCompleteMes: boolean;
+        };
+        MesPlanData: {
+            startDate: string;
+            dueDate: string;
+        };
+        MesOperationData: {
+            mesOperationLogId: string;
+            operationNumber: string;
+            operationName: string;
+            sequence: number;
+            statusCode: string;
+            startedAt: string;
+            finishedAt: string;
+            durationHours: number;
+            manager: components["schemas"]["MesOperationManagerData"];
+            canStart: boolean;
+            canComplete: boolean;
+        };
+        MesOperationManagerData: {
+            id: number;
+            name: string;
+        };
+        PurchaseStatResponse: {
+            week: components["schemas"]["PurchaseStat"];
+            month: components["schemas"]["PurchaseStat"];
+            quarter: components["schemas"]["PurchaseStat"];
+            year: components["schemas"]["PurchaseStat"];
+        };
+        PurchaseStat: {
+            purchaseOrderAmount: components["schemas"]["Stat"];
+            purchaseRequestCount: components["schemas"]["Stat"];
+        };
+        SupplierPurchaseStatResponse: {
+            week: components["schemas"]["SupplierPurchaseStat"];
+            month: components["schemas"]["SupplierPurchaseStat"];
+            quarter: components["schemas"]["SupplierPurchaseStat"];
+            year: components["schemas"]["SupplierPurchaseStat"];
+        };
+        SupplierPurchaseStat: {
+            orderCount: components["schemas"]["Stat"];
+        };
+        PurchaseRequestListResponse: {
+            content: components["schemas"]["PurchaseRequestListItem"][];
+            page: components["schemas"]["Page"];
+        };
+        PurchaseRequestListItem: {
+            purchaseRequisitionId: string;
+            purchaseRequisitionNumber: string;
+            requesterId: string;
+            requesterName: string;
+            departmentId: string;
+            departmentName: string;
+            statusCode: string;
+            requestDate: string;
+            totalAmount: number;
+        };
+        PurchaseRequestDetail: {
+            id: string;
+            purchaseRequisitionNumber: string;
+            requesterId: string;
+            requesterName: string;
+            departmentId: string;
+            departmentName: string;
+            requestDate: string;
+            statusCode: string;
+            items: components["schemas"]["PurchaseRequestDetailItem"][];
+            totalAmount: number;
+        };
+        PurchaseRequestDetailItem: {
+            itemId: number;
+            itemName: string;
+            dueDate: string;
+            quantity: number;
+            uomCode: string;
+            unitPrice: number;
+            amount: number;
+        };
+        CreatePurchaseRequestBody: {
+            requesterId: string;
+            items: components["schemas"]["CreatePurchaseRequestItem"][];
+        };
+        CreatePurchaseRequestItem: {
+            itemName: string;
+            quantity: number;
+            uomName: string;
+            expectedUnitPrice: number;
+            preferredSupplierName: string;
+            dueDate: string;
+            purpose: string;
+            note?: string;
+        };
+        CreateStockPurchaseRequestBody: {
+            items: components["schemas"]["CreateStockPurchaseRequestItem"][];
+        };
+        CreateStockPurchaseRequestItem: {
+            productId: string;
+            quantity: number;
+            mrpRunId?: string;
+        };
+        PurchaseOrderListResponse: {
+            content: components["schemas"]["PurchaseOrderListItem"][];
+            page: components["schemas"]["Page"];
+        };
+        PurchaseOrderListItem: {
+            purchaseOrderId: string;
+            purchaseOrderNumber: string;
+            supplierName: string;
+            itemsSummary: string;
+            orderDate: string;
+            dueDate: string;
+            totalAmount: number;
+            /** @enum {string} */
+            statusCode: "PENDING" | "APPROVAL" | "REJECTED" | "DELIVERING" | "DELIVERED";
+        };
+        PurchaseOrderDetail: {
+            statusCode: string;
+            dueDate: string;
+            purchaseOrderId: string;
+            purchaseOrderNumber: string;
+            orderDate: string;
+            supplierId: string;
+            supplierNumber: string;
+            supplierName: string;
+            managerPhone: string;
+            managerEmail: string;
+            items: components["schemas"]["PurchaseOrderDetailItem"][];
+            totalAmount: number;
+            note: string;
+        };
+        PurchaseOrderDetailItem: {
+            itemId: string;
+            itemName: string;
+            quantity: number;
+            uomName: string;
+            unitPrice: number;
+            totalPrice: number;
+        };
+        SupplierListResponse: {
+            content: components["schemas"]["SupplierListItem"][];
+            page: components["schemas"]["Page"];
+        };
+        SupplierListItem: {
+            statusCode: string;
+            supplierInfo: components["schemas"]["SupplierInfo"];
+        };
+        SupplierInfo: {
+            supplierId: string;
+            supplierName: string;
+            supplierNumber: string;
+            supplierEmail: string;
+            supplierPhone: string;
+            supplierBaseAddress: string;
+            supplierDetailAddress: null | string;
+            /** @enum {string} */
+            supplierStatusCode: "ACTIVE" | "INACTIVE";
+            /** @enum {string} */
+            category: "MATERIAL" | "PARTS" | "ETC";
+            deliveryLeadTime: number;
+        };
+        SupplierDetail: {
+            supplierInfo: components["schemas"]["SupplierInfo"];
+            managerInfo: components["schemas"]["ManagerInfo"];
+        };
+        ManagerInfo: {
+            managerName: string;
+            managerPhone: string;
+            managerEmail: string;
+        };
+        CreateSupplierBody: {
+            supplierInfo: {
+                supplierName: string;
+                supplierEmail: string;
+                supplierPhone: string;
+                supplierBaseAddress: string;
+                supplierDetailAddress?: null | string;
+                category: string;
+                deliveryLeadTime: number;
+            };
+            managerInfo: components["schemas"]["ManagerInfo"];
+            materialList: components["schemas"]["Material"][];
+        };
+        Material: {
+            materialName: string;
+            uomCode: string;
+            unitPrice: number;
+        };
+        UpdateSupplierBody: {
+            supplierName: string;
+            supplierEmail: string;
+            supplierPhone: string;
+            supplierBaseAddress: string;
+            supplierDetailAddress: string;
+            category: string;
+            statusCode: string;
+            deliverLeadTime: number;
+            managerName: string;
+            managerPhone: string;
+            managerEmail: string;
+        };
+        SalesStatResponse: {
+            week: components["schemas"]["SalesStat"];
+            month: components["schemas"]["SalesStat"];
+            quarter: components["schemas"]["SalesStat"];
+            year: components["schemas"]["SalesStat"];
+        };
+        SalesStat: {
+            sales_amount: components["schemas"]["Stat"];
+            new_orders_count: components["schemas"]["Stat"];
+        };
+        CustomerSalesStatResponse: {
+            week: components["schemas"]["CustomerStat"];
+            month: components["schemas"]["CustomerStat"];
+            quarter: components["schemas"]["CustomerStat"];
+            year: components["schemas"]["CustomerStat"];
+        };
+        CustomerStat: {
+            quotation_count: components["schemas"]["Stat"];
+        };
+        Quote: {
+            quotationId: string;
+            quotationNumber: string;
+            customerName: string;
+            managerName: string;
+            quotationDate: string;
+            dueDate: string;
+            totalAmount: number;
+            statusCode: string;
+        };
+        QuoteDetail: {
+            quotationId: string;
+            quotationNumber: string;
+            quotationDate: string;
+            dueDate: string;
+            /** @enum {string} */
+            statusCode: "PENDING" | "ALL" | "REJECTED" | "APPROVED" | "REVIEW";
+            customerName: string;
+            ceoName: string;
+            items: components["schemas"]["Item"][];
+            totalAmount: number;
+        };
+        Item: {
+            itemId: string;
+            itemName: string;
+            quantity: number;
+            uomName: string;
+            unitPrice: number;
+            amount: number;
+        };
+        NewOrderRequest: {
+            items: components["schemas"]["NewOrderItem"][];
+            note?: string;
+        };
+        NewOrderItem: {
+            itemId: string;
+            quantity: number;
+            unitPrice: number;
+        };
+        Order: {
+            salesOrderId: string;
+            salesOrderNumber: string;
+            customerName: string;
+            manager: {
+                managerName: string;
+                managerPhone: string;
+                managerEmail: string;
+            };
+            orderDate: string;
+            dueDate: string;
+            totalAmount: number;
+            /** @enum {string} */
+            statusCode: "IN_PRODUCTION" | "ALL" | "DELIVERING" | "DELIVERED" | "MATERIAL_PREPARATION" | "READY_FOR_SHIPMENT";
+        };
+        OrderDetail: {
+            order: {
+                salesOrderId: string;
+                salesOrderNumber: string;
+                orderDate: string;
+                dueDate: string;
+                /** @enum {string} */
+                statusCode: "IN_PRODUCTION" | "ALL" | "DELIVERING" | "DELIVERED" | "MATERIAL_PREPARATION" | "READY_FOR_SHIPMENT";
+                totalAmount: number;
+            };
+            customer: {
+                customerId: number;
+                customerName: string;
+                customerCode: string;
+                customerBaseAddress: string;
+                customerDetailAddress: string;
+                manager: {
+                    managerName: string;
+                    managerPhone: string;
+                    managerEmail: string;
+                };
+            };
+            items: {
+                itemId: string;
+                itemName: string;
+                quantity: number;
+                uonName: string;
+                unitPrice: number;
+                amount: number;
+            }[];
+            note: string;
+        };
+        InventoryCheckRes: {
+            itemId: string;
+            itemName: string;
+            requiredQuantity: number;
+            inventoryQuantity: number;
+            shortageQuantity: number;
+            statusCode: string;
+            productionRequired: boolean;
+            inventoryCheckTime: string;
+        };
+        Inventories: {
+            itemId: string;
+            requiredQuantity: number;
+        };
+        SalesCustomer: {
+            customerId: string;
+            customerNumber: string;
+            customerName: string;
+            manager: {
+                managerName: string;
+                managerPhone: string;
+                managerEmail: string;
+            };
+            address: string;
+            totalTransactionAmount: number;
+            orderCount: number;
+            lastOrderDate: string;
+            statusCode: string;
+        };
+        CustomerDetail: {
+            customerId: string;
+            customerNumber: string;
+            customerName: string;
+            ceoName: string;
+            businessNumber: string;
+            statusCode: string;
+            customerPhone: string;
+            customerEmail: string;
+            baseAddress: string;
+            detailAddress: string;
+            manager: {
+                managerName: string;
+                managerPhone: string;
+                managerEmail: string;
+            };
+            totalOrders: number;
+            totalTransactionAmount: number;
+            note: string;
+        };
+        ServerResponse: {
+            status: number;
+            success: boolean;
+            message: string;
+            data: components["schemas"]["CreateCustomerResponse"];
+        };
+        CreateCustomerResponse: {
+            customerId: number;
+            customerCode: string;
+            companyName: string;
+            ceoName: string;
+            businessNumber: string;
+            statusCode: string;
+            statusLabel: string;
+            contactPhone: string;
+            contactEmail: string;
+            address: string;
+            manager: {
+                name: string;
+                mobile: string;
+                email: string;
+            };
+            totalOrders: number;
+            totalTransactionAmount: number;
+            currency: string;
+            note: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        CustomerData: {
+            companyName: string;
+            businessNumber: string;
+            ceoName: string;
+            contactPhone: string;
+            contactEmail: string;
+            zipCode: string;
+            address: string;
+            detailAddress: string;
+            manager: {
+                name: string;
+                mobile: string;
+                email: string;
+            };
+            note: string;
+        };
+        CustomerResponse: {
+            data: {
+                customerId: string;
+                customerNumber: string;
+                customerName: string;
+                ceoName: string;
+                businessNumber: string;
+                statusCode: string;
+                customerPhone: string;
+                customerEmail: string;
+                baseAddress: string;
+                detailAddress: string;
+                manager: {
+                    managerName: string;
+                    managerPhone: string;
+                    managerEmail: string;
+                };
+                note: string;
+            };
+        };
+        CustomerEditData: {
+            customerName: string;
+            ceoName: string;
+            businessNumber: string;
+            customerPhone: string;
+            customerEmail: string;
+            baseAddress: string;
+            detailAddress: string;
+            statusCode: string;
+            manager: {
+                name: string;
+                mobile: string;
+                email: string;
+            };
+            note: string;
+        };
+        SalesAnalysis: {
+            period: components["schemas"]["Period"];
+            trend: components["schemas"]["Trend"][];
+            trendScale: components["schemas"]["TrendScale"];
+            productShare: components["schemas"]["ProductShare"][];
+            topCustomers: components["schemas"]["TopCustomer"][];
+        };
+        Period: {
+            start: string;
+            end: string;
+            weekStart: string;
+            weekEnd: string;
+            weekCount: number;
+        };
+        Trend: {
+            year: number;
+            month: number;
+            week: number;
+            sale: number;
+            orderCount: number;
+        };
+        TrendScale: {
+            sale: {
+                min: number;
+                max: number;
+            };
+            orderCount: {
+                min: number;
+                max: number;
+            };
+        };
+        ProductShare: {
+            productCode: string;
+            productName: string;
+            sale: number;
+            saleShare: number;
+        };
+        TopCustomer: {
+            customerCode: string;
+            customerName: string;
+            orderCount: number;
+            sale: number;
+            active: boolean;
+        };
+        SalesItemResponse: {
+            itemId: string;
+            itemNumber: string;
+            itemName: string;
+            uomName: string;
+            unitPrice: number;
+        };
+        NotificationListResponse: {
+            content: components["schemas"]["NotificationData"][];
+            page: components["schemas"]["Page"];
+        };
+        NotificationData: {
+            notificationId: string;
+            notificationTitle: string;
+            notificationMessage: string;
+            linkType: string;
+            linkId: string;
+            /** @enum {string} */
+            source: "PR" | "SD" | "IM" | "FCM" | "HRM" | "PP" | "CUS" | "SUP";
+            createdAt: string;
+            isRead: boolean;
+        };
+        NotificationCountResponse: {
+            count: number;
         };
     };
     responses: {
@@ -332,6 +3702,3318 @@ export interface operations {
                     };
                 };
             };
+            default: components["responses"]["Error"];
+        };
+    };
+    getDashboardStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["DashboardStatRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getDashboardWorkflows: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["DashboardWorkflowRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmStatictics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["FinanceStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmStatisticsCustomerTotalPurchases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["CustomerSupplierStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmStatisticsSupplierTotalSales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["CustomerSupplierStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmInvoiceAp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["InvoiceListRes"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmInvoiceApByInvoiceId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["InvoicetDetailRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessFcmInvoiceApReceivableRequestByInvoiceId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessFcmInvoiceArReceivableCompleteByInvoiceId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessFcmInvoiceApPayableCompleteByInvoiceId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmInvoiceAr: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["InvoiceListRes"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessFcmInvoiceArByInvoiceId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["InvoicetDetailRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["HrmStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["EmployeeListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPositions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PositionData"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPositionsByPositionId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                positionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PositionDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmDepartments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["DepartmentsListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessHrmDepartmentsByDepartmentId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentsRequestBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPayroll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PayRollListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPayrollByPayrollId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payrollId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PayRollDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTrainingStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["TrainingListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTrainingEmployeeByEmployeeId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["TrainingDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmProgram: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ProgramListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessHrmProgram: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProgramRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmProgramByProgramId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                programId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ProgramDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessHrmProgramByProgramId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                programId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    programId: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessHrmProgramByProgramId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                programId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    programName: string;
+                    statusCode: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTimeRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["AttendanceListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmLeaveRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["LeaveListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessHrmEmployeeByEmployeeId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeUpdateRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessHrmLeaveRequestReleaseByRequestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessHrmLeaveRequestRejectByRequestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    putBusinessHrmTimeRecordByTimeRecordId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                timeRecordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    checkInTime: string;
+                    checkOutTime: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessHrmPayrollComplete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayRollCompleteRequestParams"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessHrmEmployeeSignup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeRegisterRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmDepartmentsAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPositionsAllByDepartmentId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmAttendanceStatuses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmDepartmentsMembersByDepartmentId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                departmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmPayrollStatuses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTrainingsCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTrainingsPrograms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessHrmTrainingsCompletionStatuses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvStatistic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["InventoryStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvInventoryItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["InventoryResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvItemsByItemId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["InventoryDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvShortagePreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["LowStockItemResponse"][];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvStockTransfers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["StockMovementResponse"][];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpIvStockTransfers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockMovementRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    patchScmPpIvItemsSafetyStockByItemIdBySafetyStock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+                safetyStock: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpSalesOrdersProduction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["ProductionListResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpSalesOrdersReadyToShip: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["ReadyToShipListResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpSalesOrdersProductionByItemId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ShippingDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpSalesOrdersReadyToShipByItemId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ShippingDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchScmPpSalesOrdersStatusByOrderId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["markAsReadyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["markAsReadyToShipResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPurchaseOrdersReceiving: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["ReceivedListResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPurchaseOrdersReceived: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["ReceivedListResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvItemsToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["AddInventoryItemsToggleResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvWarehousesDropdown: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            warehouses: components["schemas"]["WarehouseToggleResponse"][];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpIvItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddInventoryItemsRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvShortageCountCriticalStatistic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["LowStockStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpIvShortage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["LowStockListResponse"][];
+                            page: components["schemas"]["Page"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpStatistic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ProductionStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpQuotations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["QuotationListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpPpQuotationsSimulate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    quotationIds: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["QuotationSimulationResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpQuotationsMps: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MpsListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpPpQuotationsConfirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    quotationIds: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpBoms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["BomListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpPpBoms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BomRequestBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpProductsByProductId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MaterialResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpOperations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpBomsByBomId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["BomDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    deleteScmPpPpBomsByBomId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    patchScmPpPpBomsByBomId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchBomStatusRequest"];
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpPpBomsSimulateConflictByBomId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpQuotationsMrp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MrpOrdersListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpPpMrpConvert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MrpOrdersConvertReqeustBody"];
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpRuns: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MrpPlannedOrdersListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpPlannedOrdersDetailByMrpId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mrpId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MrpPlannedOrdersDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpIvItemsInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    itemIds: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ItemResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MesListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMesByMesId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["MesDetailResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    putScmPpPpMesStartByMesId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: unknown;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    putScmPpPpMesCompleteByMesId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: unknown;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    putScmPpPpMesOperationsStartByMesIdByOperationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+                operationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: unknown;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    putScmPpPpMesOperationsCompleteByMesIdByOperationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesId: string;
+                operationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: unknown;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMpsBomsToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpProducts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpAvailableStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpQuotationsToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpAvailableStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpRunsQuotationsToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMrpRunsStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpPpMesStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PurchaseStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplierOrdersStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SupplierPurchaseStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseRequisitions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PurchaseRequestListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmPurchaseRequisitions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePurchaseRequestBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmPurchaseRequisitionsReleaseByPurchaseRequestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmPurchaseRequisitionsRejectByPurchaseRequestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    comment: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseRequisitionsByPurchaseRequestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseRequestId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PurchaseRequestDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmStockPurchaseRequisitions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStockPurchaseRequestBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PurchaseOrderListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmPurchaseOrdersApproveByPurchaseOrderId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmPurchaseOrdersRejectByPurchaseOrderId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmStartDeliveryByPurchaseOrderId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseOrdersByPurchaseOrderId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purchaseOrderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["PurchaseOrderDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SupplierListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postScmPpMmSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSupplierBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplierBySupplierId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplierId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SupplierDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchScmPpMmSupplierBySupplierId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplierId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSupplierBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: null;
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseRequisitionStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseRequisitionSearchTypeToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseOrdersStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmPurchaseOrdersSearchTypeToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplierCategoryToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplierSearchTypeToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpMmSupplierStatusToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SalesStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdQuotationsCustomerCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["CustomerSalesStatResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdQuotations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["Quote"][];
+                            page: components["schemas"]["Page"];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessSdQuotations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            items: components["schemas"]["NewOrderRequest"];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdQuotationsById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["QuoteDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            content: components["schemas"]["Order"][];
+                            page: components["schemas"]["Page"];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdOrdersById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["OrderDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessSdQuotationsConfirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    quotationId: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessSdQuotationsInventoryCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    items: components["schemas"]["Inventories"][];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            items: components["schemas"]["InventoryCheckRes"][];
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessSdQuotationsApproveOrderById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdCustomers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            customers: components["schemas"]["SalesCustomer"][];
+                            page: components["schemas"]["Page"];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    postBusinessSdCustomers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerData"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ServerResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdCustomersById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["CustomerDetail"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchBusinessSdCustomersById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerEditData"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["CustomerResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getBusinessSdAnalyticsSales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SalesAnalysis"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getScmPpProductItemToggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: {
+                            products: components["schemas"]["SalesItemResponse"][];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getAlarmNotificationsList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["NotificationListResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getAlarmNotificationsCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["NotificationCountResponse"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    patchAlarmNotificationsReadByNotificationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    patchAlarmNotificationsAllRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["NoData"];
             default: components["responses"]["Error"];
         };
     };

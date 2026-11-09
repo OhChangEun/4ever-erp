@@ -1,10 +1,6 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
 // 생산 지표 api 응답 데이터 구조
-export interface ProductionStat {
-  production_in: Stat;
-  production_completed: Stat;
-  bom_count: Stat;
-}
+export type ProductionStat = Schema<'ProductionStat'>;
 
-export type ProductionStatResponse = StatResponse<ProductionStat>;
+export type ProductionStatResponse = Schema<'ProductionStatResponse'>;

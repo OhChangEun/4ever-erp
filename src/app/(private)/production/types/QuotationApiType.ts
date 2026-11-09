@@ -1,32 +1,13 @@
-import { AvailableStockStatus } from '@/app/(private)/production/constants';
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 import { DateRequest } from '@/app/types/Date';
 
-export interface itemsData {
-  productId: string;
-  productName: string;
-  quantity: number;
-  uomName: string;
-  unitPrice: number;
-}
+export type itemsData = Schema<'itemsData'>;
 
-export interface QuotationData {
-  quotationId: string;
-  quotationNumber: string;
-  customerName: string;
-  productName: string;
-  requestDate: string;
-  dueDate: string;
-  availableStatus: AvailableStockStatus;
-  // 두 목 모두 보내지 않고 화면도 읽지 않는다. 서버 계약이 정해지면 다시 본다(타입 2차 카드)
-  items?: itemsData[];
-}
+export type QuotationData = Schema<'QuotationData'>;
 
 // 견적 관리 리스트 최상위 응답 타입
-export interface QuotationListResponse {
-  content: QuotationData[];
-  page: Page;
-}
+export type QuotationListResponse = Schema<'QuotationListResponse'>;
 
 // 응답 요청시 request params
 export interface FetchQuotationParams extends DateRequest, PageRequest {

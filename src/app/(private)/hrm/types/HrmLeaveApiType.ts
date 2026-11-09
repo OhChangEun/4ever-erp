@@ -1,27 +1,11 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface LeaveListData {
-  leaveRequestId: string;
-  employee: EmployeeSummary;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  numberOfLeaveDays: number;
-  remainingLeaveDays: number;
-  status: string;
-}
+export type LeaveListData = Schema<'LeaveListData'>;
 
-export interface EmployeeSummary {
-  employeeId: string;
-  employeeName: string;
-  department: string;
-  position: string;
-}
+export type EmployeeSummary = Schema<'HrmEmployeeSummary2'>;
 
-export interface LeaveListResponse {
-  content: LeaveListData[];
-  page: Page;
-}
+export type LeaveListResponse = Schema<'LeaveListResponse'>;
 
 export interface LeaveRequestParams extends PageRequest {
   department?: string;

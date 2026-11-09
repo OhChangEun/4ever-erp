@@ -1,7 +1,2 @@
-export interface ItemResponse {
-  itemId: string;
-  itemName: string;
-  itemNmber: string;
-  unitPrice: number;
-  supplierName: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type ItemResponse = Schema<'ItemResponse'>;

@@ -1,8 +1,5 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
-interface LowStockStat {
-  total_emergency: Stat;
-  total_warning: Stat;
-}
+type LowStockStat = Schema<'LowStockStat'>;
 
-export type LowStockStatResponse = StatResponse<LowStockStat>;
+export type LowStockStatResponse = Schema<'LowStockStatResponse'>;

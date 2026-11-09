@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 export interface OrderItem {
   name: string;
   quantity: number;
@@ -13,20 +14,7 @@ export type OrderStatus =
   | 'DELIVERING'
   | 'DELIVERED';
 
-export interface Order {
-  salesOrderId: string;
-  salesOrderNumber: string;
-  customerName: string;
-  manager: {
-    managerName: string;
-    managerPhone: string;
-    managerEmail: string;
-  };
-  orderDate: string;
-  dueDate: string;
-  totalAmount: number;
-  statusCode: OrderStatus;
-}
+export type Order = Schema<'Order'>;
 
 export interface OrderQueryParams {
   start: string;

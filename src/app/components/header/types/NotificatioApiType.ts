@@ -1,26 +1,12 @@
-import { Page } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
 
 type SourceType = 'PR' | 'SD' | 'IM' | 'FCM' | 'HRM' | 'PP' | 'CUS' | 'SUP';
 
 // isRead: false;
-export interface NotificationData {
-  notificationId: string;
-  notificationTitle: string;
-  notificationMessage: string;
-  linkType: string;
-  linkId: string;
-  source: SourceType;
-  createdAt: string;
-  isRead: boolean;
-}
+export type NotificationData = Schema<'NotificationData'>;
 
 // 알림 목록 조회
-export interface NotificationListResponse {
-  content: NotificationData[];
-  page: Page;
-}
+export type NotificationListResponse = Schema<'NotificationListResponse'>;
 
 // 알림 갯수 조회
-export interface NotificationCountResponse {
-  count: number;
-}
+export type NotificationCountResponse = Schema<'NotificationCountResponse'>;

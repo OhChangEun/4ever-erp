@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 import type { OptionResponse } from '@/app/types/api';
 import { ProductionStatResponse } from '@/app/(private)/production/types/ProductionStatsType';
 import { ApiResponse, ApiResponseNoData, INVENTORY_ENDPOINTS } from '@/app/types/api';
@@ -144,10 +145,7 @@ export const deletBomItem = async (bomId: string): Promise<ApiResponseNoData> =>
 
 // BOM 상태 수정 (낙관적 락)
 // version 필드를 함께 전송해서 서버에서 충돌 여부를 검증
-export interface PatchBomStatusRequest {
-  statusCode: string;
-  version: string; // 마지막으로 클라이언트가 읽은 버전 (서버 버전과 다르면 409)
-}
+export type PatchBomStatusRequest = Schema<'PatchBomStatusRequest'>;
 export const patchBomStatus = async (
   bomId: string,
   body: PatchBomStatusRequest,

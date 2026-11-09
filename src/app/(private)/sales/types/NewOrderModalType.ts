@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 export interface NewOrderModalProps {
   showNewOrderModal: boolean;
   setShowNewOrderModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -9,21 +10,8 @@ export interface Product {
   price: number;
 }
 
-export interface NewOrderRequest {
-  items: NewOrderItem[];
-  note?: string;
-}
+export type NewOrderRequest = Schema<'NewOrderRequest'>;
 
-export interface NewOrderItem {
-  itemId: string;
-  quantity: number;
-  unitPrice: number;
-}
+export type NewOrderItem = Schema<'NewOrderItem'>;
 
-export interface ItemResponse {
-  itemId: string;
-  itemNumber: string;
-  itemName: string;
-  uomName: string;
-  unitPrice: number;
-}
+export type ItemResponse = Schema<'SalesItemResponse'>;

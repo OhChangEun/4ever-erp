@@ -1,52 +1,15 @@
-export interface Period {
-  start: string;
-  end: string;
-  weekStart: string;
-  weekEnd: string;
-  weekCount: number;
-}
+import type { Schema } from '@/lib/api/contract';
+export type Period = Schema<'Period'>;
 
-export interface Trend {
-  year: number;
-  month: number;
-  week: number;
-  sale: number;
-  orderCount: number;
-}
+export type Trend = Schema<'Trend'>;
 
-export interface TrendScale {
-  sale: {
-    min: number;
-    max: number;
-  };
-  orderCount: {
-    min: number;
-    max: number;
-  };
-}
+export type TrendScale = Schema<'TrendScale'>;
 
-export interface ProductShare {
-  productCode: string;
-  productName: string;
-  sale: number;
-  saleShare: number;
-}
+export type ProductShare = Schema<'ProductShare'>;
 
-export interface TopCustomer {
-  customerCode: string;
-  customerName: string;
-  orderCount: number;
-  sale: number;
-  active: boolean;
-}
+export type TopCustomer = Schema<'TopCustomer'>;
 
-export interface SalesAnalysis {
-  period: Period;
-  trend: Trend[];
-  trendScale: TrendScale;
-  productShare: ProductShare[];
-  topCustomers: TopCustomer[];
-}
+export type SalesAnalysis = Schema<'SalesAnalysis'>;
 
 export interface AnalyticsQueryParams {
   startDate?: string;

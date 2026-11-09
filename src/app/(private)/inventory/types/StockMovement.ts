@@ -1,8 +1,2 @@
-export interface StockMovementResponse {
-  type: string;
-  quantity: number;
-  uomName: string;
-  itemName: string;
-  workDate: string;
-  managerName: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type StockMovementResponse = Schema<'StockMovementResponse'>;

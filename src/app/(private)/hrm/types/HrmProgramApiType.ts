@@ -1,19 +1,9 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface ProgramListData {
-  programId: string;
-  programName: string;
-  statusCode: string;
-  category: string;
-  trainingHour: number;
-  isOnline: boolean;
-  capacity: number;
-}
+export type ProgramListData = Schema<'ProgramListData'>;
 
-export interface ProgramListResponse {
-  content: ProgramListData[];
-  page: Page;
-}
+export type ProgramListResponse = Schema<'ProgramListResponse'>;
 
 export interface ProgramRequestParams extends PageRequest {
   name?: string;
@@ -21,31 +11,11 @@ export interface ProgramRequestParams extends PageRequest {
   category?: string;
 }
 
-export interface designatedEmployeeSummary {
-  employeeId: string;
-  employeeName: string;
-  department: string;
-  position: string;
-  statusCode: string;
-  completedAt: null;
-}
+export type designatedEmployeeSummary = Schema<'designatedEmployeeSummary'>;
 
-export interface ProgramDetailResponse extends Page, Omit<ProgramListData, 'capacity'> {
-  startDate: string;
-  designatedEmployee: designatedEmployeeSummary[];
-}
+export type ProgramDetailResponse = Schema<'ProgramDetailResponse'>;
 
-export interface CreateProgramRequest {
-  programName: string;
-  category: string;
-  trainingHour: number;
-  isOnline: boolean;
-  startDate: string;
-  capacity: number;
-  requiredDepartments: string[];
-  requiredPositions: string[];
-  description: string;
-}
+export type CreateProgramRequest = Schema<'CreateProgramRequest'>;
 
 export interface UpdateProgramRequest {
   programId: string;
