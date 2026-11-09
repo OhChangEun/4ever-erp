@@ -8,18 +8,15 @@ import {
   QuoteReviewModalProps,
 } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Inventories, QuoteDetail } from '../../types/QuoteDetailModalType';
-import {
-  getQuoteDetail,
-  postDeliveryProcess,
-  postInventoryCheck,
-  postQuotationConfirm,
-} from '../../sales.api';
-import { quoteKeys, salesOrderKeys, salesStatsKeys } from '@/app/(private)/sales/sales.keys';
+import { getQuoteDetail, postInventoryCheck } from '../../sales.api';
+import { useConfirmQuotation, useProcessDelivery } from '../../sales.mutations';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { isAllInventoryFulfilled } from '../../utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
@@ -52,20 +49,10 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       requiredQuantity: quantity,
     })) ?? [];
 
-  const queryClient = useQueryClient();
-
-  const { mutate: quotationConfirmReq } = useMutation({
-    mutationFn: (id: string) => postQuotationConfirm(id),
-    onSuccess: () => {
-      toast.success('검토 요청이 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: quoteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: quoteKeys.detail(selectedQuotationId) });
-      queryClient.invalidateQueries({ queryKey: quoteKeys.reviewDetail(selectedQuotationId) });
-      queryClient.invalidateQueries({ queryKey: salesStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`검토 요청 중 오류가 발생했습니다. ${error}`);
-    },
+  // 무효화 범위는 sales.mutations.ts 한 곳. 재고 확인은 읽기라 아래 useMutation 그대로.
+  const { mutate: quotationConfirmReq } = useConfirmQuotation({
+    onSuccess: () => toast.success('검토 요청이 완료되었습니다.'),
+    onError: (error) => toast.error(`검토 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const { mutate: inventoryCheckReq, isPending } = useMutation({
@@ -78,19 +65,10 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     },
   });
 
-  const { mutate: delieveryProcessReq } = useMutation({
-    mutationFn: (id: string) => postDeliveryProcess(id),
-    onSuccess: (data) => {
-      toast.info(`${data.status} : ${quote?.quotationNumber}
-          `);
-      queryClient.invalidateQueries({ queryKey: quoteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: quoteKeys.reviewDetail(selectedQuotationId) });
-      queryClient.invalidateQueries({ queryKey: salesOrderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: salesStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: delieveryProcessReq } = useProcessDelivery({
+    onSuccess: (data) => toast.info(`${data.status} : ${quote?.quotationNumber}`),
+    onError: (error) =>
+      toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   useEffect(() => {

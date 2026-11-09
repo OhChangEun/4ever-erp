@@ -13,16 +13,13 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  fetchNotifications,
-  readAllNotifications,
-  readNotification,
-} from '@/lib/api/notification.api';
+import { useQuery } from '@tanstack/react-query';
+import { fetchNotifications } from '@/lib/api/notification.api';
 import NotificationHeader from './NotificationHeader';
 import NotificationPagination from './NotificationPagination';
 import NotificationList from './NotificationList';
 import { notificationKeys } from '../header.keys';
+import { useReadAllNotifications, useReadNotification } from '../notification.mutations';
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,8 +37,6 @@ export default function NotificationDropdown() {
   const click = useClick(context);
   const dismiss = useDismiss(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
-
-  const queryClient = useQueryClient();
 
   // 알림 목록 조회
   const { data: notificationData } = useQuery({
@@ -61,22 +56,9 @@ export default function NotificationDropdown() {
   //   },
   // });
 
-  // 알림 전체 읽기
-  const { mutate: readAll } = useMutation({
-    mutationFn: readAllNotifications,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
-      setCurrentPage(0);
-    },
-  });
-
-  // 알림 하나 읽기
-  const { mutate: readOne } = useMutation({
-    mutationFn: (id: string) => readNotification(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
-    },
-  });
+  // 읽음 처리의 무효화는 notification.mutations.ts 한 곳.
+  const { mutate: readAll } = useReadAllNotifications({ onSuccess: () => setCurrentPage(0) });
+  const { mutate: readOne } = useReadNotification();
 
   const notifications = notificationData?.content ?? [];
   const pageInfo = notificationData?.page;

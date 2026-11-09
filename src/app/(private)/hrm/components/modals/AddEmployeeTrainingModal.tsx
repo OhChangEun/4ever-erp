@@ -5,7 +5,6 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import React, { FormEvent, useState } from 'react';
 import { fetchProgramListDropdown } from '@/app/(private)/hrm/api/hrm.api';
-import { UpdateProgramToEmployeeRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useAssignProgramToEmployee } from '@/app/(private)/hrm/api/hrm.mutations';

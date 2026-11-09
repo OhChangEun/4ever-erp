@@ -5,7 +5,15 @@ import { useConfirmQuotation, useCreateQuote, useProcessDelivery } from './sales
 
 const FOREIGN = ['purchase', 'orders', 'list'];
 const QUOTE_LIST = quoteKeys.list({ page: 0, size: 10 });
-const ORDER_LIST = salesOrderKeys.list({ page: 0, size: 10 });
+const ORDER_LIST = salesOrderKeys.list({
+  page: 0,
+  size: 10,
+  start: '',
+  end: '',
+  keyword: '',
+  type: '',
+  status: 'ALL',
+});
 const CUSTOMER_LIST = customerKeys.list({ page: 0, size: 10 });
 
 describe('영업 mutation 훅', () => {

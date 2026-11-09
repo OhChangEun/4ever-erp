@@ -6,13 +6,15 @@ import {
   NewOrderItem,
   ItemResponse,
 } from '@/app/(private)/sales/types/NewOrderModalType';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getItemInfoForNewQuote, postNewQuote } from '../../sales.api';
-import { quoteKeys, salesStatsKeys } from '@/app/(private)/sales/sales.keys';
+import { useQuery } from '@tanstack/react-query';
+import { getItemInfoForNewQuote } from '../../sales.api';
+import { useCreateQuote } from '../../sales.mutations';
+import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
 import Button from '@/app/components/common/Button';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 const NewOrderModal = ({ onClose }: ModalProps) => {
@@ -129,16 +131,8 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
     queryFn: getItemInfoForNewQuote,
   });
 
-  const queryClient = useQueryClient();
-  const { mutate: addOrder } = useMutation({
-    mutationFn: postNewQuote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: quoteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: salesStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(` 견적 요청 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: addOrder } = useCreateQuote({
+    onError: (error) => toast.error(`견적 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const [errorModal, setErrorModal] = useState(false);

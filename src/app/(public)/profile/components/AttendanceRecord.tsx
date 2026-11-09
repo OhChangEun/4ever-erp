@@ -2,19 +2,14 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { AttendanceRecordsResponse, RequestVacation, TodayAttendResponse } from '../ProfileType';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getAttendaceRecords,
-  getTodayAttendance,
-  patchCheckIn,
-  patchCheckout,
-  postVacation,
-} from '../profile.api';
+import { useQuery } from '@tanstack/react-query';
+import { getAttendaceRecords, getTodayAttendance } from '../profile.api';
+import { useCheckIn, useCheckOut, useRequestVacation } from '../profile.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 import { profileKeys } from '../profile.keys';
 
 export default function AttendanceRecord() {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [currentStatus, setCurrentStatus] = useState('');
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -39,42 +34,24 @@ export default function AttendanceRecord() {
     }));
   };
 
-  const { mutate: sendVacation } = useMutation({
-    mutationFn: postVacation,
-    onSuccess: () => {
-      toast.success('휴가 신청이 접수되었습니다.');
-    },
-    onError: () => {
-      toast.error('휴가 신청 중 오류가 발생했습니다.');
-    },
+  // 무효화(내 근태 + 인사 근태, 휴가 목록)는 profile.mutations.ts 한 곳.
+  const { mutate: sendVacation } = useRequestVacation({
+    onSuccess: () => toast.success('휴가 신청이 접수되었습니다.'),
+    onError: (error) => toast.error(`휴가 신청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  const { mutate: checkIn } = useMutation({
-    mutationFn: patchCheckIn,
+  const { mutate: checkIn } = useCheckIn({
     onSuccess: () => {
       setCurrentStatus('출근');
       toast.success('출근 처리가 완료되었습니다.');
     },
-    onError: () => {
-      toast.error('출근 처리 중 오류가 발생했습니다.');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: profileKeys.todayAttendance() });
-    },
+    onError: (error) => toast.error(`출근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  const { mutate: checkOut } = useMutation({
-    mutationFn: patchCheckout,
+  const { mutate: checkOut } = useCheckOut({
     onSuccess: () => {
       setCurrentStatus('퇴근');
       toast.success('퇴근 처리가 완료되었습니다.');
     },
-    onError: () => {
-      toast.error('퇴근 처리 중 오류가 발생했습니다.');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: profileKeys.todayAttendance() });
-    },
+    onError: (error) => toast.error(`퇴근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleLeaveSubmit = (event: FormEvent<HTMLFormElement>) => {

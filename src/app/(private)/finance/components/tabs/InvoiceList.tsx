@@ -3,15 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { VOUCHER_STATUS_OPTIONS } from '@/app/(private)/finance/constants';
 import { InvoiceStatus } from '@/app/(private)/finance/types/InvoiceListType';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getPurchaseInvoicesList,
-  getSalesInvoicesList,
-  postApInvoice,
-  postArInvoice,
-  postSupplierApInvoice,
-} from '@/app/(private)/finance/finance.api';
-import { InvoiceTab, financeStatsKeys, invoiceKeys } from '@/app/(private)/finance/finance.keys';
+import { useQuery } from '@tanstack/react-query';
+import { getPurchaseInvoicesList, getSalesInvoicesList } from '@/app/(private)/finance/finance.api';
+import { InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
+import { useCompleteInvoice, type InvoiceAction } from '@/app/(private)/finance/finance.mutations';
 import Pagination from '@/app/components/common/Pagination';
 import { useSearchParams } from 'next/navigation';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -23,11 +18,11 @@ import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 const InvoiceList = () => {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
   const role = useRole();
   // const role = 'CUSTOMER_ADMIN';
   // const role = 'SUPPLIER_ADMIN';
@@ -86,26 +81,12 @@ const InvoiceList = () => {
 
   const { openModal } = useModal();
   const toast = useToast();
-  const mutationFn =
-    role === 'SUPPLIER_ADMIN'
-      ? () => postSupplierApInvoice(selectedInvoiceId)
-      : currentTab === 'sales'
-        ? () => postArInvoice(selectedInvoiceId)
-        : () => postApInvoice(selectedInvoiceId);
-
-  const { mutate: sendReq } = useMutation({
-    mutationFn: mutationFn,
-    onSuccess: (data) => {
-      toast.success(data.message);
-    },
-    onError: () => {
-      toast.error('등록 중 오류가 발생했습니다.');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: invoiceKeys.lists(currentTab) });
-      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(selectedInvoiceId) });
-      queryClient.invalidateQueries({ queryKey: financeStatsKeys.all });
-    },
+  // 어느 API 를 부를지는 역할과 탭이 정한다. 무효화 범위는 finance.mutations.ts 한 곳.
+  const invoiceAction: InvoiceAction =
+    role === 'SUPPLIER_ADMIN' ? 'supplierAp' : currentTab === 'sales' ? 'ar' : 'ap';
+  const { mutate: sendReq } = useCompleteInvoice({
+    onSuccess: (data) => toast.success(data.message),
+    onError: (error) => toast.error(`등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   // ----------------------------------------------------------
@@ -131,7 +112,7 @@ const InvoiceList = () => {
   // }, [selectedInvoiceId]);
 
   const handleReceivableComplete = () => {
-    sendReq();
+    sendReq({ invoiceId: selectedInvoiceId, tab: currentTab, action: invoiceAction });
   };
 
   const columns: TableColumn<InvoiceItem>[] = [
