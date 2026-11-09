@@ -16,7 +16,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: false,
     setupFiles: ['./vitest.setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'eslint-rules/**/*.test.ts', 'scripts/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
     // 테스트가 .next 나 node_modules 를 읽지 않게
     exclude: ['node_modules', '.next'],
     css: false,

@@ -5,7 +5,7 @@ DESIGN_GUIDELINES.md
 
 # 도구가 생성하는 파일. 손으로 포맷하지 않는다.
 eslint-suppressions.json
-package-lock.json
+pnpm-lock.yaml
 public/mockServiceWorker.js
 src/lib/api/openapi.gen.ts
 .next/

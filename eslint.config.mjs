@@ -2,7 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
-import everp from './eslint-rules/index.mjs';
+import everp from '@everp/eslint-plugin';
 
 export default defineConfig([
   globalIgnores([
@@ -63,7 +63,7 @@ export default defineConfig([
     },
   },
 
-  // EverP 로컬 규칙(eslint-rules/, 커스텀 ESLint 규칙 카드). 문서 규칙을 린트로 지킨다. 위반 0 에서 켰다(2026-11-10).
+  // EverP 로컬 규칙(packages/eslint-plugin, 커스텀 ESLint 규칙 카드). 문서 규칙을 린트로 지킨다. 위반 0 에서 켰다(2026-11-10).
   {
     files: ['src/**/*.ts', 'src/**/*.tsx'],
     plugins: { everp },

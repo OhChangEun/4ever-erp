@@ -20,7 +20,7 @@ export default defineConfig({
     locale: 'ko-KR',
   },
   webServer: {
-    command: `npm run start -- --port ${PORT}`,
+    command: `pnpm start --port ${PORT}`,
     url: `http://localhost:${PORT}/login`,
     reuseExistingServer: false,
     timeout: 120_000,
