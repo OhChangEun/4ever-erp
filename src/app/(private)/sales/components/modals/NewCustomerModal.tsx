@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
 import { useCreateCustomer } from '@/app/(private)/sales/sales.mutations';
 import Button from '@/app/components/common/Button';
@@ -8,6 +8,8 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 const NewCustomerModal = ({ onClose }: ModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [customerData, setCustomerData] = useState<CustomerData>({
     companyName: '',
@@ -87,8 +89,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
           <h4 className="text-lg font-medium text-gray-900 mb-4">기본 정보</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">회사명 *</label>
+              <label
+                htmlFor={`${fieldId}-field0`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                회사명 *
+              </label>
               <input
+                id={`${fieldId}-field0`}
                 type="text"
                 value={customerData.companyName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -100,8 +108,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">사업자등록번호</label>
+              <label
+                htmlFor={`${fieldId}-field1`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                사업자등록번호
+              </label>
               <input
+                id={`${fieldId}-field1`}
                 type="text"
                 value={customerData.businessNumber}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -113,8 +127,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">대표자명</label>
+              <label
+                htmlFor={`${fieldId}-field2`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                대표자명
+              </label>
               <input
+                id={`${fieldId}-field2`}
                 type="text"
                 value={customerData.ceoName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -125,8 +145,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">전화번호 *</label>
+              <label
+                htmlFor={`${fieldId}-field3`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                전화번호 *
+              </label>
               <input
+                id={`${fieldId}-field3`}
                 type="tel"
                 value={customerData.contactPhone}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -145,8 +171,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
           <h4 className="text-lg font-medium text-gray-900 mb-4">담당자 정보</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
+              <label
+                htmlFor={`${fieldId}-field4`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                담당자명 *
+              </label>
               <input
+                id={`${fieldId}-field4`}
                 type="text"
                 value={customerData.manager.name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -159,8 +191,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">휴대폰</label>
+              <label
+                htmlFor={`${fieldId}-field5`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                휴대폰
+              </label>
               <input
+                id={`${fieldId}-field5`}
                 type="tel"
                 value={customerData.manager.mobile}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -171,8 +209,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+              <label
+                htmlFor={`${fieldId}-field6`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                이메일 *
+              </label>
               <input
+                id={`${fieldId}-field6`}
                 type="email"
                 value={customerData.manager.email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -192,8 +236,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
           <div className="grid grid-cols-1 gap-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">우편번호</label>
+                <label
+                  htmlFor={`${fieldId}-field7`}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  우편번호
+                </label>
                 <input
+                  id={`${fieldId}-field7`}
                   type="text"
                   value={customerData.zipCode}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -205,8 +255,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+              <label
+                htmlFor={`${fieldId}-field8`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                주소
+              </label>
               <input
+                id={`${fieldId}-field8`}
                 type="text"
                 value={customerData.address}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -217,8 +273,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">상세주소</label>
+              <label
+                htmlFor={`${fieldId}-field9`}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                상세주소
+              </label>
               <input
+                id={`${fieldId}-field9`}
                 type="text"
                 value={customerData.detailAddress}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -233,8 +295,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
 
         {/* 비고 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">비고</label>
+          <label
+            htmlFor={`${fieldId}-field10`}
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            비고
+          </label>
           <textarea
+            id={`${fieldId}-field10`}
             value={customerData.note}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               updateCustomerData('note', e.target.value)

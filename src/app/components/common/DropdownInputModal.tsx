@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import IconButton from '@/app/components/common/IconButton';
 import Button from './Button';
-import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react';
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
+import PopoverPortal from './PopoverPortal';
+import { useCloseOnEscape } from '@/app/hooks/useCloseOnEscape';
 
 // 모달 입력 컴포넌트 props 타입 정의
 interface DropdownModalProps {
@@ -18,6 +20,7 @@ export default function DropdownInputModal({
   onSubmit,
 }: DropdownModalProps) {
   const [isOpen, setIsOpen] = useState(false); // 모달 열림/닫힘 상태
+  useCloseOnEscape(isOpen, setIsOpen);
   const [inputValue, setInputValue] = useState(value); // textarea 값 상태
 
   // floating-ui를 사용해 모달 위치 계산
@@ -71,7 +74,7 @@ export default function DropdownInputModal({
 
       {/* 모달 영역 */}
       {isOpen && (
-        <FloatingPortal>
+        <PopoverPortal>
           <div
             ref={setFloating} // floating-ui가 위치 제어
             style={floatingStyles} // 계산된 위치 적용
@@ -90,7 +93,7 @@ export default function DropdownInputModal({
               <Button label="확인" size="sm" onClick={handleSubmit} />
             </div>
           </div>
-        </FloatingPortal>
+        </PopoverPortal>
       )}
     </div>
   );

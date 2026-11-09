@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModalProvider } from './ModalProvider';
 import { useModal } from './useModal';
 import type { ModalProps } from './types';
+import Dropdown from '../Dropdown';
+import CalendarButton from '../CalendarButton';
+import ConflictDialog from '../ConflictDialog';
 
 function Inner({ onClose }: ModalProps) {
   return (
@@ -40,6 +44,53 @@ function Page() {
   );
 }
 
+/** 모달 안의 작은 층(드롭다운 목록, 달력, 충돌 안내)을 띄우는 폼 */
+function FormWithLayers(_: ModalProps) {
+  const [kind, setKind] = useState('');
+  const [date, setDate] = useState<string | null>(null);
+  const [conflict, setConflict] = useState(false);
+  return (
+    <div className="relative">
+      <Dropdown
+        placeholder="유형"
+        items={[
+          { key: 'A', value: '원자재' },
+          { key: 'B', value: '부품' },
+        ]}
+        value={kind}
+        onChange={setKind}
+      />
+      <CalendarButton selectedDate={date} onDateChange={setDate} />
+      <button type="button" onClick={() => setConflict(true)}>
+        충돌 보기
+      </button>
+      {conflict && (
+        <ConflictDialog subject="창고" onClose={() => setConflict(false)} onReload={() => {}} />
+      )}
+    </div>
+  );
+}
+
+function LayerPage() {
+  const { openModal } = useModal();
+  return (
+    <button type="button" onClick={() => openModal(FormWithLayers, { title: '폼' })}>
+      폼 열기
+    </button>
+  );
+}
+
+const setupLayers = async () => {
+  render(
+    <ModalProvider>
+      <LayerPage />
+    </ModalProvider>,
+  );
+  await userEvent.click(screen.getByRole('button', { name: '폼 열기' }));
+  // 모달 틀은 동적 import 라 처음 열 때 한 박자 늦게 뜬다
+  return screen.findByRole('dialog', { name: '폼' });
+};
+
 const setup = async () => {
   render(
     <ModalProvider>
@@ -48,7 +99,7 @@ const setup = async () => {
   );
   const trigger = screen.getByRole('button', { name: '모달 열기' });
   await userEvent.click(trigger);
-  return { trigger, dialog: screen.getByRole('dialog', { name: '첫 번째' }) };
+  return { trigger, dialog: await screen.findByRole('dialog', { name: '첫 번째' }) };
 };
 
 describe('모달(포커스와 키보드)', () => {
@@ -69,7 +120,8 @@ describe('모달(포커스와 키보드)', () => {
     const { trigger } = await setup();
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
+    // Radix 는 닫힌 다음 틱에 포커스를 돌려준다
+    await waitFor(() => expect(trigger).toHaveFocus());
   });
 
   it('모달이 겹치면 Esc 는 맨 위 모달만 닫는다', async () => {
@@ -83,7 +135,48 @@ describe('모달(포커스와 키보드)', () => {
 
   it('바깥(배경)을 눌러도 닫히지 않는다(입력 중인 폼을 잃지 않게)', async () => {
     await setup();
-    await userEvent.click(document.body);
+    // 모달이 열리면 뒤 화면은 pointer-events: none 이라 실제 사용자는 누를 수도 없다. 검사를 끄고 억지로 눌러 본다
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    await user.click(document.body);
     expect(screen.getByRole('dialog', { name: '첫 번째' })).toBeInTheDocument();
+  });
+
+  // 리뷰 지적 P1: Radix 는 모달이 열리면 body 에 pointer-events: none 을 건다. body 로 portal 되는 목록은 못 누른다
+  it('모달 안 드롭다운 목록의 항목을 누를 수 있다', async () => {
+    const modal = await setupLayers();
+    await userEvent.click(screen.getByRole('button', { name: /유형/ }));
+    await userEvent.click(screen.getByText('부품'));
+    expect(screen.getByRole('button', { name: /부품/ })).toBeInTheDocument();
+    expect(modal).toContainElement(screen.getByRole('button', { name: /부품/ }));
+  });
+
+  it('달력이 열려 있으면 Esc 는 달력만 닫는다', async () => {
+    await setupLayers();
+    await userEvent.click(screen.getByRole('button', { name: /날짜 선택/ }));
+    expect(screen.getByRole('dialog', { name: '날짜 선택' })).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: '날짜 선택' })).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '폼' })).toBeInTheDocument();
+  });
+
+  it('충돌 안내가 떠 있으면 Esc 는 안내만 닫는다', async () => {
+    await setupLayers();
+    await userEvent.click(screen.getByRole('button', { name: '충돌 보기' }));
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '폼' })).toBeInTheDocument();
+  });
+
+  // 리뷰 지적 P2: 모달은 안쪽 층이 있으면 Esc 를 넘긴다. 드롭다운이 Esc 를 안 받으면 아무것도 안 닫힌다
+  it('드롭다운이 열려 있으면 Esc 는 목록만 닫고, 한 번 더 누르면 모달을 닫는다', async () => {
+    await setupLayers();
+    await userEvent.click(screen.getByRole('button', { name: /유형/ }));
+    expect(screen.getByText('부품')).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByText('부품')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '폼' })).toBeInTheDocument();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: '폼' })).not.toBeInTheDocument();
   });
 });

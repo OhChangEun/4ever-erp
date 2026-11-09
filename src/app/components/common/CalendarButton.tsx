@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react';
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
+import PopoverPortal from './PopoverPortal';
 import { parseDateKey, toDateKey } from '@/app/utils/date';
 import Button from './Button';
 import IconButton from './IconButton';
@@ -101,7 +102,7 @@ export default function CalendarButton({
       </div>
 
       {isOpen && (
-        <FloatingPortal>
+        <PopoverPortal>
           <div
             ref={setFloating}
             style={floatingStyles}
@@ -119,7 +120,7 @@ export default function CalendarButton({
               <Button label="초기화" variant="ghost" size="sm" onClick={handleReset} />
             </div>
           </div>
-        </FloatingPortal>
+        </PopoverPortal>
       )}
     </div>
   );

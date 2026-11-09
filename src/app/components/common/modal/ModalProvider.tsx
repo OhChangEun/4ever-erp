@@ -10,9 +10,13 @@ import {
   useState,
 } from 'react';
 import { ModalItem, ModalProps } from '@/app/components/common/modal/types';
-import ModalContainer from '@/app/components/common/modal/ModalContainer';
+import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 import { useIsClient } from '@/app/hooks/useMediaQuery';
+
+// 모달 틀(Radix Dialog, gzip 약 12.7KB)은 모달을 열 때만 필요하다. 첫 로드에서 빼고 화면이 한가할 때 미리 받는다
+const loadModalContainer = () => import('@/app/components/common/modal/ModalContainer');
+const ModalContainer = dynamic(loadModalContainer, { ssr: false });
 
 // ModalContext를 사용해서 addModal, removeModal에 접근하는 훅.
 // Context에서 관리할 함수들의 타입 정의
@@ -41,6 +45,17 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modals, setModals] = useState<ModalItem[]>([]); // 현재 열린 모달 목록
   // 포털은 document 가 있어야 한다. 서버 렌더와 첫 하이드레이션은 false
   const mounted = useIsClient();
+
+  // 첫 그리기가 끝난 뒤 모달 틀을 미리 받아 둔다. 처음 여는 모달이 청크를 기다리지 않게
+  useEffect(() => {
+    const preload = () => void loadModalContainer();
+    if ('requestIdleCallback' in window) {
+      const handle = window.requestIdleCallback(preload);
+      return () => window.cancelIdleCallback(handle);
+    }
+    const timer = setTimeout(preload, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Body 스크롤 잠금 처리
   useEffect(() => {
@@ -82,6 +97,9 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         height: fullProps.height,
         onClose,
         element: <Component {...fullProps} />,
+        // Radix Dialog 는 Dialog.Trigger 로 포커스를 돌린다. 코드로 여는 모달이라 연 순간의 포커스를 기억한다
+        returnFocusTo:
+          document.activeElement instanceof HTMLElement ? document.activeElement : null,
       };
 
       // 상태 업데이트 → 렌더링 트리거
@@ -102,11 +120,12 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
             {/* 배경 오버레이 */}
             <div className="fixed inset-0 bg-black/50" />
             {/* 각 모달 */}
-            {modals.map(({ id, title, width, height, onClose, element }) => (
+            {modals.map(({ id, title, width, height, onClose, element, returnFocusTo }) => (
               <ModalContainer
                 key={id}
                 title={title}
                 onClose={onClose}
+                returnFocusTo={returnFocusTo}
                 width={width}
                 height={height}
               >

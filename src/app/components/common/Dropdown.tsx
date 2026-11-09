@@ -1,5 +1,7 @@
 import { KeyValueItem } from '@/app/types/CommonType';
-import { autoUpdate, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react';
+import { autoUpdate, offset, shift, useFloating } from '@floating-ui/react';
+import PopoverPortal from './PopoverPortal';
+import { useCloseOnEscape } from '@/app/hooks/useCloseOnEscape';
 import { useEffect, useState } from 'react';
 
 // size prop 추가
@@ -25,6 +27,7 @@ export default function Dropdown<T extends string = string>({
   disabled = false,
 }: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
+  useCloseOnEscape(open, setOpen);
 
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-start',
@@ -103,7 +106,7 @@ export default function Dropdown<T extends string = string>({
 
       {/* 드롭다운 리스트 */}
       {open && !disabled && (
-        <FloatingPortal>
+        <PopoverPortal>
           <ul
             ref={setFloating}
             style={floatingStyles}
@@ -141,7 +144,7 @@ export default function Dropdown<T extends string = string>({
               </li>
             )}
           </ul>
-        </FloatingPortal>
+        </PopoverPortal>
       )}
     </div>
   );

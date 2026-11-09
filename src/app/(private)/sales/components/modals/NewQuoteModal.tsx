@@ -1,7 +1,7 @@
 'use client';
 
 import { QuoteFormData, QuoteFormItem } from '@/app/(private)/sales/types/SalesQuoteListType';
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalType';
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -9,6 +9,8 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { formatCurrency } from '@/app/utils/number';
 import { toDateKey } from '@/app/utils/date';
 const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
     customer: '',
     customerContact: '',
@@ -155,8 +157,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                 <h4 className="text-lg font-medium text-gray-900 mb-4">고객 정보</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">고객명 *</label>
+                    <label
+                      htmlFor={`${fieldId}-field0`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      고객명 *
+                    </label>
                     <input
+                      id={`${fieldId}-field0`}
                       type="text"
                       value={newQuoteData.customer}
                       onChange={(e) => updateQuoteData('customer', e.target.value)}
@@ -166,8 +174,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">담당자</label>
+                    <label
+                      htmlFor={`${fieldId}-field1`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      담당자
+                    </label>
                     <input
+                      id={`${fieldId}-field1`}
                       type="text"
                       value={newQuoteData.customerContact}
                       onChange={(e) => updateQuoteData('customerContact', e.target.value)}
@@ -176,8 +190,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <label
+                      htmlFor={`${fieldId}-field2`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      이메일
+                    </label>
                     <input
+                      id={`${fieldId}-field2`}
                       type="email"
                       value={newQuoteData.customerEmail}
                       onChange={(e) => updateQuoteData('customerEmail', e.target.value)}
@@ -193,10 +213,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                 <h4 className="text-lg font-medium text-gray-900 mb-4">견적 정보</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor={`${fieldId}-field3`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       견적일자 *
                     </label>
                     <input
+                      id={`${fieldId}-field3`}
                       type="date"
                       value={newQuoteData.quoteDate}
                       onChange={(e) => updateQuoteData('quoteDate', e.target.value)}
@@ -205,10 +229,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor={`${fieldId}-field4`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       요청 납기 일자
                     </label>
                     <input
+                      id={`${fieldId}-field4`}
                       type="date"
                       value={newQuoteData.validUntil}
                       onChange={(e) => updateQuoteData('validUntil', e.target.value)}
@@ -335,8 +363,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
 
               {/* 비고 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">비고</label>
+                <label
+                  htmlFor={`${fieldId}-field5`}
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  비고
+                </label>
                 <textarea
+                  id={`${fieldId}-field5`}
                   value={newQuoteData.notes}
                   onChange={(e) => updateQuoteData('notes', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"

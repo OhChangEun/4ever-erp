@@ -5,7 +5,9 @@ import IconButton from '@/app/components/common/IconButton';
 import Button from '@/app/components/common/Button';
 import InputList from '@/app/components/common/InputList';
 import { KeyValueItem } from '@/app/types/CommonType';
-import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react';
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
+import PopoverPortal from './PopoverPortal';
+import { useCloseOnEscape } from '@/app/hooks/useCloseOnEscape';
 
 interface DropdownInputListModalProps {
   initialItems?: KeyValueItem<number>[];
@@ -17,6 +19,7 @@ export default function DropdownInputListModal({
   onSubmit,
 }: DropdownInputListModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  useCloseOnEscape(isOpen, setIsOpen);
   const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
 
   const { refs, floatingStyles } = useFloating({
@@ -64,7 +67,7 @@ export default function DropdownInputListModal({
 
       {/* 모달 영역 */}
       {isOpen && (
-        <FloatingPortal>
+        <PopoverPortal>
           <div
             ref={setFloating}
             style={floatingStyles}
@@ -78,7 +81,7 @@ export default function DropdownInputListModal({
               <Button label="확인" size="sm" onClick={handleSubmit} />
             </div>
           </div>
-        </FloatingPortal>
+        </PopoverPortal>
       )}
     </div>
   );

@@ -4,7 +4,7 @@ import {
   UpdateTimeRecord,
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import Button from '@/app/components/common/Button';
-import { FormEvent } from 'react';
+import { FormEvent, useId } from 'react';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';
@@ -16,6 +16,8 @@ interface AttendanceEditModalProps extends ModalProps {
 }
 
 export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModalProps) {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
 
   const mutation = useUpdateTimeRecord({
@@ -45,8 +47,14 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">직원명</label>
+        <label
+          htmlFor={`${fieldId}-field0`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          직원명
+        </label>
         <input
+          id={`${fieldId}-field0`}
           type="text"
           defaultValue={attendance.employee.employeeName}
           disabled
@@ -55,8 +63,14 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">출근 시간</label>
+          <label
+            htmlFor={`${fieldId}-checkInTime`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            출근 시간
+          </label>
           <input
+            id={`${fieldId}-checkInTime`}
             name="checkInTime"
             type="time"
             defaultValue={formatTime(attendance.checkInTime)}
@@ -65,8 +79,14 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">퇴근 시간</label>
+          <label
+            htmlFor={`${fieldId}-checkOutTime`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            퇴근 시간
+          </label>
           <input
+            id={`${fieldId}-checkOutTime`}
             name="checkOutTime"
             type="time"
             defaultValue={formatTime(attendance.checkOutTime)}

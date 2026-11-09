@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useId } from 'react';
 import {
   AddWarehouseRequest,
   WarehouseManagerInfoResponse,
@@ -17,6 +17,8 @@ import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.ke
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
     warehouseName: '',
@@ -80,8 +82,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
   return (
     <form className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">창고명</label>
+        <label
+          htmlFor={`${fieldId}-warehouseName`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          창고명
+        </label>
         <input
+          id={`${fieldId}-warehouseName`}
           type="text"
           name="warehouseName"
           value={formData.warehouseName}
@@ -92,8 +100,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">창고 유형</label>
+        <label
+          htmlFor={`${fieldId}-warehouseType`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          창고 유형
+        </label>
         <select
+          id={`${fieldId}-warehouseType`}
           onChange={handleInputChange}
           name="warehouseType"
           value={formData.warehouseType}
@@ -106,8 +120,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">위치</label>
+        <label
+          htmlFor={`${fieldId}-location`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          위치
+        </label>
         <input
+          id={`${fieldId}-location`}
           type="text"
           name="location"
           onChange={handleInputChange}
@@ -118,8 +138,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">담당자</label>
+        <label
+          htmlFor={`${fieldId}-manager`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          담당자
+        </label>
         <select
+          id={`${fieldId}-manager`}
           onChange={(e) => {
             const managerId = e.target.value;
             const selectedManager = ManagerInfoRes?.find((m) => m.managerId === managerId);
@@ -144,8 +170,14 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+        <label
+          htmlFor={`${fieldId}-managerPhone`}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          연락처
+        </label>
         <input
+          id={`${fieldId}-managerPhone`}
           onChange={handleInputChange}
           name="managerPhone"
           value={formData.managerPhone}
@@ -157,8 +189,11 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+        <label htmlFor={`${fieldId}-note`} className="block text-sm font-medium text-gray-700 mb-1">
+          설명
+        </label>
         <textarea
+          id={`${fieldId}-note`}
           value={formData.note}
           onChange={handleInputChange}
           name="note"

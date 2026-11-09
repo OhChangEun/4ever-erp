@@ -3,7 +3,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { CreateProgramRequest } from '../../types/HrmProgramApiType';
 import { fetchTrainingCategoryDropdown } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useId } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
@@ -13,6 +13,8 @@ import { formText, formTexts } from '@/lib/formData';
 import { toKeyValueItems } from '@/lib/api/options';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
+  // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
+  const fieldId = useId();
   const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState(''); // 부서
 
@@ -76,8 +78,14 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">교육명</label>
+            <label
+              htmlFor={`${fieldId}-programName`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              교육명
+            </label>
             <input
+              id={`${fieldId}-programName`}
               type="text"
               name="programName"
               required
@@ -100,8 +108,14 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">교육 시간</label>
+            <label
+              htmlFor={`${fieldId}-trainingHour`}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              교육 시간
+            </label>
             <input
+              id={`${fieldId}-trainingHour`}
               type="text"
               name="trainingHour"
               required
@@ -112,8 +126,14 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">시작일</label>
+          <label
+            htmlFor={`${fieldId}-startDate`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            시작일
+          </label>
           <input
+            id={`${fieldId}-startDate`}
             type="date"
             name="startDate"
             required
@@ -178,8 +198,14 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">교육 설명</label>
+          <label
+            htmlFor={`${fieldId}-description`}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            교육 설명
+          </label>
           <textarea
+            id={`${fieldId}-description`}
             name="description"
             rows={4}
             placeholder="교육 내용과 목표를 입력하세요"
