@@ -1,9 +1,8 @@
 'use client';
 
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import { fetchHrmStats } from '@/app/(private)/hrm/api/hrm.api';
 import { mapHrmStatsToCards } from '@/app/(private)/hrm/services/hrm.service';
-import ErrorMessage from '@/app/components/common/ErrorMessage';
 import { Suspense } from 'react';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import { HRM_TABS } from '@/app/(private)/hrm/constants';
@@ -11,12 +10,12 @@ import { useQuery } from '@tanstack/react-query';
 import { hrmStatsKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function HrmClient() {
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: hrmStatsKeys.all,
     queryFn: fetchHrmStats,
   });
 
-  const hrmStatsData = data ? mapHrmStatsToCards(data) : null;
+  const hrmStatsData = data ? mapHrmStatsToCards(data) : EMPTY_STATS;
 
   return (
     <div className="bg-gray-50 h-full flex flex-col">
@@ -24,13 +23,7 @@ export default function HrmClient() {
         <Suspense fallback={<div>Loading...</div>}>
           <TabNavigation
             tabs={HRM_TABS}
-            header={
-              hrmStatsData ? (
-                <StatSection statsData={hrmStatsData} />
-              ) : (
-                <ErrorMessage message={'인적자원관리 통계 데이터를 불러오는데 실패했습니다.'} />
-              )
-            }
+            header={<StatSection statsData={hrmStatsData} error={error} />}
           />
         </Suspense>
       </main>

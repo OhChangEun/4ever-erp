@@ -73,6 +73,7 @@ export default function PurchaseOrderListTab() {
     data: orderData,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: purchaseOrderKeys.list(queryParams),
     queryFn: () => fetchPurchaseOrderList(queryParams),
@@ -192,7 +193,11 @@ export default function PurchaseOrderListTab() {
       {isLoading ? (
         <TableStatusBox type="loading" message="발주서 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox type="error" message="발주서 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox
+          type="error"
+          message="발주서 목록을 불러오는 중 오류가 발생했습니다."
+          error={error}
+        />
       ) : (
         <PurchaseOrderTable
           orders={orders}

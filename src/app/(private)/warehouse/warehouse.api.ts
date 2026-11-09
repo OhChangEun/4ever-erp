@@ -1,5 +1,5 @@
 import { WarehouseStatResponse } from './types/WarehouseStatsType';
-import axios from 'axios';
+import axios from '@/lib/axiosInstance';
 import { WarehouseListQueryParams, WarehouseListResponse } from './types/WarehouseListType';
 import { WarehouseDetailResponse } from './types/WarehouseDetailModalType';
 import { AddWarehouseRequest, WarehouseManagerInfoResponse } from './types/AddWarehouseModalType';

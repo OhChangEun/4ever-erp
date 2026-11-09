@@ -52,6 +52,7 @@ export default function EmployeesTab() {
     data: employeesData,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: employeeKeys.list(employeesQueryParams),
     queryFn: () => fetchEmployeesList(employeesQueryParams),
@@ -152,7 +153,11 @@ export default function EmployeesTab() {
       {isLoading ? (
         <TableStatusBox type="loading" message="직원 정보를 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox type="error" message="직원 정보를 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox
+          type="error"
+          message="직원 정보를 불러오는 중 오류가 발생했습니다."
+          error={error}
+        />
       ) : (
         <Table
           columns={columns}

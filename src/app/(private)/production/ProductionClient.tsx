@@ -3,20 +3,24 @@
 import { Suspense } from 'react';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import { PRODUCTION_TABS } from '@/app/(private)/production/constants';
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
+import { AppError } from '@/lib/AppError';
 import { fetchProductionStats } from '@/app/(private)/production/api/production.api';
-import ErrorMessage from '@/app/components/common/ErrorMessage';
 import { mapProductionStatsToCards } from '@/app/(private)/production/services/production.service';
 import { useQuery } from '@tanstack/react-query';
 import { productionStatsKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function ProductionClient() {
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: productionStatsKeys.all,
     queryFn: fetchProductionStats,
   });
 
-  const productionStatsData = data ? mapProductionStatsToCards(data) : null;
+  // fetchProductionStats 는 아직 실패를 null 로 돌려준다(production.api.ts:37, 린트 1차 브랜치가 수정 중).
+  // null 을 실패로 바꿔 넘겨야 빈 띠로 숨겨지지 않는다. 그 파일을 고치면 이 줄은 지운다. 리뷰 C1.
+  const statsError =
+    error ?? (data === null ? new AppError('server', '생산 통계 응답이 비어 있습니다.') : null);
+  const productionStatsData = data ? mapProductionStatsToCards(data) : EMPTY_STATS;
 
   return (
     <div className="bg-gray-50 h-full flex flex-col">
@@ -24,13 +28,7 @@ export default function ProductionClient() {
         <Suspense fallback={<div>Loading..</div>}>
           <TabNavigation
             tabs={PRODUCTION_TABS}
-            header={
-              productionStatsData ? (
-                <StatSection statsData={productionStatsData} />
-              ) : (
-                <ErrorMessage message={'생산 통계 데이터를 불러오는데 실패했습니다.'} />
-              )
-            }
+            header={<StatSection statsData={productionStatsData} error={statsError} />}
           />
         </Suspense>
       </main>

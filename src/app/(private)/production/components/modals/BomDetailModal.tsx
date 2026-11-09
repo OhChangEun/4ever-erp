@@ -5,7 +5,7 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import axios from 'axios';
+import { isAppError } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
@@ -50,7 +50,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
       queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
     },
     onError: (err) => {
-      if (axios.isAxiosError(err) && err.response?.status === 409) {
+      if (isAppError(err) && err.kind === 'conflict') {
         // 409 Conflict → 다른 사용자가 먼저 수정한 경우
         setShowConflictModal(true);
       } else {

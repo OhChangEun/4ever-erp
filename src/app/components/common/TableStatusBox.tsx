@@ -1,12 +1,16 @@
 'use client';
 
+import { errorMessageOf } from '@/lib/AppError';
+
 interface TableStatusBoxProps {
   type: 'loading' | 'error' | 'empty';
   message: string;
+  /** useQuery 의 error. 주면 화면 문구 아래에 오류 종류별 한 줄을 덧붙인다. */
+  error?: unknown;
 }
 
-/** 테이블 자리에 들어가는 로딩·오류·빈 상태. 테이블과 같은 테두리 안에 보여준다. */
-const TableStatusBox = ({ type, message }: TableStatusBoxProps) => {
+/** 테이블 자리에 들어가는 로딩, 오류, 빈 상태. 테이블과 같은 테두리 안에 보여준다. */
+const TableStatusBox = ({ type, message, error }: TableStatusBoxProps) => {
   const frame =
     'flex flex-col items-center justify-center h-64 gap-3 bg-white rounded-lg border border-gray-200';
 
@@ -23,6 +27,7 @@ const TableStatusBox = ({ type, message }: TableStatusBoxProps) => {
       <div className={frame} role="alert">
         <i aria-hidden="true" className="ri-error-warning-line text-2xl text-red-500" />
         <p className="text-sm text-gray-700">{message}</p>
+        {error != null && <p className="text-xs text-gray-500">{errorMessageOf(error)}</p>}
       </div>
     );
   }
