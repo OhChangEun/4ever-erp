@@ -25,6 +25,7 @@ import {
   useCreateBom,
   useCreateStockPurchaseRequest,
   useSimulateBomConflict,
+  useSimulateQuotations,
   useStartMes,
   useStartMesOperation,
   useUpdateBomStatus,
@@ -152,6 +153,13 @@ const cases: Case[] = [
   },
 ];
 
+cases.push({
+  name: '견적 시뮬레이션 → 견적 목록',
+  run: (qc) => runHook(qc, useSimulateQuotations, ['q-1']),
+  invalidates: [QUOTATION_LIST],
+  keeps: [MRP_ORDER_LIST, BOM_LIST, HRM_EMPLOYEE_LIST],
+});
+
 describe('생산 mutation 훅의 무효화 범위는 매트릭스와 같다', () => {
   it.each(cases)('$name', async ({ run, invalidates, keeps }) => {
     // BOM patch 핸들러는 version 을 비교해 409 를 낸다. 여기선 무효화 범위만 보므로 성공으로 고정한다.
@@ -166,6 +174,6 @@ describe('생산 mutation 훅의 무효화 범위는 매트릭스와 같다', ()
   });
 
   it('매트릭스는 훅 10개를 전부 다룬다', () => {
-    expect(Object.keys(PRODUCTION_MUTATION_EFFECTS)).toHaveLength(10);
+    expect(Object.keys(PRODUCTION_MUTATION_EFFECTS)).toHaveLength(11);
   });
 });
