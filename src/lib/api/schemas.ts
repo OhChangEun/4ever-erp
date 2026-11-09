@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Page } from '@/app/types/Page';
 import type { Stat, StatResponse } from '@/app/types/StatType';
-import type { KeyValueItem } from '@/app/types/CommonType';
+import type { OptionResponse } from '@/app/types/api';
 
 /**
  * 여러 도메인이 같이 쓰는 응답 조각. 스키마는 기존 타입에 맞춰 `z.ZodType<기존 타입>` 으로 묶어
@@ -25,10 +25,10 @@ export const statSchema: z.ZodType<Stat> = z.looseObject({
 export const periodStatsSchema = <T>(item: z.ZodType<T>): z.ZodType<StatResponse<T>> =>
   z.looseObject({ week: item, month: item, quarter: item, year: item });
 
-/** 드롭다운 옵션. key 는 실제 값, value 는 표시 글자 */
-export const keyValueItemSchema: z.ZodType<KeyValueItem> = z.looseObject({
+/** 드롭다운 옵션 응답. key 는 실제 값, value 는 표시 글자. 화면 옵션으로는 toKeyValueItems 가 바꾼다 */
+export const optionResponseSchema: z.ZodType<OptionResponse> = z.looseObject({
   key: z.string(),
   value: z.string(),
 });
 
-export const keyValueListSchema = z.array(keyValueItemSchema);
+export const optionListSchema = z.array(optionResponseSchema);

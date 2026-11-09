@@ -15,6 +15,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useRegisterEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { toKeyValueItems } from '@/lib/api/options';
 
 export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -41,6 +42,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const { data: positionData, isLoading: isPositionLoading } = useQuery({
     queryKey: positionKeys.dropdown(selectedDepartment),
     queryFn: () => fetchPositionsDropdown(selectedDepartment),
+    select: toKeyValueItems,
     enabled: !!selectedDepartment,
   });
 

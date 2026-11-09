@@ -17,6 +17,7 @@ import { errorMessageOf } from '@/lib/AppError';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import Button from '@/app/components/common/Button';
+import { toKeyValueItems } from '@/lib/api/options';
 interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;
 }
@@ -32,6 +33,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   const { data: memberOptions } = useQuery({
     queryKey: departmentKeys.memberDropdown(departments.departmentId),
     queryFn: () => fetchDeptMemberDropdown(departments.departmentId),
+    select: toKeyValueItems,
   });
 
   const { mutate: updateDepartments, isPending } = useUpdateDepartment({

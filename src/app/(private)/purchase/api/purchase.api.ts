@@ -1,3 +1,4 @@
+import type { OptionResponse } from '@/app/types/api';
 import { ApiResponse } from '@/app/types/api';
 import {
   PurchaseStatResponse,
@@ -23,10 +24,9 @@ import {
   SupplierListParams,
 } from '@/app/(private)/purchase/types/SupplierType';
 import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
-import { KeyValueItem } from '@/app/types/CommonType';
 import axios from '@/lib/axiosInstance';
 import { getParsed } from '@/lib/api/parse';
-import { keyValueListSchema } from '@/lib/api/schemas';
+import { optionListSchema } from '@/lib/api/schemas';
 import {
   purchaseOrderDetailSchema,
   purchaseOrderListSchema,
@@ -176,36 +176,36 @@ export const updateSupplier = async (
 
 // --- 드롭다운 ---
 // 구매요청서 상태
-export const fetchPurchaseRequestStatusOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.PURCHASE_REQUEST_STATUS_OPTIONS);
+export const fetchPurchaseRequestStatusOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.PURCHASE_REQUEST_STATUS_OPTIONS);
 };
 
 // 구매요청서 검색 타입
-export const fetchPurchaseRequestSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.PURCHASE_REQUEST_SEARCH_TYPE_OPTIONS);
+export const fetchPurchaseRequestSearchTypeOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.PURCHASE_REQUEST_SEARCH_TYPE_OPTIONS);
 };
 
 // 발주서 상태
-export const fetchPurchaseOrderStatusOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_OPTIONS);
+export const fetchPurchaseOrderStatusOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_OPTIONS);
 };
 
 // 발주서 검색 타입
-export const fetchPurchaseOrderSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_OPTIONS);
+export const fetchPurchaseOrderSearchTypeOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_OPTIONS);
 };
 
 // 공급업체 카테고리
-export const fetchSupplierCategoryOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_OPTIONS);
+export const fetchSupplierCategoryOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_OPTIONS);
 };
 
 // 공급업체 검색 타입
-export const fetchSupplierSearchTypeOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_OPTIONS);
+export const fetchSupplierSearchTypeOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_OPTIONS);
 };
 
 // 공급업체 상태
-export const fetchSupplierStatusOptions = async (): Promise<KeyValueItem[]> => {
-  return getParsed(keyValueListSchema, PURCHASE_ENDPOINTS.SUPPLIER_STATUS_OPTIONS);
+export const fetchSupplierStatusOptions = async (): Promise<OptionResponse[]> => {
+  return getParsed(optionListSchema, PURCHASE_ENDPOINTS.SUPPLIER_STATUS_OPTIONS);
 };

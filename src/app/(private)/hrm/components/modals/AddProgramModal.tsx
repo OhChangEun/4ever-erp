@@ -10,6 +10,7 @@ import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { formText, formTexts } from '@/lib/formData';
+import { toKeyValueItems } from '@/lib/api/options';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
   const toast = useToast();
@@ -18,6 +19,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
   const { data: categoryData } = useQuery({
     queryKey: programKeys.categoryDropdown(),
     queryFn: fetchTrainingCategoryDropdown,
+    select: toKeyValueItems,
     staleTime: Infinity,
   });
 
