@@ -1,7 +1,7 @@
 // 라우트별 첫 로드 JS(gzip)를 기준선과 비교한다(CI 번들 크기 비교 카드).
 //   node scripts/bundle-diff.mjs <기준선.json> <지금.json> [예산KB=5]
 // 두 파일은 `node scripts/measure-bundle.mjs --json` 의 출력이다. 마크다운 표를 찍고,
-// 한 라우트라도 예산보다 많이 늘면 종료 코드 1. 의도한 증가면 같은 PR 에서 `npm run bundle:baseline`.
+// 한 라우트라도 예산보다 많이 늘면 종료 코드 1. 의도한 증가면 같은 PR 에서 `pnpm bundle:baseline`.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -39,7 +39,7 @@ export const diffBundles = (baseline, current, budgetKb = 5) => {
     ...rows,
     '',
     over.length
-      ? `예산을 넘은 라우트 ${over.length}개. 의도한 증가면 \`npm run bundle:baseline\` 으로 기준선을 갱신한다.`
+      ? `예산을 넘은 라우트 ${over.length}개. 의도한 증가면 \`pnpm bundle:baseline\` 으로 기준선을 갱신한다.`
       : '예산 안.',
   ].join('\n');
 

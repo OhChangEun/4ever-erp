@@ -41,3 +41,4 @@ coverage/
 /playwright-report/
 /e2e/.auth/
 scripts/codemods/.openapi-map.json
+.turbo

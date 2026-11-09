@@ -1,0 +1,22 @@
+{
+  "name": "@everp/eslint-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EverP 로컬 ESLint 규칙(도메인 경계, 컴포넌트 useMutation, 임의 색)",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test": "vitest run --root ."
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.69.0",
+    "eslint": "^9.39.5",
+    "vitest": "^5.1.0"
+  }
+}

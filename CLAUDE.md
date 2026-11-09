@@ -32,9 +32,10 @@ src/app/
 
 ## Build & Test Commands
 ```bash
-npm run dev      # 개발 서버
-npm run build    # 프로덕션 빌드
-npm run lint     # ESLint 검사
+pnpm dev         # 개발 서버
+pnpm build       # 프로덕션 빌드
+pnpm lint        # ESLint 검사
+pnpm verify      # lint, 타입, 단위 테스트를 turbo 로(캐시)
 ```
 
 ## Domain Context
@@ -157,7 +158,7 @@ Claude가 짠 코드는 커밋 전에 **Codex 리뷰**(`codex_review`)를 받고
 2026-11-07부터 코드는 Claude가 쓰고 사람은 diff를 읽는다. 문제 하나(계획 HTML의 한 행)를 이 순서로 돈다. 단계를 건너뛰지 않는다. 2026-11-09부터는 이 절차를 `.claude/skills/erp-loop/SKILL.md`가 카드 단위로 돌린다(`/erp-loop <문제 이름>`). 카드 템플릿은 `ai/cards/README.md`.
 
 1. **질문 먼저.** 코드를 읽고, AI가 혼자 정하면 안 되는 것을 번호 목록으로 올린다. 라이브러리 선택, 쿼리 키 규칙, 빈 상태와 에러 표시, 우선순위 충돌. 답을 받아 `ai/decisions.md`에 한 줄씩 적은 뒤에 짠다. 질문이 0개면 "결정할 것 없음"이라고 말하고 넘어간다.
-2. **구현.** 브랜치 `refac/<문제-요약>`. 우선순위 절 순서로 짠다. 커밋 전 `npm run lint`와 `npm run build` 통과.
+2. **구현.** 브랜치 `refac/<문제-요약>`. 우선순위 절 순서로 짠다. 커밋 전 `pnpm lint`와 `pnpm build` 통과.
 3. **Codex 리뷰.** `review` 트리거(아래)로 돌린다. 결과는 `ai/reviews/YYYY-MM-DD_<주제>.md`.
 4. **사람 검토.** P0과 P1은 고쳐서 다시 리뷰. P2와 P3는 번호로 올리고 반영 여부를 묻는다. 안 고치기로 한 것은 이유와 함께 `ai/decisions.md`에 적는다.
 5. **마무리.** 커밋 본문 끝에 `리뷰: ai/reviews/<파일>` 한 줄. 블로그 소재가 되는 문제(쿼리 키, 오류 분리, SSE)는 결정 기록 행 번호를 같이 적어 둔다.
@@ -173,7 +174,7 @@ Claude가 짠 코드는 커밋 전에 **Codex 리뷰**(`codex_review`)를 받고
 
 ### `ship`
 사용자가 `ship` 을 입력하면 다음을 순서대로 실행:
-1. `npm run build` 실행 → 실패 시 즉시 중단 후 에러 보고
+1. `pnpm build` 실행 → 실패 시 즉시 중단 후 에러 보고
 2. 빌드 성공 시 `git add .`
 3. `git diff --cached` 로 변경 내용 분석 후 커밋 메시지 자동 생성 (커밋 타입 규칙 `feat|fix|refac|test|chore|docs` 준수)
 4. `git commit -m "[생성된 메시지]"`

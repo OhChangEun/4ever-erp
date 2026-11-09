@@ -4,9 +4,9 @@
   "private": true,
   "engines": {
     "node": ">=24 <25",
-    "npm": ">=11"
+    "pnpm": ">=10"
   },
-  "packageManager": "npm@11.16.0",
+  "packageManager": "pnpm@10.34.8",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,7 +24,8 @@
     "perf": "node scripts/measure-bundle.mjs && playwright test -c playwright.perf.config.ts",
     "openapi": "openapi-typescript openapi/everp.yaml -o src/lib/api/openapi.gen.ts",
     "bundle:check": "node scripts/measure-bundle.mjs --json > .next/bundle.json && node scripts/bundle-diff.mjs perf/bundle-baseline.json .next/bundle.json",
-    "bundle:baseline": "node scripts/measure-bundle.mjs --json > perf/bundle-baseline.json"
+    "bundle:baseline": "node scripts/measure-bundle.mjs --json > perf/bundle-baseline.json",
+    "verify": "turbo run lint type-check test:run test"
   },
   "lint-staged": {
     "*.{ts,tsx,mjs,js}": "eslint --no-warn-ignored",
@@ -62,6 +63,7 @@
     "@axe-core/playwright": "4.14.0",
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@everp/eslint-plugin": "workspace:*",
     "@playwright/test": "^1.65.0",
     "@tailwindcss/postcss": "^4.1.14",
     "@testing-library/dom": "^10.4.2",
@@ -86,6 +88,7 @@
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.14",
+    "turbo": "2.11.8",
     "typescript": "^5",
     "vitest": "^5.1.0",
     "yaml": "^2.9.1"

@@ -335,8 +335,8 @@ src/
 ---
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 > 백엔드 서버 없이도 MSW Mock API로 전체 기능을 확인할 수 있습니다.
