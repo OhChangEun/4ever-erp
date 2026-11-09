@@ -22,23 +22,23 @@ describe('토스트', () => {
         <Trigger />
       </ToastProvider>,
     );
-    act(() => screen.getByRole('button', { name: '알림' }).click());
+    void act(() => screen.getByRole('button', { name: '알림' }).click());
   };
 
   it('보이고, 시간이 지나면 사라진다(사라지는 애니메이션 뒤 제거)', () => {
     show();
     expect(screen.getByText('저장했습니다.')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(1000));
+    void act(() => vi.advanceTimersByTime(1000));
     // 사라지는 중에는 아직 DOM 에 있다
     expect(screen.getByText('저장했습니다.')).toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(300));
+    void act(() => vi.advanceTimersByTime(300));
     expect(screen.queryByText('저장했습니다.')).not.toBeInTheDocument();
   });
 
   it('닫기 버튼으로 바로 닫는다(이름이 있는 버튼)', () => {
     show();
-    act(() => screen.getByRole('button', { name: '알림 닫기' }).click());
-    act(() => vi.advanceTimersByTime(300));
+    void act(() => screen.getByRole('button', { name: '알림 닫기' }).click());
+    void act(() => vi.advanceTimersByTime(300));
     expect(screen.queryByText('저장했습니다.')).not.toBeInTheDocument();
   });
 

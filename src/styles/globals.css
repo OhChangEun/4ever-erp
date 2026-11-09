@@ -1,6 +1,56 @@
 @import 'tailwindcss';
 @import 'remixicon/fonts/remixicon.css';
 
+/* 짧은 등장, 사라짐 효과. framer-motion(70KB) 대신 CSS 로(성능 4 카드).
+   움직임 줄이기 설정은 아래 base 의 prefers-reduced-motion 규칙이 0.01ms 로 줄인다 */
+@theme {
+  --animate-fadeIn: fade-in 150ms ease-out both;
+  /* 프로필 드롭다운 2곳은 하이픈 이름을 쓴다. 같은 효과 */
+  --animate-fade-in: fade-in 150ms ease-out both;
+  --animate-pop-in: pop-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  --animate-toast-in: toast-in 200ms ease-out both;
+  --animate-toast-out: toast-out 200ms ease-in both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes toast-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+  }
+}
+
 /* Tailwind 유틸리티(font-sans / font-mono)가 next/font 변수를 쓰도록 연결 */
 @theme inline {
   --font-sans: var(--font-noto-sans-kr), var(--font-geist-sans), sans-serif;
