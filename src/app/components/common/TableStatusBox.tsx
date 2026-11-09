@@ -1,6 +1,6 @@
 'use client';
 
-import { errorMessageOf } from '@/lib/AppError';
+import { errorMessageOf, requestIdLabelOf } from '@/lib/AppError';
 
 interface TableStatusBoxProps {
   type: 'loading' | 'error' | 'empty';
@@ -28,6 +28,9 @@ const TableStatusBox = ({ type, message, error }: TableStatusBoxProps) => {
         <i aria-hidden="true" className="ri-error-warning-line text-2xl text-red-500" />
         <p className="text-sm text-gray-700">{message}</p>
         {error != null && <p className="text-xs text-gray-500">{errorMessageOf(error)}</p>}
+        {requestIdLabelOf(error) && (
+          <p className="text-xs text-gray-500 tabular-nums">{requestIdLabelOf(error)}</p>
+        )}
       </div>
     );
   }

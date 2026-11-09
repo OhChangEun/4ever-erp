@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { NESTED_LAYER_SELECTOR, PopoverRootContext } from '../PopoverPortal';
+import ErrorBoundary from '../ErrorBoundary';
 
 interface ModalContainerProps {
   children: React.ReactNode;
@@ -83,7 +84,27 @@ const ModalContainer = ({
           </div>
           {/* 본문 */}
           <div className="p-5 flex-1 overflow-y-auto custom-scroll min-h-0">
-            <PopoverRootContext.Provider value={contentEl}>{children}</PopoverRootContext.Provider>
+            <PopoverRootContext.Provider value={contentEl}>
+              {/* 모달 안에서 던져도 이 모달만 오류로 바뀐다. 뒤 화면과 입력 중인 다른 상태는 그대로(옵저버빌리티 1) */}
+              <ErrorBoundary
+                name={`modal:${title ?? ''}`}
+                fallback={() => (
+                  <div role="alert" className="flex flex-col items-center gap-3 py-10 text-center">
+                    <i aria-hidden="true" className="ri-error-warning-line text-3xl text-red-500" />
+                    <p className="text-sm text-gray-700">이 창을 그리는 중 오류가 발생했습니다.</p>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="h-8 px-3 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                    >
+                      창 닫기
+                    </button>
+                  </div>
+                )}
+              >
+                {children}
+              </ErrorBoundary>
+            </PopoverRootContext.Provider>
           </div>
         </Dialog.Content>
       </div>

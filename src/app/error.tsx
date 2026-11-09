@@ -5,24 +5,33 @@ import { useRouter } from 'next/navigation';
 import IconButton from '@/app/components/common/IconButton';
 import Flex from '@/app/components/common/Flex';
 
-export default function GlobalError({ error, reset }: { error: Error; reset?: () => void }) {
+/** 앱 층 오류 경계. (private) 밖(로그인 등)에서 깨지면 여기로 온다. 운영에서는 stack 대신 digest(옵저버빌리티 1) */
+export default function AppError({
+  error,
+  retry,
+}: {
+  error: Error & { digest?: string };
+  retry?: () => void;
+}) {
   const router = useRouter();
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const isDev = process.env.NODE_ENV === 'development';
 
   useEffect(() => {
-    // 기록: 콘솔 및 (선택적) 외부 모니터링 호출 지점
-    console.error('[GlobalError]', error);
-    // 예: Sentry.captureException(error) — 연동 시 여기에 추가
+    // 외부 수집(Sentry)을 붙이면 여기서 captureException
+    console.error('[AppError]', error);
   }, [error]);
 
   const handleRetry = () => {
-    if (typeof reset === 'function') return reset();
+    if (typeof retry === 'function') return retry();
     return router.push('/');
   };
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(`${error?.message ?? ''}\n\n${error?.stack ?? ''}`);
+      await navigator.clipboard.writeText(
+        `${error.message}\n\n${isDev ? (error.stack ?? '') : `오류 ID ${error.digest ?? '-'}`}`,
+      );
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 3000);
     } catch {
@@ -76,7 +85,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset?: ()
               />
             </Flex>
             <pre className="text-xs bg-gray-100 p-3 rounded overflow-auto max-h-48 text-left">
-              {error?.stack}
+              {isDev ? error.stack : `오류 ID ${error.digest ?? '-'}`}
             </pre>
           </div>
         </Flex>
