@@ -1,30 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { MM, SD, IM, FCM, HRM, PP } from '@/lib/role';
+import { canAccessPage } from '@/lib/authz/policy';
 import { SESSION_COOKIE, verifySession } from '@/lib/auth/session';
-
-const ACCESS_RULES = [
-  {
-    path: '/dashboard',
-    roles: [
-      'ALL_ADMIN',
-      ...MM,
-      ...HRM,
-      ...FCM,
-      ...IM,
-      ...PP,
-      ...SD,
-      'SUPPLIER_ADMIN',
-      'CUSTOMER_ADMIN',
-    ],
-  },
-  { path: '/purchase', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'SUPPLIER_ADMIN'] },
-  { path: '/sales', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'CUSTOMER_ADMIN'] },
-  { path: '/inventory', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] },
-  { path: '/finance', roles: ['ALL_ADMIN', ...FCM, 'SUPPLIER_ADMIN', 'CUSTOMER_ADMIN'] },
-  { path: '/hrm', roles: ['ALL_ADMIN', ...HRM] },
-  { path: '/production', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] },
-];
 
 // 접근 제어는 서버가 한다.
 // 브라우저가 쓸 수 있는 role 쿠키 대신, 서버가 서명한 세션 쿠키(httpOnly)를 검증해서 role을 꺼낸다.
@@ -44,10 +21,8 @@ export async function proxy(req: NextRequest) {
     return res;
   }
 
-  // 2. 경로별 role 검사 - 세션 안의 role만 믿는다
-  const role = session.role.trim().toUpperCase();
-  const rule = ACCESS_RULES.find((r) => pathname.startsWith(r.path));
-  if (rule && !rule.roles.includes(role)) {
+  // 2. 경로별 role 검사 - 세션 안의 role만 믿는다. 규칙 표는 src/lib/authz/policy.ts 하나
+  if (!canAccessPage(session.role, pathname)) {
     return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 

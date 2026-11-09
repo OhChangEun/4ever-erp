@@ -28,15 +28,12 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 
 ## 3. 인증과 인가 (지금)
 
-- 로그인은 데모 계정 선택이다. `/api/auth/login` 이 `DEMO_ACCOUNTS` 에 있는 아이디면 통과시키고 (`src/app/api/auth/login/route.ts:35`) HS256 으로 서명한 JWT 를 httpOnly 쿠키 `session` 에 심는다 (`:48`, 서명은 `src/lib/auth/session.ts:32`, 검증은 `:42`, 만료 1일 `:37`).
-- 페이지 접근은 `src/proxy.ts` 가 막는다. 쿠키 검증 (`src/proxy.ts:36`) 뒤 경로별 role 표 (`:6`) 로 비교 (`:49`). matcher 는 공개 경로만 빼는 denylist (`:60`). Next 16 부터 파일 이름이 `middleware.ts` 에서 `proxy.ts` 로 바뀌었고 Node 런타임이 기본이다.
+- 로그인은 데모 계정 선택이다. `/api/auth/login` 이 `DEMO_ACCOUNTS` 에 있는 아이디면 통과시키고 (`src/app/api/auth/login/route.ts:35`) HS256 으로 서명한 JWT 를 httpOnly 쿠키 `session` 에 심는다 (`:48`, 서명은 `src/lib/auth/session.ts:40`, 검증은 `:50`, 만료 1일 `:45`).
+- 페이지 접근은 `src/proxy.ts` 가 막는다. 쿠키 검증 (`src/proxy.ts:13`) 뒤 역할 표로 판정 (`:25`). matcher 는 공개 경로만 빼는 denylist (`:35`). Next 16 부터 파일 이름이 `middleware.ts` 에서 `proxy.ts` 로 바뀌었고 Node 런타임이 기본이다.
+- 권한 규칙은 표 하나다 (`src/lib/authz/policy.ts:66`). 페이지 프록시, API 프록시, 메뉴 2곳이 같이 읽는다. 역할은 `Role` 유니온 15개이고 목록 밖 역할이 든 세션은 무효다.
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
 - 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽 `src/server/auth/pkce.ts` 로 옮겼다(3단계 OIDC 클라이언트용).
-
-알려진 빚:
-
-- role 상수가 두 벌이다 (`src/lib/role.ts:1`, `src/app/types/role.constant.ts:1`). 페이지 규칙표와 프록시 규칙표도 모양이 다른 채 둘이다.
 
 ## 4. 인증과 인가 (목표)
 
@@ -136,7 +133,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 | 이름                       | 어디서   | 뜻                                                                                             |
 | -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `SESSION_SECRET`           | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:8`) |
+| `SESSION_SECRET`           | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:9`) |
 | `BACKEND_API_URL`          | 서버     | 업스트림. 없으면 `/api/[...slug]` 목                                                           |
 | `NEXT_PUBLIC_API_BASE_URL` | 브라우저 | 기본 `/api/proxy`                                                                              |
 | `NEXT_PUBLIC_API_MOCKING`  | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                        |

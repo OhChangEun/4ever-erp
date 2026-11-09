@@ -1,6 +1,6 @@
 import { SESSION_COOKIE, verifySession } from '@/lib/auth/session';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
-import { MM, SD, IM, FCM, HRM, PP } from '@/lib/role';
+import { canAccessApi } from '@/lib/authz/policy';
 import { NextRequest, NextResponse } from 'next/server';
 
 // BFF 프록시 - 브라우저는 세션 쿠키만 보내고, 백엔드가 요구하는 Bearer 토큰은 서버에서 붙인다.
@@ -17,28 +17,8 @@ const DROP_REQUEST_HEADERS = ['cookie', 'host', 'content-length', 'connection'];
 // 업스트림 응답에서 그대로 돌려줄 헤더 - 인코딩·전송 관련 헤더는 Node fetch가 이미 풀어놓았으므로 제외
 const KEEP_RESPONSE_HEADERS = ['content-type', 'cache-control'];
 
-// 도메인별 인가 규칙 - 페이지(middleware ACCESS_RULES)와 같은 role 집합을 프록시에서도 강제한다.
-// 규칙에 없는 공유 경로(dashboard, business/profile, scm-pp/product, alarm)는 로그인만 되면 통과.
-// prefix는 업스트림 경로(/api/proxy 뒤) 기준. 긴 prefix가 먼저 오도록 둔다.
-const PROXY_ACCESS_RULES: { prefix: string; roles: string[] }[] = [
-  { prefix: 'business/hrm', roles: ['ALL_ADMIN', ...HRM] }, // 인사(내부 전용)
-  { prefix: 'business/fcm', roles: ['ALL_ADMIN', ...FCM, 'SUPPLIER_ADMIN', 'CUSTOMER_ADMIN'] }, // 재무
-  { prefix: 'business/sd', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'CUSTOMER_ADMIN'] }, // 영업
-  { prefix: 'scm-pp/mm', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'SUPPLIER_ADMIN'] }, // 구매(공급사 화면이 이 경로를 쓴다)
-  { prefix: 'scm-pp/iv', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] }, // 재고
-  { prefix: 'scm-pp/sales-orders', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] }, // 재고 출하(INVENTORY_ENDPOINTS)
-  { prefix: 'scm-pp/purchase-orders', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] }, // 재고 입고(INVENTORY_ENDPOINTS)
-  { prefix: 'scm-pp/pp', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] }, // 생산
-];
-
-// business/hrm 중 "본인 셀프서비스"는 HRM 권한 없이도 허용(프로필 화면의 근태·휴가 신청·본인 정보).
-// 관리자용 PII 경로(employee 목록, payroll 등)는 위 규칙대로 HRM 역할만.
-const HRM_SELF_SERVICE = new Set([
-  'business/hrm/attendance/check-in',
-  'business/hrm/attendance/check-out',
-  'business/hrm/leave/request',
-  'business/hrm/employees/by-internel-user',
-]);
+// 도메인별 인가 규칙은 페이지와 같은 표(src/lib/authz/policy.ts)에서 읽는다.
+// 표에 없는 공유 경로(dashboard, business/profile, scm-pp/product, alarm)는 로그인만 되면 통과.
 
 function resolveUpstreamBase(req: NextRequest): string {
   const configured = process.env.BACKEND_API_URL;
@@ -93,11 +73,7 @@ async function handle(req: NextRequest, ctx: RouteContext) {
     );
   }
 
-  const role = session.role.trim().toUpperCase();
-  const proxyRule = HRM_SELF_SERVICE.has(upstreamPath)
-    ? undefined
-    : PROXY_ACCESS_RULES.find((r) => upstreamPath.startsWith(r.prefix));
-  if (proxyRule && !proxyRule.roles.includes(role)) {
+  if (!canAccessApi(session.role, upstreamPath)) {
     return NextResponse.json(
       { status: 403, success: false, message: '접근 권한이 없습니다.' },
       { status: 403 },

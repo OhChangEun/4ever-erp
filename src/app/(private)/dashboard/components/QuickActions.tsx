@@ -3,6 +3,7 @@
 import { useRole } from '@/app/hooks/useRole';
 import { ActionCard } from './ActionCard';
 import { allActions } from '../dashboard.utils';
+import { hasRole } from '@/lib/authz/policy';
 
 const QuickActions = () => {
   const role = useRole();
@@ -13,7 +14,7 @@ const QuickActions = () => {
   // const role = 'FCM_USER';
   // const role = 'HRM_USER';
   // const role = 'PP_USER';
-  const visibleActions = allActions.filter((a) => a.roles?.includes(role));
+  const visibleActions = allActions.filter((a) => hasRole(a.roles, role));
   return (
     <div className="card-base p-6">
       <div className="flex items-center space-x-2 mb-6">
