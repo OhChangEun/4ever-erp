@@ -32,6 +32,10 @@ tester.run('domain-boundary', plugin.rules['domain-boundary'], {
       code: "import { purchaseRequestKeys } from '@/app/(private)/purchase';",
       filename: at('src/app/(private)/inventory/inventory.mutations.ts'),
     },
+    {
+      code: "import { NewOrderModal } from '@/app/(private)/sales/ui';",
+      filename: at('src/app/(private)/dashboard/components/ActionCard.tsx'),
+    },
     // 라우트 공용(_로 시작)
     {
       code: "import P from '../_RouteProviders';",

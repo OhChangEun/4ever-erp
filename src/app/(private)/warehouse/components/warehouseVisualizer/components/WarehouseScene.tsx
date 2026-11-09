@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { STOCK_COLORS } from '../stockColors';
 import { SceneProps } from '../WarehouseVisualizerType';
 import { useCursor, Text } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
@@ -169,14 +170,12 @@ const WarehouseScene = ({
                   // Hover logic
                   const isHovered = hoveredId === item.itemId;
                   // Color logic with highlight on hover
-                  let color: string;
-                  if (item.isLowStock) {
-                    color = isHovered ? '#f87171' : '#ef4444';
-                  } else if (item.fillRatio < 1) {
-                    color = isHovered ? '#fbbf24' : '#f59e0b';
-                  } else {
-                    color = isHovered ? '#60a5fa' : '#2563eb';
-                  }
+                  const tone = item.isLowStock
+                    ? STOCK_COLORS.low
+                    : item.fillRatio < 1
+                      ? STOCK_COLORS.warning
+                      : STOCK_COLORS.normal;
+                  const color = isHovered ? tone.hover : tone.base;
                   return (
                     <mesh
                       key={`box-${item.itemId}`}

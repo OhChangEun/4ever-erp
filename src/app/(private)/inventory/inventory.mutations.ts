@@ -18,15 +18,15 @@ import {
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
-import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
-import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
-import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
+import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock';
+import { createStockPurchaseRequest } from '@/app/(private)/purchase';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
+import { salesOrderKeys } from '@/app/(private)/sales';
 import type {
   markAsReadyRequest,
   markAsReadyToShipResponse,
 } from './types/ShippingDetailModalType';
-import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase';
 import type { AddInventoryItemsRequest } from './types/AddInventoryModalType';
 import type {
   InventoryDetailResponse,

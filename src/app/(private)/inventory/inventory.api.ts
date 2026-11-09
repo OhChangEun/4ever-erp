@@ -2,7 +2,7 @@ import { InventoryStatResponse } from './types/InventoryStatsType';
 import axios from '@/lib/axiosInstance';
 import { InventoryQueryParams, InventoryResponse } from './types/InventoryListType';
 import { InventoryDetailResponse, StockMovementRequest } from './types/InventoryDetailModalType';
-import { LowStockItemResponse } from '../low-stock/types/LowStockAlertType';
+import type { LowStockItemResponse } from '@/app/(private)/low-stock';
 import { StockMovementResponse } from './types/StockMovement';
 import {
   ManageMentCommonQueryParams,
