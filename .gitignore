@@ -33,3 +33,5 @@ pnpm-debug.log*
 
 # 테스트 커버리지
 coverage/
+.vercel
+.env*

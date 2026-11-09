@@ -1,6 +1,6 @@
 // @vitest-environment node
 // 서버 전용 모듈이라 jsdom 이 아니라 Node 로 돌린다. jsdom 에선 Uint8Array realm 이 달라 jose 가 키를 거부한다.
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SignJWT } from 'jose';
 import { signSession, verifySession } from './session';
 
@@ -45,5 +45,23 @@ describe('session 쿠키 서명과 검증', () => {
 
   it('깨진 문자열은 throw 하지 않고 null 이다', async () => {
     await expect(verifySession('not-a-jwt')).resolves.toBeNull();
+  });
+});
+
+describe('SESSION_SECRET 이 없을 때', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  it('import 는 되고(빌드가 죽지 않는다), 서명과 검증을 부를 때 throw 한다', async () => {
+    vi.stubEnv('SESSION_SECRET', '');
+    vi.resetModules();
+    const fresh = await import('./session');
+    await expect(fresh.signSession({ sub: 'admin', role: 'ALL_ADMIN' })).rejects.toThrow(
+      /SESSION_SECRET/,
+    );
+    // null 이면 "로그인이 풀렸다"로 보여 설정 오류를 숨긴다. 조용히 넘어가지 않는다.
+    await expect(fresh.verifySession('a.b.c')).rejects.toThrow(/SESSION_SECRET/);
   });
 });
