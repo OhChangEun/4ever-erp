@@ -51,4 +51,11 @@ describe('Table', () => {
     await userEvent.click(screen.getByText('너트'));
     expect(onRowClick).toHaveBeenCalledWith(rows[1], 1);
   });
+
+  it('isStale 이면 aria-busy 로 갱신 중을 알린다', () => {
+    const { rerender } = render(<Table columns={columns} data={rows} keyExtractor={(r) => r.id} />);
+    expect(screen.getByRole('table')).not.toHaveAttribute('aria-busy');
+    rerender(<Table columns={columns} data={rows} keyExtractor={(r) => r.id} isStale />);
+    expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
+  });
 });

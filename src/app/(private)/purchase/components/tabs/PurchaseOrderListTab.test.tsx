@@ -147,3 +147,53 @@ describe('발주 승인 중복 제출 방지', () => {
     expect(approveCalls).toBe(1);
   });
 });
+
+describe('발주 목록 페이지 전환', () => {
+  it('다음 페이지를 받는 동안 이전 행을 흐리게 남기고 로딩 상자를 보이지 않는다', async () => {
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const row = (n: number) => ({
+      purchaseOrderId: `po-${n}`,
+      purchaseOrderNumber: `PO-PAGE-${n}`,
+      supplierName: '대양상사',
+      itemsSummary: '원자재',
+      orderDate: '2026-01-08',
+      dueDate: '2026-01-30',
+      totalAmount: 1000,
+      statusCode: 'APPROVAL',
+    });
+    server.use(
+      http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, async ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page') ?? 0);
+        if (page === 1) await held;
+        return ok({
+          content: [row(page)],
+          page: { number: page, size: 10, totalElements: 20, totalPages: 2, hasNext: page === 0 },
+        });
+      }),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<PurchaseOrderListTab />);
+    // 옵션이 로드되면 검색 타입이 바뀌어 키가 한 번 더 바뀐다. 그것까지 끝난 안정 상태를 기다린다
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/불러오는 중입니다/)).not.toBeInTheDocument();
+        expect(screen.getByText('PO-PAGE-0')).toBeInTheDocument();
+        expect(screen.getByRole('table')).not.toHaveAttribute('aria-busy');
+        expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    await user.click(screen.getByRole('button', { name: '2' }));
+    await waitFor(() => expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true'));
+    expect(screen.getByText('PO-PAGE-0')).toBeInTheDocument();
+    expect(screen.queryByText(/불러오는 중입니다/)).not.toBeInTheDocument();
+
+    release();
+    expect(await screen.findByText('PO-PAGE-1')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('table')).not.toHaveAttribute('aria-busy'));
+  });
+});
