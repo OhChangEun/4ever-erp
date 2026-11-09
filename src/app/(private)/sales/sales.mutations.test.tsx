@@ -1,7 +1,12 @@
 import { describe, it } from 'vitest';
 import { expectMatrix } from '@/test/mutationMatrix';
 import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
-import { useConfirmQuotation, useCreateQuote, useProcessDelivery } from './sales.mutations';
+import {
+  useConfirmQuotation,
+  useCreateCustomer,
+  useCreateQuote,
+  useProcessDelivery,
+} from './sales.mutations';
 
 const FOREIGN = ['purchase', 'orders', 'list'];
 const QUOTE_LIST = quoteKeys.list({ page: 0, size: 10 });
@@ -53,5 +58,25 @@ describe('영업 mutation 훅', () => {
         salesStatsKeys.byRole('ALL_ADMIN'),
       ],
       keeps: [CUSTOMER_LIST, FOREIGN],
+    }));
+
+  it('고객 등록(생성, 낙관적 없음) → 고객 목록만', () =>
+    expectMatrix({
+      name: '',
+      useHook: useCreateCustomer,
+      variables: {
+        companyName: '신규상사',
+        businessNumber: '123-45-67890',
+        ceoName: '홍길동',
+        contactPhone: '02-000-0000',
+        contactEmail: 'a@b.c',
+        zipCode: '00000',
+        address: '서울',
+        detailAddress: '',
+        manager: { name: '김담당', mobile: '010-0000-0000', email: 'm@b.c' },
+        note: '',
+      },
+      invalidates: [CUSTOMER_LIST],
+      keeps: [QUOTE_LIST, ORDER_LIST, FOREIGN],
     }));
 });

@@ -3,7 +3,7 @@ import { type ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createTestQueryClient } from '@/test/render';
-import { useInvalidatingMutation } from './useInvalidatingMutation';
+import { optimisticPatch, useInvalidatingMutation } from './useInvalidatingMutation';
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={createTestQueryClient()}>{children}</QueryClientProvider>
@@ -63,5 +63,66 @@ describe('useInvalidatingMutation 중복 제출 안전망', () => {
     );
     await Promise.all([result.current.mutateAsync('a'), result.current.mutateAsync('b')]);
     expect(mutationFn).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('useInvalidatingMutation 낙관적 업데이트', () => {
+  interface Row {
+    id: string;
+    name: string;
+  }
+  interface ListCache {
+    data: Row[];
+  }
+  const PAGE_0 = ['test', 'rows', 'list', { page: 0 }];
+  const PAGE_1 = ['test', 'rows', 'list', { page: 1 }];
+  const LIST_PREFIX = ['test', 'rows', 'list'];
+
+  const setup = (fail: boolean) => {
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData<ListCache>(PAGE_0, { data: [{ id: 'a', name: '옛 이름' }] });
+    queryClient.setQueryData<ListCache>(PAGE_1, { data: [{ id: 'b', name: '다른 행' }] });
+    const local = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, { id: string; name: string }>({
+          mutationKey: ['test', 'rename'],
+          mutationFn: () =>
+            delayed('ok', 30).then((value) => (fail ? Promise.reject(new Error('500')) : value)),
+          effects: () => [LIST_PREFIX],
+          optimistic: ({ id, name }) => [
+            optimisticPatch<ListCache>(LIST_PREFIX, (old) => ({
+              ...old,
+              data: old.data.map((row) => (row.id === id ? { ...row, name } : row)),
+            })),
+          ],
+        }),
+      { wrapper: local },
+    );
+    return { queryClient, result };
+  };
+
+  it('응답 전에 prefix 가 같은 모든 페이지 캐시에 적용한다', async () => {
+    const { queryClient, result } = setup(false);
+    act(() => result.current.mutate({ id: 'a', name: '새 이름' }));
+    await waitFor(() =>
+      expect(queryClient.getQueryData<ListCache>(PAGE_0)?.data[0]?.name).toBe('새 이름'),
+    );
+    expect(queryClient.getQueryData<ListCache>(PAGE_1)?.data[0]?.name).toBe('다른 행');
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(queryClient.getQueryState(PAGE_0)?.isInvalidated).toBe(true));
+  });
+
+  it('실패하면 원래 값으로 되돌리고, 그래도 무효화한다', async () => {
+    const { queryClient, result } = setup(true);
+    act(() => result.current.mutate({ id: 'a', name: '새 이름' }));
+    await waitFor(() =>
+      expect(queryClient.getQueryData<ListCache>(PAGE_0)?.data[0]?.name).toBe('새 이름'),
+    );
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData<ListCache>(PAGE_0)?.data[0]?.name).toBe('옛 이름');
+    await waitFor(() => expect(queryClient.getQueryState(PAGE_0)?.isInvalidated).toBe(true));
   });
 });
