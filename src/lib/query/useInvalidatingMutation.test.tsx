@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { AppError } from '@/lib/AppError';
 import { type ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -202,5 +203,38 @@ describe('겹치는 낙관적 mutation 은 같은 범위에서 한 줄로 선다
       expect(result.current.move.isError).toBe(true);
     });
     expect(queryClient.getQueryData<Item>(KEY)).toEqual({ stock: 100, safety: 10 });
+  });
+});
+
+describe('409 충돌이면 화면을 서버에 맞춘다', () => {
+  const KEY = ['test', 'conflict', 'detail'];
+  const run = async (error: Error) => {
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(KEY, { version: 'v1' });
+    const local = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, void>({
+          mutationKey: ['test', 'conflict'],
+          mutationFn: () => Promise.reject(error),
+          effects: () => [KEY],
+        }),
+      { wrapper: local },
+    );
+    act(() => result.current.mutate());
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    return queryClient;
+  };
+
+  it('409 면 무효화 키를 다시 가져오게 표시한다', async () => {
+    const queryClient = await run(new AppError('conflict', '먼저 수정됨', { status: 409 }));
+    await waitFor(() => expect(queryClient.getQueryState(KEY)?.isInvalidated).toBe(true));
+  });
+
+  it('500 이면 서버가 안 바뀌었으니 무효화하지 않는다', async () => {
+    const queryClient = await run(new AppError('server', '서버 오류', { status: 500 }));
+    expect(queryClient.getQueryState(KEY)?.isInvalidated).toBe(false);
   });
 });
