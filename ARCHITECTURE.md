@@ -79,14 +79,14 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 ## 7. 환경 변수
 
-| 이름                       | 어디서                     | 뜻                                                      |
-| -------------------------- | -------------------------- | ------------------------------------------------------- |
-| `SESSION_SECRET`           | 서버. 없으면 시작 시 throw | 세션 JWT 서명 키                                        |
-| `BACKEND_API_URL`          | 서버                       | 업스트림. 없으면 `/api/[...slug]` 목                    |
-| `NEXT_PUBLIC_API_BASE_URL` | 브라우저                   | 기본 `/api/proxy`                                       |
-| `NEXT_PUBLIC_API_MOCKING`  | 브라우저                   | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`) |
+| 이름                       | 어디서   | 뜻                                                                                             |
+| -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `SESSION_SECRET`           | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:8`) |
+| `BACKEND_API_URL`          | 서버     | 업스트림. 없으면 `/api/[...slug]` 목                                                           |
+| `NEXT_PUBLIC_API_BASE_URL` | 브라우저 | 기본 `/api/proxy`                                                                              |
+| `NEXT_PUBLIC_API_MOCKING`  | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                        |
 
-CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 한다. 2026-11-09 PR #1 의 첫 preview 배포가 Preview 환경에 값이 없어 `src/lib/auth/session.ts:7` 에서 throw 하며 실패했다. 값은 환경마다 다르게 두고(`openssl rand -base64 32`), 사람이 Vercel 대시보드나 `vercel env add SESSION_SECRET preview` 로 넣는다.
+CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 로그인이 된다. 2026-11-09 PR #1 머지 뒤 배포 7건이 Vercel 에 env 가 하나도 없어 `session.ts` import 시점 throw 로 실패했다. 같은 날 비밀키 읽기를 호출 시점으로 옮겨 빌드는 env 없이도 통과하게 했고, `vercel env add SESSION_SECRET production|preview` 로 환경마다 다른 값을 넣었다(`openssl rand -base64 32`). 교체는 `vercel env rm` 뒤 다시 add.
 
 ## 8. 도구와 검증
 

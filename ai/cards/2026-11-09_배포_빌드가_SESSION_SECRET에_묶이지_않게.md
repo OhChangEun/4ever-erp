@@ -62,7 +62,11 @@ AI 가 정했다(사용자 "더 안 건드린다", "Vercel 실패도 확인해�
 
 ## 전후 표 (3단계)
 
-(3단계에서 채움)
+| 항목                     | 전                                                       | 후                                   | 측정 방법                                                 |
+| ------------------------ | -------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
+| env 없이 `npm run build` | 실패 (`Failed to collect page data for /api/auth/login`) | 통과                                 | `.env.local` 치우고 `env -u SESSION_SECRET npm run build` |
+| 비밀키 읽는 시점         | import                                                   | `signSession`, `verifySession` 호출  | 테스트 1개                                                |
+| Vercel env               | 0개                                                      | `SESSION_SECRET` Production, Preview | `vercel env ls`                                           |
 
 ## 별도 보고
 
@@ -71,7 +75,7 @@ AI 가 정했다(사용자 "더 안 건드린다", "Vercel 실패도 확인해�
 
 ## 리뷰 (4단계)
 
-(4단계에서 채움)
+`ai/reviews/2026-11-09_배포_SESSION_SECRET.md`. P0~P3 전부 0.
 
 ## findings (5단계)
 

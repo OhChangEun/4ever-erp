@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './src/test/msw-server';
 
-// session.ts 는 import 시점에 SESSION_SECRET 을 읽는다. 테스트 전용 값.
+// session.ts 는 서명과 검증을 부를 때 SESSION_SECRET 을 읽는다. 테스트 전용 값.
 process.env.SESSION_SECRET ??= 'test-secret-32-bytes-long-for-vitest-only';
 
 // 핸들러에 없는 요청은 통과시키지 않고 실패시킨다(fail-closed).
