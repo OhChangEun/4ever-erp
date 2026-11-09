@@ -1,24 +1,9 @@
-export interface AddInventoryItemsToggleResponse {
-  itemId: string;
-  unitPrice: number;
-  supplierCompanyName: string;
-  uomName: string;
-  supplierCompanyId: string;
-  itemName: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type AddInventoryItemsToggleResponse = Schema<'AddInventoryItemsToggleResponse'>;
 
-export interface WarehouseToggleResponse {
-  warehouseId: string;
-  warehouseName: string;
-  warehouseNumber: string;
-}
+export type WarehouseToggleResponse = Schema<'WarehouseToggleResponse'>;
 
-export interface AddInventoryItemsRequest {
-  itemId: string;
-  safetyStock: number;
-  currentStock: number;
-  warehouseId: string;
-}
+export type AddInventoryItemsRequest = Schema<'AddInventoryItemsRequest'>;
 
 export interface WarehouseToggleQueryParams {
   warehouseId: string;

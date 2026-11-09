@@ -1,29 +1,8 @@
-export interface EmployeeData {
-  employeeId: string;
-  employeeName: string;
-  position: string;
-  hireDate: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type EmployeeData = Schema<'HrmEmployeeData'>;
 
-export interface DepartmentsData {
-  departmentId: string;
-  departmentNumber: string;
-  departmentName: string;
-  description: string;
-  managerName: string;
-  managerId: string;
-  location: string;
-  statusCode: string;
-  employeeCount: number;
-  establishedDate: string;
-  employees: EmployeeData[];
-}
+export type DepartmentsData = Schema<'DepartmentsData'>;
 
-export interface DepartmentsListResponse {
-  content: DepartmentsData[];
-}
+export type DepartmentsListResponse = Schema<'DepartmentsListResponse'>;
 
-export interface DepartmentsRequestBody {
-  managerId: string;
-  description: string;
-}
+export type DepartmentsRequestBody = Schema<'DepartmentsRequestBody'>;

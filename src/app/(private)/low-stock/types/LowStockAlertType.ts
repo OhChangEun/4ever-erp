@@ -1,8 +1,2 @@
-export interface LowStockItemResponse {
-  itemId: string;
-  itemName: string;
-  currentStock: number;
-  uomName: string;
-  safetyStock: number;
-  statusCode: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type LowStockItemResponse = Schema<'LowStockItemResponse'>;

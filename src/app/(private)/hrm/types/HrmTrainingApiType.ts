@@ -1,40 +1,13 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface TrainingListData {
-  employeeId: string;
-  name: string;
-  department: string;
-  position: string;
-  completedCount: number;
-  inProgressCount: number;
-  requiredMissingCount: number;
-  lastTrainingDate: string;
-}
+export type TrainingListData = Schema<'TrainingListData'>;
 
-export interface TrainingListResponse {
-  items: TrainingListData[];
-  page: Page;
-}
+export type TrainingListResponse = Schema<'TrainingListResponse'>;
 
 export interface TrainingRequestParams extends PageRequest {
   department?: string;
   name?: string;
 }
 
-export interface TrainingDetailResponse {
-  employeeId: string;
-  // employeeNumber: string;
-  employeeName: string;
-  department: string;
-  position: string;
-  completedCount: number;
-  // inProgressCount: number;
-  requiredMissingCount: number;
-  lastTrainingDate: string;
-  programHistory: {
-    programId: string;
-    programName: string;
-    programStatus: 'COMPLETED' | 'INCOMPLETED';
-    completedAt: string;
-  }[];
-}
+export type TrainingDetailResponse = Schema<'TrainingDetailResponse'>;

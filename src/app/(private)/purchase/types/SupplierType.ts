@@ -1,4 +1,5 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 import { KeywordRequest } from '@/app/types/KeywordType';
 
 // 공급업체 카테고리 코드
@@ -13,77 +14,25 @@ export interface SupplierListParams extends PageRequest, KeywordRequest {
 }
 
 // 자재 정보
-export interface Material {
-  materialName: string; // 제품명
-  uomCode: string; // 단위
-  unitPrice: number; // 단가
-}
+export type Material = Schema<'Material'>;
 
 // 공급업체 담당자 정보
-export interface ManagerInfo {
-  managerName: string;
-  managerPhone: string;
-  managerEmail: string;
-}
+export type ManagerInfo = Schema<'ManagerInfo'>;
 
 // 공급업체 정보
-export interface SupplierInfo {
-  supplierId: string;
-  supplierName: string;
-  supplierNumber: string;
-  supplierEmail: string;
-  supplierPhone: string;
-  supplierBaseAddress: string;
-  supplierDetailAddress: string | null;
-  supplierStatusCode: SupplierStatus;
-  category: SupplierCategory;
-  deliveryLeadTime: number; // 납기일 (단위: 일)
-}
+export type SupplierInfo = Schema<'SupplierInfo'>;
 
 // 공급업체 목록 한 줄
-export interface SupplierListItem {
-  statusCode: string; // 삭제 예정
-  supplierInfo: SupplierInfo;
-}
+export type SupplierListItem = Schema<'SupplierListItem'>;
 
 // 공급업체 목록 응답
-export interface SupplierListResponse {
-  content: SupplierListItem[];
-  page: Page;
-}
+export type SupplierListResponse = Schema<'SupplierListResponse'>;
 
 // 공급업체 상세
-export interface SupplierDetail {
-  supplierInfo: SupplierInfo;
-  managerInfo: ManagerInfo;
-}
+export type SupplierDetail = Schema<'SupplierDetail'>;
 
 // 공급업체 등록 바디
-export interface CreateSupplierBody {
-  supplierInfo: {
-    supplierName: string;
-    supplierEmail: string;
-    supplierPhone: string;
-    supplierBaseAddress: string;
-    supplierDetailAddress?: string | null;
-    category: string;
-    deliveryLeadTime: number;
-  };
-  managerInfo: ManagerInfo;
-  materialList: Material[];
-}
+export type CreateSupplierBody = Schema<'CreateSupplierBody'>;
 
 // 공급업체 수정 바디
-export interface UpdateSupplierBody {
-  supplierName: string;
-  supplierEmail: string;
-  supplierPhone: string;
-  supplierBaseAddress: string;
-  supplierDetailAddress: string;
-  category: string;
-  statusCode: string;
-  deliverLeadTime: number;
-  managerName: string;
-  managerPhone: string;
-  managerEmail: string;
-}
+export type UpdateSupplierBody = Schema<'UpdateSupplierBody'>;

@@ -1,9 +1,4 @@
-export interface MrpOrdersSelectedItems {
-  quotationId: string;
-  itemId: string;
-  quantity: number;
-}
+import type { Schema } from '@/lib/api/contract';
+export type MrpOrdersSelectedItems = Schema<'MrpOrdersSelectedItems'>;
 
-export interface MrpOrdersConvertReqeustBody {
-  items: MrpOrdersSelectedItems[];
-}
+export type MrpOrdersConvertReqeustBody = Schema<'MrpOrdersConvertReqeustBody'>;

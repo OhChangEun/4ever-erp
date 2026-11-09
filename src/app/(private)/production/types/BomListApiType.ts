@@ -1,18 +1,7 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface BomListData {
-  bomId: string;
-  bomNumber: string;
-  productId: string;
-  productNumber: string;
-  productName: string;
-  version: string;
-  statusCode: string;
-  lastModifiedAt: string;
-}
-export interface BomListResponse {
-  page: Page;
-  content: BomListData[];
-}
+export type BomListData = Schema<'BomListData'>;
+export type BomListResponse = Schema<'BomListResponse'>;
 
 export type BomListRequestParams = PageRequest;

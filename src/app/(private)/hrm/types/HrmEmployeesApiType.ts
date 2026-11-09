@@ -1,25 +1,9 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface EmployeeData {
-  employeeId: string;
-  employeeNumber: string;
-  name: string;
-  email: string;
-  phone: string;
-  position: string;
-  department: string;
-  statusCode: string;
-  hireDate: string;
-  birthDate: string;
-  address: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type EmployeeData = Schema<'EmployeeData'>;
 
-export interface EmployeeListResponse {
-  content: EmployeeData[];
-  page: Page;
-}
+export type EmployeeListResponse = Schema<'EmployeeListResponse'>;
 
 // 응답 요청시 request params
 export interface EmployeeListRequestParams extends PageRequest {
@@ -27,20 +11,6 @@ export interface EmployeeListRequestParams extends PageRequest {
   name?: string;
 }
 
-export interface EmployeeRegisterRequest {
-  name: string;
-  departmentId: string;
-  positionId: string;
-  email: string;
-  phoneNumber: string;
-  hireDate: string;
-  birthDate: string;
-  baseAddress: string;
-  detailAddress: string;
-}
+export type EmployeeRegisterRequest = Schema<'EmployeeRegisterRequest'>;
 
-export interface EmployeeUpdateRequest {
-  employeeName: string;
-  departmentId: string;
-  positionId: string;
-}
+export type EmployeeUpdateRequest = Schema<'EmployeeUpdateRequest'>;

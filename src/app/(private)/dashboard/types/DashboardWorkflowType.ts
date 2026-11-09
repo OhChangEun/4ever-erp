@@ -1,16 +1,5 @@
-export interface DashboardWorkflowRes {
-  tabs: {
-    tabCode: string;
-    items: {
-      itemId: string;
-      itemTitle: string;
-      itemNumber: string;
-      name: string;
-      statusCode: string;
-      date: string;
-    }[];
-  }[];
-}
+import type { Schema } from '@/lib/api/contract';
+export type DashboardWorkflowRes = Schema<'DashboardWorkflowRes'>;
 
 export interface DashboardProps {
   workflowData?: DashboardWorkflowRes;

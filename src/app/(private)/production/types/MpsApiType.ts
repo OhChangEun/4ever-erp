@@ -1,20 +1,10 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
 // 주별 수요/생산 데이터
-export interface WeekData {
-  week: string; // 예: "2025-12-1W"
-  demand: number;
-  requiredInventory: number;
-  productionNeeded: number;
-  plannedProduction: number;
-}
+export type WeekData = Schema<'WeekData'>;
 
-export interface MpsListResponse {
-  bomId: string;
-  productName: string;
-  content: WeekData[];
-  page: Page;
-}
+export type MpsListResponse = Schema<'MpsListResponse'>;
 
 export interface MpsListParams extends PageRequest {
   bomId: string;

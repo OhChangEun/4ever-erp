@@ -1,11 +1,5 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
-interface InventoryStat {
-  total_stock: Stat;
-  store_complete: Stat;
-  store_pending: Stat;
-  delivery_complete: Stat;
-  delivery_pending: Stat;
-}
+type InventoryStat = Schema<'InventoryStat'>;
 
-export type InventoryStatResponse = StatResponse<InventoryStat>;
+export type InventoryStatResponse = Schema<'InventoryStatResponse'>;

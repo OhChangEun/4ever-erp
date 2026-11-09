@@ -1,25 +1,7 @@
-export interface ProductionListResponse {
-  salesOrderId: string;
-  salesOrderNumber: string;
-  customerName: string;
-  orderDate: string;
-  dueDate: string;
-  progress: number;
-  totalAmount: number;
-  statusCode: 'PRODUCTION';
-}
+import type { Schema } from '@/lib/api/contract';
+export type ProductionListResponse = Schema<'ProductionListResponse'>;
 
-export interface ReadyToShipListResponse {
-  salesOrderId: string;
-  salesOrderNumber: string;
-  customerName: string;
-  orderDate: string;
-  dueDate: string;
-  productionCompletionDate: string;
-  readyToShipDate: string;
-  totalAmount: number;
-  statusCode: 'READT_TO_SHIP';
-}
+export type ReadyToShipListResponse = Schema<'ReadyToShipListResponse'>;
 
 export interface ManageMentCommonQueryParams {
   page?: number;

@@ -1,20 +1,5 @@
-export interface InventoryResponse {
-  itemId: string;
-  itemNumber: string;
-  itemName: string;
-  category: string;
-  currentStock: number;
-  forShipmentStock: number;
-  reservedStock: number;
-  safetyStock: number;
-  uomName: string;
-  unitPrice: number;
-  totalAmount: number;
-  warehouseName: string;
-  warehouseType: string;
-  statusCode: string;
-  shelfNumber?: number;
-}
+import type { Schema } from '@/lib/api/contract';
+export type InventoryResponse = Schema<'InventoryResponse'>;
 
 export interface InventoryQueryParams {
   statusCode?: string;

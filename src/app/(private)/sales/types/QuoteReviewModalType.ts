@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface Quote {
@@ -17,16 +18,7 @@ export interface InventoryItem {
   available: boolean;
 }
 
-export interface InventoryCheckRes {
-  itemId: string;
-  itemName: string;
-  requiredQuantity: number;
-  inventoryQuantity: number;
-  shortageQuantity: number;
-  statusCode: string;
-  productionRequired: boolean;
-  inventoryCheckTime: string;
-}
+export type InventoryCheckRes = Schema<'InventoryCheckRes'>;
 
 export interface QuoteReviewModalProps extends ModalProps {
   selectedQuotationId: string;

@@ -1,4 +1,5 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
 export interface PayrollRequestParams extends PageRequest {
   year: number;
@@ -8,55 +9,16 @@ export interface PayrollRequestParams extends PageRequest {
   statusCode?: string;
 }
 
-export interface EmployeeSummary {
-  employeeId: string;
-  employeeName: string;
-  departmentId: string;
-  department: string;
-  positionId: string;
-  position: string;
-}
+export type EmployeeSummary = Schema<'HrmEmployeeSummary'>;
 
-export interface PaySummary {
-  basePay: number;
-  overtimePay: number;
-  deduction: number;
-  netPay: number;
-  statusCode: string;
-}
+export type PaySummary = Schema<'PaySummary'>;
 
-export interface PayRollList {
-  payrollId: string;
-  employee: EmployeeSummary;
-  pay: PaySummary;
-}
+export type PayRollList = Schema<'PayRollList'>;
 
-export interface PayRollListResponse {
-  content: PayRollList[];
-  page: Page;
-}
+export type PayRollListResponse = Schema<'PayRollListResponse'>;
 
-export interface PayItemData {
-  itemContent: string;
-  itemSum: number;
-}
+export type PayItemData = Schema<'PayItemData'>;
 
-export interface PayRollDetailResponse {
-  payrollId: string;
-  employee: EmployeeSummary;
-  pay: {
-    basePay: number; // 기본급
-    basePayItem: PayItemData[];
-    overtimePay: number; // 초과 근무비
-    overtimePayItem: PayItemData[];
-    deduction: number; // 공제액
-    deductionItem: PayItemData[];
-    netPay: number; // 실지급액
-  };
-  statusCode: string;
-  expectedDate: string;
-}
+export type PayRollDetailResponse = Schema<'PayRollDetailResponse'>;
 
-export interface PayRollCompleteRequestParams {
-  payrollId: string;
-}
+export type PayRollCompleteRequestParams = Schema<'PayRollCompleteRequestParams'>;

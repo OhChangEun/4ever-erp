@@ -1,33 +1,12 @@
-import { QuoteStatus } from '@/app/(private)/sales/types/SalesQuoteListType';
+import type { Schema } from '@/lib/api/contract';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface QuoteDetailModalProps extends ModalProps {
   selectedQuotationId: string;
 }
 
-export interface QuoteDetail {
-  quotationId: string;
-  quotationNumber: string;
-  quotationDate: string;
-  dueDate: string;
-  statusCode: QuoteStatus;
-  customerName: string;
-  ceoName: string;
-  items: Item[];
-  totalAmount: number;
-}
+export type QuoteDetail = Schema<'QuoteDetail'>;
 
-interface Item {
-  itemId: string;
-  itemName: string;
-  quantity: number;
-  uomName: string;
-  unitPrice: number;
-  amount: number;
-}
+type Item = Schema<'Item'>;
 
-export interface Inventories {
-  itemId: string;
-
-  requiredQuantity: number;
-}
+export type Inventories = Schema<'Inventories'>;

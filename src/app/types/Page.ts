@@ -1,10 +1,5 @@
-export interface Page {
-  number: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  hasNext: boolean;
-}
+import type { Schema } from '@/lib/api/contract';
+export type Page = Schema<'Page'>;
 
 export interface PageRequest {
   page?: number;

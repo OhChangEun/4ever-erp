@@ -1,39 +1,8 @@
-export interface MesOperationManagerData {
-  id: number;
-  name: string;
-}
+import type { Schema } from '@/lib/api/contract';
+export type MesOperationManagerData = Schema<'MesOperationManagerData'>;
 
-export interface MesOperationData {
-  mesOperationLogId: string;
-  operationNumber: string;
-  operationName: string;
-  sequence: number;
-  statusCode: string;
-  startedAt: string;
-  finishedAt: string;
-  durationHours: number;
-  manager: MesOperationManagerData;
-  canStart: boolean;
-  canComplete: boolean;
-}
+export type MesOperationData = Schema<'MesOperationData'>;
 
-export interface MesPlanData {
-  startDate: string;
-  dueDate: string;
-}
+export type MesPlanData = Schema<'MesPlanData'>;
 
-export interface MesDetailResponse {
-  mesId: string;
-  mesNumber: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  uomName: string;
-  progressPercent: number;
-  statusCode: string;
-  plan: MesPlanData;
-  currentOperation: string;
-  operations: MesOperationData[];
-  canStartMes: boolean;
-  canCompleteMes: boolean;
-}
+export type MesDetailResponse = Schema<'MesDetailResponse'>;

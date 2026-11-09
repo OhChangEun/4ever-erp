@@ -1,19 +1,6 @@
+import type { Schema } from '@/lib/api/contract';
 export type CustomerStatus = 'ALL' | 'ACTIVE' | 'DEACTIVE';
-export interface SalesCustomer {
-  customerId: string;
-  customerNumber: string;
-  customerName: string;
-  manager: {
-    managerName: string;
-    managerPhone: string;
-    managerEmail: string;
-  };
-  address: string;
-  totalTransactionAmount: number;
-  orderCount: number;
-  lastOrderDate: string;
-  statusCode: string;
-}
+export type SalesCustomer = Schema<'SalesCustomer'>;
 
 export interface CustomerQueryParams {
   status?: string;

@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 export type QuoteStatus = 'ALL' | 'APPROVED' | 'REVIEW' | 'PENDING' | 'REJECTED';
 
 export interface QuoteItem {
@@ -7,16 +8,7 @@ export interface QuoteItem {
   unitPrice: number;
 }
 
-export interface Quote {
-  quotationId: string;
-  quotationNumber: string;
-  customerName: string;
-  managerName: string;
-  quotationDate: string;
-  dueDate: string;
-  totalAmount: number;
-  statusCode: string;
-}
+export type Quote = Schema<'Quote'>;
 
 export interface QuoteFormItem {
   id: number;

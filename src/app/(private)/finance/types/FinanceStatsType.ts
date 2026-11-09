@@ -1,14 +1,8 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
-interface FinanceStat {
-  total_purchases: Stat;
-  net_profit: Stat;
-  total_sales: Stat;
-}
+type FinanceStat = Schema<'FinanceStat'>;
 
-interface CustomerSupplierStat {
-  total_amount: Stat;
-}
+type CustomerSupplierStat = Schema<'CustomerSupplierStat'>;
 
-export type FinanceStatResponse = StatResponse<FinanceStat>;
-export type CustomerSupplierStatResponse = StatResponse<CustomerSupplierStat>;
+export type FinanceStatResponse = Schema<'FinanceStatResponse'>;
+export type CustomerSupplierStatResponse = Schema<'CustomerSupplierStatResponse'>;

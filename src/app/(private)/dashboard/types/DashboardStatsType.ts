@@ -1,10 +1,5 @@
-import { Stat, StatResponse } from '@/app/types/StatType';
+import type { Schema } from '@/lib/api/contract';
 
-interface DashboardStat {
-  total_sales: Stat;
-  total_purchases: Stat;
-  net_profit: Stat;
-  total_employees: Stat;
-}
+type DashboardStat = Schema<'DashboardStat'>;
 
-export type DashboardStatRes = StatResponse<DashboardStat>;
+export type DashboardStatRes = Schema<'DashboardStatRes'>;

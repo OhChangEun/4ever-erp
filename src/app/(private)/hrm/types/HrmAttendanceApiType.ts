@@ -1,29 +1,11 @@
-import { Page, PageRequest } from '@/app/types/Page';
+import type { Schema } from '@/lib/api/contract';
+import { PageRequest } from '@/app/types/Page';
 
-export interface EmployeeInfo {
-  employeeId: string;
-  employeeName: string;
-  departmentId: string;
-  department: string;
-  positionId: string;
-  position: string;
-}
+export type EmployeeInfo = Schema<'EmployeeInfo'>;
 
-export interface AttendanceListData {
-  timerecordId: string;
-  employee: EmployeeInfo;
-  workDate: string; // YYYY-MM-DD
-  checkInTime: string; // ISO 8601: YYYY-MM-DDTHH:mm:ss
-  checkOutTime: string; // ISO 8601
-  totalWorkMinutes: number;
-  overtimeMinutes: number;
-  statusCode: string; // "ON_TIME" 등
-}
+export type AttendanceListData = Schema<'AttendanceListData'>;
 
-export interface AttendanceListResponse {
-  content: AttendanceListData[];
-  page: Page;
-}
+export type AttendanceListResponse = Schema<'AttendanceListResponse'>;
 
 export interface AttendanceRequestParams extends PageRequest {
   date: string;

@@ -58,7 +58,7 @@ const responseSchema = (
         }),
       }),
     })
-    .parse(contract.paths[path]?.[method]);
+    .parse(contract.paths[path][method]);
   const relink = (value: unknown): unknown =>
     JSON.parse(JSON.stringify(value).replaceAll('#/components/schemas/', '#/$defs/'));
   const root = jsonSchema.parse(
@@ -91,7 +91,7 @@ describe('OpenAPI 계약: 창고', () => {
     const contract = loadContract();
     const missing = WAREHOUSE_CALLS.filter(([method, url]) => {
       const path = findPath(contract.paths, url);
-      return !path || !contract.paths[path]?.[method];
+      return !path || !contract.paths[path][method];
     }).map(([method, url]) => `${method.toUpperCase()} ${url}`);
     expect(missing).toEqual([]);
   });
@@ -164,10 +164,16 @@ const loadEndpointUrls = async () => {
   return urls;
 };
 
+const stripComments = (source: string) =>
+  source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+
 const usedEndpointNames = () =>
   new Set(
     API_FILES.flatMap((file) => [
-      ...readFileSync(file, 'utf8').matchAll(/\b([A-Z_]+_ENDPOINTS)\.([A-Z0-9_]+)\b/g),
+      // 주석 처리된 옛 코드의 상수는 세지 않는다
+      ...stripComments(readFileSync(file, 'utf8')).matchAll(
+        /\b([A-Z_]+_ENDPOINTS)\.([A-Z0-9_]+)\b/g,
+      ),
     ]).map((m) => `${m[1]}.${m[2]}`),
   );
 
@@ -184,7 +190,7 @@ describe('OpenAPI 계약: 전 도메인', () => {
 
   it('계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
     const contract = loadContract();
-    const gets = Object.keys(contract.paths).filter((p) => contract.paths[p]?.get);
+    const gets = Object.keys(contract.paths).filter((p) => contract.paths[p].get);
     expect(gets.length).toBeGreaterThan(60);
     const failures: string[] = [];
     for (const template of gets) {
