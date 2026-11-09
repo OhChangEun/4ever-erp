@@ -2,7 +2,6 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ToastItem, ToastType } from '@/app/components/common/toast/types';
 import { useIsClient } from '@/app/hooks/useMediaQuery';
 
@@ -48,6 +47,9 @@ const STYLES: Record<ToastType, { wrap: string; icon: string; text: string }> = 
   },
 };
 
+/** 사라지는 애니메이션 길이(--animate-toast-out 과 같게) */
+const LEAVE_MS = 200;
+
 const DEFAULT_DURATION: Record<ToastType, number> = {
   success: 3000,
   info: 3000,
@@ -63,30 +65,37 @@ function ToastItemComponent({
   onRemove: (id: string) => void;
 }) {
   const s = STYLES[toast.type];
+  // 사라지는 중. CSS 애니메이션(200ms) 동안 DOM 에 남겼다가 지운다
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => onRemove(toast.id), toast.duration);
+    const timer = setTimeout(() => setLeaving(true), toast.duration);
     return () => clearTimeout(timer);
-  }, [toast.id, toast.duration, onRemove]);
+  }, [toast.duration]);
+
+  useEffect(() => {
+    if (!leaving) return;
+    const timer = setTimeout(() => onRemove(toast.id), LEAVE_MS);
+    return () => clearTimeout(timer);
+  }, [leaving, toast.id, onRemove]);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: -16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-      transition={{ duration: 0.2 }}
-      className={`flex items-center gap-3 w-80 px-4 py-3 rounded-xl border shadow-lg ${s.wrap}`}
+    <div
+      className={`flex items-center gap-3 w-80 px-4 py-3 rounded-xl border shadow-lg ${s.wrap} ${
+        leaving ? 'animate-toast-out' : 'animate-toast-in'
+      }`}
     >
-      <i className={`${ICONS[toast.type]} ${s.icon} text-lg mt-0.5 shrink-0`} />
+      <i aria-hidden="true" className={`${ICONS[toast.type]} ${s.icon} text-lg mt-0.5 shrink-0`} />
       <p className={`text-sm leading-snug flex-1 ${s.text}`}>{toast.message}</p>
       <button
-        onClick={() => onRemove(toast.id)}
+        type="button"
+        aria-label="알림 닫기"
+        onClick={() => setLeaving(true)}
         className={`${s.icon} opacity-60 hover:opacity-100 cursor-pointer shrink-0 leading-none`}
       >
-        <i className="ri-close-line text-base" />
+        <i aria-hidden="true" className="ri-close-line text-base" />
       </button>
-    </motion.div>
+    </div>
   );
 }
 
@@ -112,14 +121,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {mounted &&
         createPortal(
-          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-toast flex flex-col gap-2 pointer-events-none items-center">
-            <AnimatePresence initial={false}>
-              {toasts.map((toast) => (
-                <div key={toast.id} className="pointer-events-auto">
-                  <ToastItemComponent toast={toast} onRemove={removeToast} />
-                </div>
-              ))}
-            </AnimatePresence>
+          // 알림 영역. 새 토스트를 스크린리더가 읽는다(polite: 하던 말을 끊지 않음)
+          <div
+            role="status"
+            aria-live="polite"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-toast flex flex-col gap-2 pointer-events-none items-center"
+          >
+            {toasts.map((toast) => (
+              <div key={toast.id} className="pointer-events-auto">
+                <ToastItemComponent toast={toast} onRemove={removeToast} />
+              </div>
+            ))}
           </div>,
           document.body,
         )}

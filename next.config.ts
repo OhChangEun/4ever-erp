@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
   // 실험적 기능들
   experimental: {
     // 큰 라이브러리들의 import 최적화
-    optimizePackageImports: ['recharts', '@tanstack/react-query', 'framer-motion'],
+    optimizePackageImports: ['recharts', '@tanstack/react-query'],
   },
 
   // Turbopack 설정 (빈 객체로 에러 회피)

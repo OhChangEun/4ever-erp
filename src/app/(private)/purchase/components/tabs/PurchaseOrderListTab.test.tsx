@@ -45,7 +45,8 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
     // 옵션 로드 뒤 쿼리 키가 한 번 더 바뀌므로 로딩이 완전히 끝난 상태를 기다린다.
     await waitFor(
       () => {
-        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        // 로딩 표시(TableStatusBox). 토스트 알림 영역도 status 라 글자로 특정한다
+        expect(screen.queryByText(/불러오는 중/)).not.toBeInTheDocument();
         expect(screen.getByText('PO-2026-001')).toBeInTheDocument();
       },
       { timeout: 3000 },
