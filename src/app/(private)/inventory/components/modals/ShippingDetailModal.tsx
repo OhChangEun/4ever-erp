@@ -124,9 +124,10 @@ const ShippingDetailModal = ({
                 },
               });
             }}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer"
+            disabled={isPending}
+            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
-            배송 시작
+            {isPending ? '처리 중...' : '배송 시작'}
           </button>
         </div>
       )}

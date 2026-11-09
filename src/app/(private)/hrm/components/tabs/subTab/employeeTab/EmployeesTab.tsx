@@ -139,11 +139,17 @@ export default function EmployeesTab() {
           placeholder="전체 부서"
           items={departmentsOptions}
           value={selectedDepartment}
-          onChange={(dept: string) => setSelectedDepartment(dept)}
+          onChange={(dept: string) => {
+            setSelectedDepartment(dept);
+            handleFilterChange();
+          }}
         />
         <Input
           value={keyword}
-          onChange={handleKeywordChange}
+          onChange={(event) => {
+            handleKeywordChange(event);
+            handleFilterChange();
+          }}
           icon="ri-search-line"
           placeholder="직원 이름 검색"
         />

@@ -446,7 +446,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">
-          <Button label={editMode ? '수정' : '생성'} type="submit" />
+          <Button label={editMode ? '수정' : '생성'} type="submit" disabled={isPending} />
         </div>
       </form>
     </div>

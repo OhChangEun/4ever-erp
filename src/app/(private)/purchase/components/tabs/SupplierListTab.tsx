@@ -46,7 +46,6 @@ export default function SupplierListTab() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedSearchType, setSelectedSearchType] = useState<string>('');
-  const [keyword, setKeyword] = useState<string>('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -56,11 +55,10 @@ export default function SupplierListTab() {
       category: selectedCategory,
       statusCode: selectedStatus,
       type: selectedSearchType,
-      keyword: keyword,
       page: currentPage - 1,
       size: pageSize,
     }),
-    [selectedCategory, selectedStatus, selectedSearchType, keyword, currentPage],
+    [selectedCategory, selectedStatus, selectedSearchType, currentPage],
   );
 
   // React Query로 데이터 가져오기 - 쿼리 파라미터 전달

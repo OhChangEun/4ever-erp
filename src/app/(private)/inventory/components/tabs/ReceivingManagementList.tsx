@@ -1,10 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  RECEIVING_COMPLETED_TABLE_HEADERS,
-  RECEIVING_PENDING_TABLE_HEADERS,
-} from '../../inventory.constants';
+import {} from '../../inventory.constants';
 import { useQuery } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
 import { ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
@@ -20,12 +17,6 @@ const ReceivingManagementList = () => {
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubTab, setSelectedSubTab] = useState('pending');
-
-  const getTableHeader = () => {
-    return selectedSubTab === 'pending'
-      ? RECEIVING_PENDING_TABLE_HEADERS
-      : RECEIVING_COMPLETED_TABLE_HEADERS;
-  };
 
   useEffect(() => {
     setCurrentPage(1);

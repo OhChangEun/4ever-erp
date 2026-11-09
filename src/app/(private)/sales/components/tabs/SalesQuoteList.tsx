@@ -27,7 +27,6 @@ const SalesQuoteList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('quotationNumber');
   const [statusFilter, setStatusFilter] = useState<QuoteStatus>('ALL');
-  const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string>('');
 
   const [startDate, setStartDate] = useState('');
@@ -78,7 +77,6 @@ const SalesQuoteList = () => {
     setSelectedQuotationId((prev) => (prev === quotationId ? '' : quotationId));
   };
   const handleViewReview = () => {
-    setShowReviewModal(true);
     openModal(QuoteReviewModal, {
       width: '900px',
       title: '견적 검토 요청',

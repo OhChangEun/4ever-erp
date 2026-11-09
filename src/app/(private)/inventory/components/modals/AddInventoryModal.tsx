@@ -274,9 +274,10 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
         </button>
         <button
           type="submit"
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer"
+          disabled={isAddingMaterial}
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
-          추가
+          {isAddingMaterial ? '추가 중...' : '추가'}
         </button>
       </div>
     </form>

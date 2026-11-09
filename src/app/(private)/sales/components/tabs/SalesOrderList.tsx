@@ -22,7 +22,6 @@ import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
 const SalesOrderList = () => {
   const { openModal } = useModal();
-  const [selectedSalesOrderId, setSelectedSalesOrderId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('salesOrderNumber');
 
@@ -58,7 +57,6 @@ const SalesOrderList = () => {
   const pageInfo = orderRes?.pageData;
 
   const handleViewOrder = (id: string) => {
-    setSelectedSalesOrderId(id);
     openModal(SalesOrderDetailModal, {
       width: '900px',
       title: `주문 상세 정보`,
