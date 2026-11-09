@@ -1,5 +1,6 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
+import { isRole, type Role } from '@/lib/authz/policy';
 
 // 1. 비밀키 준비 - 쓰는 시점에 읽는다. import 시점에 읽으면 Next 빌드가 라우트 모듈을
 //    평가하다가 env 없는 빌드 머신에서 죽는다(2026-11-09 Vercel 배포 7건 실패).
@@ -19,7 +20,7 @@ function getSecret(): Uint8Array {
 // 2. 세션 payload 타입 - 쿠키 안에 들어갈 값
 export interface SessionPayload {
   sub: string; // loginId (JWT 표준 claim "subject")
-  role: string;
+  role: Role; // 역할 표(src/lib/authz/policy.ts)에 있는 값만. 아니면 세션 무효
 }
 
 // 3. 검증 후 payload type guard
@@ -30,7 +31,8 @@ function isSessionPayload(value: unknown): value is SessionPayload {
     'sub' in value &&
     typeof value.sub === 'string' &&
     'role' in value &&
-    typeof value.role === 'string'
+    typeof value.role === 'string' &&
+    isRole(value.role)
   );
 }
 

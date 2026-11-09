@@ -1,4 +1,10 @@
 import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
+import type { Role } from '@/lib/authz/policy';
+
+/** 데모 사용자. 세션에 넣는 role 이 역할 표에 있는 값임을 타입으로 보장한다 */
+export interface DemoUser extends userInfoResponse {
+  role: Role;
+}
 
 // 데모 계정 목록과 사용자 정보 생성만 담당한다.
 // 누가 로그인했는지는 브라우저가 아니라 서버 세션 쿠키(/api/auth/*)가 기억한다.
@@ -6,7 +12,7 @@ import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
 export interface DemoAccount {
   loginId: string;
   displayName: string;
-  role: string;
+  role: Role;
   department: string;
   icon: string;
   menus: string[];
@@ -83,7 +89,7 @@ const ACCOUNT_MAP: Record<string, DemoAccount> = Object.fromEntries(
   DEMO_ACCOUNTS.map((a) => [a.loginId, a]),
 );
 
-export function buildMockUser(loginId?: string): userInfoResponse {
+export function buildMockUser(loginId?: string): DemoUser {
   const key = (loginId ?? '').trim().toLowerCase() || 'admin';
   const account = ACCOUNT_MAP[key];
 

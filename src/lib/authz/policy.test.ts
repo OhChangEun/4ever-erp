@@ -13,7 +13,20 @@ const HRM = ['HRM_USER', 'HRM_ADMIN'];
 const PP = ['PP_USER', 'PP_ADMIN'];
 
 const OLD_PAGE_RULES = [
-  { path: '/dashboard', roles: ['ALL_ADMIN', ...MM, ...HRM, ...FCM, ...IM, ...PP, ...SD, 'SUPPLIER_ADMIN', 'CUSTOMER_ADMIN'] },
+  {
+    path: '/dashboard',
+    roles: [
+      'ALL_ADMIN',
+      ...MM,
+      ...HRM,
+      ...FCM,
+      ...IM,
+      ...PP,
+      ...SD,
+      'SUPPLIER_ADMIN',
+      'CUSTOMER_ADMIN',
+    ],
+  },
   { path: '/purchase', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'SUPPLIER_ADMIN'] },
   { path: '/sales', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'CUSTOMER_ADMIN'] },
   { path: '/inventory', roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] },
@@ -47,7 +60,16 @@ const oldApi = (role: string, path: string) => {
   return !rule || rule.roles.includes(role);
 };
 
-const PAGES = ['/dashboard', '/purchase', '/sales?tab=orders', '/inventory', '/finance', '/hrm', '/production/x', '/profile'];
+const PAGES = [
+  '/dashboard',
+  '/purchase',
+  '/sales?tab=orders',
+  '/inventory',
+  '/finance',
+  '/hrm',
+  '/production/x',
+  '/profile',
+];
 const APIS = [
   'business/hrm/employee',
   'business/hrm/attendance/check-in',
@@ -77,7 +99,8 @@ describe('인가 표 하나', () => {
   });
 
   it.each(ROLES)('%s: 예전 프록시 표와 같은 판정', (role: Role) => {
-    for (const api of APIS) expect([api, canAccessApi(role, api)]).toEqual([api, oldApi(role, api)]);
+    for (const api of APIS)
+      expect([api, canAccessApi(role, api)]).toEqual([api, oldApi(role, api)]);
   });
 
   it('의도한 변화: 창고와 안전재고 화면은 재고 API 를 쓰는 역할만 들어간다', () => {

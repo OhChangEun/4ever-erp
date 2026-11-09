@@ -1,7 +1,7 @@
 'use client';
 
 import { useRole } from '@/app/hooks/useRole';
-import { FCM, HRM, IM, MM, PP, SD } from '@/lib/role';
+import { hasRole, menuRoles } from '@/lib/authz/policy';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebarStore } from '@/store/sidebarStore';
@@ -12,43 +12,43 @@ const NAV_ITEMS = [
     href: '/dashboard',
     label: '대시보드',
     icon: 'ri-dashboard-line',
-    roles: ['ALL_ADMIN', ...MM, ...HRM, ...FCM, ...IM, ...PP, ...SD, 'CUSTOMER_ADMIN'],
+    roles: menuRoles('/dashboard'),
   },
   {
     href: '/sales',
     label: '영업관리',
     icon: 'ri-line-chart-line',
-    roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'CUSTOMER_ADMIN'],
+    roles: menuRoles('/sales'),
   },
   {
     href: '/production',
     label: '생산관리',
     icon: 'ri-settings-3-line',
-    roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP],
+    roles: menuRoles('/production'),
   },
   {
     href: '/purchase',
     label: '구매관리',
     icon: 'ri-shopping-cart-line',
-    roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP, 'SUPPLIER_ADMIN'],
+    roles: menuRoles('/purchase'),
   },
   {
     href: '/inventory',
     label: '재고관리',
     icon: 'ri-archive-line',
-    roles: ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP],
+    roles: menuRoles('/inventory'),
   },
   {
     href: '/finance',
     label: '재무관리',
     icon: 'ri-money-dollar-circle-line',
-    roles: ['ALL_ADMIN', ...FCM, 'CUSTOMER_ADMIN', 'SUPPLIER_ADMIN'],
+    roles: menuRoles('/finance'),
   },
   {
     href: '/hrm',
     label: '인적자원관리',
     icon: 'ri-team-line',
-    roles: ['ALL_ADMIN', ...HRM],
+    roles: menuRoles('/hrm'),
   },
 ] as const;
 
@@ -81,7 +81,7 @@ export default function SidebarNavigation({ isExpanded }: SidebarNavigationProps
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role)).map((item) => ({
+  const accessibleNavItems = NAV_ITEMS.filter((item) => hasRole(item.roles, role)).map((item) => ({
     ...item,
     label: getNavLabel(item.href, role) ?? item.label,
   }));

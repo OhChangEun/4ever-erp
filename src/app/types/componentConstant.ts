@@ -7,7 +7,7 @@ import SalesChart from '@/app/(private)/sales/components/tabs/SalesChart';
 import ShippingManagementList from '@/app/(private)/inventory/components/tabs/ShippingManagementList';
 import InventoryList from '@/app/(private)/inventory/components/tabs/InventoryList';
 import ReceivingManagementList from '@/app/(private)/inventory/components/tabs/ReceivingManagementList';
-import { ALL } from './role.constant';
+import { INTERNAL_ROLES } from '@/lib/authz/policy';
 
 // 재무 관리 탭 전환
 export const FINANCE_TABS: Tab[] = [
@@ -16,14 +16,14 @@ export const FINANCE_TABS: Tab[] = [
     name: '매출 전표 관리',
     icon: 'ri-money-dollar-circle-line',
     component: InvoiceList,
-    roles: [...ALL, 'SUPPLIER_ADMIN'],
+    roles: [...INTERNAL_ROLES, 'SUPPLIER_ADMIN'],
   },
   {
     id: 'purchase',
     name: '매입 전표 관리',
     icon: 'ri-shopping-cart-line',
     component: InvoiceList,
-    roles: [...ALL, 'CUSTOMER_ADMIN'],
+    roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
 ];
 
@@ -34,28 +34,28 @@ export const SALES_TABS: Tab[] = [
     name: '견적 관리',
     icon: 'ri-file-text-line',
     component: SalesQuoteList,
-    roles: [...ALL, 'CUSTOMER_ADMIN'],
+    roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
   {
     id: 'orders',
     name: '주문 관리',
     icon: 'ri-shopping-cart-line',
     component: SalesOrderList,
-    roles: [...ALL, 'CUSTOMER_ADMIN'],
+    roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
   {
     id: 'customers',
     name: '고객 관리',
     icon: 'ri-user-3-line',
     component: SalesCustomerList,
-    roles: [...ALL],
+    roles: [...INTERNAL_ROLES],
   },
   {
     id: 'analytics',
     name: '매출 분석',
     icon: 'ri-bar-chart-line',
     component: SalesChart,
-    roles: [...ALL],
+    roles: [...INTERNAL_ROLES],
   },
 ];
 

@@ -1,4 +1,4 @@
-import { FCM, HRM, IM, MM, PP, SD } from '@/lib/role';
+import { FCM, HRM, IM, MM, PP, SD, type Role } from '@/lib/authz/policy';
 
 export const getTabCodeText = (tabCode: string | undefined) => {
   switch (tabCode) {
@@ -38,7 +38,16 @@ export const getColorClasses = (color: string) => {
   return colorMap[color] ?? { bg: 'bg-blue-100', icon: 'text-blue-600' };
 };
 
-export const allActions = [
+export interface QuickAction {
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  href: string;
+  roles: readonly Role[];
+}
+
+export const allActions: QuickAction[] = [
   // ------------ 구매 관리 ------------
   {
     title: '구매 요청',
