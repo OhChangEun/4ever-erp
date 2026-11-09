@@ -141,7 +141,7 @@ src/
   app/(private)/<domain>/   page.tsx, <domain>.api.ts, <domain>.service.ts, <domain>.keys.ts, components/, types/
   app/(public)/             login, callback(옛 흔적, /login 으로 리다이렉트만), profile, unauthorized
   app/api/                  auth/*, proxy/[...path], [...slug](서버 목, MSW 핸들러를 서버에서 돌림)
-  app/components/common/    공통 UI 30개. 새로 만들기 전에 여기서 고칠 수 있는지 먼저
+  app/components/common/    앱 모델에 묶인 공통 UI(TableStatusBox, StatSection, 달력, 모달, 토스트 등). 나머지는 packages/ui
   lib/                      axios, auth, queryClient, role, status.constants
   mocks/                    MSW 핸들러 한 벌. 브라우저(워커), 단위 테스트(src/test/msw-server.ts), 서버 목이 같이 씀. 구체 경로를 :param 경로보다 앞에 정렬(src/mocks/handlers.ts)
   store/                    Zustand 2개(auth 캐시, 사이드바)
@@ -184,7 +184,7 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 ## 8. 도구와 검증
 
 - Node 24 (`.nvmrc`, `package.json` engines). pnpm 10(`packageManager` 고정, 2026-11-10 모노레포 1 카드), CI 는 `pnpm install --frozen-lockfile`. 설치 스크립트는 `pnpm-workspace.yaml` 의 `onlyBuiltDependencies`(msw, unrs-resolver)만 돈다.
-- 모노레포: 앱은 루트, 패키지는 `packages/*`(지금 `@everp/eslint-plugin` 하나). `pnpm verify` 가 Turborepo 로 lint, 타입 검사, 단위 테스트, 패키지 테스트를 돌리고 입력이 같으면 캐시에서 꺼낸다(`turbo.json`). CI 는 `.turbo/cache` 를 캐시한다. 앱을 `apps/erp` 로 옮기는 것은 Vercel Root Directory 설정(대시보드)을 바꿔야 해서 미뤘다.
+- 모노레포: 앱은 루트, 패키지는 `packages/*`. `@everp/eslint-plugin`(로컬 린트 규칙), `@everp/ui`(앱에 안 묶인 공통 컴포넌트 25개. TS 소스를 그대로 내보내고 Next 가 `transpilePackages` 로 변환, `sideEffects: false`). `pnpm verify` 가 Turborepo 로 lint, 타입 검사, 단위 테스트, 패키지 테스트를 돌리고 입력이 같으면 캐시에서 꺼낸다(`turbo.json`). CI 는 `.turbo/cache` 를 캐시한다. 앱을 `apps/erp` 로 옮기는 것은 Vercel Root Directory 설정(대시보드)을 바꿔야 해서 미뤘다.
 - CI: PR 과 main push 에서 lint → type-check → vitest → build (`.github/workflows/ci.yml`). Vercel 은 GitHub 연동으로 main 머지 때 Production 배포, PR 마다 preview.
 - 로컬 훅: commit-msg 는 commitlint(타입 `feat|fix|refac|test|chore|docs`), pre-commit 은 lint-staged.
 - 테스트: vitest + Testing Library + MSW. 설정 `vitest.config.mts`, 공통 `vitest.setup.ts`(핸들러 없는 요청은 실패시킴). 서버 전용 모듈 테스트는 파일 첫 줄에 `// @vitest-environment node`.

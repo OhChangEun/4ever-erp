@@ -49,7 +49,7 @@ UI 작업은 `DESIGN_GUIDELINES.md`를 따른다. 새 컴포넌트를 만들기 
 - API 함수는 `{domain}.api.ts`, 비즈니스 로직은 `{domain}.service.ts`
 - 공통 컴포넌트는 `src/app/components/common/` 에 배치
 - 모달은 `ModalProvider` 컨텍스트를 통해 관리
-- **UI 구현 시 `src/app/components/common/` 의 공통 컴포넌트를 최우선으로 사용**
+- **UI 구현 시 공통 컴포넌트를 최우선으로 사용**. 앱에 안 묶인 것은 `@everp/ui`(packages/ui), 앱 모델에 묶인 것은 `src/app/components/common/`
   - 레이아웃: `Flex`, `Spacing`
   - 데이터: `Table`, `Pagination`, `StatSection`
   - 입력: `Button`, `IconButton`, `Input`, `Dropdown`, `DateRangePicker`, `SearchBar`
