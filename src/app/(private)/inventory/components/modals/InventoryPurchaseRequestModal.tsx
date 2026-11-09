@@ -1,13 +1,12 @@
 'use client';
 
-import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
-import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { useRequestPurchaseForLowStock } from '@/app/(private)/inventory/inventory.mutations';
 import { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import Input from '@/app/components/common/Input';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
@@ -60,21 +59,15 @@ export default function InventoryPurchaseRequestModal({
     }, 0);
   };
 
-  const queryClient = useQueryClient();
   const toast = useToast();
 
-  const { mutate: registerStockPurchaseReq } = useMutation({
-    mutationFn: (body: CreateStockPurchaseRequestItem[]) =>
-      createStockPurchaseRequest({ items: body }),
+  // 무효화(부족 재고 목록, 구매 요청 목록, 구매 통계)는 inventory.mutations.ts 한 곳.
+  const { mutate: registerStockPurchaseReq } = useRequestPurchaseForLowStock({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
       toast.success('발주 요청이 생성되었습니다.');
       onClose();
     },
-    onError: (error) => {
-      console.error('발주 요청 실패:', error);
-      toast.error('발주 요청 중 오류가 발생했습니다.');
-    },
+    onError: (error) => toast.error(`발주 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = async () => {
