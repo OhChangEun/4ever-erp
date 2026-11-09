@@ -20,6 +20,7 @@ import CalendarButton from '@/app/components/common/CalendarButton';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
+import { toDateKey } from '@/app/utils/date';
 
 export default function AttendanceTab() {
   // --- 모달 출력 ---
@@ -50,7 +51,7 @@ export default function AttendanceTab() {
   const pageSize = 10;
 
   // --- 달력 데이터 ---
-  const today = new Date().toISOString().split('T')[0];
+  const today = toDateKey(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(today);
 
   const attendanceQueryParams = useMemo(

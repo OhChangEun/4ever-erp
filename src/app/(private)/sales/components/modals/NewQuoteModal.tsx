@@ -7,12 +7,13 @@ import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant'
 import { useToast } from '@/app/components/common/toast/useToast';
 
 import { formatCurrency } from '@/app/utils/number';
+import { toDateKey } from '@/app/utils/date';
 const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModalProps) => {
   const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
     customer: '',
     customerContact: '',
     customerEmail: '',
-    quoteDate: new Date().toISOString().split('T')[0],
+    quoteDate: toDateKey(new Date()),
     validUntil: '',
     items: [
       {
@@ -44,7 +45,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
       customer: '',
       customerContact: '',
       customerEmail: '',
-      quoteDate: new Date().toISOString().split('T')[0],
+      quoteDate: toDateKey(new Date()),
       validUntil: '',
 
       items: [
