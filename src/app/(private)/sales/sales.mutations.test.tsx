@@ -4,6 +4,7 @@ import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales
 import {
   useConfirmQuotation,
   useCreateCustomer,
+  useUpdateCustomer,
   useCreateQuote,
   useCheckInventory,
   useProcessDelivery,
@@ -88,5 +89,28 @@ describe('영업 mutation 훅', () => {
       variables: [{ itemId: 'item-1', requiredQuantity: 3 }],
       invalidates: [],
       keeps: [QUOTE_LIST, ORDER_LIST, CUSTOMER_LIST],
+    }));
+
+  it('고객 수정 → 고객 목록과 그 고객 상세', () =>
+    expectMatrix({
+      name: '',
+      useHook: useUpdateCustomer,
+      variables: {
+        customerId: 'cus-1',
+        data: {
+          customerName: '새상사',
+          ceoName: '홍길동',
+          businessNumber: '123',
+          customerPhone: '02',
+          customerEmail: 'a@b.c',
+          baseAddress: '서울',
+          detailAddress: '',
+          statusCode: 'ACTIVE',
+          manager: { name: '김', mobile: '010', email: 'm@b.c' },
+          note: '',
+        },
+      },
+      invalidates: [CUSTOMER_LIST, customerKeys.detail('cus-1')],
+      keeps: [customerKeys.detail('cus-2'), QUOTE_LIST, FOREIGN],
     }));
 });
