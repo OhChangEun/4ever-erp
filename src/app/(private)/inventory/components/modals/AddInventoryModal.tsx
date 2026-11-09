@@ -6,22 +6,16 @@ import {
   AddInventoryItemsToggleResponse,
   WarehouseToggleResponse,
 } from '../../types/AddInventoryModalType';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getItemInfo, getWarehouseInfo, postAddMaterial } from '../../inventory.api';
+import { useQuery } from '@tanstack/react-query';
+import { getItemInfo, getWarehouseInfo } from '../../inventory.api';
+import { useAddMaterial } from '../../inventory.mutations';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { InventoryResponse } from '../../types/InventoryListType';
-import { Page } from '@/app/types/Page';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
-import {
-  inventoryKeys,
-  itemInfoKeys,
-  warehouseInfoKeys,
-  inventoryStatsKeys,
-} from '@/app/(private)/inventory/inventory.keys';
+import { errorMessageOf } from '@/lib/AppError';
+import { itemInfoKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [selectedItem, setSelectedItem] = useState<AddInventoryItemsToggleResponse | null>(null);
 
@@ -73,58 +67,13 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
     enabled: !!formData.itemId,
   });
 
-  // 낙관적 업데이트x
-  // const { mutate: addMaterial } = useMutation({
-  //   mutationFn: postAddMaterial,
-  //   onSuccess: (data) => {
-  //     alert(`${data.status} : ${data.message}
-  //     `);
-  //     setShowAddModal(false);
-  //   },
-  //   onError: (error) => {
-  //     alert(` 자재 등록 중 오류가 발생했습니다. ${error}`);
-  //   },
-  // });
-  const { mutate: addMaterial, isPending: isAddingMaterial } = useMutation({
-    mutationFn: postAddMaterial,
-
-    onMutate: async (newMaterial) => {
-      await queryClient.cancelQueries({ queryKey: inventoryKeys.lists() });
-
-      const previousData = queryClient.getQueryData<{ data: InventoryResponse[]; pageData: Page }>(
-        inventoryKeys.lists(),
-      );
-
-      queryClient.setQueryData<{ data: InventoryResponse[]; pageData: Page }>(
-        inventoryKeys.lists(),
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            data: [newMaterial as unknown as InventoryResponse, ...oldData.data],
-          };
-        },
-      );
-
-      return { previousData };
-    },
-
-    onError: (_error, _newMaterial, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(inventoryKeys.lists(), context.previousData);
-      }
-      toast.error('원자재 등록 중 오류가 발생했습니다.');
-    },
-
+  // 생성이라 낙관적 업데이트를 하지 않는다(결정 7). 무효화는 inventory.mutations.ts 한 곳.
+  const { mutate: addMaterial, isPending: isAddingMaterial } = useAddMaterial({
     onSuccess: () => {
       toast.success('원자재가 성공적으로 등록되었습니다.');
       onClose();
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: inventoryStatsKeys.all });
-    },
+    onError: (error) => toast.error(`원자재 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const [errorModal, setErrorModal] = useState(false);

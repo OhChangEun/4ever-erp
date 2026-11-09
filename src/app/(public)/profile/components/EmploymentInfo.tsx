@@ -1,10 +1,12 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { FormEvent, useEffect, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 import { EditUserRequest, EmploymentInfoProps, ProfileInfoResponse } from '../ProfileType';
-import { getProfile, postProfile } from '../profile.api';
+import { getProfile } from '../profile.api';
+import { useEditProfile } from '../profile.mutations';
 import { profileKeys } from '../profile.keys';
 
 const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
@@ -79,29 +81,13 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
       [key]: value,
     }));
   };
-  const queryClient = useQueryClient();
-  const { mutate: editProfile } = useMutation({
-    mutationFn: postProfile,
-    onMutate: async (newData) => {
-      await queryClient.cancelQueries({ queryKey: profileKeys.info() });
-      const previousData = queryClient.getQueryData(profileKeys.info());
-      queryClient.setQueryData(profileKeys.info(), (old: EditUserRequest) => ({
-        ...old!,
-        ...newData,
-      }));
-      return { previousData };
-    },
-    onError: (_error, _newData, context) => {
-      if (context?.previousData) queryClient.setQueryData(profileKeys.info(), context.previousData);
-      toast.error('프로필 수정 중 오류가 발생했습니다.');
-    },
+  // 낙관적 업데이트(내 정보 캐시에 입력값 병합)와 무효화는 profile.mutations.ts 한 곳.
+  const { mutate: editProfile, isPending: isSaving } = useEditProfile({
     onSuccess: () => {
       setIsEditing(false);
       toast.success('프로필 수정이 완료되었습니다.');
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: profileKeys.info() });
-    },
+    onError: (error) => toast.error(`프로필 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -203,9 +189,10 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                disabled={isSaving}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                저장
+                {isSaving ? '저장 중...' : '저장'}
               </button>
             </div>
           </form>

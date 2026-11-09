@@ -13,6 +13,7 @@ import { attendanceKeys, leaveKeys, trainingKeys } from '@/app/(private)/hrm/api
 import {
   useCheckIn,
   useCheckOut,
+  useEditProfile,
   useRegisterTraining,
   useRequestVacation,
 } from './profile.mutations';

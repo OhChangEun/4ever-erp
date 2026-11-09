@@ -3,16 +3,21 @@ import {
   useInvalidatingMutation,
   type MutationCallbacks,
 } from '@/lib/query/useInvalidatingMutation';
-import { postDeliveryProcess, postNewQuote, postQuotationConfirm } from './sales.api';
-import { quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
+import { postCustomer, postDeliveryProcess, postNewQuote, postQuotationConfirm } from './sales.api';
+import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
+import type {
+  CustomerData,
+  ServerResponse,
+} from '@/app/(private)/sales/types/NewCustomerModalType';
 import type { ApiResponseNoData } from '@/app/types/api';
 
 /**
  * 영업 도메인 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
- * 고객 등록(낙관적 업데이트)은 아직 컴포넌트 안에 있다(사용자 카드). 재고 확인은 읽기라 여기 없다.
+ * 재고 확인은 읽기라 여기 없다.
  */
 export const SALES_MUTATION_EFFECTS = {
+  createCustomer: (): readonly QueryKey[] => [customerKeys.lists()],
   createQuote: (): readonly QueryKey[] => [quoteKeys.lists(), salesStatsKeys.all],
   confirmQuotation: (quotationId: string): readonly QueryKey[] => [
     quoteKeys.lists(),
@@ -54,5 +59,14 @@ export const useProcessDelivery = (callbacks?: MutationCallbacks<ApiResponseNoDa
     mutationKey: salesMutationKey('processDelivery'),
     mutationFn: (quotationId) => postDeliveryProcess(quotationId),
     effects: (quotationId) => SALES_MUTATION_EFFECTS.processDelivery(quotationId),
+    callbacks,
+  });
+
+/** 고객 등록. 생성이라 낙관적 업데이트를 하지 않는다(결정 7) */
+export const useCreateCustomer = (callbacks?: MutationCallbacks<ServerResponse, CustomerData>) =>
+  useInvalidatingMutation<ServerResponse, CustomerData>({
+    mutationKey: salesMutationKey('createCustomer'),
+    mutationFn: (body) => postCustomer(body),
+    effects: () => SALES_MUTATION_EFFECTS.createCustomer(),
     callbacks,
   });

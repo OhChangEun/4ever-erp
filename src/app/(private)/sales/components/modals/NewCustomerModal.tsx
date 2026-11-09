@@ -2,16 +2,12 @@
 
 import { useState } from 'react';
 import { CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { postCustomer } from '@/app/(private)/sales/sales.api';
-import { customerKeys } from '@/app/(private)/sales/sales.keys';
-import { SalesCustomer } from '../../types/SalesCustomerListType';
-import { Page } from '@/app/types/Page';
+import { useCreateCustomer } from '@/app/(private)/sales/sales.mutations';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 const NewCustomerModal = ({ onClose }: ModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [customerData, setCustomerData] = useState<CustomerData>({
     companyName: '',
@@ -72,64 +68,13 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
     }));
   };
 
-  // 낙관적 갱신x
-  // const { mutate: createCustomer, isPending } = useMutation({
-  //   mutationFn: postCustomer,
-  //   onSuccess: (data) => {
-  //     alert(`고객이 성공적으로 등록되었습니다.
-  //       `);
-
-  //     onClose();
-  //   },
-  //   onError: (error) => {
-  //     alert(`고객 등록 중 오류가 발생했습니다. ${error}`);
-  //   },
-  // });
-
-  // 낙관적 갱신
-  const { mutate: createCustomer, isPending } = useMutation({
-    mutationFn: postCustomer,
-    onMutate: async (newCustomer) => {
-      await queryClient.cancelQueries({ queryKey: customerKeys.lists() });
-      // 이전 데이터 저장
-      const previousData = queryClient.getQueryData<{
-        data: { customers: SalesCustomer[]; page: Page };
-      }>(customerKeys.lists());
-      // 낙관적 업데이트
-      queryClient.setQueryData<{ data: { customers: SalesCustomer[]; page: Page } }>(
-        customerKeys.lists(),
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              customers: [newCustomer as unknown as SalesCustomer, ...oldData.data.customers],
-            },
-          };
-        },
-      );
-
-      return { previousData };
-    },
-    onError: (error, _newCustomer, context) => {
-      // error: 오류 객체
-      // _newCustomer: 새로 생성하려던 고객 정보
-      // context: 이전 캐시 데이터 백업용
-      // 에러 시 기존 데이터로 복원
-      if (context?.previousData) {
-        queryClient.setQueryData(customerKeys.lists(), context.previousData);
-      }
-      toast.error(`고객 등록 중 오류가 발생했습니다. ${error}`);
-    },
+  // 생성이라 낙관적 업데이트를 하지 않는다(결정 7). 무효화는 sales.mutations.ts 한 곳.
+  const { mutate: createCustomer, isPending } = useCreateCustomer({
     onSuccess: () => {
       toast.success('고객이 성공적으로 등록되었습니다.');
       onClose();
     },
-    onSettled: () => {
-      // 성공,실패 상관없이 서버 데이터로 최신화
-      queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
-    },
+    onError: (error) => toast.error(`고객 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   return (

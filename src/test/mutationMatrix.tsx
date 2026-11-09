@@ -52,5 +52,9 @@ export const expectMatrix = async <TVariables,>({
   await waitFor(() => {
     for (const key of invalidates) expect(isInvalidated(queryClient, key), String(key)).toBe(true);
   });
-  for (const key of keeps) expect(isInvalidated(queryClient, key), String(key)).toBe(false);
+  for (const key of keeps) {
+    // 키가 사라져서 false 가 되는 가짜 초록을 막는다. 시드한 캐시는 그대로 있어야 한다
+    expect(queryClient.getQueryState(key), `seeded ${String(key)}`).toBeDefined();
+    expect(isInvalidated(queryClient, key), String(key)).toBe(false);
+  }
 };

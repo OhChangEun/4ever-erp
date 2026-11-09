@@ -5,22 +5,17 @@ import {
   AddWarehouseRequest,
   WarehouseManagerInfoResponse,
 } from '../../types/AddWarehouseModalType';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getWarehouseManagerInfo, postAddWarehouse } from '../../warehouse.api';
+import { useQuery } from '@tanstack/react-query';
+import { getWarehouseManagerInfo } from '../../warehouse.api';
+import { useAddWarehouse } from '../../warehouse.mutations';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { Page } from '@/app/types/Page';
-import { WarehouseListResponse } from '../../types/WarehouseListType';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
-import {
-  warehouseKeys,
-  warehouseManagerInfoKeys,
-  warehouseStatsKeys,
-} from '@/app/(private)/warehouse/warehouse.keys';
+import { errorMessageOf } from '@/lib/AppError';
+import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
     warehouseName: '',
@@ -57,61 +52,13 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
     queryKey: warehouseManagerInfoKeys.all,
     queryFn: getWarehouseManagerInfo,
   });
-  // 낙관적 업데이트x
-  // const { mutate: addWarehouse } = useMutation<ApiResponseNoData, Error, AddWarehouseRequest>({
-  //   mutationFn: postAddWarehouse,
-  //   onSuccess: (data) => {
-  //     alert(`${data.status} : ${data.message}
-  //     `);
-  //     onClose()
-  //   },
-  //   onError: (error) => {
-  //     alert(` 자재 등록 중 오류가 발생했습니다. ${error}`);
-  //   },
-  // });
-
-  // 낙관적 업데이트
-  const { mutate: addWarehouse } = useMutation({
-    mutationFn: postAddWarehouse,
-
-    onMutate: async (newWarehouse) => {
-      await queryClient.cancelQueries({ queryKey: warehouseKeys.lists() });
-
-      const previousData = queryClient.getQueryData<{
-        data: WarehouseListResponse[];
-        pageData: Page;
-      }>(warehouseKeys.lists());
-
-      queryClient.setQueryData<{ data: WarehouseListResponse[]; pageData: Page }>(
-        warehouseKeys.lists(),
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            data: [newWarehouse as unknown as WarehouseListResponse, ...oldData.data],
-          };
-        },
-      );
-
-      return { previousData };
-    },
-
-    onError: (_error, _newWarehouse, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(warehouseKeys.lists(), context.previousData);
-      }
-      toast.error('창고 등록 중 오류가 발생했습니다.');
-    },
-
+  // 생성이라 낙관적 업데이트를 하지 않는다(결정 7). 무효화는 warehouse.mutations.ts 한 곳.
+  const { mutate: addWarehouse, isPending: isAdding } = useAddWarehouse({
     onSuccess: () => {
       toast.success('창고 등록이 완료되었습니다.');
       onClose();
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: warehouseKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: warehouseStatsKeys.all });
-    },
+    onError: (error) => toast.error(`창고 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const [errorModal, setErrorModal] = useState(false);
@@ -229,7 +176,13 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
         >
           취소
         </button>
-        <Button type="submit" label="새 창고 추가" onClick={handleSubmit} className="w-[50%]" />
+        <Button
+          type="submit"
+          label="새 창고 추가"
+          onClick={handleSubmit}
+          loading={isAdding}
+          className="w-[50%]"
+        />
         {/* <button
               type="submit"
               onClick={handleSubmit}

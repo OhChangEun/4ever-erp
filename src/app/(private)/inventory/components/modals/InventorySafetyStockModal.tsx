@@ -2,81 +2,29 @@
 
 import { FormEvent, useState } from 'react';
 import { InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { PatchSafetyStock } from '../../inventory.api';
+import { useUpdateSafetyStock } from '../../inventory.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { InventoryDetailResponse } from '../../types/InventoryDetailModalType';
-import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
+import { errorMessageOf } from '@/lib/AppError';
 
 const InventorySafetyStockModal = ({
   setShowSafetyStockModal,
   selectedStock,
 }: InventorySafetyStockModalProps) => {
-  const queryClient = useQueryClient();
   const toast = useToast();
   const [newSafetyStock, setNewSafetyStock] = useState<number>(0);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    editSafetyStock({ itemId: selectedStock?.itemId as string, safetyStock: newSafetyStock });
+    editSafetyStock({ itemId: selectedStock.itemId, safetyStock: newSafetyStock });
   };
-  // 낙관적 업데이트x
-  // const { mutate: editSafetyStock } = useMutation({
-  //   mutationFn: PatchSafetyStock,
-  //   onSuccess: (data) => {
-  //     alert(`${data.status} : ${data.message}
-  //     `);
-  //     setShowSafetyStockModal(false);
-  //   },
-  //   onError: (error) => {
-  //     alert(` 등록 중 오류가 발생했습니다. ${error}`);
-  //   },
-  // });
-
-  // 낙관적 업데이트
-  const { mutate: editSafetyStock } = useMutation({
-    mutationFn: PatchSafetyStock,
-
-    onMutate: async (variables) => {
-      await queryClient.cancelQueries({ queryKey: inventoryKeys.detail(selectedStock.itemId) });
-
-      const previousData = queryClient.getQueryData<{ data: InventoryDetailResponse }>(
-        inventoryKeys.detail(selectedStock.itemId),
-      );
-
-      queryClient.setQueryData<{ data: InventoryDetailResponse }>(
-        inventoryKeys.detail(selectedStock.itemId),
-        (oldData) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              safetyStock: variables.safetyStock,
-            },
-          };
-        },
-      );
-
-      return { previousData };
-    },
-
-    onError: (_err, _variables, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(inventoryKeys.detail(selectedStock.itemId), context.previousData);
-      }
-      toast.error('안전재고 수정 중 오류가 발생했습니다.');
-    },
-
+  // 낙관적 업데이트(상세와 목록 행의 안전재고)와 무효화는 inventory.mutations.ts 한 곳.
+  const { mutate: editSafetyStock, isPending } = useUpdateSafetyStock({
     onSuccess: () => {
       toast.success('안전재고가 수정되었습니다.');
       setShowSafetyStockModal(false);
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(selectedStock.itemId) });
-    },
+    onError: (error) =>
+      toast.error(`안전재고 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-overlay">
@@ -99,7 +47,7 @@ const InventorySafetyStockModal = ({
           </div>
         </div>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">새 안전재고 수량</label>
             <input
@@ -124,10 +72,10 @@ const InventorySafetyStockModal = ({
             </button>
             <button
               type="submit"
-              onClick={handleSubmit}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer"
+              disabled={isPending}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
-              수정
+              {isPending ? '수정 중...' : '수정'}
             </button>
           </div>
         </form>
