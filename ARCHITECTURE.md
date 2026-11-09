@@ -127,7 +127,11 @@ src/
 
 import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx`. 도메인끼리 import 하지 않는다. 지금은 문서 규칙이고 커스텀 ESLint 규칙(플랫폼 블록)으로 강제할 예정.
 
-`Table<T>` 는 `column.key` 가 string 이라 행 접근에 단언이 필요하다 (`src/app/components/common/Table.tsx:57`). `keyof T` 로 바꾸는 것이 타입 블록 카드.
+타입 단언(`as`)과 non-null(`!`)은 0건이고 ESLint error 다(2026-11-10 타입 1차). 남긴 예외 1곳과 대신 쓰는 방식:
+
+1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:77`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
+2. `Table<T>` 는 열 key 가 행 필드가 아닐 수 있어(`actions` 같은 가상 열) `keyof T` 로 묶지 않았다. 값은 `Reflect.get` 으로 꺼낸다 (`src/app/components/common/Table.tsx:65`).
+3. 서버 응답을 믿는 자리는 타입 가드로 읽는다. 로그인과 세션 `readUserResponse`(`src/app/(public)/callback/userInfoType.ts`), FormData `formText`(`src/lib/formData.ts`). `ApiResponse` 판별 유니온과 zod 는 타입 2차 카드.
 
 ## 7. 환경 변수
 

@@ -70,7 +70,7 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">상태:</span>
-                  <StatusLabel statusCode={data?.statusCode as string} />
+                  <StatusLabel statusCode={data?.statusCode} />
                 </div>
               </div>
             </div>

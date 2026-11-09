@@ -26,7 +26,10 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   // 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target instanceof Node ? event.target : null)
+      ) {
         setIsOpen(false);
       }
     };

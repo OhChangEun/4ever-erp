@@ -4,19 +4,17 @@ import { useState } from 'react';
 import { KeyValueItem } from '@/app/types/CommonType';
 import IconButton from '@/app/components/common/IconButton';
 
-interface InputListProps<T extends string | number = string> {
-  initialItems?: KeyValueItem<T>[];
-  onChange?: (items: KeyValueItem<T>[]) => void;
+// 키는 1부터 늘어나는 번호다. 예전엔 제네릭 T 를 받아 문자열 키면 "3" + 1 = "31" 이 됐다
+interface InputListProps {
+  initialItems?: KeyValueItem<number>[];
+  onChange?: (items: KeyValueItem<number>[]) => void;
 }
 
-export default function InputList<T extends string | number = string>({
-  initialItems = [],
-  onChange,
-}: InputListProps<T>) {
-  const [items, setItems] = useState<KeyValueItem<T>[]>(initialItems);
+export default function InputList({ initialItems = [], onChange }: InputListProps) {
+  const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
 
   // 값 변경
-  const handleChange = (key: T, value: string) => {
+  const handleChange = (key: number, value: string) => {
     const newItems = items.map((item) => (item.key === key ? { ...item, value } : item));
     setItems(newItems);
     onChange?.(newItems);
@@ -24,10 +22,8 @@ export default function InputList<T extends string | number = string>({
 
   // 새로운 항목 추가
   const handleAdd = () => {
-    const newKey: T = (
-      items.length ? (((items[items.length - 1].key as number) + 1) as T) : 1
-    ) as T; // 숫자 키 기준 자동 증가
-    const newItem: KeyValueItem<T> = {
+    const newKey = items.length ? items[items.length - 1].key + 1 : 1; // 숫자 키 기준 자동 증가
+    const newItem: KeyValueItem<number> = {
       key: newKey,
       value: '',
     };
@@ -37,7 +33,7 @@ export default function InputList<T extends string | number = string>({
   };
 
   // 항목 삭제
-  const handleRemove = (key: T) => {
+  const handleRemove = (key: number) => {
     const newItems = items.filter((item) => item.key !== key);
     setItems(newItems);
     onChange?.(newItems);
@@ -57,7 +53,7 @@ export default function InputList<T extends string | number = string>({
       </div>
 
       {items.map((item, index) => (
-        <div key={item.key as string | number} className="flex items-center">
+        <div key={item.key} className="flex items-center">
           <span className="w-5 flex justify-center">{index + 1}</span>
           <input
             type="text"

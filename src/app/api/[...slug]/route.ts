@@ -1399,8 +1399,13 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
     ]);
   }
   if (path === 'scm-pp/pp/quotations/simulate') {
-    const body = (await request.json().catch(() => ({}))) as { quotationIds?: string[] };
-    const quotationIds: string[] = body.quotationIds ?? [];
+    // 본문을 믿지 않고 꺼낸다. 글자 배열이 아니면 빈 목록
+    const body: unknown = await request.json().catch(() => null);
+    const rawIds: unknown =
+      typeof body === 'object' && body !== null ? Reflect.get(body, 'quotationIds') : undefined;
+    const quotationIds: string[] = Array.isArray(rawIds)
+      ? rawIds.filter((id): id is string => typeof id === 'string')
+      : [];
     const customers = [
       '삼성전자',
       'LG Display',

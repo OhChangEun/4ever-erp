@@ -120,13 +120,15 @@ const WarehouseScene = ({
                   return (
                     <group key={`rack-${rackIndex}`} position={[rackPositionX, 0, 0]}>
                       {/* rack vertical posts */}
-                      {[
-                        [-0.9, 1.2, -5],
-                        [0.9, 1.2, -5],
-                        [-0.9, 1.2, 5],
-                        [0.9, 1.2, 5],
-                      ].map((pos, i) => (
-                        <mesh key={`post-${i}`} position={pos as [number, number, number]}>
+                      {(
+                        [
+                          [-0.9, 1.2, -5],
+                          [0.9, 1.2, -5],
+                          [-0.9, 1.2, 5],
+                          [0.9, 1.2, 5],
+                        ] satisfies [number, number, number][]
+                      ).map((pos, i) => (
+                        <mesh key={`post-${i}`} position={pos}>
                           <cylinderGeometry args={[0.1, 0.1, 2.4, 8]} />
                           <meshStandardMaterial color="#6b7280" metalness={0.8} roughness={0.4} />
                         </mesh>

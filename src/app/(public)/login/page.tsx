@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
-import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
+import { readErrorMessage, readUserResponse } from '@/app/(public)/callback/userInfoType';
 import Button from '@/app/components/common/Button';
 import Flex from '@/app/components/common/Flex';
 import LogoMark from '@/app/components/header/LogoMark';
@@ -50,12 +50,16 @@ export default function LoginPage() {
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as { message?: string } | null;
-        setError(data?.message ?? '로그인에 실패했습니다.');
+        const body: unknown = await res.json().catch(() => null);
+        setError(readErrorMessage(body) ?? '로그인에 실패했습니다.');
         return;
       }
 
-      const { user } = (await res.json()) as { user: userInfoResponse };
+      const user = readUserResponse(await res.json());
+      if (!user) {
+        setError('서버 응답 형식이 예상과 다릅니다.');
+        return;
+      }
       setUserInfo(user);
       router.replace(readReturnTo());
     } catch {

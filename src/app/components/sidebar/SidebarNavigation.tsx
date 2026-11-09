@@ -81,9 +81,10 @@ export default function SidebarNavigation({ isExpanded }: SidebarNavigationProps
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role as string)).map(
-    (item) => ({ ...item, label: getNavLabel(item.href, role) ?? item.label }),
-  );
+  const accessibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(role)).map((item) => ({
+    ...item,
+    label: getNavLabel(item.href, role) ?? item.label,
+  }));
 
   const isActive = (href: string) => pathname === href;
 

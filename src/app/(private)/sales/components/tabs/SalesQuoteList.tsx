@@ -86,7 +86,7 @@ const SalesQuoteList = () => {
   };
 
   const role = useRole();
-  const quoteOptions = getQuoteSearchKeywordOptions(role as string);
+  const quoteOptions = getQuoteSearchKeywordOptions(role);
 
   const columns: TableColumn<QuoteItem>[] = [
     {
@@ -155,7 +155,7 @@ const SalesQuoteList = () => {
               placeholder="전체 상태"
               items={QUOTE_STATUS_OPTIONS}
               value={statusFilter}
-              onChange={(status: string) => setStatusFilter(status as QuoteStatus)}
+              onChange={setStatusFilter}
               autoSelectFirst
             />
             <SearchBar

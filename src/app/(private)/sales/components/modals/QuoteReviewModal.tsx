@@ -83,6 +83,9 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       />
     );
 
+  // 오류 창을 닫았거나 데이터가 없으면 내용 대신 안내. 예전엔 `!` 로 단언해 여기서 화면이 깨졌다
+  if (!quote) return <ModalStatusBox type="error" message="견적서를 불러오지 못했습니다." />;
+
   return (
     <div className="space-y-6">
       {/* 견적 정보 요약 */}
@@ -92,31 +95,29 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">고객명:</span>
-              <span className="font-medium">{quote?.customerName}</span>
+              <span className="font-medium">{quote.customerName}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">담당자:</span>
-              <span className="font-medium">{quote?.ceoName}</span>
+              <span className="font-medium">{quote.ceoName}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">견적일자:</span>
-              <span className="font-medium">{quote?.quotationDate}</span>
+              <span className="font-medium">{quote.quotationDate}</span>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">납기일:</span>
-              <span className="font-medium">{quote?.dueDate}</span>
+              <span className="font-medium">{quote.dueDate}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">견적금액:</span>
-              <span className="font-medium text-blue-600">
-                {formatCurrency(quote?.totalAmount)}
-              </span>
+              <span className="font-medium text-blue-600">{formatCurrency(quote.totalAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">상태:</span>
-              <StatusLabel statusCode={quote!.statusCode} />
+              <StatusLabel statusCode={quote.statusCode} />
             </div>
           </div>
         </div>
@@ -176,7 +177,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                     className={`text-sm ${isAllInventoryFulfilled(inventoryCheckResult) ? 'text-green-600' : 'text-red-600'}`}
                   >
                     {isAllInventoryFulfilled(inventoryCheckResult)
-                      ? `요청하신 납기일(${quote?.dueDate})에 모든 제품의 재고가 충분합니다.`
+                      ? `요청하신 납기일(${quote.dueDate})에 모든 제품의 재고가 충분합니다.`
                       : '일부 제품의 재고가 부족하여 생산 계획 검토가 필요합니다.'}
                   </p>
                 </div>

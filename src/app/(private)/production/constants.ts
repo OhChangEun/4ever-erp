@@ -1,3 +1,4 @@
+import type { ComponentType, ReactNode } from 'react';
 import { Tab } from '@/app/types/NavigationType';
 import QuotationTab from '@/app/(private)/production/components/tabs/QuotationTab';
 import MrpTab from '@/app/(private)/production/components/tabs/MrpTab';
@@ -42,7 +43,12 @@ export const PRODUCTION_TABS: Tab[] = [
   },
 ];
 
-export const MRP_TABS: Tab[] = [
+/** MRP 하위 탭. 부모(MrpTab)가 탭 버튼을 넘겨 각 화면이 자기 툴바에 놓는다 */
+export type MrpSubTab = Omit<Tab, 'component'> & {
+  component: ComponentType<{ tabButtons?: ReactNode }>;
+};
+
+export const MRP_TABS: MrpSubTab[] = [
   {
     id: 'requirements',
     name: '순소요',

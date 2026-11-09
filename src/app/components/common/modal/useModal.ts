@@ -1,6 +1,6 @@
 import { useModalContext } from '@/app/components/common/modal/ModalProvider';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { ComponentType } from 'react';
+import type { ComponentType } from 'react';
 
 // openModal과 closeModal이라는 더 편리한 모달 제어 API를 제공.
 // 내부적으로 useModalContext를 사용.
@@ -21,13 +21,7 @@ export const useModal = () => {
     Component: ComponentType<T>,
     props: Omit<T, 'id' | 'onClose'>,
   ): string {
-    // 런타임: T 타입의 Component를 ModalProps를 기대하는 Component로 캐스팅.
-    const id = addModal(
-      Component as ComponentType<ModalProps>,
-      {
-        ...props,
-      } as Omit<ModalProps, 'id' | 'onClose'>,
-    ); // Omit된 props도 ModalProps로 캐스팅.
+    const id = addModal(Component, props);
 
     return id;
   }

@@ -1,4 +1,34 @@
-import { http } from 'msw';
+import { http, type PathParams } from 'msw';
+
+interface ManagerBody {
+  name: string;
+  mobile: string;
+  email: string;
+}
+
+interface NewCustomerBody {
+  companyName: string;
+  ceoName: string;
+  businessNumber: string;
+  contactPhone: string;
+  contactEmail: string;
+  address: string;
+  manager: ManagerBody;
+  note: string;
+}
+
+interface CustomerPatchBody {
+  customerName: string;
+  ceoName: string;
+  businessNumber: string;
+  statusCode: string;
+  customerPhone: string;
+  customerEmail: string;
+  baseAddress: string;
+  detailAddress: string;
+  manager: Partial<ManagerBody>;
+  note: string;
+}
 import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
@@ -65,11 +95,14 @@ export const salesHandlers = [
       totalAmount: 12500000,
     });
   }),
-  http.post(SALES_ENDPOINTS.NEW_ORDER, async ({ request }) => {
-    if (shouldError(request)) return error('Failed to create quote', 500);
-    const body = (await request.json()) as { items: Array<{ itemId: string; quantity: number }> };
-    return ok({ items: body });
-  }),
+  http.post<PathParams, { items: Array<{ itemId: string; quantity: number }> }>(
+    SALES_ENDPOINTS.NEW_ORDER,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to create quote', 500);
+      const body = await request.json();
+      return ok({ items: body });
+    },
+  ),
   http.get(SALES_ENDPOINTS.ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load orders', 500);
     const url = new URL(request.url);
@@ -207,62 +240,69 @@ export const salesHandlers = [
       note: '중요 고객',
     });
   }),
-  http.post(SALES_ENDPOINTS.CUSTOMERS_LIST, async ({ request }) => {
-    if (shouldError(request)) return error('Failed to create customer', 500);
-    const body = await request.json();
-    return ok({
-      status: 200,
-      success: true,
-      message: 'created',
-      data: {
-        customerId: 100,
-        customerCode: 'CUS-100',
-        companyName: (body as any).companyName ?? '신규 고객사',
-        ceoName: (body as any).ceoName ?? '대표',
-        businessNumber: (body as any).businessNumber ?? '123-45-67890',
-        statusCode: 'ACTIVE',
-        statusLabel: '활성',
-        contactPhone: (body as any).contactPhone ?? '010-0000-0000',
-        contactEmail: (body as any).contactEmail ?? 'new@company.com',
-        address: (body as any).address ?? '서울특별시',
-        manager: (body as any).manager ?? {
-          name: '담당자',
-          mobile: '010-0000-0000',
-          email: 'manager@company.com',
+  // 목은 받은 값을 그대로 돌려준다. 빠진 필드는 기본값. 본문 모양은 화면이 보내는 요청 타입의 부분집합
+  http.post<PathParams, Partial<NewCustomerBody>>(
+    SALES_ENDPOINTS.CUSTOMERS_LIST,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to create customer', 500);
+      const body = await request.json();
+      return ok({
+        status: 200,
+        success: true,
+        message: 'created',
+        data: {
+          customerId: 100,
+          customerCode: 'CUS-100',
+          companyName: body.companyName ?? '신규 고객사',
+          ceoName: body.ceoName ?? '대표',
+          businessNumber: body.businessNumber ?? '123-45-67890',
+          statusCode: 'ACTIVE',
+          statusLabel: '활성',
+          contactPhone: body.contactPhone ?? '010-0000-0000',
+          contactEmail: body.contactEmail ?? 'new@company.com',
+          address: body.address ?? '서울특별시',
+          manager: body.manager ?? {
+            name: '담당자',
+            mobile: '010-0000-0000',
+            email: 'manager@company.com',
+          },
+          totalOrders: 0,
+          totalTransactionAmount: 0,
+          currency: 'KRW',
+          note: body.note ?? '',
+          createdAt: isoNow,
+          updatedAt: isoNow,
         },
-        totalOrders: 0,
-        totalTransactionAmount: 0,
-        currency: 'KRW',
-        note: (body as any).note ?? '',
-        createdAt: isoNow,
-        updatedAt: isoNow,
-      },
-    });
-  }),
-  http.patch(`${SALES_BASE_PATH}/customers/:customerId`, async ({ request, params }) => {
-    if (shouldError(request)) return error('Failed to update customer', 500);
-    const body = await request.json();
-    return ok({
-      data: {
-        customerId: params.customerId,
-        customerNumber: 'CUS-001',
-        customerName: (body as any).customerName ?? '한빛전자',
-        ceoName: (body as any).ceoName ?? '박대표',
-        businessNumber: (body as any).businessNumber ?? '123-45-67890',
-        statusCode: (body as any).statusCode ?? 'ACTIVE',
-        customerPhone: (body as any).customerPhone ?? '02-222-3333',
-        customerEmail: (body as any).customerEmail ?? 'contact@hanbit.co.kr',
-        baseAddress: (body as any).baseAddress ?? '서울특별시 강서구 공항대로 10',
-        detailAddress: (body as any).detailAddress ?? '5층',
-        manager: {
-          managerName: (body as any).manager?.name ?? '김영업',
-          managerPhone: (body as any).manager?.mobile ?? '010-1111-2222',
-          managerEmail: (body as any).manager?.email ?? 'sales@everp.co.kr',
+      });
+    },
+  ),
+  http.patch<{ customerId: string }, Partial<CustomerPatchBody>>(
+    `${SALES_BASE_PATH}/customers/:customerId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update customer', 500);
+      const body = await request.json();
+      return ok({
+        data: {
+          customerId: params.customerId,
+          customerNumber: 'CUS-001',
+          customerName: body.customerName ?? '한빛전자',
+          ceoName: body.ceoName ?? '박대표',
+          businessNumber: body.businessNumber ?? '123-45-67890',
+          statusCode: body.statusCode ?? 'ACTIVE',
+          customerPhone: body.customerPhone ?? '02-222-3333',
+          customerEmail: body.customerEmail ?? 'contact@hanbit.co.kr',
+          baseAddress: body.baseAddress ?? '서울특별시 강서구 공항대로 10',
+          detailAddress: body.detailAddress ?? '5층',
+          manager: {
+            managerName: body.manager?.name ?? '김영업',
+            managerPhone: body.manager?.mobile ?? '010-1111-2222',
+            managerEmail: body.manager?.email ?? 'sales@everp.co.kr',
+          },
+          note: body.note ?? '',
         },
-        note: (body as any).note ?? '',
-      },
-    });
-  }),
+      });
+    },
+  ),
   http.get(SALES_ENDPOINTS.ANALYTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load analytics', 500);
     return ok({

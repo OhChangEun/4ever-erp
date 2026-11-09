@@ -99,7 +99,7 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-            <StatusLabel statusCode={invoiceRes?.statusCode as string} />
+            <StatusLabel statusCode={invoiceRes?.statusCode} />
           </div>
         </div>
       </div>

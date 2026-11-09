@@ -1,7 +1,6 @@
 'use client';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useState, useMemo } from 'react'; // useMemo 추가
-import { AvailableStockStatus } from '@/app/(private)/production/constants';
 import {
   QuotationData,
   FetchQuotationParams,
@@ -41,7 +40,7 @@ export default function QuotationTab() {
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [selectedStockStatus, setSelectedStockStatus] = useState<AvailableStockStatus>('ALL');
+  const [selectedStockStatus, setSelectedStockStatus] = useState<string>('ALL'); // 코드 목록은 서버 드롭다운이 정한다
 
   // 선택된 견적
   const [selectedQuotes, setSelectedQuotes] = useState<string[]>([]);
@@ -221,7 +220,7 @@ export default function QuotationTab() {
             placeholder="전체 가용재고"
             items={availableStatusOptions}
             value={selectedStockStatus}
-            onChange={(status: AvailableStockStatus) => {
+            onChange={(status) => {
               setSelectedStockStatus(status);
               setCurrentPage(1); // 필터 변경 시 첫 페이지로
             }}

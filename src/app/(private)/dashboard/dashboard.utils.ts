@@ -26,7 +26,8 @@ export const getTabCodeText = (tabCode: string | undefined) => {
 };
 
 export const getColorClasses = (color: string) => {
-  const colorMap = {
+  // 모르는 색 이름이 오면 파랑. Partial 이라 없는 키는 undefined 로 잡힌다
+  const colorMap: Partial<Record<string, { bg: string; icon: string }>> = {
     red: { bg: 'bg-red-100', icon: 'text-red-600' },
     blue: { bg: 'bg-blue-100', icon: 'text-blue-600' },
     indigo: { bg: 'bg-indigo-100', icon: 'text-indigo-600' },
@@ -34,7 +35,7 @@ export const getColorClasses = (color: string) => {
     purple: { bg: 'bg-purple-100', icon: 'text-purple-600' },
     orange: { bg: 'bg-orange-100', icon: 'text-orange-600' },
   };
-  return colorMap[color as keyof typeof colorMap] || colorMap.blue;
+  return colorMap[color] ?? { bg: 'bg-blue-100', icon: 'text-blue-600' };
 };
 
 export const allActions = [

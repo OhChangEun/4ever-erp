@@ -33,6 +33,9 @@ const SHORTAGE_RESULT = {
   },
 } as const;
 
+const isShortageResultKey = (status: string): status is keyof typeof SHORTAGE_RESULT =>
+  status in SHORTAGE_RESULT;
+
 export default function SimulationResultModal({
   simulationResults,
   onConfirm,
@@ -93,9 +96,7 @@ export default function SimulationResultModal({
               },
             ]}
             data={simulationResults}
-            onRowClick={(row) =>
-              setSelectedQuotationId((row as QuotationSimulationData).quotationId)
-            }
+            onRowClick={(row) => setSelectedQuotationId(row.quotationId)}
             emptyMessage="시뮬레이션 결과가 없습니다."
           />
         </div>
@@ -135,7 +136,7 @@ export default function SimulationResultModal({
                         ? 'text-red-500'
                         : 'text-gray-400',
                     },
-                  ] as { label: string; value: string; valueClass?: string }[]
+                  ] satisfies { label: string; value: string; valueClass?: string }[]
                 ).map(({ label, value, valueClass }) => (
                   <Flex
                     key={label}
@@ -155,9 +156,7 @@ export default function SimulationResultModal({
             {/* 오른쪽: 수량 분석 패널 */}
             {(() => {
               const { status, shortageQuantity, availableQuantity } = selectedResult.simulation;
-              const resultKey = (
-                status in SHORTAGE_RESULT ? status : 'FAIL'
-              ) as keyof typeof SHORTAGE_RESULT;
+              const resultKey = isShortageResultKey(status) ? status : 'FAIL';
               const { bg, textColor, subColor, label } = SHORTAGE_RESULT[resultKey];
               return (
                 <Flex

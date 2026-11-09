@@ -22,7 +22,7 @@ export const MOCK_SCENARIOS = [
 export type MockScenario = (typeof MOCK_SCENARIOS)[number];
 
 const isScenario = (value: string | null): value is MockScenario =>
-  value !== null && (MOCK_SCENARIOS as readonly string[]).includes(value);
+  MOCK_SCENARIOS.some((scenario) => scenario === value);
 
 export const scenarioOf = (request: Request): MockScenario | null => {
   const url = new URL(request.url);

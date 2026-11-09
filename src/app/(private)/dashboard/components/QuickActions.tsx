@@ -13,7 +13,7 @@ const QuickActions = () => {
   // const role = 'FCM_USER';
   // const role = 'HRM_USER';
   // const role = 'PP_USER';
-  const visibleActions = allActions.filter((a) => a.roles?.includes(role as string));
+  const visibleActions = allActions.filter((a) => a.roles?.includes(role));
   return (
     <div className="card-base p-6">
       <div className="flex items-center space-x-2 mb-6">

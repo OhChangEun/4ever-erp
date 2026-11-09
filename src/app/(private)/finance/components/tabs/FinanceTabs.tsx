@@ -9,7 +9,7 @@ export default function FinanceTabs({ header }: { header?: ReactNode }) {
   const role = useRole();
   //   const role = 'CUSTOMER_ADMIN';
   //   const role = 'SUPPLIER_ADMIN';
-  const allowedTabs = getFinanceTabsByRole(role as string);
+  const allowedTabs = getFinanceTabsByRole(role);
 
   return <TabNavigation tabs={allowedTabs} header={header} />;
 }

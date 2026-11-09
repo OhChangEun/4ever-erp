@@ -9,6 +9,7 @@ import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
+import { formText } from '@/lib/formData';
 
 interface AttendanceEditModalProps extends ModalProps {
   attendance: AttendanceListData;
@@ -29,8 +30,8 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const checkInTime = formData.get('checkInTime') as string;
-    const checkOutTime = formData.get('checkOutTime') as string;
+    const checkInTime = formText(formData, 'checkInTime');
+    const checkOutTime = formText(formData, 'checkOutTime');
 
     const timeData: UpdateTimeRecord = {
       timerecordId: attendance.timerecordId,

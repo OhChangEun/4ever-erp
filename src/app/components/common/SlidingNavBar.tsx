@@ -1,14 +1,19 @@
 import { useRef, useEffect, useState } from 'react';
 import { KeyValueItem } from '@/app/types/CommonType';
 
-interface SlidingNavBarProps {
-  items: KeyValueItem[];
-  selectedKey: string;
-  onSelect: (key: string) => void;
+// 키 타입(T)이 onSelect 까지 이어진다. 받는 쪽이 string 을 다시 단언하지 않는다
+interface SlidingNavBarProps<T extends string = string> {
+  items: KeyValueItem<T>[];
+  selectedKey: T;
+  onSelect: (key: T) => void;
 }
 
 /** 세그먼트 컨트롤. 회색 트랙 위에 흰색 선택 칩이 미끄러진다. */
-export default function SlidingNavBar({ items, selectedKey, onSelect }: SlidingNavBarProps) {
+export default function SlidingNavBar<T extends string = string>({
+  items,
+  selectedKey,
+  onSelect,
+}: SlidingNavBarProps<T>) {
   const [indicatorStyle, setIndicatorStyle] = useState({});
   const navRefs = useRef<(HTMLButtonElement | null)[]>([]);
 

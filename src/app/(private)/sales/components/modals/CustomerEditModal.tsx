@@ -6,7 +6,7 @@ import type {
   CustomerEditData,
   CustomerEditModalProps,
 } from '@/app/(private)/sales/types/CustomerEditModalType';
-import { CustomerStatus } from '../../types/SalesCustomerListType';
+import { CUSTOMER_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 import { useUpdateCustomer } from '../../sales.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -142,7 +142,11 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
               <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
               <select
                 value={editFormData.statusCode}
-                onChange={(e) => updateEditFormData('statusCode', e.target.value as CustomerStatus)}
+                onChange={(e) => {
+                  // 선택지 표에 있는 코드만 받는다(문자열을 상태 유니온으로 단언하지 않는다)
+                  const next = CUSTOMER_STATUS_OPTIONS.find((o) => o.key === e.target.value)?.key;
+                  if (next) updateEditFormData('statusCode', next);
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-8"
               >
                 <option value="ACTIVE">활성</option>
