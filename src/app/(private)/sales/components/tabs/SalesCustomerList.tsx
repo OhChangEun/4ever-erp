@@ -28,7 +28,6 @@ const CustomerList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('customerName');
   const [statusFilter, setStatusFilter] = useState<CustomerStatus>('ALL');
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [debouncedSearchTerm] = useDebounce(searchTerm, 200);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -60,7 +59,6 @@ const CustomerList = () => {
   console.log(pageInfo);
 
   const handleViewClick = (id: string) => {
-    setSelectedCustomerId(id);
     openModal(CustomerDetailModal, {
       width: '900px',
       height: '1050px',

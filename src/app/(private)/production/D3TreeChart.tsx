@@ -26,11 +26,11 @@ const D3TreeChart: React.FC<D3TreeChartProps> = ({ data, width = 600, height = 4
     const innerHeight = height - margin.top - margin.bottom;
 
     // 동적 크기 계산
-    const {
-      width: optimalWidth,
-      height: optimalHeight,
-      scale: optimalScale,
-    } = calculateOptimalTreeSize(data, innerWidth, innerHeight);
+    const { width: optimalWidth, height: optimalHeight } = calculateOptimalTreeSize(
+      data,
+      innerWidth,
+      innerHeight,
+    );
 
     // 트리 레이아웃 생성 (동적 크기 적용)
     const treemap = d3.tree<TreeNode>().size([optimalWidth, optimalHeight]);

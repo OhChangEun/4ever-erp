@@ -28,6 +28,11 @@ export default defineConfig([
       },
     },
     rules: {
+      // 린트 1차(2026-11-09). `{ a, ...rest }` 로 a 를 빼는 패턴과 `_` 로 시작하는 인자는 허용
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { ignoreRestSiblings: true, argsIgnorePattern: '^_' },
+      ],
       // R21 타입 안정성 우회 금지
       // no-explicit-any 는 eslint-config-next 가 이미 error. 20건(전부 src/mocks/handlers/sales.handlers.ts)은
       // eslint-suppressions.json 에 억제돼 있다. 여기서 수준을 바꾸면 억제가 "안 쓰임"으로 바뀌어 lint 가 exit 2 로 실패한다.

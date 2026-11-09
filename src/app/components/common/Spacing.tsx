@@ -19,11 +19,6 @@ const spacingClassMap: Record<number, { h: string; w: string }> = {
   24: { h: 'h-24', w: 'w-24' },
 };
 
-const directionMap = {
-  vertical: 'flex flex-col',
-  horizontal: 'flex flex-row',
-};
-
 /**
  * Spacing 컴포넌트 - 순순한 여백 요소
  * @example

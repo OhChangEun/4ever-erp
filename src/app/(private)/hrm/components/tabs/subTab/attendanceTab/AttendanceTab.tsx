@@ -5,18 +5,13 @@ import {
   fetchAttendanceStatusDropdown,
   fetchDepartmentsDropdown,
 } from '@/app/(private)/hrm/api/hrm.api';
-import {
-  AttendanceListData,
-  AttendanceRequestParams,
-} from '@/app/(private)/hrm/types/HrmAttendanceApiType';
+import { AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import Dropdown from '@/app/components/common/Dropdown';
-import { useModal } from '@/app/components/common/modal/useModal';
 import Pagination from '@/app/components/common/Pagination';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { AttendanceEditModal } from '@/app/(private)/hrm/components/modals/AttendanceEditModal';
 import { formatMinutesToHourMin, formatTime } from '@/app/utils/date';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
@@ -27,7 +22,6 @@ import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function AttendanceTab() {
   // --- 모달 출력 ---
-  const { openModal } = useModal();
 
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
 
@@ -81,13 +75,6 @@ export default function AttendanceTab() {
   const pageInfo = attendanceData?.page;
 
   type AttendanceItem = (typeof attendanceList)[0];
-
-  const handleEditAttendance = (attendance: AttendanceListData) => {
-    openModal(AttendanceEditModal, {
-      title: '출퇴근 정보 수정',
-      attendance: attendance,
-    });
-  };
 
   const columns: TableColumn<AttendanceItem>[] = [
     {

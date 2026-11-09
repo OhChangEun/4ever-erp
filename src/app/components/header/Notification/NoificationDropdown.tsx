@@ -27,7 +27,6 @@ import { notificationKeys } from '../header.keys';
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [sseUnreadCount, setSseUnreadCount] = useState<number | null>(null);
   const ITEMS_PER_PAGE = 3;
 
   const { refs, floatingStyles, context } = useFloating({
@@ -82,9 +81,8 @@ export default function NotificationDropdown() {
   const notifications = notificationData?.content ?? [];
   const pageInfo = notificationData?.page;
 
-  // 읽지 않은 알림 개수 (SSE가 우선, 없으면 로컬 계산)
-  const unreadCount =
-    sseUnreadCount !== null ? sseUnreadCount : notifications.filter((n) => !n.isRead).length;
+  // 읽지 않은 알림 개수. SSE 훅이 다시 켜지면(인증 블록) 서버 값을 우선한다.
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleReadAll = () => {
     readAll();
