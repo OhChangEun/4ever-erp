@@ -18,7 +18,8 @@ export interface QuotationData {
   requestDate: string;
   dueDate: string;
   availableStatus: AvailableStockStatus;
-  items: itemsData[];
+  // 두 목 모두 보내지 않고 화면도 읽지 않는다. 서버 계약이 정해지면 다시 본다(타입 2차 카드)
+  items?: itemsData[];
 }
 
 // 견적 관리 리스트 최상위 응답 타입

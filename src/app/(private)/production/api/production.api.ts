@@ -23,14 +23,27 @@ import { MrpOrdersConvertReqeustBody } from '../types/MrpOrdersConvertApiType';
 import { ItemResponse } from '../../inventory/types/ItemListType';
 import { FetchMrpOrdersListParams, MrpOrdersListResponse } from '../types/MrpOrdersApiType';
 import axios from '@/lib/axiosInstance';
+import { getParsed, parseData } from '@/lib/api/parse';
+import { keyValueListSchema } from '@/lib/api/schemas';
+import {
+  bomDetailSchema,
+  bomListSchema,
+  materialSchema,
+  mesDetailSchema,
+  mesListSchema,
+  mpsListSchema,
+  mrpOrdersListSchema,
+  mrpPlannedOrdersDetailSchema,
+  productionStatsSchema,
+  quotationListSchema,
+  quotationSimulationSchema,
+  mrpPlannedOrdersListSchema,
+} from '@/app/(private)/production/production.schemas';
 
 // --- 상단 섹션 ---
 // 구매 관리 지표
 export const fetchProductionStats = async (): Promise<ProductionStatResponse> => {
-  const res = await axios.get<ApiResponse<ProductionStatResponse>>(
-    `${PRODUCTION_ENDPOINTS.STATISTICS}`,
-  );
-  return res.data.data;
+  return getParsed(productionStatsSchema, `${PRODUCTION_ENDPOINTS.STATISTICS}`);
 };
 
 // --- 견적 ---
@@ -38,8 +51,7 @@ export const fetchProductionStats = async (): Promise<ProductionStatResponse> =>
 export const fetchQuotationList = async (
   params: FetchQuotationParams,
 ): Promise<QuotationListResponse> => {
-  const res = await axios.get(`${PRODUCTION_ENDPOINTS.QUOTATIONS}`, { params });
-  return res.data.data;
+  return getParsed(quotationListSchema, `${PRODUCTION_ENDPOINTS.QUOTATIONS}`, { params });
 };
 
 // 견적에 대한 ATP(Available to Promise), MPS, MRP 시뮬레이션 실행 결과
@@ -63,11 +75,10 @@ export const fetchQuotationSimulationResult = async (
     page: String(page),
     size: String(size),
   });
-  const res = await axios.post<ApiResponse<QuotationSimulationResponse>>(
-    `${PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE}?${query.toString()}`,
-    { quotationIds },
-  );
-  return res.data.data;
+  const url = `${PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE}?${query.toString()}`;
+  const res = await axios.post<ApiResponse<unknown>>(url, { quotationIds });
+  // POST 지만 화면이 읽는 응답이라 확인한다
+  return parseData(quotationSimulationSchema, res.data.data, url);
 };
 
 // 제안 납기 계획 프리뷰 조회 (미사용)
@@ -83,10 +94,9 @@ export const fetchQuotationSimulationResult = async (
 
 // 제품별 Master Production Schedule(MPS) 정보를 조회
 export const fetchMpsList = async (params: MpsListParams): Promise<MpsListResponse> => {
-  const res = await axios.get<ApiResponse<MpsListResponse>>(`${PRODUCTION_ENDPOINTS.MPS_PLANS}`, {
+  return getParsed(mpsListSchema, `${PRODUCTION_ENDPOINTS.MPS_PLANS}`, {
     params,
   });
-  return res.data.data;
 };
 
 // 제안 납기 확정
@@ -100,34 +110,24 @@ export const fetchQuotationConfirm = async (params: string[]) => {
 // --- BOM ---
 // BOM 목록 조회
 export const fetchBomList = async (params: PageRequest): Promise<BomListResponse> => {
-  const res = await axios.get<ApiResponse<BomListResponse>>(`${PRODUCTION_ENDPOINTS.BOMS}`, {
+  return getParsed(bomListSchema, `${PRODUCTION_ENDPOINTS.BOMS}`, {
     params,
   });
-  return res.data.data;
 };
 
 // BOM 자재 조회
 export const fetchProduction = async (productId: string): Promise<MaterialResponse> => {
-  const res = await axios.get<ApiResponse<MaterialResponse>>(
-    `${PRODUCTION_ENDPOINTS.PRODUCTS_DETAIL(productId)}`,
-  );
-  return res.data.data;
+  return getParsed(materialSchema, `${PRODUCTION_ENDPOINTS.PRODUCTS_DETAIL(productId)}`);
 };
 
 // BOM 공정 조회
 export const fetchOperationDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.OPERATIONS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.OPERATIONS_DROPDOWN}`);
 };
 
 // BOM 상세 조회
 export const fetchBomDetail = async (bomId: string): Promise<BomDetailResponse> => {
-  const res = await axios.get<ApiResponse<BomDetailResponse>>(
-    `${PRODUCTION_ENDPOINTS.BOM_DETAIL(bomId)}`,
-  );
-  return res.data.data;
+  return getParsed(bomDetailSchema, `${PRODUCTION_ENDPOINTS.BOM_DETAIL(bomId)}`);
 };
 
 // BOM 추가
@@ -173,11 +173,7 @@ export const simulateBomConflict = async (bomId: string): Promise<{ message: str
 export const fetchMrpOrdersList = async (
   params: FetchMrpOrdersListParams,
 ): Promise<MrpOrdersListResponse> => {
-  const res = await axios.get<ApiResponse<MrpOrdersListResponse>>(
-    `${PRODUCTION_ENDPOINTS.MRP_ORDERS}`,
-    { params },
-  );
-  return res.data.data;
+  return getParsed(mrpOrdersListSchema, `${PRODUCTION_ENDPOINTS.MRP_ORDERS}`, { params });
 };
 
 // MRP 계획 주문 전환
@@ -190,22 +186,19 @@ export const postMrpConvert = async (body: MrpOrdersConvertReqeustBody) => {
 export const fetchMrpPlannedOrdersList = async (
   params: FetchMrpPlannedOrdersListParams,
 ): Promise<MrpPlannedOrdersListResponse> => {
-  const res = await axios.get<ApiResponse<MrpPlannedOrdersListResponse>>(
-    `${PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST}`,
-    { params },
-  );
-  console.log(res.data.data);
-  return res.data.data;
+  return getParsed(mrpPlannedOrdersListSchema, `${PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST}`, {
+    params,
+  });
 };
 
 // MRP 계획 주문 상세 조회
 export const fetchMrpPlannedOrdersDetail = async (
   mrpId: string,
 ): Promise<MrpPlannedOrdersDetailResponse> => {
-  const res = await axios.get<ApiResponse<MrpPlannedOrdersDetailResponse>>(
+  return getParsed(
+    mrpPlannedOrdersDetailSchema,
     `${PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDER_DETAIL(mrpId)}`,
   );
-  return res.data.data;
 };
 
 // 자재 상세 조회
@@ -222,18 +215,14 @@ export const postItemsInfo = async (body: string[]): Promise<ItemResponse[]> => 
 // --- MES ---
 // MES(Manufacturing Execution System) 작업 목록 조회
 export const fetchMesList = async (params: FetchMesListParams): Promise<MesListResponse> => {
-  const res = await axios.get<ApiResponse<MesListResponse>>(`${PRODUCTION_ENDPOINTS.MES_LIST}`, {
+  return getParsed(mesListSchema, `${PRODUCTION_ENDPOINTS.MES_LIST}`, {
     params,
   });
-  return res.data.data;
 };
 
 // MES 작업 상세 정보 조회
-export const fetchMesDetail = async (mesId: string) => {
-  const res = await axios.get<ApiResponse<MesDetailResponse>>(
-    `${PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL(mesId)}`,
-  );
-  return res.data.data;
+export const fetchMesDetail = async (mesId: string): Promise<MesDetailResponse> => {
+  return getParsed(mesDetailSchema, `${PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL(mesId)}`);
 };
 
 // MES 시작
@@ -267,60 +256,38 @@ export const completeMesOperation = async (mesId: string, operationId: string) =
 // --- 드롭다운 조회 ---
 // mps 제품 드롭다운
 export const fetchMpsBomDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS}`);
 };
 
 export const fetchProductDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(`${PRODUCTION_ENDPOINTS.PRODUCTS}`);
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.PRODUCTS}`);
 };
 
 export const fetchAvailableStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.AVAILABLE_STATUS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.AVAILABLE_STATUS_DROPDOWN}`);
 };
 
 // mrp 순소요 - 견적 드롭다운
 export const fetchMrpQuotationsDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MRP_QUOTATION_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_QUOTATION_DROPDOWN}`);
 };
 
 // mrp 순소요 - 가용 재고 상태 드롭다운
 export const fetchMrpAvailableStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MRP_AVAILABLE_STATUS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_AVAILABLE_STATUS_DROPDOWN}`);
 };
 
 // mrp 계획 주문 -견적 드롭다운
 export const fetchMrpPlannedOrderQuotationsDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MRP_RUNS_QUOTATIONS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_QUOTATIONS_DROPDOWN}`);
 };
 
 // mrp 계획 주문 - 상태 드롭다운
 export const fetchMrpPlannedOrderStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MRP_RUNS_STATUS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MRP_RUNS_STATUS_DROPDOWN}`);
 };
 
 // mes 상태 드롭다운
 export const fetchMesStatusDropdown = async (): Promise<KeyValueItem[]> => {
-  const res = await axios.get<ApiResponse<KeyValueItem[]>>(
-    `${PRODUCTION_ENDPOINTS.MES_STATUS_DROPDOWN}`,
-  );
-  return res.data.data;
+  return getParsed(keyValueListSchema, `${PRODUCTION_ENDPOINTS.MES_STATUS_DROPDOWN}`);
 };

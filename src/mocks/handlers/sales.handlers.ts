@@ -133,7 +133,7 @@ export const salesHandlers = [
     const { salesOrderId } = params;
     return ok({
       order: {
-        salesOrderId: Number(salesOrderId) || 1,
+        salesOrderId: String(salesOrderId),
         salesOrderNumber: 'SO-2026-001',
         orderDate: '2026-01-12',
         dueDate: '2026-02-05',

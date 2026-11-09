@@ -10,16 +10,20 @@ export const INVENTORY_BASE_PATH = `${API_BASE_URL}/scm-pp`;
 export const HRM_BASE_PATH = `${API_BASE_URL}/business/hrm`;
 export const PROFILE_BASE_PATH = `${API_BASE_URL}/business/profile`;
 
-// 공통 응답 타입
+// 공통 응답 타입.
+// axios 인터셉터(src/lib/axiosInstance.ts)가 success === false 인 2xx 를 invalidShape 로 바꿔 reject 한다.
+// 그래서 api 함수가 받는 응답은 언제나 성공 쪽이고, 여기서 success 를 true 로 좁힌다.
+// 실패 본문의 message 는 AppError(toAppError)가 꺼낸다. 원본 본문을 다루는 코드가 없어 유니온은 두지 않는다.
+// data 의 모양은 영업, 구매, 생산 읽기에서 zod 로 확인한다(src/lib/api/parse.ts).
 export interface ApiResponse<T> {
   status: number;
-  success: boolean;
+  success: true;
   message: string;
   data: T;
 }
 export interface ApiResponseNoData {
   status: number;
-  success: boolean;
+  success: true;
   message: string;
 }
 

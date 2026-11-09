@@ -19,18 +19,27 @@ import { CustomerEditData, CustomerResponse } from './types/CustomerEditModalTyp
 import { Page } from '@/app/types/Page';
 import { ItemResponse, NewOrderRequest } from './types/NewOrderModalType';
 import axios from '@/lib/axiosInstance';
+import { getParsed } from '@/lib/api/parse';
+import {
+  customerDetailSchema,
+  customerListSchema,
+  customerSalesStatsSchema,
+  newQuoteItemsSchema,
+  orderDetailSchema,
+  orderListSchema,
+  quoteDetailSchema,
+  quoteListSchema,
+  salesAnalysisSchema,
+  salesStatsSchema,
+} from './sales.schemas';
 
 // ----------------------- 통계 지표 -----------------------
 export const getSalesStats = async (): Promise<SalesStatResponse> => {
-  const res = await axios.get<ApiResponse<SalesStatResponse>>(SALES_ENDPOINTS.STATS);
-  return res.data.data;
+  return getParsed(salesStatsSchema, SALES_ENDPOINTS.STATS);
 };
 
 export const getCustomerSalesStats = async (): Promise<CustomerSalesStatResponse> => {
-  const res = await axios.get<ApiResponse<CustomerSalesStatResponse>>(
-    SALES_ENDPOINTS.CSUTOMER_STATISTICS,
-  );
-  return res.data.data;
+  return getParsed(customerSalesStatsSchema, SALES_ENDPOINTS.CSUTOMER_STATISTICS);
 };
 
 // ----------------------- 견적 관리 -----------------------
@@ -48,16 +57,15 @@ export const getQuoteList = async (
     ...(params?.size && { size: String(params.size) }),
   }).toString();
 
-  const res = await axios.get<ApiResponse<{ content: Quote[]; page: Page }>>(
+  const { content, page } = await getParsed(
+    quoteListSchema,
     `${SALES_ENDPOINTS.QUOTES_LIST}?${query}`,
   );
-
-  return { data: res.data.data.content, pageData: res.data.data.page };
+  return { data: content, pageData: page };
 };
 
 export const getQuoteDetail = async (quotationId: string): Promise<QuoteDetail> => {
-  const res = await axios.get<ApiResponse<QuoteDetail>>(SALES_ENDPOINTS.QUOTE_DETAIL(quotationId));
-  return res.data.data;
+  return getParsed(quoteDetailSchema, SALES_ENDPOINTS.QUOTE_DETAIL(quotationId));
 };
 
 export const postNewQuote = async (items: NewOrderRequest): Promise<NewOrderRequest> => {
@@ -82,16 +90,15 @@ export const getOrderList = async (
     ...(params?.size && { size: String(params.size) }),
   }).toString();
 
-  const res = await axios.get<ApiResponse<{ content: Order[]; page: Page }>>(
+  const { content, page } = await getParsed(
+    orderListSchema,
     `${SALES_ENDPOINTS.ORDERS_LIST}?${query}`,
   );
-
-  return { data: res.data.data.content, pageData: res.data.data.page };
+  return { data: content, pageData: page };
 };
 
 export const getOrderDetail = async (salesOrderId: string): Promise<OrderDetail> => {
-  const res = await axios.get<ApiResponse<OrderDetail>>(SALES_ENDPOINTS.ORDER_DETAIL(salesOrderId));
-  return res.data.data;
+  return getParsed(orderDetailSchema, SALES_ENDPOINTS.ORDER_DETAIL(salesOrderId));
 };
 
 export const postQuotationConfirm = async (quotationId: string): Promise<ApiResponseNoData> => {
@@ -130,18 +137,15 @@ export const getCustomerList = async (
     ...(params?.size && { size: String(params.size) }),
   }).toString();
 
-  const res = await axios.get<ApiResponse<{ customers: SalesCustomer[]; page: Page }>>(
+  const { customers, page } = await getParsed(
+    customerListSchema,
     `${SALES_ENDPOINTS.CUSTOMERS_LIST}?${query}`,
   );
-
-  return { data: res.data.data.customers, pageData: res.data.data.page };
+  return { data: customers, pageData: page };
 };
 
 export const getCustomerDetail = async (customerId: string): Promise<CustomerDetail> => {
-  const res = await axios.get<ApiResponse<CustomerDetail>>(
-    SALES_ENDPOINTS.CUSTOMER_DETAIL(customerId),
-  );
-  return res.data.data;
+  return getParsed(customerDetailSchema, SALES_ENDPOINTS.CUSTOMER_DETAIL(customerId));
 };
 
 export const postCustomer = async (customer: CustomerData): Promise<ServerResponse> => {
@@ -170,14 +174,11 @@ export const getAnalytics = async (params?: AnalyticsQueryParams): Promise<Sales
     ...(params?.endDate && { endDate: params.endDate }),
   }).toString();
 
-  const res = await axios.get<ApiResponse<SalesAnalysis>>(`${SALES_ENDPOINTS.ANALYTICS}?${query}`);
-  return res.data.data;
+  return getParsed(salesAnalysisSchema, `${SALES_ENDPOINTS.ANALYTICS}?${query}`);
 };
 
 // 신규 견적 요청을 위한 자재 가져오기
 export const getItemInfoForNewQuote = async (): Promise<ItemResponse[]> => {
-  const res = await axios.get<ApiResponse<{ products: ItemResponse[] }>>(
-    SALES_ENDPOINTS.NEW_QUOTE_ITEM_TOGGLE,
-  );
-  return res.data.data.products;
+  const { products } = await getParsed(newQuoteItemsSchema, SALES_ENDPOINTS.NEW_QUOTE_ITEM_TOGGLE);
+  return products;
 };
