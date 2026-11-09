@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { userInfoResponse } from '@/app/(public)/callback/userInfoType';
+import type { UserInfo } from '@/lib/auth/userInfo';
 
 interface AuthState {
-  userInfo: userInfoResponse | null;
-  setUserInfo: (info: userInfoResponse) => void;
+  userInfo: UserInfo | null;
+  setUserInfo: (info: UserInfo) => void;
   clearUserInfo: () => void;
 }
 

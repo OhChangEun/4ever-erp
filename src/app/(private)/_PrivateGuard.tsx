@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { readUserResponse } from '@/app/(public)/callback/userInfoType';
+import { readUserResponse } from '@/lib/auth/userInfo';
 
 // 로그인 여부는 서버가 판단한다.
 // 브라우저에 남은 값(localStorage·zustand persist)은 표시용 캐시일 뿐이고, 매 진입마다 /api/auth/me 로 확인한다.

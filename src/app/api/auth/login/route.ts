@@ -1,4 +1,4 @@
-import { SESSION_COOKIE, signSession } from '@/lib/auth/session';
+import { startSession } from '@/server/auth/session';
 import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { NextRequest, NextResponse } from 'next/server';
@@ -43,17 +43,8 @@ export async function POST(req: NextRequest) {
   // 4. NextResponse.json({ user }) 만들고
   const res = NextResponse.json({ user });
 
-  // 5. res.cookies.set({ ... }) 로 세션 쿠키 심기
-  const value = await signSession({ sub: loginId, role: user.role });
-  res.cookies.set({
-    name: SESSION_COOKIE,
-    value,
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24,
-  });
+  // 5. 세션 시작 - 쿠키 이름과 옵션(httpOnly, lax, 1일)은 세션 모듈이 정한다
+  await startSession(res, { sub: loginId, role: user.role });
 
   // 6. res 반환
   return res;

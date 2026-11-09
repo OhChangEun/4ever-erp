@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
-import { readErrorMessage, readUserResponse } from '@/app/(public)/callback/userInfoType';
+import { readErrorMessage, readUserResponse } from '@/lib/auth/userInfo';
 import Button from '@/app/components/common/Button';
 import Flex from '@/app/components/common/Flex';
 import LogoMark from '@/app/components/header/LogoMark';
