@@ -18,7 +18,7 @@ jobs:
   verify:
     name: lint, type-check, test, build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -41,3 +41,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # 방금 만든 빌드를 next start 로 띄워 화면을 시험한다. 브라우저는 러너에 설치된 Chrome(channel: 'chrome')
+      - name: E2E (Playwright)
+        run: npm run e2e
+
+      - name: E2E 실패 기록 올리기
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
