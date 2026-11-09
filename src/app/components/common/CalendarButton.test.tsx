@@ -25,12 +25,12 @@ describe('CalendarButton', () => {
   it('이전 달, 다음 달로 넘긴다', async () => {
     render(<CalendarButton selectedDate="2026-11-15" onDateChange={vi.fn()} />);
     const dialog = await openCalendar('2026-11-15');
-    expect(within(dialog).getByText('2026년 11월')).toBeInTheDocument();
+    expect(within(dialog).getByRole('grid', { name: '2026년 11월' })).toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('button', { name: '다음 달' }));
-    expect(within(dialog).getByText('2026년 12월')).toBeInTheDocument();
+    expect(within(dialog).getByRole('grid', { name: '2026년 12월' })).toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('button', { name: '이전 달' }));
     await userEvent.click(within(dialog).getByRole('button', { name: '이전 달' }));
-    expect(within(dialog).getByText('2026년 10월')).toBeInTheDocument();
+    expect(within(dialog).getByRole('grid', { name: '2026년 10월' })).toBeInTheDocument();
   });
 
   it('초기화하면 null', async () => {
@@ -58,9 +58,40 @@ describe('CalendarButton', () => {
     const onDateChange = vi.fn();
     render(<CalendarButton selectedDate="2026-11-15" onDateChange={onDateChange} />);
     const dialog = await openCalendar('2026-11-15');
-    within(dialog).getByRole('button', { name: /11월 15일/ }).focus();
+    within(dialog)
+      .getByRole('button', { name: /11월 15일/ })
+      .focus();
     await userEvent.keyboard('{ArrowRight}{ArrowDown}{Enter}');
     expect(onDateChange).toHaveBeenCalledWith('2026-11-23');
+  });
+
+  it('연도와 월을 바로 고른다(생년월일)', async () => {
+    const onDateChange = vi.fn();
+    render(
+      <CalendarButton selectedDate={null} onDateChange={onDateChange} placeholder="생년월일" />,
+    );
+    const dialog = await openCalendar('생년월일');
+    await userEvent.selectOptions(within(dialog).getByRole('combobox', { name: '연도' }), '1990');
+    await userEvent.selectOptions(within(dialog).getByRole('combobox', { name: '월' }), '4');
+    await userEvent.click(within(dialog).getByRole('button', { name: /1990년 5월 3일/ }));
+    expect(onDateChange).toHaveBeenCalledWith('1990-05-03');
+  });
+
+  it('키보드로 최소 날짜를 넘어가지 않는다(포커스와 선택이 어긋나지 않게)', async () => {
+    const onDateChange = vi.fn();
+    render(
+      <CalendarButton
+        selectedDate="2026-11-05"
+        onDateChange={onDateChange}
+        minDate={new Date(2026, 10, 5)}
+      />,
+    );
+    const dialog = await openCalendar('2026-11-05');
+    within(dialog)
+      .getByRole('button', { name: /11월 5일/ })
+      .focus();
+    await userEvent.keyboard('{ArrowLeft}{PageUp}{ArrowRight}{Enter}');
+    expect(onDateChange).toHaveBeenCalledWith('2026-11-06');
   });
 
   it('Esc 로 닫고 포커스를 버튼으로 돌린다', async () => {
