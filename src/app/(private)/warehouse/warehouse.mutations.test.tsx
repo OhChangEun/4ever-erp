@@ -8,7 +8,7 @@ import { createTestQueryClient } from '@/test/render';
 import { expectMatrix } from '@/test/mutationMatrix';
 import { scenarioResponse } from '@/mocks/scenario';
 import { warehouseKeys, warehouseStatsKeys } from './warehouse.keys';
-import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
+import { warehouseInfoKeys } from '@/app/(private)/inventory';
 import type { WarehouseListResponse } from './types/WarehouseListType';
 import type { Page } from '@/app/types/Page';
 import { useAddWarehouse, useEditWarehouse } from './warehouse.mutations';

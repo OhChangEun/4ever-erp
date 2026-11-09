@@ -1,6 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
+import { STOCK_COLORS } from '../stockColors';
 import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense, useMemo, useState } from 'react';
 import {
@@ -80,11 +81,20 @@ const WarehouseVisualizer = ({
           </div>
 
           <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-            <span className="inline-flex h-3 w-3 rounded-full bg-[#2563eb]" />
+            <span
+              className="inline-flex h-3 w-3 rounded-full"
+              style={{ backgroundColor: STOCK_COLORS.normal.base }}
+            />
             정상
-            <span className="inline-flex h-3 w-3 rounded-full bg-[#f59e0b]" />
+            <span
+              className="inline-flex h-3 w-3 rounded-full"
+              style={{ backgroundColor: STOCK_COLORS.warning.base }}
+            />
             주의
-            <span className="inline-flex h-3 w-3 rounded-full bg-[#ef4444]" />
+            <span
+              className="inline-flex h-3 w-3 rounded-full"
+              style={{ backgroundColor: STOCK_COLORS.low.base }}
+            />
             부족
           </div>
         </div>

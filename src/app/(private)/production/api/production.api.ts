@@ -21,7 +21,7 @@ import { MrpPlannedOrdersDetailResponse } from '../types/MrpPlannedOrdersDetailA
 import { BomRequestBody, MaterialResponse } from '../types/BomType';
 import { PageRequest } from '@/app/types/Page';
 import { MrpOrdersConvertReqeustBody } from '../types/MrpOrdersConvertApiType';
-import { ItemResponse } from '../../inventory/types/ItemListType';
+import type { ItemResponse } from '@/app/(private)/inventory';
 import { FetchMrpOrdersListParams, MrpOrdersListResponse } from '../types/MrpOrdersApiType';
 import axios from '@/lib/axiosInstance';
 import { getParsed, parseData } from '@/lib/api/parse';

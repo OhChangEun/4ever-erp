@@ -5,14 +5,14 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import Pagination from '@/app/components/common/Pagination';
-import { LOW_STOCK_STATUS_OPTIONS } from '../../inventory/inventory.constants';
+import { LOW_STOCK_STATUS_OPTIONS } from '@/app/(private)/inventory';
 import { getLowStockList } from '../lowStock.api';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
-import InventoryPurchaseRequestModal from '../../inventory/components/modals/InventoryPurchaseRequestModal';
+import { InventoryPurchaseRequestModal } from '@/app/(private)/inventory/ui';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 import { formatCurrency } from '@/app/utils/number';

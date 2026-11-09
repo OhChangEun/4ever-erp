@@ -23,11 +23,11 @@ import {
   productionStatsKeys,
   quotationKeys,
 } from './production.keys';
-import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { createStockPurchaseRequest } from '@/app/(private)/purchase';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
 import type { BomRequestBody } from '@/app/(private)/production/types/BomType';
 import type { MrpOrdersConvertReqeustBody } from '@/app/(private)/production/types/MrpOrdersConvertApiType';
-import type { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import type { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase';
 import type { ApiResponse } from '@/app/types/api';
 import type { QuotationSimulationResponse } from '@/app/(private)/production/types/QuotationSimulationApiType';
 

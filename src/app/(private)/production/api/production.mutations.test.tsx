@@ -15,7 +15,7 @@ import {
   productionStatsKeys,
   quotationKeys,
 } from './production.keys';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
 import {
   PRODUCTION_MUTATION_EFFECTS,
   useCompleteMes,

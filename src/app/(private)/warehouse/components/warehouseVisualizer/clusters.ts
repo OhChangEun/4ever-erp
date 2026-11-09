@@ -1,4 +1,4 @@
-import { InventoryResponse } from '@/app/(private)/inventory/types/InventoryListType';
+import type { InventoryResponse } from '@/app/(private)/inventory';
 import { VisualizerItem, WarehouseCluster, WarehouseFilter } from './WarehouseVisualizerType';
 
 export const SAMPLE_INVENTORY: InventoryResponse[] = [

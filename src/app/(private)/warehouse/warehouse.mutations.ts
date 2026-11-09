@@ -6,7 +6,7 @@ import {
 } from '@/lib/query/useInvalidatingMutation';
 import { patchManageWarehouse, postAddWarehouse } from './warehouse.api';
 import { warehouseKeys, warehouseStatsKeys } from './warehouse.keys';
-import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
+import { warehouseInfoKeys } from '@/app/(private)/inventory';
 import type { AddWarehouseRequest } from './types/AddWarehouseModalType';
 import type { EditWarehouseRequest } from './types/ManageWarehouseModalType';
 import type { WarehouseListResponse } from './types/WarehouseListType';

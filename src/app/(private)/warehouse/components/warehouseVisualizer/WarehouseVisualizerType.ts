@@ -1,4 +1,4 @@
-import { InventoryResponse } from '@/app/(private)/inventory/types/InventoryListType';
+import type { InventoryResponse } from '@/app/(private)/inventory';
 import { InventoryQueryParamForWarehouse } from './useWarehouseClusters';
 
 export type ViewMode = 'overview' | 'warehouse';

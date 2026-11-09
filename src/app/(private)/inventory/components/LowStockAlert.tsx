@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LowStockItemResponse } from '../../low-stock/types/LowStockAlertType';
+import type { LowStockItemResponse } from '@/app/(private)/low-stock';
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../inventory.api';
 import Button from '@/app/components/common/Button';

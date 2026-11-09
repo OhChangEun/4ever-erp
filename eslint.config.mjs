@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import everp from './eslint-rules/index.mjs';
 
 export default defineConfig([
   globalIgnores([
@@ -59,6 +60,17 @@ export default defineConfig([
             "toISOString().split('T')[0] 은 UTC 날짜다. 현지 날짜는 '@/app/utils/date' 의 toDateKey 를 쓴다.",
         },
       ],
+    },
+  },
+
+  // EverP 로컬 규칙(eslint-rules/, 커스텀 ESLint 규칙 카드). 문서 규칙을 린트로 지킨다. 위반 0 에서 켰다(2026-11-10).
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    plugins: { everp },
+    rules: {
+      'everp/domain-boundary': 'error', // 다른 도메인은 그 도메인의 index.ts 로만
+      'everp/no-component-mutation': 'error', // useMutation 은 *.mutations.ts 와 src/lib/query 에서만
+      'everp/no-arbitrary-color': 'error', // bg-[#...] 대신 색 토큰
     },
   },
 

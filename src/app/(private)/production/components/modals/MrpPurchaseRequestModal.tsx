@@ -6,7 +6,7 @@ import { mrpItemsInfoKeys } from '../../api/production.keys';
 import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
-import { ItemResponse } from '@/app/(private)/inventory/types/ItemListType';
+import type { ItemResponse } from '@/app/(private)/inventory';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 

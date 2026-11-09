@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getColorClasses } from '../dashboard.utils';
 import { ActionCardProps } from '../types/ActionCardType';
 import { useModal } from '@/app/components/common/modal/useModal';
-import NewOrderModal from '../../sales/components/modals/NewOrderModal';
+import { NewOrderModal } from '@/app/(private)/sales/ui';
 
 export const ActionCard = ({ title, description, icon, color, href }: ActionCardProps) => {
   const { openModal } = useModal();

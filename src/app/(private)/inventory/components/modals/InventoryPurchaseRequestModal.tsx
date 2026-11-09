@@ -1,7 +1,7 @@
 'use client';
 
 import { useRequestPurchaseForLowStock } from '@/app/(private)/inventory/inventory.mutations';
-import { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase';
 import Input from '@/app/components/common/Input';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';

@@ -15,9 +15,9 @@ import {
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
-import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
-import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
+import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
+import { salesOrderKeys } from '@/app/(private)/sales';
 import type { InventoryDetailResponse } from './types/InventoryDetailModalType';
 import type { InventoryResponse } from './types/InventoryListType';
 import type { Page } from '@/app/types/Page';
