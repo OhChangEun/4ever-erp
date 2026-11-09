@@ -1,10 +1,12 @@
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchPayRollDetail, postPayrollComplete } from '@/app/(private)/hrm/api/hrm.api';
+import { useQuery } from '@tanstack/react-query';
+import { fetchPayRollDetail } from '@/app/(private)/hrm/api/hrm.api';
 import Button from '@/app/components/common/Button';
 import { PayRollCompleteRequestParams } from '../../types/HrmPayrollApiType';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useCompletePayroll } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { formatCurrency } from '@/app/utils/number';
@@ -14,20 +16,14 @@ interface PayrollDetailModalProps extends ModalProps {
 }
 
 export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
-  const queryClient = useQueryClient();
   const toast = useToast();
 
-  const mutation = useMutation({
-    mutationFn: (params: PayRollCompleteRequestParams) => postPayrollComplete(params),
+  const mutation = useCompletePayroll({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: payrollKeys.lists() });
       onClose();
       toast.success('급여 지급 완료 처리되었습니다.');
     },
-    onError: (error) => {
-      console.log('급여 지급 처리 실패: ', error);
-      toast.error('급여 지급 처리에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`급여 지급 처리에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handlePayrollComplete = () => {

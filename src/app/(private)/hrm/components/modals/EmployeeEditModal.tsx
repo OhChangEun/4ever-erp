@@ -1,13 +1,15 @@
 import { EmployeeData, EmployeeUpdateRequest } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { fetchDepartmentsDropdown, fetchPositionsDropdown, putEmployee } from '../../api/hrm.api';
+import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '../../api/hrm.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { employeeKeys, positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { useUpdateEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
+import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import Button from '@/app/components/common/Button';
 interface EmployeeEditModalProps extends ModalProps {
@@ -20,7 +22,6 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
 
   const { removeAllModals } = useModal();
   const toast = useToast();
-  const queryClient = useQueryClient();
 
   // 부서 드롭다운
   const { options: departmentsOptions } = useDropdown(
@@ -36,18 +37,12 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   });
 
   // mutation 설정
-  const mutation = useMutation({
-    mutationFn: (data: EmployeeUpdateRequest) => putEmployee(employee.employeeId, data),
+  const mutation = useUpdateEmployee({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
-
       removeAllModals();
-      toast.success('고객정보가 수정되었습니다.');
+      toast.success('직원 정보가 수정되었습니다.');
     },
-    onError: (error) => {
-      console.error('직원 정보 수정 실패: ', error);
-      toast.error('직원 정보 수정에 실패했습니다. 다시 시도해주세요.');
-    },
+    onError: (error) => toast.error(`직원 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSave = () => {
@@ -63,7 +58,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
     };
 
     // mutation 호출
-    mutation.mutate(requestBodyData);
+    mutation.mutate({ employeeId: employee.employeeId, body: requestBodyData });
   };
 
   return (

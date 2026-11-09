@@ -1,11 +1,13 @@
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { CreateProgramRequest } from '../../types/HrmProgramApiType';
-import { fetchTrainingCategoryDropdown, postProgram } from '../../api/hrm.api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchTrainingCategoryDropdown } from '../../api/hrm.api';
+import { useQuery } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
@@ -18,18 +20,12 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
     staleTime: Infinity,
   });
 
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: (data: CreateProgramRequest) => postProgram(data),
+  const mutation = useCreateProgram({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: programKeys.lists() });
       onClose();
       toast.success('교육 프로그램이 추가되었습니다.');
     },
-    onError: (error) => {
-      console.error('교육 프로그램 추가 실패', error);
-      toast.error('교육 프로그램 추가에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`교육 프로그램 추가에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

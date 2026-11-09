@@ -1,10 +1,8 @@
+import type { QueryKey } from '@tanstack/react-query';
 import {
-  useMutation,
-  useQueryClient,
-  type QueryClient,
-  type QueryKey,
-  type UseMutationResult,
-} from '@tanstack/react-query';
+  useInvalidatingMutation,
+  type MutationCallbacks,
+} from '@/lib/query/useInvalidatingMutation';
 import {
   approvePurchaseOrder,
   approvePurchaseRequest,
@@ -78,33 +76,17 @@ export type PurchaseMutationName = keyof typeof PURCHASE_MUTATION_EFFECTS;
 export const purchaseMutationKey = (name: PurchaseMutationName) =>
   ['purchase', 'mutation', name] as const;
 
-/** 컴포넌트가 넘길 수 있는 것. 무효화는 훅이 하고, 여기 onSuccess 는 그 뒤에 불린다. */
-export interface MutationCallbacks<TData, TVariables> {
-  onSuccess?: (data: TData, variables: TVariables) => void;
-  onError?: (error: Error, variables: TVariables) => void;
-}
-
-const invalidateAll = (queryClient: QueryClient, keys: readonly QueryKey[]) =>
-  Promise.all(keys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
-
-type Result<TData, TVariables> = UseMutationResult<TData, Error, TVariables>;
-
 function usePurchaseMutation<TData, TVariables>(
   name: PurchaseMutationName,
   mutationFn: (variables: TVariables) => Promise<TData>,
   effects: (variables: TVariables) => readonly QueryKey[],
-  callbacks: MutationCallbacks<TData, TVariables> = {},
-): Result<TData, TVariables> {
-  const queryClient = useQueryClient();
-  return useMutation<TData, Error, TVariables>({
+  callbacks?: MutationCallbacks<TData, TVariables>,
+) {
+  return useInvalidatingMutation<TData, TVariables>({
     mutationKey: purchaseMutationKey(name),
     mutationFn,
-    onSuccess: async (data, variables) => {
-      // 성공했을 때만 다시 가져온다. 실패면 서버가 안 바뀌었다.
-      await invalidateAll(queryClient, effects(variables));
-      callbacks.onSuccess?.(data, variables);
-    },
-    onError: (error, variables) => callbacks.onError?.(error, variables),
+    effects,
+    callbacks,
   });
 }
 
