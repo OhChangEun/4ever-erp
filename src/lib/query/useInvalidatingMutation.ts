@@ -1,3 +1,4 @@
+import { useCallback, useRef } from 'react';
 import {
   useMutation,
   useQueryClient,
@@ -33,7 +34,10 @@ export function useInvalidatingMutation<TData, TVariables>({
   callbacks = {},
 }: InvalidatingMutationOptions<TData, TVariables>): UseMutationResult<TData, Error, TVariables> {
   const queryClient = useQueryClient();
-  return useMutation<TData, Error, TVariables>({
+  // 중복 제출 안전망. 같은 훅의 요청이 진행 중이면 두 번째 mutate 는 버린다.
+  // isPending 은 렌더 스냅샷이라 같은 틱의 더블 클릭을 못 막는다. ref 로 즉시 표시한다.
+  const inFlight = useRef(false);
+  const mutation = useMutation<TData, Error, TVariables>({
     mutationKey,
     mutationFn,
     onSuccess: async (data, variables) => {
@@ -41,5 +45,28 @@ export function useInvalidatingMutation<TData, TVariables>({
       callbacks.onSuccess?.(data, variables);
     },
     onError: (error, variables) => callbacks.onError?.(error, variables),
+    onSettled: () => {
+      inFlight.current = false;
+    },
   });
+
+  const { mutate: rawMutate } = mutation;
+  const mutate = useCallback<typeof rawMutate>(
+    (...args) => {
+      if (inFlight.current) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[mutation] 진행 중인 요청이 있어 중복 호출을 버렸다:', mutationKey);
+        }
+        return;
+      }
+      inFlight.current = true;
+      rawMutate(...args);
+    },
+    // mutationKey 는 경고 문구용. 배열 리터럴이 매 렌더 바뀌어도 동작엔 영향 없다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rawMutate],
+  );
+
+  // mutateAsync 는 그대로 둔다. 순차 호출과 테스트가 쓴다. 화면 버튼은 mutate 를 쓴다.
+  return { ...mutation, mutate };
 }

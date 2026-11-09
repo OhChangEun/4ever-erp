@@ -62,11 +62,11 @@ export default function LeaveTab() {
   type LeaveItem = (typeof leaveList)[0];
 
   // mutation 과 무효화 범위는 hrm.mutations.ts 한 곳.
-  const { mutate: approveLeave } = useApproveLeave({
+  const { mutate: approveLeave, isPending: isApproving } = useApproveLeave({
     onSuccess: () => toast.success('승인이 완료되었습니다.'),
     onError: (error) => toast.error(`휴가 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: rejectLeave } = useRejectLeave({
+  const { mutate: rejectLeave, isPending: isRejecting } = useRejectLeave({
     onSuccess: () => toast.info('반려되었습니다.'),
     onError: (error) => toast.error(`휴가 반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
@@ -131,6 +131,7 @@ export default function LeaveTab() {
               size="sm"
               className="px-2"
               onClick={() => handleApprove(leave.leaveRequestId)}
+              loading={isApproving}
             />
             <Button
               label="반려"
@@ -138,6 +139,7 @@ export default function LeaveTab() {
               size="sm"
               className="text-red-600 hover:bg-red-50 px-2"
               onClick={() => handleReject(leave.leaveRequestId)}
+              loading={isRejecting}
             />
           </div>
         ) : (

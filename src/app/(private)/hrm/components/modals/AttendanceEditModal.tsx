@@ -75,7 +75,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
         </div>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" label="수정" />
+        <Button type="submit" label="수정" loading={mutation.isPending} />
       </div>
     </form>
   );

@@ -91,7 +91,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
 
   // 계획 주문 전환 mutation
   const router = useRouter();
-  const { mutate: mrpConvert } = useConvertMrpOrders({
+  const { mutate: mrpConvert, isPending: isConverting } = useConvertMrpOrders({
     onSuccess: () => {
       toast.success('계획 주문 전환이 완료되었습니다.');
       router.push('/production?tab=mrp&subTab=orders');
@@ -231,6 +231,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
           <Button
             label="계획 주문 전환"
             onClick={handleConvertToPlannedOrder}
+            loading={isConverting}
             disabled={selectedRequirements.length === 0}
           />
         </div>

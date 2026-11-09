@@ -63,7 +63,7 @@ export default function AddEmployeeTrainingModal({
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" label="추가" />
+        <Button type="submit" label="추가" loading={mutation.isPending} />
       </div>
     </form>
   );

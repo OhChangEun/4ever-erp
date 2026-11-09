@@ -87,12 +87,12 @@ export default function PurchaseRequestListTab() {
   });
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳.
-  const { mutate: approveRequest } = useApprovePurchaseRequest({
+  const { mutate: approveRequest, isPending: isApproving } = useApprovePurchaseRequest({
     onSuccess: () => toast.success('구매 요청 승인 완료되었습니다.'),
     onError: (error) =>
       toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-  const { mutate: rejectRequest } = useRejectPurchaseRequest({
+  const { mutate: rejectRequest, isPending: isRejecting } = useRejectPurchaseRequest({
     onSuccess: () => toast.success('반려 처리되었습니다.'),
     onError: (error) => toast.error(`반려 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
@@ -176,6 +176,7 @@ export default function PurchaseRequestListTab() {
                 size="sm"
                 className="px-2"
                 onClick={() => handleApprove(r.purchaseRequisitionId)}
+                loading={isApproving}
               />
               <Button
                 label="반려"
@@ -183,6 +184,7 @@ export default function PurchaseRequestListTab() {
                 size="sm"
                 className="text-red-600 hover:bg-red-50 px-2"
                 onClick={() => handleReject(r.purchaseRequisitionId)}
+                loading={isRejecting}
               />
             </>
           )}

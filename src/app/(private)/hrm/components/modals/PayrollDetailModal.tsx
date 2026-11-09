@@ -156,7 +156,11 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
 
       {payStatus === 'PAYROLL_UNPAID' ? (
         <div className="flex justify-end">
-          <Button label="지급완료 처리" onClick={handlePayrollComplete}></Button>
+          <Button
+            label="지급완료 처리"
+            onClick={handlePayrollComplete}
+            loading={mutation.isPending}
+          />
         </div>
       ) : null}
     </div>
