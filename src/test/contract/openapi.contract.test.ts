@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { parse } from 'yaml';
 import * as z from 'zod';
 import openapiTS, { astToString } from 'openapi-typescript';
@@ -116,5 +117,81 @@ describe('OpenAPI 계약: 창고', () => {
     // 생성 파일 머리의 주석과 prettier 차이를 빼고 비교한다
     const body = (source: string) => source.replace(/\s+/g, '').replace(/^\/\*\*.*?\*\//, '');
     expect(body(committed)).toBe(body(generated));
+  });
+});
+
+// ---------- 전 도메인(OpenAPI 계약 2 카드) ----------
+
+const API_FILES = [
+  'src/app/(private)/dashboard/dashboard.api.ts',
+  'src/app/(private)/finance/finance.api.ts',
+  'src/app/(private)/hrm/api/hrm.api.ts',
+  'src/app/(private)/inventory/inventory.api.ts',
+  'src/app/(private)/low-stock/lowStock.api.ts',
+  'src/app/(private)/production/api/production.api.ts',
+  'src/app/(private)/purchase/api/purchase.api.ts',
+  'src/app/(private)/sales/sales.api.ts',
+  'src/app/(private)/warehouse/warehouse.api.ts',
+  'src/lib/api/notification.api.ts',
+];
+
+const ENDPOINT_MODULES = [
+  'src/app/types/api.ts',
+  'src/app/(private)/hrm/api/hrm.endpoints.ts',
+  'src/app/(private)/production/api/production.endpoints.ts',
+  'src/app/(private)/purchase/api/purchase.endpoints.ts',
+  'src/lib/api/notification.endpoints.ts',
+];
+
+/** `HRM_ENDPOINTS.EMPLOYEE_DETAIL` → 실제 주소. 함수형은 아무 값이나 넣어 부른다 */
+const loadEndpointUrls = async () => {
+  const urls = new Map<string, string>();
+  for (const file of ENDPOINT_MODULES) {
+    const mod: Record<string, unknown> = await import(path.join(process.cwd(), file));
+    for (const [name, value] of Object.entries(mod)) {
+      if (!name.endsWith('_ENDPOINTS') || typeof value !== 'object' || value === null) continue;
+      for (const [key, endpoint] of Object.entries(value)) {
+        const url =
+          typeof endpoint === 'function'
+            ? String(endpoint('id-1', 'id-2'))
+            : typeof endpoint === 'string'
+              ? endpoint
+              : null;
+        if (url) urls.set(`${name}.${key}`, url);
+      }
+    }
+  }
+  return urls;
+};
+
+const usedEndpointNames = () =>
+  new Set(
+    API_FILES.flatMap((file) => [
+      ...readFileSync(file, 'utf8').matchAll(/\b([A-Z_]+_ENDPOINTS)\.([A-Z0-9_]+)\b/g),
+    ]).map((m) => `${m[1]}.${m[2]}`),
+  );
+
+describe('OpenAPI 계약: 전 도메인', () => {
+  it('api 파일이 쓰는 엔드포인트가 전부 계약에 있다', async () => {
+    const contract = loadContract();
+    const urls = await loadEndpointUrls();
+    const missing = [...usedEndpointNames()].filter((name) => {
+      const url = urls.get(name);
+      return !url || !findPath(contract.paths, url);
+    });
+    expect(missing).toEqual([]);
+  });
+
+  it('계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
+    const contract = loadContract();
+    const gets = Object.keys(contract.paths).filter((p) => contract.paths[p]?.get);
+    expect(gets.length).toBeGreaterThan(60);
+    const failures: string[] = [];
+    for (const template of gets) {
+      const url = `${API_BASE_URL}${template.replace(/\{[^}]+\}/g, 'id-1')}`;
+      const result = responseSchema(contract, template, 'get').safeParse(await mockJson(url));
+      if (!result.success) failures.push(`${template}: ${z.prettifyError(result.error)}`);
+    }
+    expect(failures).toEqual([]);
   });
 });
