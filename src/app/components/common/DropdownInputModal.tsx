@@ -27,11 +27,6 @@ export default function DropdownInputModal({
     whileElementsMounted: autoUpdate, // 요소가 변경될 때 위치 자동 업데이트
   });
 
-  // 부모에서 value가 바뀌면 inputValue 동기화
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
   // 모달 바깥 클릭 시 모달 닫기 및 값 제출
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -47,7 +42,11 @@ export default function DropdownInputModal({
   }, [isOpen, refs, inputValue, onSubmit]);
 
   // 모달 열기
-  const openModal = () => setIsOpen(true);
+  // 열 때 부모의 최신 값으로 초안을 채운다(예전엔 effect 로 매번 복사했다)
+  const openModal = () => {
+    setInputValue(value);
+    setIsOpen(true);
+  };
 
   // 확인 버튼 클릭 시
   const handleSubmit = () => {

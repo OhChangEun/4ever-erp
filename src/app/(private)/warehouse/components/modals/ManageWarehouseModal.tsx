@@ -5,7 +5,7 @@ import { ManageWarehouseModalProps } from '../../types/ManageWarehouseModalType'
 import { WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
 import { getWarehouseDetail, getWarehouseManagerInfo } from '../../warehouse.api';
 import { useEditWarehouse } from '../../warehouse.mutations';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
@@ -28,31 +28,19 @@ interface ManageWarehouseRequest {
 
 const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseModalProps) => {
   const toast = useToast();
-  const [formData, setFormData] = useState<ManageWarehouseRequest>({
-    warehouseName: '',
-    warehouseNumber: '',
-    warehouseType: '',
-    statusCode: '',
-    location: '',
-    managerId: '',
-    managerName: '',
-    managerPhoneNumber: '',
-    managerEmail: '',
-    description: '',
-  });
+  // 서버 값으로 한 번만 채우는 초안. 채운 뒤의 재조회는 입력을 덮지 않는다(예전엔 effect 가 매번 덮었다)
+  const [formData, setFormData] = useState<ManageWarehouseRequest | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => (prev ? { ...prev, [name]: value } : prev));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData) return;
     const data = {
       warehouseName: formData.warehouseName,
       warehouseType: formData.warehouseType,
@@ -94,28 +82,24 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     onError: (error) => toast.error(`창고 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
-  useEffect(() => {
-    if (warehouseInfo && managerInfo && ManagerInfoRes?.length) {
-      let matched = ManagerInfoRes.find((m) => m.managerId === managerInfo.managerId);
-
-      if (!matched) {
-        matched = ManagerInfoRes.find((m) => m.managerName === managerInfo.managerName);
-      }
-
-      setFormData({
-        warehouseName: warehouseInfo.warehouseName ?? '',
-        warehouseNumber: warehouseInfo.warehouseNumber ?? '',
-        warehouseType: warehouseInfo.warehouseType ?? '',
-        statusCode: warehouseInfo.statusCode ?? '',
-        location: warehouseInfo.location ?? '',
-        managerId: matched?.managerId ?? managerInfo.managerId ?? '',
-        managerName: managerInfo.managerName ?? '',
-        managerPhoneNumber: managerInfo.managerPhoneNumber ?? '',
-        managerEmail: managerInfo.managerEmail ?? '',
-        description: warehouseInfo.description ?? '',
-      });
-    }
-  }, [warehouseInfo, managerInfo, ManagerInfoRes]);
+  // 세 조회가 다 오면 렌더 중에 한 번 채운다. 담당자 목록이 비어 있어도 상세의 담당자로 채운다
+  if (formData === null && warehouseInfo && managerInfo && ManagerInfoRes) {
+    const matched =
+      ManagerInfoRes.find((m) => m.managerId === managerInfo.managerId) ??
+      ManagerInfoRes.find((m) => m.managerName === managerInfo.managerName);
+    setFormData({
+      warehouseName: warehouseInfo.warehouseName ?? '',
+      warehouseNumber: warehouseInfo.warehouseNumber ?? '',
+      warehouseType: warehouseInfo.warehouseType ?? '',
+      statusCode: warehouseInfo.statusCode ?? '',
+      location: warehouseInfo.location ?? '',
+      managerId: matched?.managerId ?? managerInfo.managerId ?? '',
+      managerName: managerInfo.managerName ?? '',
+      managerPhoneNumber: managerInfo.managerPhoneNumber ?? '',
+      managerEmail: managerInfo.managerEmail ?? '',
+      description: warehouseInfo.description ?? '',
+    });
+  }
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isWarehouseInfoError, isManagerInfoError);
@@ -126,22 +110,26 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   if (isManagerInfoLoading)
     return <ModalStatusBox type="loading" message="담당자 정보를 불러오는 중입니다..." />;
 
-  if (errorDialog.isOpen)
-    return (
-      <ModalStatusBox
-        type="error"
-        message="담당자 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => errorDialog.dismiss()}
-      />
-    );
+  // 두 조회 중 무엇이 실패했는지 한 창에 적는다(예전엔 같은 조건의 분기가 둘이라 두 번째는 닿지 않았다)
+  const loadErrorMessage = isWarehouseInfoError
+    ? '창고 정보를 불러오는 중 오류가 발생했습니다.'
+    : '담당자 정보를 불러오는 중 오류가 발생했습니다.';
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        message={loadErrorMessage}
         onClose={() => errorDialog.dismiss()}
       />
+    );
+
+  // 조회가 실패한 채로 빈 폼을 띄우면 빈 값이 저장될 수 있다. 닫은 뒤에도 폼 대신 오류를 둔다
+  if (formData === null)
+    return isWarehouseInfoError || isManagerInfoError ? (
+      <ModalStatusBox type="error" message={loadErrorMessage} onClose={onClose} />
+    ) : (
+      <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />
     );
 
   return (
@@ -218,12 +206,16 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
               const managerId = e.target.value;
               const selectedManager = ManagerInfoRes?.find((m) => m.managerId === managerId);
 
-              setFormData((prev) => ({
-                ...prev,
-                managerId,
-                managerPhoneNumber: selectedManager?.managerPhone ?? '',
-                managerEmail: selectedManager?.managerEmail ?? '',
-              }));
+              setFormData((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      managerId,
+                      managerPhoneNumber: selectedManager?.managerPhone ?? '',
+                      managerEmail: selectedManager?.managerEmail ?? '',
+                    }
+                  : prev,
+              );
             }}
             name="managerId"
             value={formData.managerId}

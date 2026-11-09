@@ -4,21 +4,6 @@
       "count": 1
     }
   },
-  "src/app/(private)/layout.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/production/BomTreeContainer.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/purchase/components/modals/SupplierFormModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/app/(private)/sales/components/modals/CustomerEditModal.tsx": {
     "react-hooks/immutability": {
       "count": 2
@@ -34,23 +19,8 @@
       "count": 1
     }
   },
-  "src/app/(private)/warehouse/components/modals/ManageWarehouseModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/app/(private)/warehouse/components/warehouseVisualizer/components/FreeCameraControls.tsx": {
     "react-hooks/immutability": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/warehouse/components/warehouseVisualizer/components/WarehouseVisualizer.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 2
-    }
-  },
-  "src/app/(public)/profile/layout.tsx": {
-    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -71,19 +41,6 @@
   },
   "src/app/components/common/DropdownInputModal.tsx": {
     "react-hooks/refs": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/components/common/modal/ModalProvider.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/components/common/toast/ToastProvider.tsx": {
-    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },

@@ -4,6 +4,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ToastItem, ToastType } from '@/app/components/common/toast/types';
+import { useIsClient } from '@/app/hooks/useMediaQuery';
 
 interface ToastContextValue {
   addToast: (type: ToastType, message: string, duration?: number) => void;
@@ -91,11 +92,8 @@ function ToastItemComponent({
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // 포털은 document 가 있어야 한다. 서버 렌더와 첫 하이드레이션은 false
+  const mounted = useIsClient();
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));

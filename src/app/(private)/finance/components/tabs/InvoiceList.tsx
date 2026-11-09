@@ -102,7 +102,6 @@ const InvoiceList = () => {
       title: '전표 상세 정보',
       width: '900px',
       selectedInvoiceId: id,
-      setSelectedInvoiceId: setSelectedInvoiceId,
     });
   };
   const handleSelectVoucher = (voucherId: string, checked: boolean) => {
