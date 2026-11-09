@@ -32,11 +32,10 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 - 페이지 접근은 `src/proxy.ts` 가 막는다. 쿠키 검증 (`src/proxy.ts:36`) 뒤 경로별 role 표 (`:6`) 로 비교 (`:49`). matcher 는 공개 경로만 빼는 denylist (`:60`). Next 16 부터 파일 이름이 `middleware.ts` 에서 `proxy.ts` 로 바뀌었고 Node 런타임이 기본이다.
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
+- 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽 `src/server/auth/pkce.ts` 로 옮겼다(3단계 OIDC 클라이언트용).
 
 알려진 빚:
 
-- 알림 SSE 훅이 옛 localStorage 토큰을 읽어 `Bearer null` 을 보낸다 (`src/app/components/header/Notification/useNotificationSSE.ts:32`, `:68`).
-- 옛 SPA 시절 파일 4개가 남아 있다: `src/lib/auth/pkce.ts`, `refresh.ts`(데모 secret 문자열 포함), `tokenStorage.ts`, `startAuthorization.ts`. 참조는 SSE 훅 하나뿐.
 - role 상수가 두 벌이다 (`src/lib/role.ts:1`, `src/app/types/role.constant.ts:1`). 페이지 규칙표와 프록시 규칙표도 모양이 다른 채 둘이다.
 
 ## 4. 인증과 인가 (목표)
