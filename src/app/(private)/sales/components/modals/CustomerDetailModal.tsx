@@ -13,7 +13,7 @@ import CustomerEditModal from './CustomerEditModal';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
-const CustomerDetailModal = ({ selectedCustomerId, setEditFormData }: CustomerDetailModalProps) => {
+const CustomerDetailModal = ({ selectedCustomerId }: CustomerDetailModalProps) => {
   const { openModal } = useModal();
   const {
     data: customer,
@@ -157,12 +157,10 @@ const CustomerDetailModal = ({ selectedCustomerId, setEditFormData }: CustomerDe
           <Button
             label="수정"
             onClick={() => {
-              // setEditFormData(customer!);
               openModal(CustomerEditModal, {
                 width: '900px',
                 title: '고객 정보 수정',
                 editFormData: customer ?? null,
-                setEditFormData: setEditFormData,
               });
             }}
           />

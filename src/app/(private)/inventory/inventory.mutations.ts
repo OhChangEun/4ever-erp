@@ -4,17 +4,28 @@ import {
   useInvalidatingMutation,
   type MutationCallbacks,
 } from '@/lib/query/useInvalidatingMutation';
-import { PatchSafetyStock, postAddMaterial, postStockMovement } from './inventory.api';
+import {
+  PatchSafetyStock,
+  patchMarkAsReadyToShip,
+  postAddMaterial,
+  postStockMovement,
+} from './inventory.api';
 import {
   inventoryKeys,
   inventoryStatsKeys,
   lowStockItemKeys,
+  shippingKeys,
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
 import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
 import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
 import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
+import type {
+  markAsReadyRequest,
+  markAsReadyToShipResponse,
+} from './types/ShippingDetailModalType';
 import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import type { AddInventoryItemsRequest } from './types/AddInventoryModalType';
 import type {
@@ -37,6 +48,13 @@ const LOW_STOCK_ALL: readonly QueryKey[] = [
 ];
 
 export const INVENTORY_MUTATION_EFFECTS = {
+  // 출하 준비는 영업 주문 상태를 바꾼다(API 경로 sales-orders/:id/status). 영업 주문 키는 의도한 교차
+  markReadyToShip: (orderId: string): readonly QueryKey[] => [
+    shippingKeys.all,
+    inventoryStatsKeys.all,
+    salesOrderKeys.lists(),
+    salesOrderKeys.detail(orderId),
+  ],
   // 부족 재고 페이지에서 구매 요청. 구매 키 2개는 의도한 교차(구매 데이터를 만든다).
   requestPurchaseForLowStock: (): readonly QueryKey[] => [
     lowStockKeys.lists(),
@@ -135,5 +153,21 @@ export const useMoveStock = (
           : old,
       ),
     ],
+    callbacks,
+  });
+
+export interface MarkReadyToShipVariables {
+  orderId: string;
+  itemIds: markAsReadyRequest;
+}
+
+/** 출하 준비 완료 처리. 생산 중과 출하 대기 목록, 재고 통계, 영업 주문을 다시 가져온다 */
+export const useMarkReadyToShip = (
+  callbacks?: MutationCallbacks<markAsReadyToShipResponse, MarkReadyToShipVariables>,
+) =>
+  useInvalidatingMutation<markAsReadyToShipResponse, MarkReadyToShipVariables>({
+    mutationKey: inventoryMutationKey('markReadyToShip'),
+    mutationFn: ({ orderId, itemIds }) => patchMarkAsReadyToShip(orderId, itemIds),
+    effects: ({ orderId }) => INVENTORY_MUTATION_EFFECTS.markReadyToShip(orderId),
     callbacks,
   });

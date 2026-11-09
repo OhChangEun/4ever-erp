@@ -1,24 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
-import {
+import type {
   CustomerEditData,
   CustomerEditModalProps,
-  CustomerResponse,
 } from '@/app/(private)/sales/types/CustomerEditModalType';
 import { CustomerStatus } from '../../types/SalesCustomerListType';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { patchCustomer } from '../../sales.api';
-import { customerKeys } from '@/app/(private)/sales/sales.keys';
+import { useUpdateCustomer } from '../../sales.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 
-const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerEditModalProps) => {
-  const queryClient = useQueryClient();
+const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModalProps) => {
+  // 폼 상태는 이 모달이 가진다. 열 때 받은 값으로 한 번 채운다.
+  // 예전엔 목록 컴포넌트의 state(처음 값 null)를 setter 로 받아 써서 입력이 하나도 반영되지 않았다
+  const [editFormData, setEditFormData] = useState<CustomerDetail | null>(initial);
   const toast = useToast();
-  useEffect(() => {
-    console.log(editFormData);
-  }, [editFormData]);
 
   let updatedCustomer = {
     customerName: '',
@@ -58,56 +55,17 @@ const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerE
       },
     };
 
-    editCustomer({ id: editFormData.customerId, data: updatedCustomer });
-    // alert(`고객 정보가 성공적으로 수정되었습니다.\n\n고객명: ${updatedCustomer.name}`);
-    onClose();
-    setEditFormData(null);
+    // 닫기는 성공했을 때만(onSuccess). 실패하면 모달과 입력이 남는다
+    editCustomer({ customerId: editFormData.customerId, data: updatedCustomer });
   };
 
-  // 낙관적 업데이트 x
-  // const { mutate: editCustomer, isPending } = useMutation<
-  //   CustomerResponse,
-  //   Error,
-  //   { id: string; data: CustomerEditData }
-  // >({
-  //   mutationFn: ({ id, data }) => putCustomer(id, data),
-  //   onSuccess: (data) => {
-  //     alert(`고객 정보가 성공적으로 수정되었습니다.`);
-  //     onClose();
-  //   },
-  //   onError: (error) => {
-  //     alert(`고객 수정 중 오류가 발생했습니다.`);
-  //   },
-  // });
-
-  // 낙관적 업데이트
-  const { mutate: editCustomer, isPending } = useMutation<
-    CustomerResponse,
-    Error,
-    { id: string; data: CustomerEditData }
-  >({
-    mutationFn: ({ id, data }) => patchCustomer(id, data),
-
-    // 요청 직전에 낙관적 업데이트 X (수정 성공 시만 반영)
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: customerKeys.details() });
-    },
-
-    // 성공 시: 알림 + 모달 닫기 + 최신 데이터 갱신
+  // 무효화(고객 목록, 그 고객 상세)는 sales.mutations.ts 한 곳
+  const { mutate: editCustomer, isPending } = useUpdateCustomer({
     onSuccess: () => {
       toast.success('고객 정보가 성공적으로 수정되었습니다.');
       onClose();
-      queryClient.invalidateQueries({ queryKey: customerKeys.details() });
     },
-
-    onError: () => {
-      toast.error(`고객 수정 중 오류가 발생했습니다.`);
-    },
-
-    // 성공,실패 상관없이 서버 데이터로 최신화
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: customerKeys.details() });
-    },
+    onError: (error) => toast.error(`고객 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   // 필드 업데이트 공통 함수
@@ -335,9 +293,6 @@ const CustomerEditModal = ({ onClose, editFormData, setEditFormData }: CustomerE
           </button>
 
           <button
-            onClick={() => {
-              handleEditSave;
-            }}
             type="submit"
             disabled={isPending}
             className={`px-6 py-2 rounded-lg transition-colors font-medium cursor-pointer whitespace-nowrap
