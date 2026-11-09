@@ -91,3 +91,44 @@ describe('BFF 프록시 보안 점검(BFF 문서 Phase 5)', () => {
     expect(seen).toHaveLength(0);
   });
 });
+
+describe('요청 ID(옵저버빌리티 1)', () => {
+  const ID = /^[A-Za-z0-9-]{8,64}$/;
+
+  it('응답과 업스트림 요청에 같은 x-request-id 를 싣는다', async () => {
+    const seen = recordUpstream();
+    const res = await call(GET, ['scm-pp', 'iv', 'warehouses'], { role: 'IM_ADMIN' });
+    const id = res.headers.get('x-request-id') ?? '';
+    expect(id).toMatch(ID);
+    expect(seen[0]?.headers.get('x-request-id')).toBe(id);
+  });
+
+  it('들어온 올바른 요청 ID 는 그대로 쓰고, 이상한 값은 새로 만든다', async () => {
+    recordUpstream();
+    const kept = await call(GET, ['scm-pp', 'iv', 'warehouses'], {
+      role: 'IM_ADMIN',
+      headers: { 'x-request-id': 'abc12345-from-client' },
+    });
+    expect(kept.headers.get('x-request-id')).toBe('abc12345-from-client');
+    const replaced = await call(GET, ['scm-pp', 'iv', 'warehouses'], {
+      role: 'IM_ADMIN',
+      headers: { 'x-request-id': 'bad id <script>' },
+    });
+    expect(replaced.headers.get('x-request-id')).toMatch(ID);
+    expect(replaced.headers.get('x-request-id')).not.toBe('bad id <script>');
+  });
+
+  it('프록시가 직접 만든 응답(401)에도 요청 ID 가 있다', async () => {
+    const res = await call(GET, ['scm-pp', 'iv', 'warehouses']);
+    expect(res.status).toBe(401);
+    expect(res.headers.get('x-request-id')).toMatch(ID);
+  });
+
+  it('업스트림 연결 실패는 502 와 실패 본문, 요청 ID', async () => {
+    server.use(http.all(`${APP}/api/*`, () => HttpResponse.error()));
+    const res = await call(GET, ['scm-pp', 'iv', 'warehouses'], { role: 'IM_ADMIN' });
+    expect(res.status).toBe(502);
+    expect(await res.json()).toMatchObject({ status: 502, success: false });
+    expect(res.headers.get('x-request-id')).toMatch(ID);
+  });
+});

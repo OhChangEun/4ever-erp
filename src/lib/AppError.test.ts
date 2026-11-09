@@ -84,3 +84,21 @@ describe('isAppError, errorMessageOf', () => {
     expect(errorMessageOf(new Error('x'))).toBe('알 수 없는 오류가 발생했습니다.');
   });
 });
+
+describe('요청 ID(옵저버빌리티 1)', () => {
+  it('응답 헤더의 x-request-id 를 담는다', () => {
+    const response = {
+      status: 500,
+      statusText: 'err',
+      headers: { 'x-request-id': 'req-12345678-abcd' },
+      config,
+      data: { success: false, message: 'boom' },
+    } as AxiosResponse;
+    const error = new AxiosError('fail', 'ERR_BAD_RESPONSE', config, undefined, response);
+    expect(toAppError(error).requestId).toBe('req-12345678-abcd');
+  });
+
+  it('응답이 없으면 요청 ID 도 없다', () => {
+    expect(toAppError(new AxiosError('down', 'ERR_NETWORK')).requestId).toBeUndefined();
+  });
+});

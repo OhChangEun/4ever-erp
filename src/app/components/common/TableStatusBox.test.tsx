@@ -29,4 +29,15 @@ describe('TableStatusBox', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText('없음')).toBeInTheDocument();
   });
+
+  it('요청 ID 가 있으면 앞 8자를 같이 보인다(옵저버빌리티 1)', () => {
+    render(
+      <TableStatusBox
+        type="error"
+        message="오류"
+        error={new AppError('server', 'boom', { status: 500, requestId: 'abcdef12-3456-7890' })}
+      />,
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('요청 ID abcdef12');
+  });
 });
