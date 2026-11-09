@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readErrorMessage, readUserResponse } from './userInfoType';
+import { readErrorMessage, readUserResponse } from './userInfo';
 
 describe('인증 응답 읽기', () => {
   const user = { id: 1, name: '관리자', email: 'a@b.c', role: 'ALL_ADMIN' };
