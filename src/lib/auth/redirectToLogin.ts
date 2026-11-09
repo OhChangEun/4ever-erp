@@ -12,6 +12,5 @@ export const redirectToLogin = (): void => {
   const login = new URL('/login', window.location.origin);
   login.searchParams.set('returnTo', returnTo);
   // 라우터 push 가 아니라 전체 새로고침을 일부러 쓴다. 만료된 세션의 캐시와 메모리 상태를 다 버리기 위해서다.
-  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- 위 이유. 절대 URL 이고 같은 origin
   window.location.assign(login.toString());
 };

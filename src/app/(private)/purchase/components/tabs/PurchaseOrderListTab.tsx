@@ -3,15 +3,18 @@
 import { useMemo, useState } from 'react';
 import PurchaseOrderDetailModal from '@/app/(private)/purchase/components/modals/PurchaseOrderDetailModal';
 import PurchaseOrderTable from '@/app/(private)/purchase/components/sections/PurchaseOrderTable';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   fetchPurchaseOrderList,
   fetchPurchaseOrderSearchTypeOptions,
   fetchPurchaseOrderStatusOptions,
-  approvePurchaseOrder,
-  startPurchaseOrderDelivery,
-  rejectPurchaseOrder,
 } from '@/app/(private)/purchase/api/purchase.api';
+import {
+  useApprovePurchaseOrder,
+  useRejectPurchaseOrder,
+  useStartPurchaseOrderDelivery,
+} from '@/app/(private)/purchase/api/purchase.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import Dropdown from '@/app/components/common/Dropdown';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import Pagination from '@/app/components/common/Pagination';
@@ -23,7 +26,7 @@ import { useDebounce } from 'use-debounce';
 import { PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { purchaseOrderKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
@@ -51,8 +54,6 @@ export default function PurchaseOrderListTab() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const queryClient = useQueryClient();
-
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
@@ -79,46 +80,19 @@ export default function PurchaseOrderListTab() {
     queryFn: () => fetchPurchaseOrderList(queryParams),
   });
 
-  // 발주서 승인
-  const { mutate: approveOrder } = useMutation({
-    mutationFn: (purchaseOrderId: string) => approvePurchaseOrder(purchaseOrderId),
-    onSuccess: (_, purchaseOrderId) => {
-      toast.success('발주서 승인 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`발주서 승인 중 오류가 발생했습니다. ${error}`);
-    },
+  // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 결과를 알리기만 한다.
+  const { mutate: approveOrder } = useApprovePurchaseOrder({
+    onSuccess: () => toast.success('발주서 승인 완료되었습니다.'),
+    onError: (error) => toast.error(`발주서 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  // 발주서 반려
-  const { mutate: rejectOrder } = useMutation({
-    mutationFn: (purchaseOrderId: string) => rejectPurchaseOrder(purchaseOrderId, ''),
-    onSuccess: (_, purchaseOrderId) => {
-      toast.success('반려 처리되었습니다.');
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`반려 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: rejectOrder } = useRejectPurchaseOrder({
+    onSuccess: () => toast.success('반려 처리되었습니다.'),
+    onError: (error) => toast.error(`반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  // 배송 시작
-  const { mutate: startDelivery } = useMutation({
-    mutationFn: (purchaseOrderId: string) => startPurchaseOrderDelivery(purchaseOrderId),
-    onSuccess: (_, purchaseOrderId) => {
-      toast.info('배송이 시작되었습니다.');
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseOrderKeys.detail(purchaseOrderId) });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: startDelivery } = useStartPurchaseOrderDelivery({
+    onSuccess: () => toast.info('배송이 시작되었습니다.'),
+    onError: (error) =>
+      toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const orders = orderData?.content || []; // optional chaining으로 안전하게 처리
@@ -133,7 +107,7 @@ export default function PurchaseOrderListTab() {
 
   const handleReject = (purchaseOrderId: string) => {
     if (confirm('해당 요청을 반려하시겠습니까?')) {
-      rejectOrder(purchaseOrderId);
+      rejectOrder({ purchaseOrderId, reason: '' });
     }
   };
 

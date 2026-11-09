@@ -53,11 +53,22 @@ src/server/auth/
 
 ## 5. 서버 상태 레이어
 
-- QueryClient 는 두 개다. 서버 컴포넌트용 `cache()` 래퍼 (`src/lib/queryClient.ts:4`) 와 클라이언트 Provider (`src/app/providers.tsx:17`). 기본 옵션은 아직 없다. 결정값(staleTime 30초, 포커스 refetch 켬, retry 는 네트워크와 5xx 만 2회, gcTime 5분)은 정합성 블록에서 넣는다.
+- QueryClient 는 한 팩토리 `createQueryClient` 에서 나온다 (`src/lib/queryClient.ts`). 서버 컴포넌트용 `cache()` 래퍼 `getQueryClient` (retry 0) 와 클라이언트 Provider (`src/app/providers.tsx`). 기본값은 staleTime 30초, gcTime 5분, 포커스 refetch 켬, retry 는 `AppError.kind` 가 network 나 server 일 때만 2회. 401 은 QueryCache 와 MutationCache 의 onError 한 곳에서 `redirectToLogin` (`src/lib/auth/redirectToLogin.ts`) 으로 보낸다(클라이언트당 1회, 전체 새로고침).
 - 서버 prefetch → `HydrationBoundary` (`src/app/providers.tsx:29`) 패턴이 15곳에 있다. 전 도메인 확대 예정.
 - 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:18`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
 - 낙관적 락은 BOM 상태 변경에만 있다. version 전송 (`src/app/(private)/production/components/modals/BomDetailModal.tsx:45`), 409 처리 (`:53`). 공통 패턴으로 뽑을 원형.
-- mutation 은 컴포넌트 안 `useMutation` 직접 호출이 36곳. 도메인 `*.mutations.ts` 훅으로 모으고 "mutation → 영향 쿼리 키" 매트릭스를 코드와 이 문서에 같이 둔다(아직 없음).
+- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 2026-11-09 구매 도메인 8곳 완료(`src/app/(private)/purchase/api/purchase.mutations.ts`), 나머지 28곳(인사 9, 생산 6, 재고 4, 영업 3, 프로필 3, 재무 1, 창고 1, 헤더 1)은 도메인별 카드.
+
+  구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
+
+  | mutation                   | 다시 가져오는 키                                                                                                                                 |
+  | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | 발주 승인, 반려, 배송 시작 | `purchaseOrderKeys.lists()`, `purchaseOrderKeys.detail(id)`, `purchaseStatsKeys.all`                                                             |
+  | 구매 요청 승인             | `purchaseRequestKeys.lists()`, `.detail(id)`, `purchaseOrderKeys.lists()`(승인이 발주를 만들 수 있음, 서버 계약 미확인), `purchaseStatsKeys.all` |
+  | 구매 요청 반려             | `purchaseRequestKeys.lists()`, `.detail(id)`, `purchaseStatsKeys.all`                                                                            |
+  | 구매 요청 생성             | `purchaseRequestKeys.lists()`, `purchaseStatsKeys.all`                                                                                           |
+  | 공급사 등록                | `supplierKeys.lists()`                                                                                                                           |
+  | 공급사 수정                | `supplierKeys.lists()`, `supplierKeys.detail(id)`                                                                                                |
 
 ## 6. 폴더 규칙과 import 방향
 

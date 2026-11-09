@@ -4,9 +4,7 @@ import React, { useState } from 'react';
 import { PURCHASE_REQUEST_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
 import Button from '@/app/components/common/Button';
 import Input from '@/app/components/common/Input';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
-import { createPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
+import { useCreatePurchaseRequest } from '@/app/(private)/purchase/api/purchase.mutations';
 import DropdownInputModal from '@/app/components/common/DropdownInputModal';
 import { ModalProps } from '@/app/components/common/modal/types';
 import {
@@ -16,6 +14,7 @@ import {
 import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
@@ -33,13 +32,9 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     },
   ]);
   const toast = useToast();
-  const queryClient = useQueryClient();
-
-  const { mutate: submitPurchaseRequest, isPending } = useMutation({
-    mutationFn: (data: CreatePurchaseRequestBody) => createPurchaseRequest(data),
+  // 무효화는 훅이 한다. 여기선 알리고 닫고 폼을 비운다.
+  const { mutate: submitPurchaseRequest, isPending } = useCreatePurchaseRequest({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
       toast.success(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
       onClose();
       setRequestItems([
@@ -57,8 +52,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       ]);
     },
     onError: (error) => {
-      console.log(`구매 요청 중 오류 발생: ${error}`);
-      toast.error('구매 요청 중 오류가 발생했습니다.');
+      toast.error(`구매 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`);
     },
   });
 

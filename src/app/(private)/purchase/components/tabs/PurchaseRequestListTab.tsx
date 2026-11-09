@@ -1,16 +1,19 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import PurchaseRequestFormModal from '@/app/(private)/purchase/components/modals/PurchaseRequestFormModal';
 import PurchaseRequestDetailModal from '@/app/(private)/purchase/components/modals/PurchaseRequestDetailModal';
 import {
   fetchPurchaseRequestList,
   fetchPurchaseRequestSearchTypeOptions,
   fetchPurchaseRequestStatusOptions,
-  approvePurchaseRequest,
-  rejectPurchaseRequest,
 } from '@/app/(private)/purchase/api/purchase.api';
+import {
+  useApprovePurchaseRequest,
+  useRejectPurchaseRequest,
+} from '@/app/(private)/purchase/api/purchase.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import Dropdown from '@/app/components/common/Dropdown';
 import {
   PurchaseRequestListItem,
@@ -28,7 +31,7 @@ import SearchBar from '@/app/components/common/SearchBar';
 import { useDebounce } from 'use-debounce';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
 // import CalendarButton from '@/app/components/common/Calendar';
@@ -60,8 +63,6 @@ export default function PurchaseRequestListTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  const queryClient = useQueryClient();
-
   const queryParams = useMemo(
     (): PurchaseRequestListParams => ({
       statusCode: selectedStatus,
@@ -85,32 +86,15 @@ export default function PurchaseRequestListTab() {
     queryFn: () => fetchPurchaseRequestList(queryParams),
   });
 
-  // 승인 mutation
-  const { mutate: approveRequest } = useMutation({
-    mutationFn: (purchaseRequestId: string) => approvePurchaseRequest(purchaseRequestId),
-    onSuccess: (_, purchaseRequestId) => {
-      toast.success('구매 요청 승인 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.detail(purchaseRequestId) });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${error}`);
-    },
+  // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳.
+  const { mutate: approveRequest } = useApprovePurchaseRequest({
+    onSuccess: () => toast.success('구매 요청 승인 완료되었습니다.'),
+    onError: (error) =>
+      toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  // 반려 mutation
-  const { mutate: rejectRequest } = useMutation({
-    mutationFn: (purchaseRequestId: string) => rejectPurchaseRequest(purchaseRequestId, ''),
-    onSuccess: (_, purchaseRequestId) => {
-      toast.success('반려 처리되었습니다.');
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: purchaseRequestKeys.detail(purchaseRequestId) });
-      queryClient.invalidateQueries({ queryKey: purchaseStatsKeys.all });
-    },
-    onError: (error) => {
-      toast.error(`반려 처리 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: rejectRequest } = useRejectPurchaseRequest({
+    onSuccess: () => toast.success('반려 처리되었습니다.'),
+    onError: (error) => toast.error(`반려 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const requests = requestData?.content || [];
@@ -140,7 +124,7 @@ export default function PurchaseRequestListTab() {
 
   const handleReject = (purchaseRequestId: string) => {
     if (confirm('해당 요청을 반려하시겠습니까?')) {
-      rejectRequest(purchaseRequestId);
+      rejectRequest({ purchaseRequestId, comment: '' });
     }
   };
 

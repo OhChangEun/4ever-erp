@@ -7,6 +7,8 @@ import { server } from '@/test/msw-server';
 import { createTestQueryClient } from '@/test/render';
 import { ok } from '@/mocks/utils';
 import { PURCHASE_BASE_PATH } from './purchase.endpoints';
+import type { CreatePurchaseRequestBody } from '../types/PurchaseRequestType';
+import type { CreateSupplierBody, UpdateSupplierBody } from '../types/SupplierType';
 import {
   purchaseOrderKeys,
   purchaseRequestKeys,
@@ -27,6 +29,33 @@ import {
 
 // 다른 도메인 키. 구매 mutation 이 여기를 건드리면 10월에 잡은 "재고가 인사 목록 무효화" 버그의 재발이다.
 const SALES_ORDER_LIST: QueryKey = ['sales', 'orders', 'list'];
+
+const createRequestBody: CreatePurchaseRequestBody = { requesterId: 'emp-001', items: [] };
+const createSupplierBody: CreateSupplierBody = {
+  supplierInfo: {
+    supplierName: '대양상사',
+    supplierEmail: 'a@b.c',
+    supplierPhone: '02-000-0000',
+    supplierBaseAddress: '서울',
+    category: 'RAW',
+    deliveryLeadTime: 3,
+  },
+  managerInfo: { managerName: '김담당', managerPhone: '010-0000-0000', managerEmail: 'm@b.c' },
+  materialList: [],
+};
+const updateSupplierBody: UpdateSupplierBody = {
+  supplierName: '대양상사',
+  supplierEmail: 'a@b.c',
+  supplierPhone: '02-000-0000',
+  supplierBaseAddress: '서울',
+  supplierDetailAddress: '',
+  category: 'RAW',
+  statusCode: 'ACTIVE',
+  deliverLeadTime: 3,
+  managerName: '김담당',
+  managerPhone: '010-0000-0000',
+  managerEmail: 'm@b.c',
+};
 
 const ORDER_LIST = purchaseOrderKeys.list({ page: 0, size: 10 });
 const ORDER_DETAIL = purchaseOrderKeys.detail('po-001');
@@ -109,19 +138,20 @@ const cases: Case[] = [
   },
   {
     name: '구매 요청 생성',
-    run: (qc) => runHook(qc, useCreatePurchaseRequest, { items: [] }),
+    run: (qc) => runHook(qc, useCreatePurchaseRequest, createRequestBody),
     invalidates: [REQUEST_LIST, STATS],
     keeps: [ORDER_LIST, SUPPLIER_LIST, SALES_ORDER_LIST],
   },
   {
     name: '공급사 등록',
-    run: (qc) => runHook(qc, useCreateSupplier, { supplierName: '대양상사' }),
+    run: (qc) => runHook(qc, useCreateSupplier, createSupplierBody),
     invalidates: [SUPPLIER_LIST],
     keeps: [ORDER_LIST, REQUEST_LIST, STATS, SALES_ORDER_LIST],
   },
   {
     name: '공급사 수정',
-    run: (qc) => runHook(qc, useUpdateSupplier, { supplierId: 'sup-001', body: {} }),
+    run: (qc) =>
+      runHook(qc, useUpdateSupplier, { supplierId: 'sup-001', body: updateSupplierBody }),
     invalidates: [SUPPLIER_LIST, SUPPLIER_DETAIL],
     keeps: [ORDER_LIST, REQUEST_LIST, STATS, SALES_ORDER_LIST],
   },

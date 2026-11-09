@@ -118,7 +118,7 @@ export const approvePurchaseOrder = async (purchaseOrderId: string) => {
 // 발주서 반려
 export const rejectPurchaseOrder = async (purchaseOrderId: string, body: string) => {
   const res = await axios.post<ApiResponse<null>>(
-    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_REJECT(purchaseOrderId)},`,
+    `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_REJECT(purchaseOrderId)}`,
     { body },
   );
   return res.data;

@@ -105,7 +105,7 @@ export const purchaseHandlers = [
     if (shouldError(request)) return error('Failed to approve purchase order', 500);
     return ok(null);
   }),
-  http.post(new RegExp(`${PURCHASE_BASE_PATH}/purchase-orders/[^/]+/reject,?$`), ({ request }) => {
+  http.post(new RegExp(`${PURCHASE_BASE_PATH}/purchase-orders/[^/]+/reject$`), ({ request }) => {
     if (shouldError(request)) return error('Failed to reject purchase order', 500);
     return ok(null);
   }),
