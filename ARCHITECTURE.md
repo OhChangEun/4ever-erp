@@ -87,7 +87,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 | `NEXT_PUBLIC_API_MOCKING`  | 브라우저                   | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`) |
 | `NEXT_PUBLIC_API_FALLBACK` | 브라우저                   | `disabled` 면 axios 실패 바꿔치기 끔. 제거 예정         |
 
-CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env.
+CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 한다. 2026-11-09 PR #1 의 첫 preview 배포가 Preview 환경에 값이 없어 `src/lib/auth/session.ts:7` 에서 throw 하며 실패했다. 값은 환경마다 다르게 두고(`openssl rand -base64 32`), 사람이 Vercel 대시보드나 `vercel env add SESSION_SECRET preview` 로 넣는다.
 
 ## 8. 도구와 검증
 
