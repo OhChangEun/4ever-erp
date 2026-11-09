@@ -98,7 +98,7 @@ const WarehouseList = () => {
         <TableStatusBox type="loading" message="창고 목록을 불러오는 중입니다..." />
       ) : isError ? (
         <TableStatusBox type="error" message="창고 목록을 불러오는 중 오류가 발생했습니다." />
-      ) : !warehouses || warehouses.length === 0 ? (
+      ) : warehouses.length === 0 ? (
         <TableStatusBox type="empty" message="등록된 창고가 없습니다." />
       ) : (
         <div

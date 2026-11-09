@@ -21,7 +21,8 @@
     "e2e": "playwright test",
     "e2e:oidc": "playwright test -c playwright.oidc.config.ts",
     "dev:oidc": "node --env-file=dev/keycloak/.env.oidc ./node_modules/next/dist/bin/next dev --port 3100",
-    "perf": "node scripts/measure-bundle.mjs && playwright test -c playwright.perf.config.ts"
+    "perf": "node scripts/measure-bundle.mjs && playwright test -c playwright.perf.config.ts",
+    "openapi": "openapi-typescript openapi/everp.yaml -o src/lib/api/openapi.gen.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,mjs,js}": "eslint --no-warn-ignored",

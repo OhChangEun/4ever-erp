@@ -1,3 +1,4 @@
+import type { Schema } from '@/lib/api/contract';
 import { ModalProps } from '@/app/components/common/modal/types';
 
 export interface WarehouseDetailModalProps extends ModalProps {
@@ -6,19 +7,5 @@ export interface WarehouseDetailModalProps extends ModalProps {
   selectedWarehouseName: string;
 }
 
-export interface WarehouseDetailResponse {
-  warehouseInfo: {
-    warehouseName: string;
-    warehouseNumber: string;
-    warehouseType: string;
-    statusCode: string;
-    location: string;
-    description: string;
-  };
-  manager: {
-    managerId: string;
-    managerName: string;
-    managerPhoneNumber: string;
-    managerEmail: string;
-  };
-}
+// 응답 모양은 OpenAPI 계약이 원본이다(openapi/everp.yaml)
+export type WarehouseDetailResponse = Schema<'WarehouseDetail'>;

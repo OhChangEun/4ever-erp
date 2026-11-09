@@ -38,6 +38,11 @@ const findPath = (paths: Record<string, unknown>, url: string) => {
   );
 };
 
+// 계약 YAML 의 스키마 노드. 모양은 z.fromJSONSchema 가 다시 확인한다
+const jsonSchema = z.custom<z.core.JSONSchema.JSONSchema>(
+  (value) => typeof value === 'object' && value !== null,
+);
+
 /** 계약의 200 응답 스키마를 zod 로. `#/components/schemas/X` 참조는 `$defs` 로 옮긴다 */
 const responseSchema = (
   contract: ReturnType<typeof loadContract>,
@@ -55,13 +60,11 @@ const responseSchema = (
     .parse(contract.paths[path]?.[method]);
   const relink = (value: unknown): unknown =>
     JSON.parse(JSON.stringify(value).replaceAll('#/components/schemas/', '#/$defs/'));
-  const root = z
-    .record(z.string(), z.unknown())
-    .parse(relink(operation.responses['200'].content['application/json'].schema));
-  return z.fromJSONSchema({
-    ...root,
-    $defs: z.record(z.string(), z.unknown()).parse(relink(contract.components.schemas)),
-  });
+  const root = jsonSchema.parse(
+    relink(operation.responses['200'].content['application/json'].schema),
+  );
+  const defs = z.record(z.string(), jsonSchema).parse(relink(contract.components.schemas));
+  return z.fromJSONSchema({ ...root, $defs: defs });
 };
 
 const mockJson = async (url: string) => {
