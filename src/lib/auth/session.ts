@@ -65,3 +65,23 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
     return null;
   }
 }
+
+// 6. 짧은 수명 서명 값 - OIDC 로그인 트랜잭션(state, nonce, PKCE verifier, returnTo)을 10분짜리 쿠키에 담을 때 쓴다.
+//    서명해야 하는 이유: 쿠키를 바꿔 다른 사람의 code_verifier 나 returnTo 를 넣는 것을 막는다.
+export async function signShortLived(claims: Record<string, string>, ttl: string): Promise<string> {
+  return new SignJWT(claims)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(ttl)
+    .sign(getSecret());
+}
+
+export async function verifyShortLived(token: string): Promise<Record<string, unknown> | null> {
+  const secret = getSecret();
+  try {
+    const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
+    return payload;
+  } catch {
+    return null;
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "realm": "everp",
+  "enabled": true,
+  "accessTokenLifespan": 60,
+  "ssoSessionIdleTimeout": 1800,
+  "roles": {
+    "realm": [
+      {
+        "name": "ALL_ADMIN"
+      },
+      {
+        "name": "MM_USER"
+      },
+      {
+        "name": "MM_ADMIN"
+      },
+      {
+        "name": "SD_USER"
+      },
+      {
+        "name": "SD_ADMIN"
+      },
+      {
+        "name": "IM_USER"
+      },
+      {
+        "name": "IM_ADMIN"
+      },
+      {
+        "name": "FCM_USER"
+      },
+      {
+        "name": "FCM_ADMIN"
+      },
+      {
+        "name": "HRM_USER"
+      },
+      {
+        "name": "HRM_ADMIN"
+      },
+      {
+        "name": "PP_USER"
+      },
+      {
+        "name": "PP_ADMIN"
+      },
+      {
+        "name": "SUPPLIER_ADMIN"
+      },
+      {
+        "name": "CUSTOMER_ADMIN"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "everp-bff",
+      "name": "EverP BFF",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${KC_EVERP_BFF_SECRET}",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:3100/api/auth/callback"],
+      "webOrigins": ["http://localhost:3100"],
+      "frontchannelLogout": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3100/login",
+        "backchannel.logout.url": "http://localhost:3100/api/auth/backchannel-logout",
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles in id token",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "realm_access.roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@everp.local",
+      "firstName": "전체",
+      "lastName": "EverP",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KC_DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALL_ADMIN"]
+    },
+    {
+      "username": "fcm_admin",
+      "email": "fcm_admin@everp.local",
+      "firstName": "재무",
+      "lastName": "EverP",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KC_DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["FCM_ADMIN"]
+    },
+    {
+      "username": "supplier",
+      "email": "supplier@everp.local",
+      "firstName": "공급사",
+      "lastName": "EverP",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KC_DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SUPPLIER_ADMIN"]
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 import 'server-only';
 import type { NextResponse } from 'next/server';
+import { authProvider, getIdp } from '../config';
 import { cookieSessionStore } from './cookieStore';
+import { memorySessionStore } from './memoryStore';
+import { ensureFreshSession } from './refresh';
 import type { SessionData, SessionStore, StoredSession } from './store';
 
 /**
@@ -16,11 +19,26 @@ export interface CookieReader {
   get(name: string): { value: string } | undefined;
 }
 
-const sessionStore = (): SessionStore => cookieSessionStore;
+/** 데모는 서명 JWT 쿠키(상태 없음, Vercel), OIDC 는 sid 쿠키 + 서버 메모리(결정 9) */
+const sessionStore = (): SessionStore =>
+  authProvider() === 'oidc' ? memorySessionStore : cookieSessionStore;
 
 export const readSession = async (cookies: CookieReader): Promise<StoredSession | null> => {
   const value = cookies.get(SESSION_COOKIE)?.value;
   return value ? sessionStore().get(value) : null;
+};
+
+/**
+ * 업스트림에 보낼 세션. OIDC 세션은 access token 이 30초 안에 만료되면 갱신한다(sid 별 single-flight).
+ * 갱신이 실패하면 세션을 지우고 null. API 프록시만 쓴다(페이지 프록시는 세션 유무와 역할만 본다).
+ */
+export const readFreshSession = async (cookies: CookieReader): Promise<StoredSession | null> => {
+  const sid = cookies.get(SESSION_COOKIE)?.value;
+  if (!sid) return null;
+  const store = sessionStore();
+  const session = await store.get(sid);
+  if (!session?.tokens) return session;
+  return ensureFreshSession(sid, session, store, getIdp());
 };
 
 export const startSession = async (res: NextResponse, data: SessionData): Promise<void> => {
@@ -36,12 +54,25 @@ export const startSession = async (res: NextResponse, data: SessionData): Promis
   });
 };
 
-/** 저장소의 세션을 지우고 쿠키를 지운다. name 과 path 가 심을 때와 같아야 브라우저가 같은 쿠키로 본다 */
-export const endSession = async (res: NextResponse, cookies: CookieReader): Promise<void> => {
+/**
+ * 저장소의 세션을 지우고 쿠키를 지운다. name 과 path 가 심을 때와 같아야 브라우저가 같은 쿠키로 본다.
+ * 지운 세션을 돌려준다(OIDC 로그아웃이 id token 으로 IdP 로그아웃 주소를 만든다).
+ */
+export const endSession = async (
+  res: NextResponse,
+  cookies: CookieReader,
+): Promise<StoredSession | null> => {
   const value = cookies.get(SESSION_COOKIE)?.value;
-  if (value) await sessionStore().delete(value);
+  const store = sessionStore();
+  const ended = value ? await store.get(value) : null;
+  if (value) await store.delete(value);
   res.cookies.delete({ name: SESSION_COOKIE, path: '/' });
+  return ended;
 };
+
+/** 백채널 로그아웃. IdP 가 알려 준 사용자나 IdP 세션의 앱 세션을 모두 지운다 */
+export const endSessionsMatching = (match: { sub?: string; idpSid?: string }): Promise<void> =>
+  sessionStore().deleteMatching(match);
 
 /** 쿠키는 있는데 세션이 없을 때(깨짐, 만료) 쿠키만 지운다 */
 export const clearSessionCookie = (res: NextResponse): void => {
