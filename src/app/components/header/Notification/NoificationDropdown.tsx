@@ -33,6 +33,8 @@ export default function NotificationDropdown() {
     whileElementsMounted: autoUpdate,
     placement: 'bottom-end',
   });
+  // floating-ui 의 콜백 ref. refs.setX 를 JSX 에서 읽으면 React 규칙이 렌더 중 ref 접근으로 본다
+  const { setReference, setFloating } = refs;
 
   const click = useClick(context);
   const dismiss = useDismiss(context);
@@ -81,7 +83,7 @@ export default function NotificationDropdown() {
   return (
     <>
       <button
-        ref={refs.setReference}
+        ref={setReference}
         {...getReferenceProps()}
         className="relative w-11 h-11 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors duration-200 cursor-pointer"
         aria-label="알림"
@@ -96,7 +98,7 @@ export default function NotificationDropdown() {
         <FloatingPortal>
           <FloatingFocusManager context={context} modal={false}>
             <div
-              ref={refs.setFloating}
+              ref={setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
               className="w-96 bg-white rounded-xl shadow-xl border border-gray-200 z-overlay overflow-hidden"

@@ -24,6 +24,8 @@ export default function DropdownInputListModal({
     middleware: [offset(6), flip(), shift()],
     whileElementsMounted: autoUpdate,
   });
+  // floating-ui 의 콜백 ref. refs.setX 를 JSX 에서 읽으면 React 규칙이 렌더 중 ref 접근으로 본다
+  const { setReference, setFloating } = refs;
 
   // 외부 클릭 시 모달 닫기 + 값 제출
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function DropdownInputListModal({
   return (
     <div className="relative inline-block">
       {/* 모달 열기 버튼 */}
-      <div ref={refs.setReference}>
+      <div ref={setReference}>
         <IconButton
           type="button"
           icon="ri-pencil-line"
@@ -64,7 +66,7 @@ export default function DropdownInputListModal({
       {isOpen && (
         <FloatingPortal>
           <div
-            ref={refs.setFloating}
+            ref={setFloating}
             style={floatingStyles}
             className="z-popover bg-white border border-gray-200 rounded-xl shadow-3xl p-4 py-6 w-72 animate-fadeIn"
           >

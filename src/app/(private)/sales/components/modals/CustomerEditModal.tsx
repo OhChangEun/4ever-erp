@@ -17,28 +17,12 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
   const [editFormData, setEditFormData] = useState<CustomerDetail | null>(initial);
   const toast = useToast();
 
-  let updatedCustomer = {
-    customerName: '',
-    ceoName: '',
-    businessNumber: '',
-    customerPhone: '',
-    customerEmail: '',
-    baseAddress: '',
-    detailAddress: '',
-    statusCode: '',
-    manager: {
-      name: '',
-      mobile: '',
-      email: '',
-    },
-    note: '',
-  };
-
   const handleEditSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editFormData) return;
 
-    updatedCustomer = {
+    // 서버가 받는 모양으로 바꾼다. 예전엔 렌더 때 만든 let 을 핸들러가 다시 대입했다(react-hooks/immutability)
+    const updatedCustomer: CustomerEditData = {
       customerName: editFormData.customerName,
       ceoName: editFormData.ceoName,
       businessNumber: editFormData.businessNumber,
