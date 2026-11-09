@@ -20,4 +20,39 @@ describe('ConflictDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onReload).toHaveBeenCalledTimes(1);
   });
+
+  it('Esc 로 닫히고, Tab 은 대화상자 안에서만 돈다, 닫으면 원래 포커스로 돌아간다 (리뷰 A1)', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const { rerender } = render(
+      <>
+        <button type="button">바깥 버튼</button>
+      </>,
+    );
+    screen.getByRole('button', { name: '바깥 버튼' }).focus();
+    rerender(
+      <>
+        <button type="button">바깥 버튼</button>
+        <ConflictDialog subject="BOM" onClose={onClose} onReload={() => undefined} />
+      </>,
+    );
+    const reload = screen.getByRole('button', { name: '최신 데이터 불러오기' });
+    const close = screen.getByRole('button', { name: '닫기' });
+    expect(reload).toHaveFocus();
+    await user.tab();
+    expect(close).toHaveFocus();
+    await user.tab();
+    expect(reload).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(close).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <>
+        <button type="button">바깥 버튼</button>
+      </>,
+    );
+    expect(screen.getByRole('button', { name: '바깥 버튼' })).toHaveFocus();
+  });
 });

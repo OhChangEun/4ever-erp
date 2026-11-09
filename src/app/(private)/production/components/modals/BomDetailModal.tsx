@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { errorMessageOf, isAppError } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
+import ConflictDialog from '@/app/components/common/ConflictDialog';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
 const BomTreeContainer = dynamic(() => import('../../BomTreeContainer'), {
@@ -104,41 +105,13 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
 
   return (
     <>
-      {/* ── 409 충돌 해결 다이얼로그 ── */}
+      {/* 409 충돌 안내. 영향 키 재조회는 공통 빌더가 이미 했다 */}
       {showConflictModal && (
-        <div className="absolute inset-0 z-overlay flex items-center justify-center bg-black/40 rounded-lg">
-          <div className="bg-white rounded-xl shadow-xl p-6 mx-4 max-w-sm w-full space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
-                <i className="ri-error-warning-line text-yellow-600 text-xl"></i>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">수정 충돌이 발생했습니다</p>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  다른 사용자가 이미 이 BOM을 수정했습니다.
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-              현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다. 최신 데이터를 불러온 후 다시
-              시도해 주세요.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setShowConflictModal(false)}
-                className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
-              >
-                닫기
-              </button>
-              <button
-                onClick={handleConflictReload}
-                className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-              >
-                최신 데이터 불러오기
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConflictDialog
+          subject="BOM"
+          onClose={() => setShowConflictModal(false)}
+          onReload={handleConflictReload}
+        />
       )}
       {isLoading ? (
         <div className="p-6 text-center py-12">
