@@ -1,11 +1,12 @@
 import { BomDetailResponse } from '@/app/(private)/production/types/BomDetailApiType';
-import { fetchBomDetail, patchBomStatus, simulateBomConflict } from '../../api/production.api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchBomDetail } from '../../api/production.api';
+import { useSimulateBomConflict, useUpdateBomStatus } from '../../api/production.mutations';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { isAppError } from '@/lib/AppError';
+import { errorMessageOf, isAppError } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
@@ -37,34 +38,21 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
     enabled: !!bomId,
   });
 
-  // BOM 상태 변경 mutation — version을 함께 전송해 낙관적 락 적용
-  const { mutate: updateStatus, isPending: isUpdating } = useMutation({
-    mutationFn: (newStatusCode: string) =>
-      patchBomStatus(bomId, {
-        statusCode: newStatusCode,
-        version: bomDetail!.version, // 클라이언트가 마지막으로 읽은 버전
-      }),
-    onSuccess: () => {
-      // 버전 일치 → 성공, 최신 데이터로 갱신
-      queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
-      queryClient.invalidateQueries({ queryKey: bomKeys.lists() });
-    },
+  // BOM 상태 변경. version 을 같이 보내 낙관적 락. 무효화 범위는 production.mutations.ts.
+  const { mutate: updateStatus, isPending: isUpdating } = useUpdateBomStatus({
     onError: (err) => {
       if (isAppError(err) && err.kind === 'conflict') {
         // 409 Conflict → 다른 사용자가 먼저 수정한 경우
         setShowConflictModal(true);
       } else {
-        toast.error('BOM 수정 중 오류가 발생했습니다.');
+        toast.error(`BOM 수정 중 오류가 발생했습니다. ${errorMessageOf(err)}`);
       }
     },
   });
 
   // [테스트 전용] 서버 버전을 강제로 올려서 충돌 상황 재현
-  const { mutate: triggerConflict, isPending: isTriggering } = useMutation({
-    mutationFn: () => simulateBomConflict(bomId),
-    onSuccess: (data) => {
-      toast.info(data.message);
-    },
+  const { mutate: triggerConflict, isPending: isTriggering } = useSimulateBomConflict({
+    onSuccess: (data) => toast.info(data.message),
   });
 
   // 충돌 발생 시 최신 데이터 재조회 후 모달 닫기
@@ -171,7 +159,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
               <div className="flex gap-2">
                 {/* [테스트 전용] 다른 사용자가 수정한 상황 시뮬레이션 버튼 */}
                 <button
-                  onClick={() => triggerConflict()}
+                  onClick={() => triggerConflict(bomId)}
                   disabled={isTriggering}
                   title="서버 버전을 강제로 올려서 충돌 상황을 만듭니다"
                   className="px-3 py-1.5 text-xs rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-50 disabled:opacity-50 cursor-pointer"
@@ -181,7 +169,14 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
                 </button>
                 {/* 상태 변경 버튼 — version을 함께 전송해 낙관적 락 검증 */}
                 <button
-                  onClick={() => updateStatus(bomDetail!.statusCode === '활성' ? '비활성' : '활성')}
+                  onClick={() => {
+                    if (!bomDetail) return;
+                    updateStatus({
+                      bomId,
+                      statusCode: bomDetail.statusCode === '활성' ? '비활성' : '활성',
+                      version: bomDetail.version,
+                    });
+                  }}
                   disabled={isUpdating}
                   className="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
                 >

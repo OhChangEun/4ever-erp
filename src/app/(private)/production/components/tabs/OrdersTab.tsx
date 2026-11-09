@@ -2,13 +2,13 @@
 import { useMemo, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
 import Button from '@/app/components/common/Button';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   fetchMrpAvailableStatusDropdown,
   fetchMrpOrdersList,
   fetchMrpQuotationsDropdown,
-  postMrpConvert,
 } from '../../api/production.api';
+import { useConvertMrpOrders } from '../../api/production.mutations';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import Pagination from '@/app/components/common/Pagination';
 import Table, { TableColumn } from '@/app/components/common/Table';
@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { errorMessageOf } from '@/lib/AppError';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 
 interface OrdersTabProps {
@@ -90,19 +91,13 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
 
   // 계획 주문 전환 mutation
   const router = useRouter();
-  const queryClient = useQueryClient();
-
-  const { mutate: mrpConvert } = useMutation({
-    mutationFn: (body: MrpOrdersConvertReqeustBody) => postMrpConvert(body),
+  const { mutate: mrpConvert } = useConvertMrpOrders({
     onSuccess: () => {
       toast.success('계획 주문 전환이 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: mrpOrderKeys.lists() });
       router.push('/production?tab=mrp&subTab=orders');
     },
-    onError: (error) => {
-      console.log('계획 주문 전환 실패', error);
-      toast.success('계획 주문 전환에 실패했습니다.');
-    },
+    // 실패를 success 토스트로 알리던 버그 수정
+    onError: (error) => toast.error(`계획 주문 전환에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   // 계획 주문 전환 실행

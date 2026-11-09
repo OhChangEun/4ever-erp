@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
-import { createStockPurchaseRequest } from '@/app/(private)/purchase/api/purchase.api';
+import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';
 import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
 import { ItemResponse } from '@/app/(private)/inventory/types/ItemListType';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
+import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 interface ItemWithQuantity extends ItemResponse {
@@ -31,7 +31,6 @@ export default function MrpPurchaseRequestModal({
   const [editableOrders, setEditableOrders] = useState<ItemWithQuantity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const queryClient = useQueryClient();
   const toast = useToast();
 
   // 아이템 상세 정보 조회
@@ -71,20 +70,14 @@ export default function MrpPurchaseRequestModal({
   }, [orders, fetchItemsInfo]);
 
   // 구매 요청 API
-  const { mutate: createStockPurchase, isPending } = useMutation({
-    mutationFn: (data: CreateStockPurchaseRequestBody) => createStockPurchaseRequest(data),
+  // 구매 도메인 데이터를 만드는 요청. 구매 요청 목록과 통계도 훅이 같이 무효화한다.
+  const { mutate: createStockPurchase, isPending } = useCreateStockPurchaseRequest({
     onSuccess: () => {
       toast.success('자재 구매 요청이 완료되었습니다.');
-
-      queryClient.invalidateQueries({ queryKey: mrpPlannedOrderKeys.lists() });
-
       onConfirm();
       onClose();
     },
-    onError: (error) => {
-      console.error('자재 구매 요청 실패:', error);
-      toast.error('자재 구매 요청에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`자재 구매 요청에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   // 총 금액 계산
