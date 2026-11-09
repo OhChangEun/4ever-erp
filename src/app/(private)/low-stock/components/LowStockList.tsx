@@ -109,6 +109,7 @@ export default function LowStockList() {
         <input
           ref={selectAllCheckboxRef}
           type="checkbox"
+          aria-label="부족 품목 전체 선택"
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           onChange={toggleSelectAll}
           checked={lowStocks.length > 0 && selectedItems.length === lowStocks.length}
@@ -117,6 +118,7 @@ export default function LowStockList() {
       render: (_, lowStock) => (
         <input
           type="checkbox"
+          aria-label={`${lowStock.itemName} 선택`}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           checked={selectedItems.includes(lowStock.itemId)}
           onChange={() => toggleSelectItem(lowStock.itemId)}

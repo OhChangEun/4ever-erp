@@ -113,7 +113,7 @@
   --color-gray-200: #e1e5ea; /* border */
   --color-gray-300: #cfd6de;
   --color-gray-400: #a8b0ba;
-  --color-gray-500: #7a8491; /* secondary text */
+  --color-gray-500: #646d79; /* secondary text. 흰, gray-50, gray-100 배경 모두 4.5:1 이상(WCAG AA, 접근성 1 카드. 예전 #7a8491 은 3.35~3.79) */
   --color-gray-600: #5d6672;
   --color-gray-700: #434a55;
   --color-gray-800: #2d3139; /* 본문 텍스트 */

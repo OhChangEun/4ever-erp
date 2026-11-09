@@ -132,6 +132,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       headerRender: () => (
         <input
           type="checkbox"
+          aria-label="순소요 전체 선택"
           checked={
             selectedRequirements.length > 0 && selectedRequirements.length === orderItems.length
           }
@@ -141,10 +142,16 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       ),
       render: (_, item) =>
         item.convertStatus !== 'NOT_CONVERTED' ? (
-          <input type="checkbox" disabled className="rounded border-gray-300 text-gray-300" />
+          <input
+            type="checkbox"
+            aria-label={`${item.itemName} 계획 주문 전환됨(선택할 수 없음)`}
+            disabled
+            className="rounded border-gray-300 text-gray-300"
+          />
         ) : (
           <input
             type="checkbox"
+            aria-label={`${item.itemName} 선택`}
             checked={selectedRequirements.includes(item.itemId)}
             onChange={() => handleRequirementSelection(item.itemId)}
             className="rounded border-gray-300 cursor-pointer"
