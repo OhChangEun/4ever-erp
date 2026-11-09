@@ -10,7 +10,11 @@ import { GET, POST } from './route';
  */
 const origin = location.origin;
 
-const callRoute = (method: 'GET' | 'POST', path: string, init?: RequestInit) => {
+const callRoute = (
+  method: 'GET' | 'POST',
+  path: string,
+  init?: { body?: string; headers?: Record<string, string> },
+) => {
   const request = new NextRequest(`${origin}/api/${path}`, { method, ...init });
   const context = { params: Promise.resolve({ slug: path.split('/') }) };
   return method === 'GET' ? GET(request, context) : POST(request, context);
@@ -56,6 +60,13 @@ describe('서버 목 = MSW 핸들러', () => {
       headers: { 'x-mock-scenario': '500' },
     });
     expect(res.status).toBe(500);
+  });
+
+  // 리뷰 P2: 프록시 밖 주소로 등록된 핸들러(USER_ENDPOINTS)도 예전처럼 받는다
+  it('/api/me 처럼 원래 주소로 등록된 핸들러도 받는다', async () => {
+    const res = await callRoute('GET', 'me');
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true, data: { name: '홍길동' } });
   });
 
   it('모르는 경로는 404 와 success false', async () => {
