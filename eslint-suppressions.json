@@ -50,26 +50,8 @@
     }
   },
   "src/app/(private)/production/BomTreeContainer.tsx": {
-    "prettier/prettier": {
-      "count": 9
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "src/app/(private)/production/api/production.api.ts": {
-    "prettier/prettier": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/production/components/modals/BomDetailModal.tsx": {
-    "prettier/prettier": {
-      "count": 2
-    }
-  },
-  "src/app/(private)/production/constants.ts": {
-    "prettier/prettier": {
-      "count": 2
     }
   },
   "src/app/(private)/purchase/components/modals/PurchaseOrderDetailModal.tsx": {
@@ -84,11 +66,6 @@
   },
   "src/app/(private)/purchase/components/modals/SupplierFormModal.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/purchase/constants.ts": {
-    "prettier/prettier": {
       "count": 1
     }
   },

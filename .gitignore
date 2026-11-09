@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 *.tsbuildinfo
 .DS_Store
+
+# 테스트 커버리지
+coverage/

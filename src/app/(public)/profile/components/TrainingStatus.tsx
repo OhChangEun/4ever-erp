@@ -23,6 +23,8 @@ const TrainingStatus = () => {
         return '기초 교육';
       case 'TECHNICAL_TRAINING':
         return '기술 교육';
+      default:
+        return ''; // 알 수 없는 분류는 비워 둔다 (이전과 같은 표시, noImplicitReturns 대응)
     }
   };
   const { data: trainingRes } = useQuery<TrainingResponse[]>({
