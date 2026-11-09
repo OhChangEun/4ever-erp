@@ -142,9 +142,15 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 타입 단언(`as`)과 non-null(`!`)은 0건이고 ESLint error 다(2026-11-10 타입 1차). 남긴 예외 1곳과 대신 쓰는 방식:
 
-1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:77`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
+1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:91`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
 2. `Table<T>` 는 열 key 가 행 필드가 아닐 수 있어(`actions` 같은 가상 열) `keyof T` 로 묶지 않았다. 값은 `Reflect.get` 으로 꺼낸다 (`src/app/components/common/Table.tsx:65`).
 3. 서버 응답을 믿는 자리는 타입 가드로 읽는다. 로그인과 세션 `readUserResponse`(`src/app/(public)/callback/userInfoType.ts`), FormData `formText`(`src/lib/formData.ts`). `ApiResponse` 판별 유니온과 zod 는 타입 2차 카드.
+
+모달과 팝업 층(2026-11-10 접근성 2):
+
+1. 모달 틀은 Radix Dialog(`src/app/components/common/modal/ModalContainer.tsx`). 포커스 가두기, Esc(맨 위 모달만), 닫힌 뒤 연 요소로 포커스 복귀, 뒤 화면 aria-hidden 을 맡긴다. 배경 클릭으로는 닫지 않는다. 틀은 `next/dynamic` 으로 첫 로드에서 빼고 화면이 한가할 때 미리 받는다(`ModalProvider.tsx:18`, `:51`).
+2. Radix 모달은 열리면 body 에 `pointer-events: none` 을 건다. 그래서 드롭다운 목록, 달력 같은 팝업은 `FloatingPortal` 대신 `PopoverPortal`(`src/app/components/common/PopoverPortal.tsx`)로 붙인다. 모달 안이면 모달 틀 안에, 밖이면 body 에 붙는다. 새 팝업 컴포넌트도 이것을 쓴다.
+3. 모달 안에 팝업이나 충돌 안내(`role="alertdialog"`)가 떠 있으면 모달은 Esc 를 넘긴다. 팝업은 스스로 Esc 를 받아 닫아야 한다(`src/app/hooks/useCloseOnEscape.ts`).
 
 ## 7. 환경 변수
 
