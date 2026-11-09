@@ -29,7 +29,7 @@ import {
 
 const PURCHASE_ORDER_LIST: QueryKey = ['purchase', 'orders', 'list'];
 const LEAVE_LIST = leaveKeys.list({ page: 0, size: 10 });
-const ATTENDANCE_LIST = attendanceKeys.list({ page: 0, size: 10 });
+const ATTENDANCE_LIST = attendanceKeys.list({ page: 0, size: 10, date: '2026-11-09' });
 const PROGRAM_LIST = programKeys.list({ page: 0, size: 10 });
 const PROGRAM_DETAIL = programKeys.detail('prog-1');
 const PROGRAM_DROPDOWN = programKeys.dropdown();
@@ -39,7 +39,7 @@ const TRAINING_LIST = trainingKeys.list({ page: 0, size: 10 });
 const TRAINING_DETAIL = trainingKeys.detail('emp-1');
 const EMPLOYEE_LIST = employeeKeys.list({ page: 0, size: 10 });
 const STATS = hrmStatsKeys.all;
-const PAYROLL_LIST = payrollKeys.list({ page: 0, size: 10 });
+const PAYROLL_LIST = payrollKeys.list({ page: 0, size: 10, year: 2026, month: 11 });
 const PAYROLL_DETAIL = payrollKeys.detail('pay-1');
 const ALL_KEYS = [
   LEAVE_LIST,

@@ -1,11 +1,6 @@
 // tabs/LeaveTab.tsx
 'use client';
-import {
-  fetchDepartmentsDropdown,
-  fetchLeaveList,
-  postLeaveReject,
-  postLeaveRelease,
-} from '@/app/(private)/hrm/api/hrm.api';
+import { fetchDepartmentsDropdown, fetchLeaveList } from '@/app/(private)/hrm/api/hrm.api';
 import { LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import Input from '@/app/components/common/Input';
@@ -15,9 +10,11 @@ import Table, { TableColumn } from '@/app/components/common/Table';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import Button from '@/app/components/common/Button';
@@ -50,7 +47,6 @@ export default function LeaveTab() {
     [selectedDepartment, debouncedKeyword, currentPage],
   );
 
-  const queryClient = useQueryClient();
   const {
     data: leaveData,
     isLoading,
@@ -65,26 +61,14 @@ export default function LeaveTab() {
 
   type LeaveItem = (typeof leaveList)[0];
 
-  const { mutate: approveLeave } = useMutation({
-    mutationFn: (requestId: string) => postLeaveRelease(requestId),
-    onSuccess: () => {
-      toast.success('승인이 완료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
-    },
-    onError: (error) => {
-      toast.error(`휴가 승인 중 오류가 발생했습니다. ${error}`);
-    },
+  // mutation 과 무효화 범위는 hrm.mutations.ts 한 곳.
+  const { mutate: approveLeave } = useApproveLeave({
+    onSuccess: () => toast.success('승인이 완료되었습니다.'),
+    onError: (error) => toast.error(`휴가 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
-
-  const { mutate: rejectLeave } = useMutation({
-    mutationFn: (requestId: string) => postLeaveReject(requestId),
-    onSuccess: () => {
-      toast.info('반료되었습니다.');
-      queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
-    },
-    onError: (error) => {
-      toast.error(`휴가 반려 중 오류가 발생했습니다. ${error}`);
-    },
+  const { mutate: rejectLeave } = useRejectLeave({
+    onSuccess: () => toast.info('반려되었습니다.'),
+    onError: (error) => toast.error(`휴가 반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleApprove = (requestId: string) => {

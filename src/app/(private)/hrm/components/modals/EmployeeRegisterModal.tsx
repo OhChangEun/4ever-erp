@@ -7,16 +7,14 @@ import Input from '@/app/components/common/Input';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  fetchDepartmentsDropdown,
-  fetchPositionsDropdown,
-  postEmployeeRegister,
-} from '@/app/(private)/hrm/api/hrm.api';
+import { useQuery } from '@tanstack/react-query';
+import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { employeeKeys, hrmStatsKeys, positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { useRegisterEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
+import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -46,9 +44,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
     enabled: !!selectedDepartment,
   });
 
-  const queryClient = useQueryClient();
-  const { mutate: registerEmployee, isPending: isRegistering } = useMutation({
-    mutationFn: (body: EmployeeRegisterRequest) => postEmployeeRegister(body),
+  const { mutate: registerEmployee, isPending: isRegistering } = useRegisterEmployee({
     onSuccess: () => {
       toast.success('회원 등록 성공');
       setFormData({
@@ -63,14 +59,9 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
         detailAddress: '',
       });
 
-      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: hrmStatsKeys.all });
       onClose();
     },
-    onError: (error) => {
-      console.log('회원 등록 실패: ', error);
-      toast.error('회원 등록에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`회원 등록에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleChange = (

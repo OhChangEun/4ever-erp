@@ -7,11 +7,13 @@ import {
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useState } from 'react';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchDeptMemberDropdown, patchDepartments } from '@/app/(private)/hrm/api/hrm.api';
+import { useQuery } from '@tanstack/react-query';
+import { fetchDeptMemberDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import Dropdown from '@/app/components/common/Dropdown';
 import LoadingMessage from '@/app/components/common/LoadingMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useUpdateDepartment } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import Button from '@/app/components/common/Button';
@@ -22,7 +24,6 @@ interface DepartmentEditModalProps extends ModalProps {
 export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   const { removeAllModals } = useModal();
   const toast = useToast();
-  const queryClient = useQueryClient();
 
   // 선택된 부서장 상태
   const [selectedManager, setSelectedManager] = useState<string>(departments.managerId);
@@ -33,18 +34,12 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
     queryFn: () => fetchDeptMemberDropdown(departments.departmentId),
   });
 
-  const { mutate: updateDepartments, isPending } = useMutation({
-    mutationFn: (body: DepartmentsRequestBody) => patchDepartments(departments.departmentId, body),
+  const { mutate: updateDepartments, isPending } = useUpdateDepartment({
     onSuccess: () => {
-      // 성공 시 캐시 갱신
-      queryClient.invalidateQueries({ queryKey: departmentKeys.lists() });
       toast.success('부서 정보가 수정되었습니다.');
       removeAllModals();
     },
-    onError: (error) => {
-      toast.error('수정 중 오류가 발생했습니다.');
-      console.error(error);
-    },
+    onError: (error) => toast.error(`수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSave = () => {
@@ -53,7 +48,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
       description: description,
     };
 
-    updateDepartments(data);
+    updateDepartments({ departmentId: departments.departmentId, body: data });
   };
 
   if (isPending) {

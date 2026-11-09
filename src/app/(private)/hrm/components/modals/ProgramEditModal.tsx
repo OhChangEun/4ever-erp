@@ -2,12 +2,14 @@
 
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import React, { FormEvent, useState } from 'react';
-import { fetchProgramStatusDropdown, patchProgram } from '@/app/(private)/hrm/api/hrm.api';
+import { fetchProgramStatusDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useUpdateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface EditProgramModalProps extends ModalProps {
@@ -29,22 +31,15 @@ export default function EditProgramModal({
   });
   const toast = useToast();
 
-  const queryClient = useQueryClient();
-
   const [editedName, setEditedName] = useState(programName);
 
   // mutation 설정
-  const mutation = useMutation({
-    mutationFn: (data: UpdateProgramRequest) => patchProgram(data),
+  const mutation = useUpdateProgram({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: programKeys.lists() });
       onClose();
       toast.success('교육 정보가 수정되었습니다.');
     },
-    onError: (error) => {
-      console.error('교육 정보 수정 실패', error);
-      toast.error('교육 정보 수정에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`교육 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

@@ -2,13 +2,15 @@
 
 import Button from '@/app/components/common/Button';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import React, { FormEvent, useState } from 'react';
-import { fetchProgramListDropdown, postProgramToEmployee } from '@/app/(private)/hrm/api/hrm.api';
+import { fetchProgramListDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { UpdateProgramToEmployeeRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { programKeys, trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { useAssignProgramToEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
+import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 interface AddEmployeeTrainingModalProps extends ModalProps {
   employeeId: string;
@@ -20,7 +22,6 @@ export default function AddEmployeeTrainingModal({
 }: AddEmployeeTrainingModalProps) {
   const [selectedProgram, setSelectedProgram] = useState('');
 
-  const queryClient = useQueryClient();
   const toast = useToast();
 
   // 교육 프로그램 드롭다운 조회
@@ -31,18 +32,12 @@ export default function AddEmployeeTrainingModal({
   });
 
   // mutation 설정
-  const mutation = useMutation({
-    mutationFn: ({ employeeId, programId }: UpdateProgramToEmployeeRequest) =>
-      postProgramToEmployee({ employeeId, programId }),
+  const mutation = useAssignProgramToEmployee({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: trainingKeys.lists() });
       onClose();
       toast.info('교육 프로그램이 지정되었습니다.');
     },
-    onError: (error) => {
-      console.log('교육 프로그램 추가 실패', error);
-      toast.error('교육 프로그램 지정에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`교육 프로그램 지정에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

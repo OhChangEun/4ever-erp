@@ -4,32 +4,25 @@ import {
   UpdateTimeRecord,
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import Button from '@/app/components/common/Button';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { putTimeRecord } from '@/app/(private)/hrm/api/hrm.api';
 import { FormEvent } from 'react';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 
 interface AttendanceEditModalProps extends ModalProps {
   attendance: AttendanceListData;
 }
 
 export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModalProps) {
-  const queryClient = useQueryClient();
   const toast = useToast();
 
-  const mutation = useMutation({
-    mutationFn: (params: UpdateTimeRecord) => putTimeRecord(params),
+  const mutation = useUpdateTimeRecord({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: attendanceKeys.lists() });
       onClose();
       toast.success('출결 정보가 수정되었습니다.');
     },
-    onError: (error) => {
-      console.error('출결 정보 수정 실패', error);
-      toast.error('출결 정보 수정에 실패했습니다.');
-    },
+    onError: (error) => toast.error(`출결 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
