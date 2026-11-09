@@ -126,13 +126,13 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 
 ## 5-1. API 계약 (OpenAPI)
 
-2026-11-10 OpenAPI 계약 1 카드부터. 지금은 창고 도메인만 옮겼다.
+2026-11-10 OpenAPI 계약 1(창고), 2(나머지 도메인) 카드. 경로 129개, 요청 144개, 스키마 165개.
 
 1. 원본은 `openapi/everp.yaml`(OpenAPI 3.1). 백엔드가 없어 프론트엔드가 쓴다. 성공 응답은 `ApiEnvelope` 에 `data` 를 더한 `allOf`, 실패는 `ApiError`.
-2. 타입은 `npm run openapi` 가 `src/lib/api/openapi.gen.ts` 로 만든다(openapi-typescript). 손으로 고치지 않는다. 도메인 타입 파일은 `Schema<'이름'>`, `QueryOf<'경로'>` 별칭(`src/lib/api/contract.ts`)으로 가리킨다.
-3. 목은 `openapi-msw` 로 계약에 묶는다(`src/mocks/handlers/warehouse.handlers.ts`). 계약에 없는 경로나 틀린 응답 필드는 `tsc` 가 막는다.
-4. `src/test/contract/openapi.contract.test.ts` 가 세 가지를 본다. 화면이 부르는 요청이 계약에 있는지, MSW 응답이 계약 스키마(`z.fromJSONSchema`)를 만족하는지, 커밋된 생성 타입이 계약과 같은지(drift). CI 의 vitest 단계가 곧 계약 검사다.
-5. 영업, 구매, 생산 읽기의 zod 스키마(`*.schemas.ts`)는 아직 손으로 쓴 것이다. 그 도메인을 계약으로 옮길 때 스키마도 계약에서 꺼낸다.
+2. 타입은 `npm run openapi` 가 `src/lib/api/openapi.gen.ts` 로 만든다(openapi-typescript). 손으로 고치지 않는다. 도메인 타입 파일의 응답, 요청 선언 160개는 `Schema<'이름'>`, `QueryOf<'경로'>` 별칭(`src/lib/api/contract.ts`)이다. 쿼리 파라미터 타입과 화면 props 는 아직 손 타입이다.
+3. 창고 목은 `openapi-msw` 로 계약에 묶었다(`src/mocks/handlers/warehouse.handlers.ts`, 틀린 필드는 `tsc` 가 막는다). 나머지 목은 그대로 두고 4번의 런타임 검사로 묶는다. 새로 쓰는 핸들러는 openapi-msw 로 쓴다.
+4. `src/test/contract/openapi.contract.test.ts` 가 세 가지를 본다. api 파일이 쓰는 엔드포인트 상수가 전부 계약에 있는지, 계약의 GET 응답 전부가 MSW 응답과 맞는지(`z.fromJSONSchema`), 커밋된 생성 타입이 계약과 같은지(drift). CI 의 vitest 단계가 곧 계약 검사다.
+5. 처음 옮길 때는 변환 스크립트를 썼다(`scripts/codemods/api-to-openapi.mts`, `types-to-aliases.mts`). 이제 계약이 원본이라 다시 돌리지 않는다. 영업, 구매, 생산 읽기의 zod 스키마(`*.schemas.ts`)는 손으로 쓴 것이지만 별칭 타입에 묶여 있어 계약과 어긋나면 `tsc` 가 막는다.
 
 ## 6. 폴더 규칙과 import 방향
 
