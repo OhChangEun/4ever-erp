@@ -22,36 +22,40 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # pnpm 버전은 package.json 의 packageManager 를 따른다(모노레포 1 카드)
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
       - name: Install (lockfile 그대로)
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: npm run lint
+      # Turborepo 캐시. 입력이 같은 작업(lint, 타입 검사, 단위 테스트, 패키지 테스트)은 다시 돌리지 않는다
+      - uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
 
-      - name: Type check
-        run: npm run type-check
-
-      - name: Unit tests
-        run: npm run test:run
+      - name: Lint, type check, unit tests (turbo)
+        run: pnpm verify
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       # 라우트별 첫 로드 JS 를 기준선(perf/bundle-baseline.json)과 비교한다. 표는 job summary 에.
-      # 한 라우트라도 +5KB(gzip) 넘게 늘면 실패. 의도한 증가면 같은 PR 에서 npm run bundle:baseline
+      # 한 라우트라도 +5KB(gzip) 넘게 늘면 실패. 의도한 증가면 같은 PR 에서 pnpm bundle:baseline
       # shell: bash 를 적어야 pipefail 이 켜진다. 없으면 bash -e 로 돌아 tee 의 종료 코드 0 이 실패를 가린다(리뷰 P1)
       - name: Bundle size
         shell: bash
-        run: npm run --silent bundle:check | tee -a "$GITHUB_STEP_SUMMARY"
+        run: pnpm --silent bundle:check | tee -a "$GITHUB_STEP_SUMMARY"
 
       # 방금 만든 빌드를 next start 로 띄워 화면을 시험한다. 브라우저는 러너에 설치된 Chrome(channel: 'chrome')
       - name: E2E (Playwright)
-        run: npm run e2e
+        run: pnpm e2e
 
       - name: E2E 실패 기록 올리기
         if: failure()

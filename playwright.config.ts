@@ -39,7 +39,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: isCI ? `npm run start -- --port ${PORT}` : `npm run dev -- --port ${PORT}`,
+    command: isCI ? `pnpm start --port ${PORT}` : `pnpm dev --port ${PORT}`,
     url: `${baseURL}/login`,
     reuseExistingServer: !isCI,
     timeout: 180_000,
