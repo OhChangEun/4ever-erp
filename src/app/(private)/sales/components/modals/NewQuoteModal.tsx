@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  QuoteStatus,
-  Quote,
-  QuoteFormData,
-  QuoteFormItem,
-} from '@/app/(private)/sales/types/SalesQuoteListType';
+import { QuoteFormData, QuoteFormItem } from '@/app/(private)/sales/types/SalesQuoteListType';
 import { useState } from 'react';
 import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalType';
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';

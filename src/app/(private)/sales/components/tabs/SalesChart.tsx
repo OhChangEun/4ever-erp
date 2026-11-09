@@ -39,9 +39,6 @@ const SalesChart = () => {
   const [startDate, setStartDate] = useState(formatDate(sixMonthsAgo));
   const [endDate, setEndDate] = useState(formatDate(today));
 
-  const minDate = formatDate(sixMonthsAgo);
-  const maxDate = formatDate(today);
-
   const queryParams = useMemo(
     () => ({
       startDate: startDate || '',
@@ -50,11 +47,7 @@ const SalesChart = () => {
     [startDate, endDate],
   );
 
-  const {
-    data: analyticsData,
-    isLoading,
-    isError,
-  } = useQuery<SalesAnalysis>({
+  const { data: analyticsData } = useQuery<SalesAnalysis>({
     queryKey: analyticsKeys.byParams(queryParams),
     queryFn: () => getAnalytics(queryParams),
 

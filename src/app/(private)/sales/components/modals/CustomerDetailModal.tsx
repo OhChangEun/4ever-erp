@@ -13,11 +13,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import CustomerEditModal from './CustomerEditModal';
 
 import { formatCurrency } from '@/app/utils/number';
-const CustomerDetailModal = ({
-  onClose,
-  selectedCustomerId,
-  setEditFormData,
-}: CustomerDetailModalProps) => {
+const CustomerDetailModal = ({ selectedCustomerId, setEditFormData }: CustomerDetailModalProps) => {
   const { openModal } = useModal();
   const {
     data: customer,

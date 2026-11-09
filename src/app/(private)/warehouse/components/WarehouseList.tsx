@@ -28,7 +28,6 @@ const Warehouse3DModal = dynamic(
 
 const WarehouseList = () => {
   const { openModal } = useModal();
-  const [showManageModal, setShowManageModal] = useState(false);
   const [show3DModal, setShow3DModal] = useState(false);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
   const [selectedWarehouseName, setSelectedWarehouseName] = useState<string>('');

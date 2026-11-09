@@ -14,14 +14,9 @@ import { invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import { useSearchParams } from 'next/navigation';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
-import { useModal } from '@/app/components/common/modal/useModal';
 
 import { formatCurrency } from '@/app/utils/number';
-const InvoiceDetailModal = ({
-  onClose,
-  selectedInvoiceId,
-  setSelectedInvoiceId,
-}: InvoiceDetailModalProps) => {
+const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalProps) => {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'sales';
   const role = useRole();

@@ -3,9 +3,8 @@ import { ModalProps } from '@/app/components/common/modal/types';
 import { CreateProgramRequest } from '../../types/HrmProgramApiType';
 import { fetchTrainingCategoryDropdown, postProgram } from '../../api/hrm.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Dropdown from '@/app/components/common/Dropdown';
-import { KeyValueItem } from '@/app/types/CommonType';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
@@ -13,11 +12,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
   const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState(''); // 부서
 
-  const {
-    data: categoryData,
-    isLoading: categoryLoading,
-    isError: categoryError,
-  } = useQuery({
+  const { data: categoryData } = useQuery({
     queryKey: programKeys.categoryDropdown(),
     queryFn: fetchTrainingCategoryDropdown,
     staleTime: Infinity,

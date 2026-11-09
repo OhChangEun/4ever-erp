@@ -29,11 +29,7 @@ export default function AvailableProgramTab() {
     [currentPage],
   );
 
-  const {
-    data: programData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: programData } = useQuery({
     queryKey: programKeys.list(programQueryParams),
     queryFn: () => fetchProgramList(programQueryParams),
   });

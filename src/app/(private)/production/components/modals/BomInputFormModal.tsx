@@ -3,7 +3,7 @@
 import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import { ModalProps } from '@/app/components/common/modal/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -29,7 +29,6 @@ import {
   postBomItem,
 } from '../../api/production.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getQueryClient } from '@/lib/queryClient';
 import { BomRequestBody } from '../../types/BomType';
 import Input from '@/app/components/common/Input';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -145,11 +144,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
   const toast = useToast();
   const { options: operationOptions } = useDropdown('operationsDropdown', fetchOperationDropdown);
 
-  const {
-    data: materialInfo,
-    isError,
-    isLoading,
-  } = useQuery({
+  const { data: materialInfo } = useQuery({
     queryKey: bomKeys.materialInfo(item.itemId),
     queryFn: () => fetchProduction(item.itemId),
     enabled: !!item.itemId, // 선택된 자재가 있을 때만 호출

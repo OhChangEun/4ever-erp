@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import {
   INVENTORY_SEARCH_KEYWORD_OPTIONS,
   INVENTORY_STATUS_OPTIONS,
-  INVENTORY_TABLE_HEADERS,
 } from '../../inventory.constants';
 import Pagination from '@/app/components/common/Pagination';
 import { useDebounce } from 'use-debounce';
@@ -23,14 +22,12 @@ import Button from '@/app/components/common/Button';
 import Dropdown from '@/app/components/common/Dropdown';
 import SearchBar from '@/app/components/common/SearchBar';
 import { useModal } from '@/app/components/common/modal/useModal';
-import InventoryPurchaseRequestModal from '../modals/InventoryPurchaseRequestModal';
 import Table, { TableColumn } from '@/app/components/common/Table';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 import { formatCurrency } from '@/app/utils/number';
 const InventoryList = () => {
   const { openModal } = useModal();
-  const [showAddModal, setShowAddModal] = useState(false);
   const [searchType, setSearchType] = useState('warehouse');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState('ALL');

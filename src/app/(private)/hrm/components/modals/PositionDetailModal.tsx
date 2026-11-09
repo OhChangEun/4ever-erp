@@ -9,11 +9,7 @@ interface PositionDetailModalProps extends ModalProps {
 }
 
 export function PositionDetailModal({ positionId }: PositionDetailModalProps) {
-  const {
-    data: positionData,
-    isLoading,
-    isError,
-  } = useQuery<PositionDetailResponse>({
+  const { data: positionData } = useQuery<PositionDetailResponse>({
     queryKey: positionKeys.detail(positionId),
     queryFn: () => fetchPositionsDetail(positionId),
   });

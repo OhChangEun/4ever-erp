@@ -2,9 +2,8 @@ import { EmployeeData, EmployeeUpdateRequest } from '@/app/(private)/hrm/types/H
 import { ModalProps } from '@/app/components/common/modal/types';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown, putEmployee } from '../../api/hrm.api';
-import { KeyValueItem } from '@/app/types/CommonType';
 import Dropdown from '@/app/components/common/Dropdown';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -30,11 +29,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
     'with-all',
   );
 
-  const {
-    data: positionData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: positionData } = useQuery({
     queryKey: positionKeys.dropdown(selectedDepartment),
     queryFn: () => fetchPositionsDropdown(selectedDepartment),
     enabled: !!selectedDepartment,

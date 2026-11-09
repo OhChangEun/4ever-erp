@@ -25,7 +25,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset?: ()
       await navigator.clipboard.writeText(`${error?.message ?? ''}\n\n${error?.stack ?? ''}`);
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 3000);
-    } catch (e) {
+    } catch {
       setCopyStatus('error');
       setTimeout(() => setCopyStatus('idle'), 3000);
     }

@@ -3,7 +3,6 @@ import { DEFAULT_QUERY, WarehouseFilter } from './WarehouseVisualizerType';
 import { useQuery } from '@tanstack/react-query';
 import { getInventoryList } from '@/app/(private)/inventory/inventory.api';
 import { buildCluster, SAMPLE_INVENTORY } from './clusters';
-import { InventoryQueryParams } from '@/app/(private)/inventory/types/InventoryListType';
 import { warehouseVisualizerKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 export interface InventoryQueryParamForWarehouse {
@@ -35,7 +34,6 @@ export const useWarehouseClusters = (filter?: WarehouseFilter) => {
   });
 
   const source = useMemo(() => {
-    const payload = data?.data;
     // if (payload && payload.length) return payload;
     // if (filter?.warehouseId) {
     //   const fallback = SAMPLE_INVENTORY.filter((item) =>

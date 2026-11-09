@@ -1,11 +1,8 @@
 'use client';
 
-import NewOrderModal from '@/app/(private)/sales/components/modals/NewOrderModal';
 import { useRole } from '@/app/hooks/useRole';
-import { useState } from 'react';
 import { ActionCard } from './ActionCard';
 import { allActions } from '../dashboard.utils';
-import { useModal } from '@/app/components/common/modal/useModal';
 
 const QuickActions = () => {
   const role = useRole();

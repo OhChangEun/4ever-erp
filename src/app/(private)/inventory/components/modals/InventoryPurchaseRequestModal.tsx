@@ -101,7 +101,6 @@ export default function InventoryPurchaseRequestModal({
         <div className="space-y-4">
           {items.map((item) => {
             const quantity = quantities.find((q) => q.itemId === item.itemId)?.quantity || 0;
-            const total = calculateTotal(item.itemId);
             const shortage = item.safetyStock - item.currentStock;
 
             return (

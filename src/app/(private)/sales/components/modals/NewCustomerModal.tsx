@@ -35,7 +35,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
     createCustomer(customerData);
   };
 
-  const handleCustomerCancle = (e: React.FormEvent) => {
+  const handleCustomerCancle = () => {
     onClose();
     setCustomerData({
       companyName: '',

@@ -12,11 +12,7 @@ export default function DepartmentsTab() {
   const { openModal, removeAllModals } = useModal();
 
   // 부서 데이터
-  const {
-    data: departmentsData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: departmentsData } = useQuery({
     queryKey: departmentKeys.lists(),
     queryFn: fetchDepartmentsList,
     staleTime: Infinity,

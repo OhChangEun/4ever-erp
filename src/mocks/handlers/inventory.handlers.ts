@@ -309,7 +309,7 @@ export const inventoryHandlers = [
       page: makePage(page, size, 1),
     });
   }),
-  http.get(`${INVENTORY_BASE_PATH}/iv/warehouses/:warehouseId`, ({ request, params }) => {
+  http.get(`${INVENTORY_BASE_PATH}/iv/warehouses/:warehouseId`, ({ request }) => {
     if (shouldError(request)) return error('Failed to load warehouse detail', 500);
     return ok({
       warehouseInfo: {
