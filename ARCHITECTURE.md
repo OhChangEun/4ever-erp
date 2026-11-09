@@ -12,7 +12,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
    │
    └─ axios ──/api/proxy/*──▶ src/app/api/proxy/[...path]/route.ts (세션 검증, API RBAC, Bearer 교환)
                                   ├─ BACKEND_API_URL 있음 → 실 서버
-                                  └─ 없음 → src/app/api/[...slug]/route.ts (서버 목, 1,885줄)
+                                  └─ 없음 → src/app/api/[...slug]/route.ts (서버 목, MSW 핸들러 어댑터)
 개발 시 NEXT_PUBLIC_API_MOCKING=enabled → MSW 서비스 워커가 브라우저에서 먼저 가로챔 (src/mocks/)
 ```
 
@@ -23,7 +23,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 1. 도메인 `*.api.ts` 가 `*_ENDPOINTS` 상수로 URL 을 만든다. 기본 base 는 `/api/proxy` 다 (`src/app/types/api.ts:4`). 응답 래퍼는 `ApiResponse<T>` (`src/app/types/api.ts:14`).
 2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:4`). 응답 인터셉터 하나가 두 가지를 한다. 2xx 인데 래퍼가 깨진 응답(`success === false`, GET 인데 `data` 없음)을 `invalidShape` 로 올리고 (`:22`), 실패는 전부 `AppError` 로 정규화해 reject 한다 (`:44`, 종류 9개는 `src/lib/AppError.ts:8`). 실패를 URL 별 빈 데이터로 바꿔치기하던 fallback 은 2026-11-09 에 지웠다(카드 `ai/cards/2026-11-09_오류를_빈_데이터로_숨기는_fallback_제거.md`). 화면은 `TableStatusBox` 와 `StatSection` 의 `error` prop 으로 종류별 한 줄을 덧붙인다 (`src/app/components/common/TableStatusBox.tsx:9`, `StatSection.tsx:20`).
 3. `/api/proxy/[...path]` 가 받는다. 상태 변경 요청은 same-origin 검사 (`src/app/api/proxy/[...path]/route.ts:52`), 세션 쿠키 검증 (`:61`), 업스트림 base 결정 (`:43`, `:71`), 경로 정규화 뒤 도메인별 role 검사 (`:23` 규칙표, `:36` 인사 셀프서비스 예외), 쿠키를 떼고 `Authorization: Bearer` 를 붙여 fetch.
-4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다 (`:8` ok 헬퍼).
+4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다. 응답은 단위 테스트와 같은 MSW 핸들러가 만든다 (`:18` `getResponse`, 2026-11-10 목 한 벌 카드). 예전 손으로 쓴 서버 목 1,902줄은 지웠다.
 5. 화면은 TanStack Query 로 받는다. 키는 도메인별 팩토리 (`src/app/(private)/purchase/api/purchase.keys.ts:6` 가 표준 모양: all → lists → list(params), details → detail(id)). 리터럴 키는 0건.
 
 ## 3. 인증과 인가 (지금)
@@ -130,10 +130,10 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 src/
   app/(private)/<domain>/   page.tsx, <domain>.api.ts, <domain>.service.ts, <domain>.keys.ts, components/, types/
   app/(public)/             login, callback(옛 흔적, /login 으로 리다이렉트만), profile, unauthorized
-  app/api/                  auth/*, proxy/[...path], [...slug](서버 목)
+  app/api/                  auth/*, proxy/[...path], [...slug](서버 목, MSW 핸들러를 서버에서 돌림)
   app/components/common/    공통 UI 30개. 새로 만들기 전에 여기서 고칠 수 있는지 먼저
   lib/                      axios, auth, queryClient, role, status.constants
-  mocks/                    MSW 핸들러(브라우저용). 테스트는 src/test/msw-server.ts 가 같은 핸들러를 Node 에서 씀
+  mocks/                    MSW 핸들러 한 벌. 브라우저(워커), 단위 테스트(src/test/msw-server.ts), 서버 목이 같이 씀. 구체 경로를 :param 경로보다 앞에 정렬(src/mocks/handlers.ts)
   store/                    Zustand 2개(auth 캐시, 사이드바)
   test/                     vitest 보조(MSW 서버, server-only mock)
 ```
