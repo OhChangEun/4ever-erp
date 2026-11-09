@@ -168,6 +168,48 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 - 테스트: vitest + Testing Library + MSW. 설정 `vitest.config.mts`, 공통 `vitest.setup.ts`(핸들러 없는 요청은 실패시킴). 서버 전용 모듈 테스트는 파일 첫 줄에 `// @vitest-environment node`.
 - 린트: `eslint.config.mjs`. 타입 인식 규칙을 warn 으로 켜고 주석에 측정값을 적어 뒀다. 억제 파일 `eslint-suppressions.json` 은 린트 블록이 끝나면 삭제.
 
+## 8-1. 성능 기준선 (2026-11-10)
+
+측정: `npm run build` 뒤 `npm run perf`. 같은 맥에서 전후를 비교하는 용도다. 절대값으로 쓰지 않는다.
+
+첫 로드 JS(정적 HTML 이 처음 받는 스크립트, gzip). `scripts/measure-bundle.mjs`:
+
+| 라우트        | 청크 수 | 첫 로드 JS(gzip, KB) | 원본(KB) | 들어 있는 큰 패키지                                               |
+| ------------- | ------: | -------------------: | -------: | ----------------------------------------------------------------- |
+| /finance      |      18 |                574.3 |   2011.5 | framer-motion, recharts, MUI 날짜 선택기, MUI 기본, date-fns, zod |
+| /sales        |      18 |                574.3 |   2011.3 | framer-motion, recharts, MUI 날짜 선택기, MUI 기본, date-fns, zod |
+| /inventory    |      18 |                574.1 |   2010.9 | framer-motion, recharts, zod, MUI 날짜 선택기, MUI 기본, date-fns |
+| /production   |      18 |                476.2 |   1623.2 | framer-motion, MUI 날짜 선택기, MUI 기본, date-fns, dnd-kit, zod  |
+| /purchase     |      17 |                453.4 |   1554.1 | framer-motion, zod, MUI 날짜 선택기, MUI 기본, date-fns           |
+| /low-stock    |      16 |                375.9 |   1276.2 | framer-motion, zod                                                |
+| /hrm          |      16 |                369.9 |   1193.9 | framer-motion, MUI 날짜 선택기, MUI 기본, date-fns                |
+| /dashboard    |      14 |                357.8 |   1228.2 | framer-motion, zod                                                |
+| /warehouse    |      14 |                274.2 |    864.9 | framer-motion                                                     |
+| /profile      |      12 |                269.9 |    851.0 | framer-motion                                                     |
+| /alarm        |      13 |                263.9 |    824.8 | framer-motion                                                     |
+| /login        |       9 |                176.5 |    570.3 |                                                                   |
+| /unauthorized |       9 |                176.1 |    568.6 |                                                                   |
+| /callback     |       9 |                172.6 |    559.7 |                                                                   |
+| /             |       6 |                166.2 |    539.1 |                                                                   |
+
+큰 청크 8개(gzip KB): 22-ktuortlg1u.js 121.6 [recharts] / 1gf7rp9x6rfrg.js 83.9 [zod] / 0twzgvo4haiq_.js 70.9 [MUI 날짜 선택기 MUI 기본 date-fns] / 2kys1w8x9rmsc.js 70.5 [framer-motion] / 0yslia1k6p-7o.js 70.0 [] / 1vgpv7vwitdbl.js 42.0 [] / 0cz1d0mv5g_q7.js 38.7 [] / 0lgwh2v-nrier.js 31.0 [dnd-kit]
+
+화면 3개, 운영 빌드, CPU 4배 느리게, 3번 중앙값. `perf/measure.spec.ts`:
+
+| 화면       | LCP(ms) | 긴 작업 합(ms) | 스크립트 전송(KB) | 첫 진입 API | 다른 탭으로 API | 첫 탭으로 돌아올 때 API |
+| ---------- | ------: | -------------: | ----------------: | ----------: | --------------: | ----------------------: |
+| /purchase  |      72 |             31 |               634 |           5 |               4 |                       0 |
+| /sales     |      72 |             58 |               634 |           2 |               1 |                       0 |
+| /inventory |     360 |            130 |               658 |           5 |               2 |                       0 |
+
+읽는 법:
+
+1. 재무, 영업, 재고 화면은 첫 로드에 recharts(121.6KB)를 받는다. 차트가 있는 탭이 아니어도 받는다. dynamic import 대상.
+2. MUI 날짜 선택기와 date-fns 묶음(70.9KB)은 `CalendarButton` 한 곳 때문이다. 자체 `DateRangePicker` 가 있어 MUI 제거 대상(결정 2).
+3. zod(83.9KB)는 타입 2차 카드에서 들어왔다. `zod/mini` 로 줄일 수 있는지 본다.
+4. framer-motion(70.5KB)은 거의 모든 화면이 받는다. 쓰는 곳을 세어 CSS 로 바꿀 수 있는지 본다.
+5. 탭을 다시 열 때 API 0 은 TanStack Query 캐시(staleTime 30초)가 일한다는 뜻이다.
+
 ## 9. 안 하기로 한 것 (SKIP)
 
 | 항목                       | 이유                                      | 기록                         |
