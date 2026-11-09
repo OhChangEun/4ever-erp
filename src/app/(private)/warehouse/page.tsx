@@ -3,14 +3,18 @@
 import Link from 'next/link';
 import WarehouseList from './components/WarehouseList';
 import { Suspense } from 'react';
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import { getWarehouseStats } from './warehouse.api';
 import { mapWarehouseStatsToCards } from './warehouse.service';
 import { useQuery } from '@tanstack/react-query';
 import { warehouseStatsKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 export default function WarehousePage() {
-  const { data: warehouseStats, isLoading } = useQuery({
+  const {
+    data: warehouseStats,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: warehouseStatsKeys.all,
     queryFn: getWarehouseStats,
   });
@@ -25,13 +29,13 @@ export default function WarehousePage() {
 
   const warehouseStatsData = warehouseStats
     ? mapWarehouseStatsToCards(warehouseStats)
-    : { week: [], month: [], quarter: [], year: [] };
+    : EMPTY_STATS;
 
   return (
     <div className="bg-gray-50">
       <main className="w-full px-6 py-6">
         {/* 페이지 헤더 */}
-        <StatSection statsData={warehouseStatsData} />
+        <StatSection statsData={warehouseStatsData} error={error} />
         <div className="w-full flex justify-end">
           <Link
             href="/inventory"

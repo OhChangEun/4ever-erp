@@ -79,6 +79,7 @@ export default function PurchaseRequestListTab() {
     data: requestData,
     isLoading,
     isError,
+    error,
   } = useQuery<PurchaseRequestListResponse>({
     queryKey: purchaseRequestKeys.list(queryParams),
     queryFn: () => fetchPurchaseRequestList(queryParams),
@@ -249,7 +250,11 @@ export default function PurchaseRequestListTab() {
       {isLoading ? (
         <TableStatusBox type="loading" message="구매 요청 목록을 불러오는 중입니다..." />
       ) : isError ? (
-        <TableStatusBox type="error" message="구매 요청 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox
+          type="error"
+          message="구매 요청 목록을 불러오는 중 오류가 발생했습니다."
+          error={error}
+        />
       ) : (
         <Table
           columns={columns}

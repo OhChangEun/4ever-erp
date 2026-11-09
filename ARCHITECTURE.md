@@ -21,7 +21,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 목록 화면이 데이터를 받기까지.
 
 1. 도메인 `*.api.ts` 가 `*_ENDPOINTS` 상수로 URL 을 만든다. 기본 base 는 `/api/proxy` 다 (`src/app/types/api.ts:4`). 응답 래퍼는 `ApiResponse<T>` (`src/app/types/api.ts:14`).
-2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:5`). 응답 인터셉터가 실패를 URL 별 빈 데이터로 바꿔치기한다 (`src/lib/axiosInstance.ts:41`, `:175`). `NEXT_PUBLIC_API_FALLBACK=disabled` 일 때만 끈다 (`:10`). 이게 "실패가 빈 목록으로 보이는" 원인이고, 정합성 블록에서 제거 대상이다.
+2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:4`). 응답 인터셉터 하나가 두 가지를 한다. 2xx 인데 래퍼가 깨진 응답(`success === false`, GET 인데 `data` 없음)을 `invalidShape` 로 올리고 (`:22`), 실패는 전부 `AppError` 로 정규화해 reject 한다 (`:44`, 종류 9개는 `src/lib/AppError.ts:8`). 실패를 URL 별 빈 데이터로 바꿔치기하던 fallback 은 2026-11-09 에 지웠다(카드 `ai/cards/2026-11-09_오류를_빈_데이터로_숨기는_fallback_제거.md`). 화면은 `TableStatusBox` 와 `StatSection` 의 `error` prop 으로 종류별 한 줄을 덧붙인다 (`src/app/components/common/TableStatusBox.tsx:9`, `StatSection.tsx:20`).
 3. `/api/proxy/[...path]` 가 받는다. 상태 변경 요청은 same-origin 검사 (`src/app/api/proxy/[...path]/route.ts:52`), 세션 쿠키 검증 (`:61`), 업스트림 base 결정 (`:43`, `:71`), 경로 정규화 뒤 도메인별 role 검사 (`:23` 규칙표, `:36` 인사 셀프서비스 예외), 쿠키를 떼고 `Authorization: Bearer` 를 붙여 fetch.
 4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다 (`:8` ok 헬퍼).
 5. 화면은 TanStack Query 로 받는다. 키는 도메인별 팩토리 (`src/app/(private)/purchase/api/purchase.keys.ts:6` 가 표준 모양: all → lists → list(params), details → detail(id)). 리터럴 키는 0건.
@@ -85,7 +85,6 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 | `BACKEND_API_URL`          | 서버                       | 업스트림. 없으면 `/api/[...slug]` 목                    |
 | `NEXT_PUBLIC_API_BASE_URL` | 브라우저                   | 기본 `/api/proxy`                                       |
 | `NEXT_PUBLIC_API_MOCKING`  | 브라우저                   | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`) |
-| `NEXT_PUBLIC_API_FALLBACK` | 브라우저                   | `disabled` 면 axios 실패 바꿔치기 끔. 제거 예정         |
 
 CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 한다. 2026-11-09 PR #1 의 첫 preview 배포가 Preview 환경에 값이 없어 `src/lib/auth/session.ts:7` 에서 throw 하며 실패했다. 값은 환경마다 다르게 두고(`openssl rand -base64 32`), 사람이 Vercel 대시보드나 `vercel env add SESSION_SECRET preview` 로 넣는다.
 

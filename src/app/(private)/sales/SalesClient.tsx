@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import { getCustomerSalesStats, getSalesStats } from '@/app/(private)/sales/sales.api';
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import {
   mapCustomerSalesStatsToCards,
   mapSalesStatsToCards,
@@ -15,7 +15,11 @@ import { salesStatsKeys } from '@/app/(private)/sales/sales.keys';
 export default function SalesClient() {
   const role = useRole();
 
-  const { data: salesStatsData, isLoading } = useQuery({
+  const {
+    data: salesStatsData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: salesStatsKeys.byRole(role),
     queryFn: async () => {
       if (role === 'CUSTOMER_ADMIN') {
@@ -42,11 +46,7 @@ export default function SalesClient() {
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         <Suspense fallback={<div>Loading...</div>}>
           <SalesTabs
-            header={
-              <StatSection
-                statsData={salesStatsData ?? { week: [], month: [], quarter: [], year: [] }}
-              />
-            }
+            header={<StatSection statsData={salesStatsData ?? EMPTY_STATS} error={error} />}
           />
         </Suspense>
       </main>

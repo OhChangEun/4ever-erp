@@ -3,13 +3,17 @@
 import { useQuery } from '@tanstack/react-query';
 import QuickActions from '@/app/(private)/dashboard/components/QuickActions';
 import WorkflowStatus from '@/app/(private)/dashboard/components/WorkflowStatus';
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import { getDashboardStats, getWorkflowStatus } from '@/app/(private)/dashboard/dashboard.api';
 import { mapDashboardStatsToCards } from './dashboard.service';
 import { dashboardKeys } from '@/app/(private)/dashboard/dashboard.keys';
 
 export default function DashboardClient() {
-  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+  const {
+    data: dashboardStats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery({
     queryKey: dashboardKeys.stats(),
     queryFn: getDashboardStats,
   });
@@ -29,13 +33,13 @@ export default function DashboardClient() {
 
   const dashboardStatsData = dashboardStats
     ? mapDashboardStatsToCards(dashboardStats)
-    : { week: [], month: [], quarter: [], year: [] };
+    : EMPTY_STATS;
 
   return (
     <div>
       <main className="w-full px-6 py-6">
         {/* 페이지 헤더 */}
-        <StatSection statsData={dashboardStatsData} />
+        <StatSection statsData={dashboardStatsData} error={statsError} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 mb-8">
           {/* 빠른 작업 */}
           <div className="lg:col-span-1">

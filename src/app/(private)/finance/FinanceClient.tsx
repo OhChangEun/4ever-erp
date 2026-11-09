@@ -6,9 +6,8 @@ import {
   getFinanceStats,
   getSupplierStats,
 } from '@/app/(private)/finance/finance.api';
-import ErrorMessage from '@/app/components/common/ErrorMessage';
 import { mapCustomerSupplierStatsToCards, mapFinanceStatsToCards } from './finance.service';
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import FinanceTabs from './components/tabs/FinanceTabs';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +16,11 @@ import { financeStatsKeys } from '@/app/(private)/finance/finance.keys';
 export default function FinanceClient() {
   const role = useRole();
 
-  const { data: financeStatsData, isLoading } = useQuery({
+  const {
+    data: financeStatsData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: financeStatsKeys.byRole(role),
     queryFn: async () => {
       if (role === 'CUSTOMER_ADMIN') {
@@ -47,13 +50,7 @@ export default function FinanceClient() {
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         <Suspense fallback={<div>Loading...</div>}>
           <FinanceTabs
-            header={
-              financeStatsData ? (
-                <StatSection statsData={financeStatsData} />
-              ) : (
-                <ErrorMessage message={'재무 통계 데이터를 불러오는데 실패했습니다.'} />
-              )
-            }
+            header={<StatSection statsData={financeStatsData ?? EMPTY_STATS} error={error} />}
           />
         </Suspense>
       </main>

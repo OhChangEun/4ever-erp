@@ -1,6 +1,6 @@
 'use client';
 
-import StatSection from '@/app/components/common/StatSection';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import { Suspense } from 'react';
 import { getInventoryStats } from '@/app/(private)/inventory/inventory.api';
@@ -10,14 +10,14 @@ import { useQuery } from '@tanstack/react-query';
 import { inventoryStatsKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function InventoryClient() {
-  const { data: inventoryStats } = useQuery({
+  const { data: inventoryStats, error } = useQuery({
     queryKey: inventoryStatsKeys.all,
     queryFn: getInventoryStats,
   });
 
   const inventoryStatsData = inventoryStats
     ? mapInventoryStatsToCards(inventoryStats)
-    : { week: [], month: [], quarter: [], year: [] };
+    : EMPTY_STATS;
 
   return (
     <div className="bg-gray-50 h-full flex flex-col">
@@ -25,7 +25,7 @@ export default function InventoryClient() {
         <Suspense fallback={<div>Loading...</div>}>
           <TabNavigation
             tabs={INVENTORY_TABS}
-            header={<StatSection statsData={inventoryStatsData} />}
+            header={<StatSection statsData={inventoryStatsData} error={error} />}
           />
         </Suspense>
       </main>

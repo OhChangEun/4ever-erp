@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '@/lib/axiosInstance';
 import { LowStockStatResponse } from './types/LowStockStatsType';
 import { LowStockListQueryParams, LowStockListResponse } from './types/LowStockListType';
 import { ApiResponse, LOWSTOCK_ENDPOINTS } from '@/app/types/api';

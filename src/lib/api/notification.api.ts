@@ -1,39 +1,26 @@
 import { NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
-import { NotificationListResponse } from '@/app/components/header/types/NotificatioApiType';
+import {
+  NotificationCountResponse,
+  NotificationListResponse,
+} from '@/app/components/header/types/NotificatioApiType';
 import { ApiResponse } from '@/app/types/api';
 import axios from '../axiosInstance';
-
-const makeEmptyPage = (page: number, size: number) => ({
-  number: page,
-  size,
-  totalElements: 0,
-  totalPages: 1,
-  hasNext: false,
-});
 
 // 알림 목록 조회
 export const fetchNotifications = async (
   page: number,
   size: number,
 ): Promise<NotificationListResponse> => {
-  try {
-    const res = await axios.get<ApiResponse<NotificationListResponse>>(
-      `${NOTIFICATION_ENDPOINTS.LIST}?page=${page}&size=${size}`,
-    );
-    return res.data.data;
-  } catch {
-    return { content: [], page: makeEmptyPage(page, size) };
-  }
+  const res = await axios.get<ApiResponse<NotificationListResponse>>(
+    `${NOTIFICATION_ENDPOINTS.LIST}?page=${page}&size=${size}`,
+  );
+  return res.data.data;
 };
 
 // 알림 개수 조회
-export const fetchNotificationCounts = async () => {
-  try {
-    const res = await axios.get(NOTIFICATION_ENDPOINTS.COUNT);
-    return res.data;
-  } catch {
-    return { count: 0 };
-  }
+export const fetchNotificationCounts = async (): Promise<NotificationCountResponse> => {
+  const res = await axios.get<ApiResponse<NotificationCountResponse>>(NOTIFICATION_ENDPOINTS.COUNT);
+  return res.data.data;
 };
 
 // 특정 알림 읽음 처리

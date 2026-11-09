@@ -6,7 +6,7 @@ EverP — ERP 프론트엔드. Next.js App Router 기반, 인증된 사용자가
 ## Critical Rules
 - 커밋 타입: `feat | fix | refac | test | chore | docs` 만 허용 (commitlint 강제)
 - `refactor` 아님 → **`refac`** 사용
-- `NEXT_PUBLIC_API_MOCKING=enabled` 시 MSW 목 서버 활성화; axios 응답 실패 시 fallback 자동 반환
+- `NEXT_PUBLIC_API_MOCKING=enabled` 시 MSW 목 서버 활성화. axios 실패는 `AppError`(`src/lib/AppError.ts`)로 reject 된다. 실패를 빈 데이터로 바꾸는 fallback 은 없다(2026-11-09 제거)
 
 ## Architecture
 ```

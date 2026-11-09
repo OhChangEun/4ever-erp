@@ -45,12 +45,32 @@ export default defineConfig([
     },
   },
 
+  // 전역 axios 인터셉터(src/lib/axiosInstance.ts)를 거치지 않는 것처럼 보이는 import 를 막는다.
+  // 결정: ai/decisions.md 2026-11-09 "전역 axios 인스턴스". 2건(inventory.api.ts, production.api.ts 는 린트 1차 브랜치가 수정 중). 그 브랜치 머지 뒤 0 으로.
+  {
+    files: ['src/app/**/*.ts', 'src/app/**/*.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'warn',
+        {
+          paths: [
+            {
+              name: 'axios',
+              message: "'@/lib/axiosInstance' 를 import 한다. 오류 정규화 인터셉터가 거기 있다.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // 테스트 파일: 단언과 non-null 은 테스트 가독성을 위해 허용
   {
     files: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'vitest.setup.ts'],
     rules: {
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'no-restricted-imports': 'off', // 테스트는 AxiosError 로 오류 모양을 만들어야 한다
     },
   },
 ]);

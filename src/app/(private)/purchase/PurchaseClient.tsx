@@ -7,8 +7,7 @@ import {
 } from '@/app/(private)/purchase/services/purchase.service';
 import { PURCHASE_TABS, SUPPLIER_PURCHASE_TABS } from '@/app/(private)/purchase/purchase.tabs';
 import TabNavigation from '@/app/components/common/TabNavigation';
-import StatSection from '@/app/components/common/StatSection';
-import ErrorMessage from '@/app/components/common/ErrorMessage';
+import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import {
   fetchPurchaseStats,
   fetchSupplierOrdersPurchaseStats,
@@ -22,15 +21,19 @@ export default function PurchaseClient() {
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
 
-  const { data: statsData, isLoading } = useQuery({
+  const {
+    data: statsData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: purchaseStatsKeys.byRole(role),
-    queryFn: async (): Promise<Record<string, StatCardType[]> | null> => {
+    queryFn: async (): Promise<Record<string, StatCardType[]>> => {
       if (isSupplier) {
         const data = await fetchSupplierOrdersPurchaseStats();
-        return data ? mapSupplierPurchaseStatsToCards(data) : null;
+        return mapSupplierPurchaseStatsToCards(data);
       } else {
         const data = await fetchPurchaseStats();
-        return data ? mapPurchaseStatsToCards(data) : null;
+        return mapPurchaseStatsToCards(data);
       }
     },
     enabled: !!role,
@@ -50,13 +53,7 @@ export default function PurchaseClient() {
         <Suspense fallback={<div>Loading...</div>}>
           <TabNavigation
             tabs={isSupplier ? SUPPLIER_PURCHASE_TABS : PURCHASE_TABS}
-            header={
-              statsData ? (
-                <StatSection statsData={statsData} />
-              ) : (
-                <ErrorMessage message={'구매 통계 데이터를 불러오는데 실패했습니다.'} />
-              )
-            }
+            header={<StatSection statsData={statsData ?? EMPTY_STATS} error={error} />}
           />
         </Suspense>
       </main>
