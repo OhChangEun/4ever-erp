@@ -1,5 +1,5 @@
 import { InventoryStatResponse } from './types/InventoryStatsType';
-import axios from 'axios';
+import axios from '@/lib/axiosInstance';
 import { InventoryQueryParams, InventoryResponse } from './types/InventoryListType';
 import { InventoryDetailResponse, StockMovementRequest } from './types/InventoryDetailModalType';
 import { LowStockItemResponse } from '../low-stock/types/LowStockAlertType';

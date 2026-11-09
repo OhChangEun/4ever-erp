@@ -51,7 +51,7 @@ export default defineConfig([
   },
 
   // 전역 axios 인터셉터(src/lib/axiosInstance.ts)를 거치지 않는 것처럼 보이는 import 를 막는다.
-  // 결정: ai/decisions.md 2026-11-09 "전역 axios 인스턴스". 2건(inventory.api.ts, production.api.ts 는 린트 1차 브랜치가 수정 중). 그 브랜치 머지 뒤 0 으로.
+  // 결정: ai/decisions.md 2026-11-09 "전역 axios 인스턴스". 0건(2026-11-09 queryClient 카드에서 마지막 2곳 정리).
   {
     files: ['src/app/**/*.ts', 'src/app/**/*.tsx'],
     rules: {

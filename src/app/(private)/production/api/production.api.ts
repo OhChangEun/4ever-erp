@@ -22,21 +22,15 @@ import { PageRequest } from '@/app/types/Page';
 import { MrpOrdersConvertReqeustBody } from '../types/MrpOrdersConvertApiType';
 import { ItemResponse } from '../../inventory/types/ItemListType';
 import { FetchMrpOrdersListParams, MrpOrdersListResponse } from '../types/MrpOrdersApiType';
-import axios from 'axios';
+import axios from '@/lib/axiosInstance';
 
 // --- 상단 섹션 ---
 // 구매 관리 지표
-export const fetchProductionStats = async (): Promise<ProductionStatResponse | null> => {
-  try {
-    const res = await axios.get<ApiResponse<ProductionStatResponse>>(
-      `${PRODUCTION_ENDPOINTS.STATISTICS}`,
-    );
-    // console.log(res);
-    return res.data.data;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+export const fetchProductionStats = async (): Promise<ProductionStatResponse> => {
+  const res = await axios.get<ApiResponse<ProductionStatResponse>>(
+    `${PRODUCTION_ENDPOINTS.STATISTICS}`,
+  );
+  return res.data.data;
 };
 
 // --- 견적 ---

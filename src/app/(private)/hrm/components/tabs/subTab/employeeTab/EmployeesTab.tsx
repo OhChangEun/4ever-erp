@@ -56,7 +56,6 @@ export default function EmployeesTab() {
   } = useQuery({
     queryKey: employeeKeys.list(employeesQueryParams),
     queryFn: () => fetchEmployeesList(employeesQueryParams),
-    staleTime: 1000,
   });
 
   // console.log(employeesData);

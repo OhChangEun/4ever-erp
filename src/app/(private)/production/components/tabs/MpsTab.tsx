@@ -42,7 +42,6 @@ export default function MpsTab() {
           size: 100,
         } as MpsListParams),
       enabled: !!startDate && !!endDate,
-      staleTime: 1000,
     })),
   });
 

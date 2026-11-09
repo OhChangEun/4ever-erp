@@ -67,7 +67,6 @@ const InventoryList = () => {
   }>({
     queryKey: inventoryKeys.list(queryParams),
     queryFn: () => getInventoryList(queryParams),
-    staleTime: 1000,
   });
 
   const inventories = InventoryRes?.data || [];

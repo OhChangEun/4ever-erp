@@ -42,7 +42,6 @@ export default function LowStockList() {
   } = useQuery({
     queryKey: lowStockKeys.list(queryParams),
     queryFn: () => getLowStockList(queryParams),
-    staleTime: 1000,
   });
 
   const lowStocks = lowStockRes?.data ?? [];

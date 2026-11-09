@@ -54,7 +54,6 @@ const SalesQuoteList = () => {
   } = useQuery({
     queryKey: quoteKeys.list(queryParams),
     queryFn: () => getQuoteList(queryParams),
-    staleTime: 1000,
   });
 
   const quotes = quoteRes?.data ?? [];
