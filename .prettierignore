@@ -1,3 +1,8 @@
+# 기존 손 포맷 문서. 전체 재포맷 diff 를 피한다. ai/ 아래 새 문서는 prettier 를 따른다.
+CLAUDE.md
+README.md
+DESIGN_GUIDELINES.md
+
 # 도구가 생성하는 파일. 손으로 포맷하지 않는다.
 eslint-suppressions.json
 package-lock.json
