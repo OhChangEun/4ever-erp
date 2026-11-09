@@ -7,7 +7,8 @@ export interface SalesOrderDetailProps extends ModalProps {
 
 export interface OrderDetail {
   order: {
-    salesOrderId: number;
+    // 목록(Order.salesOrderId)과 같은 문자열 ID. 예전 타입은 number 였고 서버 목은 문자열을 보냈다
+    salesOrderId: string;
     salesOrderNumber: string;
     orderDate: string;
     dueDate: string;

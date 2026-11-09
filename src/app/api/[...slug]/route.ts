@@ -336,7 +336,13 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
     return ok({ success: true });
   if (path === 'business/sd/analytics/sales') {
     return ok({
-      period: { start: '2026-01-01', end: '2026-01-31' },
+      period: {
+        start: '2026-01-01',
+        end: '2026-01-31',
+        weekStart: '2026-01-05',
+        weekEnd: '2026-01-26',
+        weekCount: 4,
+      },
       trend: [
         { year: 2026, month: 1, week: 1, sale: 1200000, orderCount: 12 },
         { year: 2026, month: 1, week: 2, sale: 1500000, orderCount: 15 },
@@ -1207,7 +1213,9 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
     return ok({
       id: prId,
       purchaseRequisitionNumber: 'PR-2026-001',
+      requesterId: 'emp-001',
       requesterName: '홍길동',
+      departmentId: 'dept-001',
       departmentName: '구매팀',
       requestDate: '2026-01-10',
       statusCode: 'PENDING',
@@ -1535,6 +1543,8 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
     ];
     const statusCodes = ['NEW', 'CONFIRMED'];
     const availableStatuses = ['CHECKED', 'UNCHECKED'];
+    // 견적 탭 "제품명" 열이 읽는다. 예전엔 빠져서 Vercel 데모에서 열이 비었다(계약 테스트로 찾음)
+    const products = ['모터 A', '펌프 B', '밸브 C', '기어 D', '베어링 E', '실린더 F'];
     let allData = Array.from({ length: 512 }, (_, i) => {
       const idx = i + 1;
       const year = 2025 + Math.floor(idx / 300);
@@ -1545,6 +1555,7 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
         quotationId: `qt-${String(idx).padStart(3, '0')}`,
         quotationNumber: `QT-${year}-${String(idx).padStart(3, '0')}`,
         customerName: customers[idx % customers.length],
+        productName: products[idx % products.length],
         requestDate: `${year}-${month}-${day}`,
         dueDate: `${year}-${nextMonth}-${day}`,
         statusCode: statusCodes[idx % statusCodes.length],
@@ -1749,6 +1760,7 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ slu
       mrpId: path.split('/').pop(),
       quotationId: 'qt-001',
       quotationCode: 'QT-2026-001',
+      requesterId: 'emp-001',
       requesterName: '홍길동',
       departmentName: '구매팀',
       requestDate: '2026-01-10',

@@ -23,15 +23,16 @@ export default function FinanceClient() {
   } = useQuery({
     queryKey: financeStatsKeys.byRole(role),
     queryFn: async () => {
+      // success 가 false 인 응답은 axios 인터셉터가 오류로 바꾼다. 여기 오는 응답은 성공뿐이다
       if (role === 'CUSTOMER_ADMIN') {
         const res = await getCustomerStats();
-        return res.success ? mapCustomerSupplierStatsToCards(res.data) : null;
+        return mapCustomerSupplierStatsToCards(res.data);
       } else if (role === 'SUPPLIER_ADMIN') {
         const res = await getSupplierStats();
-        return res.success ? mapCustomerSupplierStatsToCards(res.data) : null;
+        return mapCustomerSupplierStatsToCards(res.data);
       } else {
         const res = await getFinanceStats();
-        return res.success ? mapFinanceStatsToCards(res.data) : null;
+        return mapFinanceStatsToCards(res.data);
       }
     },
     enabled: !!role,
