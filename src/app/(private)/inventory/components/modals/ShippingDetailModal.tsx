@@ -8,7 +8,6 @@ import {
   ShippingDetailModalProps,
   ShippingDetailResponse,
 } from '../../types/ShippingDetailModalType';
-import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import {
   getProductionDetail,
@@ -17,6 +16,7 @@ import {
 } from '../../inventory.api';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const ShippingDetailModal = ({
   onClose,
@@ -45,10 +45,8 @@ const ShippingDetailModal = ({
     enabled: !!selectedOrderId,
   });
 
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   const { mutate: markAsReadyToShip, isPending } = useMutation<
     markAsReadyToShipResponse,
@@ -68,12 +66,12 @@ const ShippingDetailModal = ({
   if (isLoading)
     return <ModalStatusBox type="loading" message="출고 상세 데이터를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="출고 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 

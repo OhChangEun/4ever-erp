@@ -23,4 +23,14 @@ describe('useDismissibleError', () => {
     rerender({ isError: true });
     expect(result.current.isOpen).toBe(true);
   });
+
+  it('조회가 둘일 때 하나를 닫은 뒤 다른 조회가 새로 실패하면 다시 열린다 (리뷰 A1)', () => {
+    const { result, rerender } = renderHook(({ a, b }) => useDismissibleError(a, b), {
+      initialProps: { a: true, b: false },
+    });
+    act(() => result.current.dismiss());
+    expect(result.current.isOpen).toBe(false);
+    rerender({ a: true, b: true });
+    expect(result.current.isOpen).toBe(true);
+  });
 });

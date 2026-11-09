@@ -7,7 +7,6 @@ import {
   InvoicetDetailRes,
 } from '@/app/(private)/finance/types/InvoiceDetailModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPurchaseInvoiceDetail, getSalesInvoiceDetail } from '../../finance.api';
 import { invoiceKeys } from '@/app/(private)/finance/finance.keys';
@@ -16,6 +15,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalProps) => {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'sales';
@@ -47,10 +47,8 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
     enabled: !!selectedInvoiceId,
   });
 
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   // useEffect(() => {
   //   setSelectedInvoiceId('');
@@ -59,12 +57,12 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
   if (isLoading)
     return <ModalStatusBox type="loading" message="고객 상세 데이터를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 

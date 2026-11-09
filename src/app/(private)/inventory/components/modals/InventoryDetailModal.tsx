@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import InventoryMoveModal from './InventoryMoveModal';
 import InventorySafetyModal from './InventorySafetyStockModal';
 import {
@@ -16,6 +16,7 @@ import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 import { formatCurrency } from '@/app/utils/number';
 import Button from '@/app/components/common/Button';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
@@ -71,20 +72,18 @@ const InventoryDetailModal = ({ selectedItemId, setSelectedItemId }: InventoryDe
     queryFn: () => getInventoryDetail(selectedItemId),
     enabled: !!selectedItemId,
   });
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading)
     return <ModalStatusBox type="loading" message="재고 상세 데이터를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="재고 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 

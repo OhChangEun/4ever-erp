@@ -1,7 +1,6 @@
 'use client';
 
 import { CustomerDetailModalProps } from '@/app/(private)/sales/types/CustomerDetailModalProps';
-import { useEffect, useState } from 'react';
 import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
 import { getCustomerDetail } from '../../sales.api';
 import { customerKeys } from '@/app/(private)/sales/sales.keys';
@@ -13,6 +12,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import CustomerEditModal from './CustomerEditModal';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 const CustomerDetailModal = ({ selectedCustomerId, setEditFormData }: CustomerDetailModalProps) => {
   const { openModal } = useModal();
   const {
@@ -24,20 +24,18 @@ const CustomerDetailModal = ({ selectedCustomerId, setEditFormData }: CustomerDe
     queryFn: () => getCustomerDetail(selectedCustomerId),
     enabled: !!selectedCustomerId,
   });
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading)
     return <ModalStatusBox type="loading" message="고객 상세 데이터를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="고객 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
   return (

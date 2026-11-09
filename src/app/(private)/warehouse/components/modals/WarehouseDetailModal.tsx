@@ -5,11 +5,11 @@ import {
   WarehouseDetailModalProps,
   WarehouseDetailResponse,
 } from '../../types/WarehouseDetailModalType';
-import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { getWarehouseDetail } from '../../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 const WarehouseDetailModal = ({
   handleWarehouseManage,
@@ -29,20 +29,18 @@ const WarehouseDetailModal = ({
   const warehouseInfo = warehouseDetailRes?.warehouseInfo;
   const managerInfo = warehouseDetailRes?.manager;
 
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading)
     return <ModalStatusBox type="loading" message="창고 상세 정보를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="창고 상세 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
   return (

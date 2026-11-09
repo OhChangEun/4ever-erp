@@ -11,6 +11,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';
 import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
 interface ManageWarehouseRequest {
   warehouseName: string;
@@ -116,11 +117,8 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     }
   }, [warehouseInfo, managerInfo, ManagerInfoRes]);
 
-  const [errorModal, setErrorModal] = useState(false);
-
-  useEffect(() => {
-    setErrorModal(isWarehouseInfoError || isManagerInfoError);
-  }, [isWarehouseInfoError, isManagerInfoError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isWarehouseInfoError, isManagerInfoError);
 
   if (isWarehouseInfoLoading)
     return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
@@ -128,21 +126,21 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   if (isManagerInfoLoading)
     return <ModalStatusBox type="loading" message="담당자 정보를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="담당자 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="창고 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => setErrorModal(false)}
+        onClose={() => errorDialog.dismiss()}
       />
     );
 

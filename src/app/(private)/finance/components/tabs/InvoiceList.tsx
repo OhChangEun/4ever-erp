@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { VOUCHER_STATUS_OPTIONS } from '@/app/(private)/finance/constants';
 import { InvoiceStatus } from '@/app/(private)/finance/types/InvoiceListType';
 import { useQuery } from '@tanstack/react-query';
@@ -35,14 +35,16 @@ const InvoiceList = () => {
       ? 'sales'
       : 'purchase'
     : defaultTab;
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string>('');
+  // 선택은 탭별로 기억한다. 다른 탭으로 가면 선택이 없다(예전엔 effect 로 지웠다)
+  const [selection, setSelection] = useState<{ tab: InvoiceTab; invoiceId: string }>({
+    tab: currentTab,
+    invoiceId: '',
+  });
+  const selectedInvoiceId = selection.tab === currentTab ? selection.invoiceId : '';
+  const setSelectedInvoiceId = (invoiceId: string) => setSelection({ tab: currentTab, invoiceId });
 
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => {
-    setSelectedInvoiceId('');
-  }, [currentTab]);
 
   const queryParams = useMemo(
     () => ({

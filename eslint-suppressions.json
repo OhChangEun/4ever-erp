@@ -4,46 +4,6 @@
       "count": 1
     }
   },
-  "src/app/(private)/finance/components/modals/InvoiceDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/finance/components/tabs/InvoiceList.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/modals/AddInventoryModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/modals/InventoryDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/modals/InventoryMoveModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/modals/ShippingDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/tabs/ReceivingManagementList.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/inventory/components/tabs/ShippingManagementList.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/app/(private)/layout.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -54,22 +14,7 @@
       "count": 1
     }
   },
-  "src/app/(private)/purchase/components/modals/PurchaseOrderDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/purchase/components/modals/PurchaseRequestDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/app/(private)/purchase/components/modals/SupplierFormModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/sales/components/modals/CustomerDetailModal.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -77,11 +22,6 @@
   "src/app/(private)/sales/components/modals/CustomerEditModal.tsx": {
     "react-hooks/immutability": {
       "count": 2
-    }
-  },
-  "src/app/(private)/sales/components/modals/NewOrderModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
     }
   },
   "src/app/(private)/sales/components/modals/QuoteDetailModal.tsx": {
@@ -94,22 +34,7 @@
       "count": 1
     }
   },
-  "src/app/(private)/sales/components/modals/SalesOrderDetailModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/app/(private)/warehouse/components/modals/AddWarehouseModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "src/app/(private)/warehouse/components/modals/ManageWarehouseModal.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 2
-    }
-  },
-  "src/app/(private)/warehouse/components/modals/WarehouseDetailModal.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -122,11 +47,6 @@
   "src/app/(private)/warehouse/components/warehouseVisualizer/components/WarehouseVisualizer.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 2
-    }
-  },
-  "src/app/(public)/profile/components/AttendanceRecord.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
     }
   },
   "src/app/(public)/profile/layout.tsx": {

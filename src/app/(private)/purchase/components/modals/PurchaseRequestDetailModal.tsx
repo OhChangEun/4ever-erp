@@ -4,7 +4,6 @@ import { PURCHASE_ITEM_TABLE_HEADERS } from '@/app/(private)/purchase/constants'
 import { useQuery } from '@tanstack/react-query';
 import { PurchaseRequestDetail } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { fetchPurchaseRequestDetail } from '@/app/(private)/purchase/api/purchase.api';
-import { useEffect, useState } from 'react';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
 import { ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
@@ -12,6 +11,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 export interface PurchaseRequestDetailModalProps extends ModalProps {
   purchaseRequestId: string;
 }
@@ -29,21 +29,19 @@ export default function PurchaseRequestDetailModal({
     queryFn: () => fetchPurchaseRequestDetail(purchaseRequestId),
   });
 
-  const [errorModal, setErrorModal] = useState(false);
-  useEffect(() => {
-    setErrorModal(isError);
-  }, [isError]);
+  // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
+  const errorDialog = useDismissibleError(isError);
 
   if (isLoading)
     return <ModalStatusBox type="loading" message="구매 요청 상세정보를 불러오는 중입니다..." />;
 
-  if (errorModal)
+  if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
         message="구매 요청 상세 정보 데이터를 불러오는 중 오류가 발생했습니다."
         onClose={() => {
-          setErrorModal(false);
+          errorDialog.dismiss();
           onClose(); // 모달창 닫기
         }}
       />
