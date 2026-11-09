@@ -57,7 +57,7 @@ src/server/auth/
 - 서버 prefetch → `HydrationBoundary` (`src/app/providers.tsx:29`) 패턴이 15곳에 있다. 전 도메인 확대 예정.
 - 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:18`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
 - 낙관적 락(version 전송)은 BOM 상태 변경에만 있다. 409 를 받으면 공통 빌더가 그 mutation 의 무효화 키를 다시 가져온다(`src/lib/query/useInvalidatingMutation.ts`, onError). 충돌 안내는 공통 `ConflictDialog`. 다른 엔티티의 version 전송은 OpenAPI 계약 카드.
-- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8, 인사 10, 생산 10, 재고 4, 영업 4, 재무 1, 창고 2, 프로필 5, 알림 2 완료. 컴포넌트 안 `useMutation` 은 0건이다(2026-11-10). 견적 시뮬레이션과 재고 확인처럼 버튼으로 한 번 하는 요청도 도메인 훅으로 둔다. 읽기는 `useQuery` 로 하고 결과를 state 에 복사하지 않는다.
+- mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8, 인사 10, 생산 10, 재고 4, 영업 4, 재무 1, 창고 2, 프로필 5, 알림 2 완료. 컴포넌트 안 `useMutation` 은 0건이다(2026-11-10, `grep -rnE "useMutation[<(]"` 기준. 제네릭 형태 2건은 PR #18 에서 정리). 견적 시뮬레이션과 재고 확인처럼 버튼으로 한 번 하는 요청도 도메인 훅으로 둔다. 읽기는 `useQuery` 로 하고 결과를 state 에 복사하지 않는다.
 
   구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
 

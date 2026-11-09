@@ -4,6 +4,7 @@ import {
   type MutationCallbacks,
 } from '@/lib/query/useInvalidatingMutation';
 import {
+  patchCustomer,
   postCustomer,
   postDeliveryProcess,
   postInventoryCheck,
@@ -12,6 +13,10 @@ import {
 } from './sales.api';
 import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
+import type {
+  CustomerEditData,
+  CustomerResponse,
+} from '@/app/(private)/sales/types/CustomerEditModalType';
 import type { Inventories } from '@/app/(private)/sales/types/QuoteDetailModalType';
 import type { InventoryCheckRes } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import type {
@@ -28,6 +33,10 @@ export const SALES_MUTATION_EFFECTS = {
   // 재고 확인은 버튼으로 한 번 하는 계산 요청이다. 서버 상태를 안 바꿔 무효화할 것이 없다
   checkInventory: (): readonly QueryKey[] => [],
   createCustomer: (): readonly QueryKey[] => [customerKeys.lists()],
+  updateCustomer: (customerId: string): readonly QueryKey[] => [
+    customerKeys.lists(),
+    customerKeys.detail(customerId),
+  ],
   createQuote: (): readonly QueryKey[] => [quoteKeys.lists(), salesStatsKeys.all],
   confirmQuotation: (quotationId: string): readonly QueryKey[] => [
     quoteKeys.lists(),
@@ -89,5 +98,21 @@ export const useCheckInventory = (
     mutationKey: salesMutationKey('checkInventory'),
     mutationFn: (items) => postInventoryCheck(items),
     effects: () => SALES_MUTATION_EFFECTS.checkInventory(),
+    callbacks,
+  });
+
+export interface UpdateCustomerVariables {
+  customerId: string;
+  data: CustomerEditData;
+}
+
+/** 고객 수정. 목록(이름, 상태)과 그 고객 상세를 다시 가져온다 */
+export const useUpdateCustomer = (
+  callbacks?: MutationCallbacks<CustomerResponse, UpdateCustomerVariables>,
+) =>
+  useInvalidatingMutation<CustomerResponse, UpdateCustomerVariables>({
+    mutationKey: salesMutationKey('updateCustomer'),
+    mutationFn: ({ customerId, data }) => patchCustomer(customerId, data),
+    effects: ({ customerId }) => SALES_MUTATION_EFFECTS.updateCustomer(customerId),
     callbacks,
   });

@@ -66,11 +66,8 @@ const CustomerList = () => {
       height: '1050px',
       title: '고객 상세 정보',
       selectedCustomerId: id,
-      setEditFormData: setEditFormData,
     });
   };
-
-  const [editFormData, setEditFormData] = useState<CustomerDetail | null>(null);
 
   const totalPages = pageInfo?.totalPages ?? 1;
 

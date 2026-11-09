@@ -1,19 +1,15 @@
 'use client';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
-  markAsReadyRequest,
-  markAsReadyToShipResponse,
   OrderItemsType,
   ShippingDetailModalProps,
   ShippingDetailResponse,
 } from '../../types/ShippingDetailModalType';
 import ModalStatusBox from '@/app/components/common/ModalStatusBox';
-import {
-  getProductionDetail,
-  getReadyToShipDetail,
-  patchMarkAsReadyToShip,
-} from '../../inventory.api';
+import { getProductionDetail, getReadyToShipDetail } from '../../inventory.api';
+import { useMarkReadyToShip } from '../../inventory.mutations';
+import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
@@ -48,19 +44,13 @@ const ShippingDetailModal = ({
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  const { mutate: markAsReadyToShip, isPending } = useMutation<
-    markAsReadyToShipResponse,
-    Error,
-    { orderId: string; itemIds: markAsReadyRequest }
-  >({
-    mutationFn: ({ orderId, itemIds }) => patchMarkAsReadyToShip(orderId, itemIds),
+  // 무효화(출하 목록, 재고 통계, 영업 주문)는 inventory.mutations.ts 한 곳
+  const { mutate: markAsReadyToShip, isPending } = useMarkReadyToShip({
     onSuccess: () => {
       toast.success('출고 준비 완료로 상태가 변경되었습니다.');
       onClose();
     },
-    onError: () => {
-      toast.error('상태 변경 중 오류가 발생했습니다.');
-    },
+    onError: (error) => toast.error(`상태 변경 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
   });
 
   if (isLoading)
