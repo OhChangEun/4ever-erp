@@ -3,8 +3,9 @@ import { server } from '@/test/msw-server';
 import { SALES_ENDPOINTS } from '@/app/types/api';
 import { useMockSource, type MockSource } from './serverMock';
 import { collectFailures } from './collect';
-import { declaredQueryNames, loadContract } from './loadContract';
+import { declaredQueryEnum, declaredQueryNames, loadContract } from './loadContract';
 import * as api from '@/app/(private)/sales/sales.api';
+import { QUOTE_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 
 /**
  * 영업 GET 응답이 스키마를 지키는지 두 목 모두에서 확인한다(타입 2차 카드).
@@ -111,5 +112,23 @@ describe.each(queryCases)('영업 계약: $name 쿼리', ({ contractPath, endpoi
     expect(sent).toEqual(expect.arrayContaining(['startDate', 'endDate']));
     const declared = declaredQueryNames(loadContract(), contractPath);
     expect(sent.filter((name) => !declared.includes(name))).toEqual([]);
+  });
+});
+
+/**
+ * 영업 서버 계약 2 카드(2026-11-11). 견적 목록 상태 필터 값은 게이트웨이 SdController.java:101 설명과
+ * QuotationStatus.java:13 enum 의 APPROVAL 이다. 게이트웨이는 status 를 그대로 업스트림에 넘긴다
+ * (SdHttpServiceImpl.java:325). 계약은 이 값만 enum 으로 선언하고, 화면 선택지는 그 안에 있어야 한다.
+ * 옛 값 APPROVED 를 보내면 여기서 걸린다.
+ */
+describe('영업 계약: 견적 목록 상태 필터 값', () => {
+  it('계약이 게이트웨이 상태 값을 enum 으로 선언하고 APPROVED 는 없다', () => {
+    const allowed = declaredQueryEnum(loadContract(), '/business/sd/quotations', 'status');
+    expect([...allowed].sort()).toEqual(['ALL', 'APPROVAL', 'PENDING', 'REJECTED', 'REVIEW']);
+  });
+
+  it('화면의 상태 선택지가 전부 계약 enum 안에 있다', () => {
+    const allowed = declaredQueryEnum(loadContract(), '/business/sd/quotations', 'status');
+    expect(QUOTE_STATUS_OPTIONS.filter((code) => !allowed.includes(code))).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { type QuoteStatus, type Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
+import { type QuoteStatusFilter, type Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
 import QuoteDetailModal from '../modals/QuoteDetailModal';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getQuoteList } from '@/app/(private)/sales/sales.api';
@@ -30,7 +30,7 @@ const SalesQuoteList = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('quotationNumber');
-  const [statusFilter, setStatusFilter] = useState<QuoteStatus>('ALL');
+  const [statusFilter, setStatusFilter] = useState<QuoteStatusFilter>('ALL');
   const [selectedQuotationId, setSelectedQuotationId] = useState<string>('');
 
   const [startDate, setStartDate] = useState('');

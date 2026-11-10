@@ -3379,9 +3379,15 @@ paths:
         - name: status
           in: query
           required: false
-          description: PENDING, REVIEW, APPROVAL, REJECTED, ALL
+          description: 게이트웨이 SdController.java:101 설명과 QuotationStatus enum. 승인은 APPROVAL 이고 APPROVED 가 아니다
           schema:
             type: string
+            enum:
+              - ALL
+              - PENDING
+              - REVIEW
+              - APPROVAL
+              - REJECTED
         - name: type
           in: query
           required: false
@@ -7376,10 +7382,9 @@ components:
           type: object
           properties:
             customerId:
-              type: number
-            customerName:
               type: string
-            customerCode:
+              description: 게이트웨이 OrderCustomerDto.java:11 은 문자열(UUID). customerCode 는 DTO 에 없다
+            customerName:
               type: string
             customerBaseAddress:
               type: string
@@ -7401,7 +7406,6 @@ components:
           required:
             - customerId
             - customerName
-            - customerCode
             - customerBaseAddress
             - customerDetailAddress
             - manager
@@ -7908,8 +7912,9 @@ components:
         - saleShare
     TopCustomer:
       type: object
+      description: 게이트웨이 business/dto/analytics/TopCustomerDto.java:15. 고객 번호는 customerNumber 이고 customerCode 는 없다
       properties:
-        customerCode:
+        customerNumber:
           type: string
         customerName:
           type: string
@@ -7920,7 +7925,7 @@ components:
         active:
           type: boolean
       required:
-        - customerCode
+        - customerNumber
         - customerName
         - orderCount
         - sale

@@ -48,6 +48,13 @@ const renderUnderRoot = (ui: ReactNode, locale: Locale = 'en') =>
     </NextIntlClientProvider>,
   );
 
+/** 행 안의 버튼. 체크박스가 든 행에서 찾는다 */
+const rowButton = (cell: HTMLElement, name: string) => {
+  const row = cell.closest('tr');
+  if (!row) throw new Error('행을 찾지 못했다');
+  return within(row).getByRole('button', { name });
+};
+
 const loginAs = (role: string) =>
   useAuthStore.getState().setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role });
 
@@ -94,11 +101,13 @@ describe('영업 화면 영어(i18n 8)', () => {
     renderWithProviders(<SalesQuoteList />, { locale: 'en' });
     expect(await screen.findByRole('columnheader', { name: 'Quote no.' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Due date' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Select QT-2026-001' })).toBeInTheDocument();
+    const checkbox = screen.getByRole('checkbox', { name: 'Select QT-2026-001' });
+    expect(checkbox).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Request quote review' })).toBeDisabled();
     await userEvent.click(screen.getByRole('combobox', { name: 'All statuses' }));
     expect(screen.getByRole('option', { name: 'In review' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Details' }));
+    // 목 견적 목록이 상태마다 한 행이라(서버 계약 2 리뷰) QT-2026-001 행의 버튼을 누른다
+    await userEvent.click(rowButton(checkbox, 'Details'));
     const dialog = await screen.findByRole('dialog', { name: 'Quote details - QT-2026-001' });
     expect(await within(dialog).findByText('Quote items')).toBeInTheDocument();
     expect(within(dialog).getByRole('columnheader', { name: 'Unit price' })).toBeInTheDocument();
@@ -107,8 +116,9 @@ describe('영업 화면 영어(i18n 8)', () => {
   it('한국어 견적 목록은 예전과 같다', async () => {
     renderWithProviders(<SalesQuoteList />);
     expect(await screen.findByRole('columnheader', { name: '견적번호' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'QT-2026-001 선택' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: '상세' }));
+    const checkbox = screen.getByRole('checkbox', { name: 'QT-2026-001 선택' });
+    expect(checkbox).toBeInTheDocument();
+    await userEvent.click(rowButton(checkbox, '상세'));
     expect(
       await screen.findByRole('dialog', { name: '견적서 상세보기-QT-2026-001' }),
     ).toBeInTheDocument();

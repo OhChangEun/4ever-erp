@@ -8,7 +8,14 @@ import * as z from 'zod';
  */
 const CONTRACT = 'openapi/everp.yaml';
 
-const parameterSchema = z.object({ name: z.string(), in: z.string() });
+const parameterSchema = z.object({
+  name: z.string(),
+  in: z.string(),
+  schema: z
+    .object({ enum: z.array(z.string()).optional() })
+    .loose()
+    .optional(),
+});
 
 export const loadContract = () => {
   if (!existsSync(CONTRACT)) throw new Error(`${CONTRACT} 가 없다`);
@@ -28,8 +35,8 @@ export type Contract = ReturnType<typeof loadContract>;
 const getParametersSchema = z.object({ parameters: z.array(z.unknown()).optional() }).loose();
 const refSchema = z.object({ $ref: z.string() });
 
-/** 계약 경로의 GET 이 선언한 쿼리 파라미터 이름. `#/components/parameters/X` 참조도 푼다 */
-export const declaredQueryNames = (contract: Contract, contractPath: string) => {
+/** 계약 경로의 GET 이 선언한 쿼리 파라미터. `#/components/parameters/X` 참조도 푼다 */
+const declaredQueryParameters = (contract: Contract, contractPath: string) => {
   if (!(contractPath in contract.paths)) throw new Error(`계약에 ${contractPath} 가 없다`);
   const operation = contract.paths[contractPath].get;
   if (operation === undefined) throw new Error(`계약에 GET ${contractPath} 가 없다`);
@@ -42,6 +49,14 @@ export const declaredQueryNames = (contract: Contract, contractPath: string) => 
         throw new Error(`계약에 없는 파라미터 참조: ${name}`);
       return contract.components.parameters[name];
     })
-    .filter((parameter) => parameter.in === 'query')
-    .map((parameter) => parameter.name);
+    .filter((parameter) => parameter.in === 'query');
 };
+
+/** 계약 경로의 GET 이 선언한 쿼리 파라미터 이름 */
+export const declaredQueryNames = (contract: Contract, contractPath: string) =>
+  declaredQueryParameters(contract, contractPath).map((parameter) => parameter.name);
+
+/** 계약 경로의 GET 쿼리 파라미터 하나가 허용하는 값(enum). 선언이 없으면 빈 배열 */
+export const declaredQueryEnum = (contract: Contract, contractPath: string, name: string) =>
+  declaredQueryParameters(contract, contractPath).find((parameter) => parameter.name === name)
+    ?.schema?.enum ?? [];
