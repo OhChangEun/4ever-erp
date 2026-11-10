@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import ko from './messages/ko.json';
-import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, type Locale } from './locale';
+import { DEFAULT_LOCALE, readCookieLocale, type Locale } from './locale';
 import UiTextBridge from './UiTextBridge';
 
 type Messages = typeof ko;
@@ -14,14 +14,6 @@ const LOADERS: Record<Exclude<Locale, 'ko'>, () => Promise<{ default: Messages }
 };
 
 export const LOCALE_EVENT = 'everp:locale';
-
-const readCookieLocale = (): Locale => {
-  const saved = document.cookie
-    .split('; ')
-    .find((part) => part.startsWith(`${LOCALE_COOKIE}=`))
-    ?.slice(LOCALE_COOKIE.length + 1);
-  return isLocale(saved) ? saved : DEFAULT_LOCALE;
-};
 
 const subscribe = (onChange: () => void) => {
   window.addEventListener(LOCALE_EVENT, onChange);

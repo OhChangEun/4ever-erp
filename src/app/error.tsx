@@ -2,10 +2,26 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { IconButton } from '@everp/ui';
 import { Flex } from '@everp/ui';
 
-/** 앱 층 오류 경계. (private) 밖(로그인 등)에서 깨지면 여기로 온다. 운영에서는 stack 대신 digest(옵저버빌리티 1) */
+/**
+ * 개발 모드에서 보일 원인 문구와 stack. V8(Chrome, Node)은 stack 첫 줄이 "Error: message" 라 stack 하나면 된다.
+ * Safari, Firefox 의 stack 에는 message 가 없어 앞에 붙인다.
+ */
+const devDetail = (error: Error): string => {
+  const stack = error.stack ?? '';
+  const firstLine = stack.split('\n')[0] ?? '';
+  if (stack && firstLine.includes(error.message)) return stack;
+  return [error.message, stack].filter(Boolean).join('\n');
+};
+
+/**
+ * 앱 층 오류 경계. (private) 밖(로그인 등)에서 깨지면 여기로 온다. 운영에서는 stack 대신 digest(옵저버빌리티 1).
+ * 화면과 복사 내용에는 번역 문구와 오류 ID 만 둔다. `error.message` 는 렌더 중 내부 문구(속성 이름, 서버 내부 메시지)라
+ * 사용자에게 보이지 않고 언어도 따르지 않는다(AppError 카드 결과 3 과 같은 기준). 원문은 아래 console.error 로만 남긴다.
+ */
 export default function AppError({
   error,
   retry,
@@ -14,6 +30,7 @@ export default function AppError({
   retry?: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations('errorBoundary');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const isDev = process.env.NODE_ENV === 'development';
 
@@ -27,11 +44,13 @@ export default function AppError({
     return router.push('/');
   };
 
+  // 개발 모드만 원인 문구와 stack 을 보이고 복사한다. 개발자 자기 화면이라 원인을 바로 봐야 해서다
+  const errorId = t('errorId', { digest: error.digest ?? '-' });
+  const detail = isDev ? devDetail(error) : errorId;
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(
-        `${error.message}\n\n${isDev ? (error.stack ?? '') : `오류 ID ${error.digest ?? '-'}`}`,
-      );
+      await navigator.clipboard.writeText(detail);
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 3000);
     } catch {
@@ -48,22 +67,20 @@ export default function AppError({
             <i className="ri-error-warning-line" />
           </div>
 
-          <h1 className="text-2xl font-semibold">예기치 않은 오류가 발생했습니다</h1>
+          <h1 className="text-2xl font-semibold">{t('title')}</h1>
 
-          <p className="text-sm text-gray-600 text-center">
-            {error.message || '알 수 없는 오류가 발생했습니다.'}
-          </p>
+          <p className="text-sm text-gray-600 text-center">{t('unknown')}</p>
 
           <div className="w-full flex items-center justify-center gap-3 mt-4">
             <IconButton
               icon="ri-refresh-line"
-              label="다시 시도"
+              label={t('retry')}
               variant="secondary"
               onClick={handleRetry}
             />
             <IconButton
               icon="ri-home-4-line"
-              label="홈으로"
+              label={t('home')}
               variant="primary"
               onClick={() => router.push('/')}
             />
@@ -72,20 +89,22 @@ export default function AppError({
           <div className="w-full mt-3">
             <Flex direction="row" align="center" justify="end" gap={2} className="mb-2">
               {copyStatus === 'success' && (
-                <span className="text-xs text-green-600">복사 완료</span>
+                <span className="text-xs text-green-600">{t('copied')}</span>
               )}
-              {copyStatus === 'error' && <span className="text-xs text-red-600">복사 실패</span>}
+              {copyStatus === 'error' && (
+                <span className="text-xs text-red-600">{t('copyFailed')}</span>
+              )}
               <IconButton
                 icon="ri-file-copy-line"
-                label="복사"
+                label={t('copy')}
                 variant="ghost"
                 size="sm"
                 onClick={() => void handleCopy()}
-                aria-label="오류 내용 복사"
+                aria-label={t('copyLabel')}
               />
             </Flex>
             <pre className="text-xs bg-gray-100 p-3 rounded overflow-auto max-h-48 text-left">
-              {isDev ? error.stack : `오류 ID ${error.digest ?? '-'}`}
+              {detail}
             </pre>
           </div>
         </Flex>

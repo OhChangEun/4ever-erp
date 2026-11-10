@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { IconButton } from '@everp/ui';
 
 /**
@@ -15,6 +16,8 @@ export default function PrivateError({
   error: Error & { digest?: string };
   retry: () => void;
 }) {
+  const t = useTranslations('errorBoundary');
+
   useEffect(() => {
     console.error('[PrivateError]', error);
   }, [error]);
@@ -27,14 +30,16 @@ export default function PrivateError({
       className="m-6 flex flex-col items-center gap-3 rounded-lg border border-gray-200 bg-white px-6 py-16 text-center"
     >
       <i aria-hidden="true" className="ri-error-warning-line text-3xl text-red-500" />
-      <p className="text-sm text-gray-800">화면을 그리는 중 오류가 발생했습니다.</p>
+      <p className="text-sm text-gray-800">{t('screen')}</p>
       <p className="text-xs text-gray-500">
-        다시 시도하거나 다른 메뉴로 이동하세요.
-        {error.digest && <span className="ml-1 tabular-nums">오류 ID {error.digest}</span>}
+        {t('hint')}
+        {error.digest && (
+          <span className="ml-1 tabular-nums">{t('errorId', { digest: error.digest })}</span>
+        )}
       </p>
       <IconButton
         icon="ri-refresh-line"
-        label="다시 시도"
+        label={t('retry')}
         variant="secondary"
         onClick={() => retry()}
       />
