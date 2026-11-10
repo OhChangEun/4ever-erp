@@ -96,7 +96,7 @@
     "statusFilter": {
       "ALL": "All",
       "ACTIVE": "Active",
-      "DEACTIVE": "Inactive"
+      "INACTIVE": "Inactive"
     },
     "columns": {
       "customer": "Customer",
@@ -153,7 +153,7 @@
     "amount": "Quote amount:",
     "customerTitle": "Customer info",
     "customerName": "Customer:",
-    "manager": "Contact:",
+    "ceo": "CEO:",
     "status": "Status:",
     "itemsTitle": "Quote items",
     "total": "Quote total"

@@ -99,19 +99,8 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // 성공 토스트와 입력 초기화는 서버가 받은 뒤(onSuccess). 실패하면 입력을 남긴다
     addOrder(newOrderItems);
-    toast.success(t('success'));
-
-    setNewOrderItems({
-      items: [
-        {
-          itemId: '',
-          quantity: 1,
-          unitPrice: 0,
-        },
-      ],
-      note: '',
-    });
   };
 
   const handleClose = (e: React.FormEvent) => {
@@ -139,6 +128,19 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   });
 
   const { mutate: addOrder, isPending: isCreating } = useCreateQuote({
+    onSuccess: () => {
+      toast.success(t('success'));
+      setNewOrderItems({
+        items: [
+          {
+            itemId: '',
+            quantity: 1,
+            unitPrice: 0,
+          },
+        ],
+        note: '',
+      });
+    },
     onError: (error) => toast.error(t('createError', { message: errorMessageOf(error) })),
   });
 
