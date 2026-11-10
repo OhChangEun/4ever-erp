@@ -12,6 +12,7 @@ import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys'
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 export interface PurchaseRequestDetailModalProps extends ModalProps {
   purchaseRequestId: string;
 }
@@ -20,6 +21,7 @@ export default function PurchaseRequestDetailModal({
   purchaseRequestId,
   onClose,
 }: PurchaseRequestDetailModalProps) {
+  const t = useTranslations('purchase.requestDetail');
   const {
     data: request,
     isLoading,
@@ -32,14 +34,13 @@ export default function PurchaseRequestDetailModal({
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading)
-    return <ModalStatusBox type="loading" message="구매 요청 상세정보를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('loading')} />;
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="구매 요청 상세 정보 데이터를 불러오는 중 오류가 발생했습니다."
+        message={t('loadError')}
         onClose={() => {
           errorDialog.dismiss();
           onClose(); // 모달창 닫기
@@ -56,27 +57,33 @@ export default function PurchaseRequestDetailModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">요청번호</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('number')}</label>
               <div className="text-lg font-semibold text-gray-900">
                 {request.purchaseRequisitionNumber}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">요청자</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('requester')}
+              </label>
               <div className="text-gray-900">{request.requesterName}</div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">부서</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('department')}
+              </label>
               <div className="text-gray-900">{request.departmentName}</div>
             </div>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">요청일</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('requestDate')}
+              </label>
               <div className="text-gray-900">{formatDateTime(request.requestDate)}</div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
               <StatusLabel statusCode={request.statusCode} />
             </div>
           </div>
@@ -84,7 +91,7 @@ export default function PurchaseRequestDetailModal({
 
         {/* 주문 자재 목록 테이블 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">주문 자재 목록</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">{t('items')}</label>
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-300 rounded-lg">
               {/* 테이블 헤더: 품목명, 수량, 단위, 단가, 금액 */}
@@ -95,7 +102,7 @@ export default function PurchaseRequestDetailModal({
                       key={header}
                       className="px-4 py-3 text-center text-sm font-medium text-gray-700 border-b border-gray-300"
                     >
-                      {header}
+                      {t(`columns.${header}`)}
                     </th>
                   ))}
                 </tr>
@@ -105,8 +112,9 @@ export default function PurchaseRequestDetailModal({
                 {request.items.map((item, index) => (
                   <tr key={index} className="border-b text-center border-gray-200 hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-900">{item.itemName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{item.uomCode}</td>
+                    {/* 머리글 순서(수량, 단위)와 맞춘다. 예전엔 칸이 단위, 수량 순이라 값이 바뀐 머리글 아래 있었다 */}
                     <td className="px-4 py-3 text-sm text-gray-900">{item.quantity}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">{item.uomCode}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {formatCurrency(item.unitPrice)}
                     </td>
@@ -122,7 +130,7 @@ export default function PurchaseRequestDetailModal({
               <tfoot className="bg-gray-50">
                 <tr className="text-center">
                   <td colSpan={6} className="px-4 py-3 text-right font-medium">
-                    <span className="text-sm text-gray-700 pr-5">총 금액</span>
+                    <span className="text-sm text-gray-700 pr-5">{t('totalAmount')}</span>
                     <span className="text-xl text-green-600 pr-7">{request.totalAmount}</span>
                   </td>
                 </tr>

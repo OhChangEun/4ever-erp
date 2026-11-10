@@ -6,6 +6,7 @@ import { formatDateTime } from '@/app/utils/date';
 import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Table, type TableColumn } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseOrderTableProps {
@@ -33,18 +34,20 @@ export default function PurchaseOrderTable({
 }: PurchaseOrderTableProps) {
   const role = useRole();
   const isSupplier = role === 'SUPPLIER_ADMIN';
+  const t = useTranslations('purchase.orderList');
+  const tc = useTranslations('purchase.common');
 
   const columns: TableColumn<PurchaseOrderListItem>[] = [
     {
       key: 'purchaseOrderNumber',
-      label: '발주번호',
+      label: t('columns.number'),
       width: '140px',
       render: (_, order) => <span className="font-mono text-xs">{order.purchaseOrderNumber}</span>,
     },
-    { key: 'supplierName', label: '공급업체' },
+    { key: 'supplierName', label: t('columns.supplier') },
     {
       key: 'itemsSummary',
-      label: '주문품목',
+      label: t('columns.items'),
       render: (_, order) => (
         <span className="block truncate text-gray-600" title={order.itemsSummary}>
           {order.itemsSummary}
@@ -53,14 +56,14 @@ export default function PurchaseOrderTable({
     },
     {
       key: 'totalAmount',
-      label: '총금액',
+      label: t('columns.totalAmount'),
       align: 'right',
       width: '130px',
       render: (_, order) => formatCurrency(Number(order.totalAmount)),
     },
     {
       key: 'orderDate',
-      label: '주문일자',
+      label: t('columns.orderDate'),
       width: '150px',
       render: (_, order) => (
         <span className="text-gray-600">{formatDateTime(order.orderDate)}</span>
@@ -68,25 +71,25 @@ export default function PurchaseOrderTable({
     },
     {
       key: 'dueDate',
-      label: '납기일',
+      label: t('columns.dueDate'),
       width: '150px',
       render: (_, order) => <span className="text-gray-600">{formatDateTime(order.dueDate)}</span>,
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       width: '96px',
       render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       width: isSupplier ? '200px' : '80px',
       render: (_, order) => (
         <div className="flex items-center justify-end gap-0.5 -my-1">
           <Button
-            label="상세"
+            label={tc('detail')}
             variant="ghost"
             size="sm"
             className="text-gray-600 hover:bg-gray-100 px-2"
@@ -95,7 +98,7 @@ export default function PurchaseOrderTable({
           {isSupplier && order.statusCode === 'PENDING' && (
             <>
               <Button
-                label="승인"
+                label={tc('approve')}
                 variant="ghost"
                 size="sm"
                 className="px-2"
@@ -103,7 +106,7 @@ export default function PurchaseOrderTable({
                 disabled={actionsDisabled}
               />
               <Button
-                label="반려"
+                label={tc('reject')}
                 variant="ghost"
                 size="sm"
                 className="text-red-600 hover:bg-red-50 px-2"
@@ -114,7 +117,7 @@ export default function PurchaseOrderTable({
           )}
           {isSupplier && order.statusCode === 'APPROVAL' && (
             <Button
-              label="배송 시작"
+              label={t('startDelivery')}
               variant="ghost"
               size="sm"
               className="px-2"
@@ -134,7 +137,7 @@ export default function PurchaseOrderTable({
       columns={columns}
       data={orders}
       keyExtractor={(row) => row.purchaseOrderId}
-      emptyMessage="발주서가 없습니다."
+      emptyMessage={t('empty')}
     />
   );
 }

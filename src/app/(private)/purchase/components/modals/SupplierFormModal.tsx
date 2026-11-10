@@ -24,6 +24,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { LoadingMessage } from '@everp/ui';
 import { Input, InputLabel } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useTranslations } from 'next-intl';
 
 interface SupplierFormModalProps extends ModalProps {
   initialData?: SupplierDetail; // 수정 모드일 때 전달
@@ -32,6 +33,8 @@ interface SupplierFormModalProps extends ModalProps {
 export default function SupplierFormModal({ initialData, onClose }: SupplierFormModalProps) {
   const isEditMode = !!initialData; // initialData가 있으면 수정 모드
   const toast = useToast();
+  const t = useTranslations('purchase.supplierForm');
+  const tc = useTranslations('purchase.common');
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialData?.supplierInfo.category || '',
@@ -83,19 +86,17 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 알리고 닫는다.
   const { mutate: submitSupplierCreate, isPending: isCreating } = useCreateSupplier({
     onSuccess: () => {
-      toast.success('공급업체 등록이 완료되었습니다.');
+      toast.success(t('createSuccess'));
       onClose();
     },
-    onError: (error) =>
-      toast.error(`공급업체 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('createError', { message: errorMessageOf(error) })),
   });
   const { mutate: submitSupplierUpdate, isPending: isUpdating } = useUpdateSupplier({
     onSuccess: () => {
-      toast.success('공급업체 정보가 수정되었습니다.');
+      toast.success(t('updateSuccess'));
       onClose();
     },
-    onError: (error) =>
-      toast.error(`공급업체 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('updateError', { message: errorMessageOf(error) })),
   });
 
   const isLoading = isCreating || isUpdating;
@@ -141,7 +142,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         !managerInfo.managerPhone ||
         !managerInfo.managerEmail
       ) {
-        toast.warning('모든 필수 항목을 입력해주세요.');
+        toast.warning(tc('required'));
         return;
       }
 
@@ -161,7 +162,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
       const supplierId = initialData.supplierInfo.supplierId;
       if (!supplierId) {
-        toast.error('공급업체 ID를 찾을 수 없습니다.');
+        toast.error(t('missingId'));
         return;
       }
       submitSupplierUpdate({ supplierId, body: updateRequest });
@@ -177,7 +178,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         !managerInfo.managerPhone ||
         !managerInfo.managerEmail
       ) {
-        toast.warning('모든 필수 항목을 입력해주세요.');
+        toast.warning(tc('required'));
         return;
       }
 
@@ -188,7 +189,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
       // 자재 검증
       if (filteredMaterials.length === 0) {
-        toast.info('최소 하나의 유효한 자재 정보를 입력해야 합니다.');
+        toast.info(t('materialRequired'));
         return;
       }
 
@@ -215,8 +216,8 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   };
 
   const getDeliveryLabel = (days: number): string => {
-    if (days === 0) return '당일 배송';
-    return `${days}일 배송`;
+    if (days === 0) return t('sameDay');
+    return t('deliveryDays', { days });
   };
 
   const filledMaterialCount = materialList.filter(
@@ -225,9 +226,9 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
   if (isLoading) {
     return isEditMode ? (
-      <LoadingMessage message="공급업체 정보를 수정하는 중..." />
+      <LoadingMessage message={t('updating')} />
     ) : (
-      <LoadingMessage message="공급업체를 등록하는 중..." />
+      <LoadingMessage message={t('creating')} />
     );
   }
 
@@ -237,14 +238,14 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
       <form onSubmit={handleSubmit} className="flex px-2 flex-col gap-6">
         {/* 공급업체 정보 섹션 */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-2">공급업체 정보</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-2">{t('infoTitle')}</h4>
 
           {/* 기본 정보 (2열 그리드) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-2">
             {/* 1. 업체명 */}
             <div>
               <Input
-                label="업체명"
+                label={t('name')}
                 inputSize="md" // 크기 통일
                 type="text"
                 value={supplierInfo.supplierName}
@@ -259,14 +260,14 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 2. 업체 이메일 */}
             <div>
               <Input
-                label="업체 이메일"
+                label={t('email')}
                 inputSize="md" // 크기 통일
                 type="email"
                 value={supplierInfo.supplierEmail}
                 onChange={(e) =>
                   setSupplierInfo({ ...supplierInfo, supplierEmail: e.target.value })
                 }
-                placeholder="예: company@example.com"
+                placeholder={t('emailPlaceholder')}
                 required
               />
             </div>
@@ -274,21 +275,21 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 3. 업체 전화번호 */}
             <div>
               <Input
-                label="업체 전화번호"
+                label={t('phone')}
                 inputSize="md" // 크기 통일
                 type="tel"
                 value={supplierInfo.supplierPhone}
                 onChange={(e) =>
                   setSupplierInfo({ ...supplierInfo, supplierPhone: e.target.value })
                 }
-                placeholder="예: 02-1234-5678"
+                placeholder={t('phonePlaceholder')}
                 required={isEditMode}
               />
             </div>
 
             {/* 4. 배송 리드타임(일) - 2열 그리드 내부에 배치 */}
             <div>
-              <InputLabel label="배송 리드타임(일)" required={true} />
+              <InputLabel label={t('leadTime')} required={true} />
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
@@ -315,9 +316,9 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             <div className="md:col-span-2 grid grid-cols-2 gap-4">
               {/* 카테고리 */}
               <div>
-                <InputLabel label="카테고리" required={true} />
+                <InputLabel label={t('category')} required={true} />
                 <Dropdown
-                  placeholder="카테고리 선택"
+                  placeholder={t('categoryPlaceholder')}
                   items={supplierCategoryOptions}
                   value={selectedCategory}
                   onChange={(category: string) => {
@@ -330,9 +331,9 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
               {/* 상태 */}
               <div>
-                <InputLabel label="상태" />
+                <InputLabel label={t('status')} />
                 <Dropdown
-                  placeholder="상태 선택"
+                  placeholder={t('statusPlaceholder')}
                   items={supplierStatusOptions}
                   value={selectedStatus}
                   onChange={setSelectedStatus}
@@ -346,14 +347,14 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 6. 기본 주소 */}
             <div>
               <Input
-                label="기본 주소"
+                label={t('baseAddress')}
                 inputSize="md" // 크기 통일
                 type="text"
                 value={supplierInfo.supplierBaseAddress}
                 onChange={(e) =>
                   setSupplierInfo({ ...supplierInfo, supplierBaseAddress: e.target.value })
                 }
-                placeholder="예: 서울시 강남구 테헤란로 123"
+                placeholder={t('baseAddressPlaceholder')}
                 required
               />
             </div>
@@ -361,14 +362,14 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 7. 상세 주소 */}
             <div>
               <Input
-                label="상세 주소"
+                label={t('detailAddress')}
                 inputSize="md" // 크기 통일
                 type="text"
                 value={supplierInfo.supplierDetailAddress}
                 onChange={(e) =>
                   setSupplierInfo({ ...supplierInfo, supplierDetailAddress: e.target.value })
                 }
-                placeholder="예: 2층 201호"
+                placeholder={t('detailAddressPlaceholder')}
               />
             </div>
           </div>
@@ -378,12 +379,12 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
         {/* 담당자 정보 섹션 */}
         <div>
-          <h4 className="text-md font-semibold text-gray-900 mb-4">담당자 정보</h4>
+          <h4 className="text-md font-semibold text-gray-900 mb-4">{t('managerTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* 1. 담당자명 */}
             <div>
               <Input
-                label="담당자명"
+                label={t('managerName')}
                 inputSize="md" // 크기 통일
                 type="text"
                 value={managerInfo.managerName}
@@ -395,12 +396,12 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 2. 담당자 전화번호 */}
             <div>
               <Input
-                label="담당자 전화번호"
+                label={t('managerPhone')}
                 inputSize="md" // 크기 통일
                 type="text"
                 value={managerInfo.managerPhone}
                 onChange={(e) => setManagerInfo({ ...managerInfo, managerPhone: e.target.value })}
-                placeholder="예: 010-1234-5678"
+                placeholder={t('managerPhonePlaceholder')}
                 required
               />
             </div>
@@ -408,12 +409,12 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
             {/* 3. 담당자 이메일 */}
             <div>
               <Input
-                label="담당자 이메일"
+                label={t('managerEmail')}
                 inputSize="md" // 크기 통일
                 type="email"
                 value={managerInfo.managerEmail}
                 onChange={(e) => setManagerInfo({ ...managerInfo, managerEmail: e.target.value })}
-                placeholder="예: manager@example.com"
+                placeholder={t('managerEmailPlaceholder')}
                 required
               />
             </div>
@@ -427,11 +428,11 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
           <div>
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-md font-semibold text-gray-900">
-                제공 가능한 자재 목록 ({filledMaterialCount}건 입력)
+                {t('materialsTitle', { count: filledMaterialCount })}
               </h4>
               <Button
                 type="button"
-                label="자재 추가"
+                label={t('addMaterial')}
                 variant="secondary"
                 size="sm"
                 onClick={handleAddMaterialRow}
@@ -444,13 +445,13 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-center">
-                      자재명
+                      {t('materialColumns.name')}
                     </th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-center">
-                      단위
+                      {t('materialColumns.unit')}
                     </th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-center">
-                      단가
+                      {t('materialColumns.unitPrice')}
                     </th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-center"></th>
                   </tr>
@@ -465,7 +466,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                           onChange={(e) =>
                             handleMaterialChange(index, 'materialName', e.target.value)
                           }
-                          placeholder="예: 철강봉"
+                          placeholder={t('materialPlaceholders.name')}
                           inputSize="sm" // 테이블 내부 입력은 sm 유지
                         />
                       </td>
@@ -474,7 +475,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                           type="text"
                           value={material.uomCode}
                           onChange={(e) => handleMaterialChange(index, 'uomCode', e.target.value)}
-                          placeholder="예: φ10×1000mm"
+                          placeholder={t('materialPlaceholders.unit')}
                           inputSize="sm" // 테이블 내부 입력은 sm 유지
                         />
                       </td>
@@ -483,7 +484,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                           type="text"
                           value={material.unitPrice}
                           onChange={(e) => handleMaterialChange(index, 'unitPrice', e.target.value)}
-                          placeholder="예: ₩10,000 / EA"
+                          placeholder={t('materialPlaceholders.unitPrice')}
                           inputSize="sm" // 테이블 내부 입력은 sm 유지
                         />
                       </td>
@@ -513,7 +514,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
 
         {/* 버튼 */}
         <div className="flex items-center justify-end pt-2">
-          <Button label={isEditMode ? '수정' : '공급업체 등록'} type="submit" />
+          <Button label={isEditMode ? tc('edit') : t('submitCreate')} type="submit" />
         </div>
       </form>
     </>

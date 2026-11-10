@@ -10,6 +10,8 @@ import warehouseKo from '@/i18n/messages/warehouse/ko.json';
 import warehouseEn from '@/i18n/messages/warehouse/en.json';
 import dashboardKo from '@/i18n/messages/dashboard/ko.json';
 import dashboardEn from '@/i18n/messages/dashboard/en.json';
+import purchaseKo from '@/i18n/messages/purchase/ko.json';
+import purchaseEn from '@/i18n/messages/purchase/en.json';
 import type { Locale } from '@/i18n/locale';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
@@ -30,8 +32,20 @@ export const createTestQueryClient = () =>
 
 // 공통 메시지와 도메인 메시지를 합친다. 앱에서는 도메인 레이아웃(DomainMessages)이 합친다
 const MESSAGES = {
-  ko: { ...ko, finance: financeKo, warehouse: warehouseKo, dashboard: dashboardKo },
-  en: { ...en, finance: financeEn, warehouse: warehouseEn, dashboard: dashboardEn },
+  ko: {
+    ...ko,
+    finance: financeKo,
+    warehouse: warehouseKo,
+    dashboard: dashboardKo,
+    purchase: purchaseKo,
+  },
+  en: {
+    ...en,
+    finance: financeEn,
+    warehouse: warehouseEn,
+    dashboard: dashboardEn,
+    purchase: purchaseEn,
+  },
 } satisfies Record<Locale, object>;
 
 export const renderWithProviders = (
