@@ -690,6 +690,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/business/hrm/attendance/daily-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 날짜별 근태 집계(최근 12주, 시각화 5)
+         * @description 근무일만 온다(주말, 휴일은 빠진다). 오래된 날부터. 서버 지원은 확인 전(verified=false)
+         */
+        get: operations["getAttendanceDailySummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/business/hrm/attendance/statuses": {
         parameters: {
             query?: never;
@@ -2274,6 +2294,22 @@ export interface components {
                 bucket: "CURRENT" | "D1_30" | "D31_60" | "D61_90" | "D90_PLUS";
                 amount: number;
                 count: number;
+            }[];
+        };
+        AttendanceDailySummary: {
+            /** @description 현지 날짜 YYYY-MM-DD */
+            from: string;
+            to: string;
+            days: {
+                /** @description 현지 날짜 YYYY-MM-DD */
+                date: string;
+                /** @description 그날 재직 인원 */
+                headcount: number;
+                /** @description 정상 출근 */
+                present: number;
+                late: number;
+                absent: number;
+                onLeave: number;
             }[];
         };
         StockHistory: {
@@ -4729,6 +4765,29 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApiEnvelope"] & {
                         data: components["schemas"]["OptionResponse"][];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getAttendanceDailySummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["AttendanceDailySummary"];
                     };
                 };
             };

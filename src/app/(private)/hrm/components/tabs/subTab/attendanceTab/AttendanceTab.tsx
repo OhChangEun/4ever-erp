@@ -21,6 +21,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
 import { toDateKey } from '@/app/utils/date';
+import AttendanceHeatmap from '@/app/(private)/hrm/components/heatmap/AttendanceHeatmap';
 
 export default function AttendanceTab() {
   // --- 모달 출력 ---
@@ -123,6 +124,13 @@ export default function AttendanceTab() {
 
   return (
     <div className="flex flex-col h-full gap-6">
+      <AttendanceHeatmap
+        selectedDate={selectedDate}
+        onSelect={(date) => {
+          setSelectedDate(date);
+          setCurrentPage(1);
+        }}
+      />
       <div className="flex justify-between items-center shrink-0">
         <CalendarButton
           selectedDate={selectedDate}

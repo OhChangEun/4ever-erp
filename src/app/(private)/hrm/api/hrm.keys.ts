@@ -56,6 +56,9 @@ export const attendanceKeys = {
   list: (params: AttendanceRequestParams) => [...attendanceKeys.lists(), params] as const,
 
   statusDropdown: () => [...attendanceKeys.all, 'statusDropdown'] as const,
+
+  // 근태 잔디(시각화 5). 목록을 무효화하는 mutation 이 이것도 같이 지운다
+  summary: () => [...attendanceKeys.all, 'summary'] as const,
 };
 
 export const leaveKeys = {
