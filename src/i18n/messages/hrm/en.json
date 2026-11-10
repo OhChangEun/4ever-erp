@@ -212,7 +212,7 @@
     "updateError": "Failed to update the program. {message}",
     "programNamePlaceholder": "Enter a training program name",
     "selectCategory": "Select category",
-    "hoursPlaceholder": "e.g. 8 hours, 2 days",
+    "hoursPlaceholder": "e.g. 8",
     "targetDepartments": "Departments",
     "targetPositions": "Positions",
     "descriptionLabel": "Description",

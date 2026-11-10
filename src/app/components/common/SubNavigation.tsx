@@ -12,8 +12,9 @@ export default function SubNavigation({ tabs, paramName = 'subTab' }: SubNavigat
   const searchParams = useSearchParams();
   const pathName = usePathname();
 
-  // 지정된 파라미터 이름으로 현재 탭 확인
-  const currentTab = searchParams.get(paramName) || tabs[0]?.id;
+  // 지정된 파라미터 이름으로 현재 탭 확인. 없는 id(예전 주소, 다른 화면의 하위 탭)는 첫 탭으로 본다
+  const requested = searchParams.get(paramName);
+  const currentTab = tabs.some((tab) => tab.id === requested) ? requested : tabs[0]?.id;
 
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams.toString());

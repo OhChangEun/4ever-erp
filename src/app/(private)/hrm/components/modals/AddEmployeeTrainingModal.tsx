@@ -48,6 +48,7 @@ export default function AddEmployeeTrainingModal({
 
     if (!selectedProgram) {
       toast.warning(t('training.selectProgramWarning'));
+      return;
     }
 
     mutation.mutate({ employeeId, programId: selectedProgram });

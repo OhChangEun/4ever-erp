@@ -10,6 +10,8 @@ export type AttendanceListResponse = Schema<'AttendanceListResponse'>;
 export interface AttendanceRequestParams extends PageRequest {
   date: string;
   department?: string;
+  /** 출결 상태 코드(서버 statusCode, 예: LATE) */
+  statusCode?: string;
   name?: string;
 }
 

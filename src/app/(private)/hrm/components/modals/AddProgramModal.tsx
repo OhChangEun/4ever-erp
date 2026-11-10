@@ -124,9 +124,11 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
             </label>
             <input
               id={`${fieldId}-trainingHour`}
-              type="text"
+              type="number"
               name="trainingHour"
               required
+              min={1}
+              step={1}
               placeholder={t('programs.hoursPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
