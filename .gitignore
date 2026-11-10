@@ -43,3 +43,6 @@ coverage/
 scripts/codemods/.openapi-map.json
 .turbo
 storybook-static
+
+.lighthouseci/
+.lighthouseci-server.log
