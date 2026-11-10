@@ -26,6 +26,13 @@
       "unit": "단위",
       "unitPrice": "단가",
       "amount": "금액"
+    },
+    "uom": {
+      "EA": "개",
+      "KG": "kg",
+      "M": "m",
+      "L": "L",
+      "SET": "세트"
     }
   },
   "quoteList": {

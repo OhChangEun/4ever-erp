@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { server } from '@/test/msw-server';
+import { SALES_ENDPOINTS } from '@/app/types/api';
 import { useMockSource, type MockSource } from './serverMock';
 import { collectFailures } from './collect';
+import { declaredQueryNames, loadContract } from './loadContract';
 import * as api from '@/app/(private)/sales/sales.api';
 
 /**
@@ -22,8 +25,8 @@ describe.each(SOURCES)('영업 계약 (%s 목)', (source) => {
       },
       주문: async () => {
         const { data } = await api.getOrderList({
-          start: '',
-          end: '',
+          startDate: '',
+          endDate: '',
           keyword: '',
           type: '',
           status: 'ALL',
@@ -42,5 +45,71 @@ describe.each(SOURCES)('영업 계약 (%s 목)', (source) => {
       품목: () => api.getItemInfoForNewQuote(),
     });
     expect(failures).toEqual([]);
+  });
+});
+
+/**
+ * 영업 서버 계약 카드(2026-11-11). 목록과 분석이 보내는 쿼리 이름이 계약에 선언돼 있는지 본다.
+ * 계약의 파라미터는 게이트웨이 SdController 의 @RequestParam 에서 옮겼다.
+ * 옛 이름 start, end 를 보내면 선언에 없어서 여기서 걸린다.
+ */
+const queryCases = [
+  {
+    name: '주문 목록',
+    contractPath: '/business/sd/orders',
+    endpoint: SALES_ENDPOINTS.ORDERS_LIST,
+    call: () =>
+      api.getOrderList({
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
+        keyword: 'SO',
+        type: 'salesOrderNumber',
+        status: 'DELIVERED',
+        page: 1,
+        size: 10,
+      }),
+  },
+  {
+    name: '견적 목록',
+    contractPath: '/business/sd/quotations',
+    endpoint: SALES_ENDPOINTS.QUOTES_LIST,
+    call: () =>
+      api.getQuoteList({
+        startDate: '2026-03-01',
+        endDate: '2026-03-31',
+        status: 'REVIEW',
+        type: 'quotationNumber',
+        keyword: 'QT',
+        sort: 'quotationDate,desc',
+        page: 1,
+        size: 10,
+      }),
+  },
+  {
+    name: '매출 분석',
+    contractPath: '/business/sd/analytics/sales',
+    endpoint: SALES_ENDPOINTS.ANALYTICS,
+    call: () => api.getAnalytics({ startDate: '2026-03-01', endDate: '2026-03-31' }),
+  },
+];
+
+describe.each(queryCases)('영업 계약: $name 쿼리', ({ contractPath, endpoint, call }) => {
+  it('화면이 보내는 쿼리 이름이 전부 계약에 선언돼 있다', async () => {
+    // 응답은 기본 목이 준다. 나가는 요청의 쿼리 이름만 모은다
+    const sent: string[] = [];
+    const record = ({ request }: { request: Request }) => {
+      const url = new URL(request.url);
+      if (url.pathname === new URL(endpoint, 'http://localhost').pathname)
+        sent.push(...url.searchParams.keys());
+    };
+    server.events.on('request:start', record);
+    try {
+      await call();
+    } finally {
+      server.events.removeListener('request:start', record);
+    }
+    expect(sent).toEqual(expect.arrayContaining(['startDate', 'endDate']));
+    const declared = declaredQueryNames(loadContract(), contractPath);
+    expect(sent.filter((name) => !declared.includes(name))).toEqual([]);
   });
 });

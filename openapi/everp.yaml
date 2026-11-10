@@ -3362,6 +3362,45 @@ paths:
       tags:
         - business/sd
       x-source: src/app/(private)/sales/sales.api.ts
+      description: 쿼리 이름은 게이트웨이 SdController GET /quotations 의 @RequestParam 과 같다
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          description: 시작일(YYYY-MM-DD)
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          description: 종료일(YYYY-MM-DD)
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          description: PENDING, REVIEW, APPROVAL, REJECTED, ALL
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: quotationNumber, customerName, managerName
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: 정렬 필드,정렬방향
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         '200':
           description: OK
@@ -3455,6 +3494,39 @@ paths:
       tags:
         - business/sd
       x-source: src/app/(private)/sales/sales.api.ts
+      description: 쿼리 이름은 게이트웨이 SdController GET /orders 의 @RequestParam 과 같다
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          description: 검색 시작일(YYYY-MM-DD)
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          description: 검색 종료일(YYYY-MM-DD)
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: salesOrderNumber, customerName, managerName
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          description: ALL, MATERIAL_PREPARATION, IN_PRODUCTION, READY_FOR_SHIPMENT, DELIVERING, DELIVERED
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         '200':
           description: OK
@@ -3712,6 +3784,20 @@ paths:
       tags:
         - business/sd
       x-source: src/app/(private)/sales/sales.api.ts
+      description: 쿼리 이름은 게이트웨이 SdController GET /analytics/sales 의 @RequestParam 과 같다
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          description: 시작일(YYYY-MM-DD)
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          description: 종료일(YYYY-MM-DD)
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -7134,11 +7220,13 @@ components:
           type: string
         statusCode:
           type: string
+          description: 게이트웨이 enum 은 APPROVAL(QuotationStatus), 승인 API 설명은 APPROVED 라 둘 다 받는다
           enum:
             - PENDING
             - ALL
             - REJECTED
             - APPROVED
+            - APPROVAL
             - REVIEW
         customerName:
           type: string

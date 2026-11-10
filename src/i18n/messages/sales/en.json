@@ -26,6 +26,13 @@
       "unit": "Unit",
       "unitPrice": "Unit price",
       "amount": "Amount"
+    },
+    "uom": {
+      "EA": "pcs",
+      "KG": "kg",
+      "M": "m",
+      "L": "L",
+      "SET": "set"
     }
   },
   "quoteList": {

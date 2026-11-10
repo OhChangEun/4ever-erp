@@ -41,6 +41,23 @@ const mockCustomerSalesStats = statResponse({
   quotation_count: stat,
 });
 
+const mockOrders = [
+  {
+    salesOrderId: 'so-001',
+    salesOrderNumber: 'SO-2026-001',
+    customerName: '한빛전자',
+    manager: {
+      managerName: '김영업',
+      managerPhone: '010-1111-2222',
+      managerEmail: 'sales@everp.co.kr',
+    },
+    orderDate: '2026-01-12',
+    dueDate: '2026-02-05',
+    totalAmount: 8600000,
+    statusCode: 'IN_PRODUCTION',
+  },
+];
+
 export const salesHandlers = [
   http.get(SALES_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load sales stats', 500);
@@ -79,7 +96,8 @@ export const salesHandlers = [
       quotationNumber: 'QT-2026-001',
       quotationDate: '2026-01-10',
       dueDate: '2026-02-01',
-      statusCode: 'APPROVED',
+      // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13). 목록 목은 APPROVED 라 두 형식을 다 지난다
+      statusCode: 'APPROVAL',
       customerName: '한빛전자',
       ceoName: '박대표',
       items: [
@@ -108,25 +126,14 @@ export const salesHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          salesOrderId: 'so-001',
-          salesOrderNumber: 'SO-2026-001',
-          customerName: '한빛전자',
-          manager: {
-            managerName: '김영업',
-            managerPhone: '010-1111-2222',
-            managerEmail: 'sales@everp.co.kr',
-          },
-          orderDate: '2026-01-12',
-          dueDate: '2026-02-05',
-          totalAmount: 8600000,
-          statusCode: 'IN_PRODUCTION',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    // 게이트웨이와 같은 이름(startDate, endDate)으로만 주문일을 거른다. 모르는 이름은 서버처럼 무시한다
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
+    const content = mockOrders.filter(
+      (order) =>
+        (!startDate || order.orderDate >= startDate) && (!endDate || order.orderDate <= endDate),
+    );
+    return ok({ content, page: makePage(page, size, content.length) });
   }),
   http.get(`${SALES_BASE_PATH}/orders/:salesOrderId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load order detail', 500);

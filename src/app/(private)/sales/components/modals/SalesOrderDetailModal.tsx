@@ -13,9 +13,11 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
+import { useSalesLabels } from '@/app/(private)/sales/sales.labels';
 const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) => {
   const t = useTranslations('sales.orderDetail');
   const tc = useTranslations('sales.common');
+  const { uomLabel } = useSalesLabels();
   const {
     data: orderDetailRes,
     isLoading,
@@ -122,7 +124,7 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
                     <tr key={`${item.itemName}-${index}`}>
                       <td className="px-4 py-3 text-sm text-gray-900">{item.itemName}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{item.quantity}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.uonName}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{uomLabel(item.uonName)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {formatCurrency(item.unitPrice)}
                       </td>

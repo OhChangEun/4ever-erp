@@ -158,16 +158,25 @@ const SalesQuoteList = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <DateRangePicker
             startDate={startDate}
-            onStartDateChange={setStartDate}
+            onStartDateChange={(date) => {
+              setStartDate(date);
+              setCurrentPage(1);
+            }}
             endDate={endDate}
-            onEndDateChange={setEndDate}
+            onEndDateChange={(date) => {
+              setEndDate(date);
+              setCurrentPage(1);
+            }}
           />
           <div className="flex items-center space-x-4">
             <Dropdown
               placeholder={tc('allStatuses')}
               items={statusOptions}
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={(status) => {
+                setStatusFilter(status);
+                setCurrentPage(1);
+              }}
               autoSelectFirst
             />
             <SearchBar

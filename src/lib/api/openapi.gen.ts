@@ -2024,6 +2024,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 쿼리 이름은 게이트웨이 SdController GET /quotations 의 @RequestParam 과 같다 */
         get: operations["getBusinessSdQuotations"];
         put?: never;
         post: operations["postBusinessSdQuotations"];
@@ -2058,6 +2059,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 쿼리 이름은 게이트웨이 SdController GET /orders 의 @RequestParam 과 같다 */
         get: operations["getBusinessSdOrders"];
         put?: never;
         post?: never;
@@ -2176,6 +2178,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 쿼리 이름은 게이트웨이 SdController GET /analytics/sales 의 @RequestParam 과 같다 */
         get: operations["getBusinessSdAnalyticsSales"];
         put?: never;
         post?: never;
@@ -3440,8 +3443,11 @@ export interface components {
             quotationNumber: string;
             quotationDate: string;
             dueDate: string;
-            /** @enum {string} */
-            statusCode: "PENDING" | "ALL" | "REJECTED" | "APPROVED" | "REVIEW";
+            /**
+             * @description 게이트웨이 enum 은 APPROVAL(QuotationStatus), 승인 API 설명은 APPROVED 라 둘 다 받는다
+             * @enum {string}
+             */
+            statusCode: "PENDING" | "ALL" | "REJECTED" | "APPROVED" | "APPROVAL" | "REVIEW";
             customerName: string;
             ceoName: string;
             items: components["schemas"]["Item"][];
@@ -6874,7 +6880,22 @@ export interface operations {
     };
     getBusinessSdQuotations: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 시작일(YYYY-MM-DD) */
+                startDate?: string;
+                /** @description 종료일(YYYY-MM-DD) */
+                endDate?: string;
+                /** @description PENDING, REVIEW, APPROVAL, REJECTED, ALL */
+                status?: string;
+                /** @description quotationNumber, customerName, managerName */
+                type?: string;
+                keyword?: string;
+                /** @description 정렬 필드,정렬방향 */
+                sort?: string;
+                /** @description 0부터 시작하는 페이지 번호 */
+                page?: components["parameters"]["Page"];
+                size?: components["parameters"]["Size"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -6956,7 +6977,20 @@ export interface operations {
     };
     getBusinessSdOrders: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 검색 시작일(YYYY-MM-DD) */
+                startDate?: string;
+                /** @description 검색 종료일(YYYY-MM-DD) */
+                endDate?: string;
+                keyword?: string;
+                /** @description salesOrderNumber, customerName, managerName */
+                type?: string;
+                /** @description ALL, MATERIAL_PREPARATION, IN_PRODUCTION, READY_FOR_SHIPMENT, DELIVERING, DELIVERED */
+                status?: string;
+                /** @description 0부터 시작하는 페이지 번호 */
+                page?: components["parameters"]["Page"];
+                size?: components["parameters"]["Size"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -7183,7 +7217,12 @@ export interface operations {
     };
     getBusinessSdAnalyticsSales: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 시작일(YYYY-MM-DD) */
+                startDate?: string;
+                /** @description 종료일(YYYY-MM-DD) */
+                endDate?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

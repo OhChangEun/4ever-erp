@@ -1,5 +1,7 @@
 import type { Schema } from '@/lib/api/contract';
-export type QuoteStatus = 'ALL' | 'APPROVED' | 'REVIEW' | 'PENDING' | 'REJECTED';
+// 승인은 게이트웨이 enum 이 APPROVAL(QuotationStatus.java:13), 승인 API 설명이 APPROVED(SdController.java:392)다.
+// 어느 쪽이 오는지 사본으로 확정 못 해 둘 다 받는다(decisions.md 2026-11-11)
+export type QuoteStatus = 'ALL' | 'APPROVED' | 'APPROVAL' | 'REVIEW' | 'PENDING' | 'REJECTED';
 
 export interface QuoteItem {
   product: string;
