@@ -245,5 +245,50 @@
       "back": "Go back",
       "home": "Go to home"
     }
+  },
+  "ui": {
+    "close": "Close",
+    "confirm": "OK",
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "total": "Total <num>{count}</num>"
+    },
+    "simplePagination": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "table": {
+      "empty": "No data."
+    },
+    "dropdown": {
+      "empty": "No items"
+    },
+    "searchBar": {
+      "typePlaceholder": "Search type",
+      "keywordPlaceholder": "Enter a keyword"
+    },
+    "loading": {
+      "message": "Loading...",
+      "subMessage": "Please wait"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "unknown": "An unknown error occurred."
+    },
+    "conflict": {
+      "title": "Edit conflict",
+      "description": "Another user has already changed this {subject}. Your change was rejected because the data on this screen is out of date.",
+      "hint": "Load the latest data and try again.",
+      "reload": "Load latest data"
+    },
+    "sparkline": {
+      "summary": "{label}: start {start}, end {end}, low {min}, high {max}"
+    },
+    "inputList": {
+      "title": "Process steps",
+      "add": "Add step"
+    }
   }
 }

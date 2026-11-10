@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react
 import { NextIntlClientProvider } from 'next-intl';
 import ko from './messages/ko.json';
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, type Locale } from './locale';
+import UiTextBridge from './UiTextBridge';
 
 type Messages = typeof ko;
 
@@ -58,7 +59,7 @@ export default function IntlProvider({ children }: { children: ReactNode }) {
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages ?? ko} timeZone="Asia/Seoul">
-      {children}
+      <UiTextBridge>{children}</UiTextBridge>
     </NextIntlClientProvider>
   );
 }

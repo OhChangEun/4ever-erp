@@ -42,3 +42,30 @@ test('영어로 바꾸면 재무 화면의 탭과 미수금 경과가 영어다'
     .click();
   await expect(page.getByRole('button', { name: '매출 전표 관리' })).toBeVisible();
 });
+
+/** ui 문구 카드: @everp/ui 가 스스로 그리는 글자(쪽 넘김 이름과 버튼, 총 건수, 검색 타입)도 영어다(운영 빌드의 precompile 포함) */
+test('영어로 바꾸면 공통 UI 패키지의 쪽 넘김과 검색 막대도 영어다', async ({ page }) => {
+  await page.goto('/purchase');
+  const koNav = page.getByRole('navigation', { name: '페이지' });
+  await expect(koNav).toContainText(/총 \d+건/);
+
+  await page.getByRole('button', { name: /전체 관리자/ }).click();
+  await page.getByRole('group', { name: '언어' }).getByRole('button', { name: 'English' }).click();
+  const nav = page.getByRole('navigation', { name: 'Pagination' });
+  await expect(nav).toContainText(/Total \d+/);
+  await expect(nav.getByRole('button', { name: 'Previous page' })).toBeVisible();
+  await expect(nav.getByRole('button', { name: 'Next page' })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Search type' })).toBeVisible();
+
+  // 새로고침 뒤에도 영어(열린 프로필 메뉴도 닫힌다)
+  await page.reload();
+  await expect(page.getByRole('navigation', { name: 'Pagination' })).toContainText(/Total \d+/);
+
+  // 다음 테스트를 위해 한국어로 되돌린다
+  await page.getByRole('button', { name: /전체 관리자/ }).click();
+  await page
+    .getByRole('group', { name: 'Language' })
+    .getByRole('button', { name: '한국어' })
+    .click();
+  await expect(page.getByRole('navigation', { name: '페이지' })).toContainText(/총 \d+건/);
+});

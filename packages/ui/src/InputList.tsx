@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { type KeyValueItem } from './types';
 import IconButton from './IconButton';
+import { useUiText } from './UiText';
 
 // 키는 1부터 늘어나는 번호다. 예전엔 제네릭 T 를 받아 문자열 키면 "3" + 1 = "31" 이 됐다
 interface InputListProps {
@@ -11,6 +12,7 @@ interface InputListProps {
 }
 
 export default function InputList({ initialItems = [], onChange }: InputListProps) {
+  const text = useUiText().inputList;
   const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
 
   // 값 변경
@@ -42,9 +44,9 @@ export default function InputList({ initialItems = [], onChange }: InputListProp
   return (
     <div className="space-y-0.5">
       <div className="flex justify-between items-center px-2 pb-3">
-        <h1>공정 순서 입력</h1>
+        <h1>{text.title}</h1>
         <IconButton
-          label="공정 추가"
+          label={text.add}
           variant="secondary"
           icon="ri-add-line"
           size="sm"

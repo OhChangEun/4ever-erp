@@ -1,5 +1,7 @@
 'use client';
 
+import { useUiText } from './UiText';
+
 interface ModalStatusBoxProps {
   type: 'loading' | 'error';
   message: string;
@@ -7,6 +9,7 @@ interface ModalStatusBoxProps {
 }
 
 const ModalStatusBox = ({ type, message, onClose }: ModalStatusBoxProps) => {
+  const closeText = useUiText().close;
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-overlay">
       <div
@@ -30,7 +33,7 @@ const ModalStatusBox = ({ type, message, onClose }: ModalStatusBoxProps) => {
                 onClick={onClose}
                 className="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
               >
-                닫기
+                {closeText}
               </button>
             )}
           </>

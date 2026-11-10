@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Dropdown from './Dropdown';
 import Input from './Input';
 import { type KeyValueItem } from './types';
+import { useUiText } from './UiText';
 
 interface SearchBarProps {
   /** 검색 타입 옵션 */
@@ -22,9 +23,10 @@ export default function SearchBar({
   onTypeChange,
   onKeywordSearch,
   autoSelectFirst = true,
-  placeholder = '검색어 입력',
+  placeholder,
   disabled,
 }: SearchBarProps) {
+  const text = useUiText().searchBar;
   const [selectedType, setSelectedType] = useState('');
   const [keyword, setKeyword] = useState('');
 
@@ -42,7 +44,7 @@ export default function SearchBar({
   return (
     <div className="flex gap-2">
       <Dropdown
-        placeholder="검색 타입"
+        placeholder={text.typePlaceholder}
         items={options}
         value={selectedType}
         onChange={handleTypeChange}
@@ -53,7 +55,7 @@ export default function SearchBar({
         value={keyword}
         onChange={handleKeywordChange}
         icon="ri-search-line"
-        placeholder={placeholder}
+        placeholder={placeholder ?? text.keywordPlaceholder}
       />
     </div>
   );

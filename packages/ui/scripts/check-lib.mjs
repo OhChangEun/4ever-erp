@@ -54,7 +54,8 @@ const code = outputs
 
 // 다른 컴포넌트 파일에만 있는 표식
 const leaks = [
-  ['Sparkline', '최저'],
+  ['Sparkline', 'polyline'],
+  ['UiText', '잠시만 기다려주세요'],
   ['Table', 'isStale'],
   ['Dropdown', 'useListNavigation'],
 ].filter(([, marker]) => code.includes(marker));

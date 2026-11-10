@@ -25,6 +25,7 @@ import productionEn from '@/i18n/messages/production/en.json';
 import profileKo from '@/i18n/messages/profile/ko.json';
 import profileEn from '@/i18n/messages/profile/en.json';
 import type { Locale } from '@/i18n/locale';
+import UiTextBridge from '@/i18n/UiTextBridge';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 
@@ -84,7 +85,7 @@ export const IntlTestProvider = ({
   locale?: Locale;
 }) => (
   <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]}>
-    {children}
+    <UiTextBridge>{children}</UiTextBridge>
   </NextIntlClientProvider>
 );
 
@@ -95,11 +96,13 @@ export const renderWithProviders = (
   const queryClient = createTestQueryClient();
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]}>
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </ToastProvider>
-      </QueryClientProvider>
+      <UiTextBridge>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </ToastProvider>
+        </QueryClientProvider>
+      </UiTextBridge>
     </NextIntlClientProvider>
   );
   return { queryClient, ...render(ui, { wrapper: Wrapper, ...options }) };
