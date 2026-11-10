@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { formText } from '@/lib/formData';
 
 interface AttendanceEditModalProps extends ModalProps {
@@ -20,6 +20,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
   const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   const mutation = useUpdateTimeRecord({

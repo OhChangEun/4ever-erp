@@ -14,7 +14,7 @@ import { ModalStatusBox } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
@@ -35,6 +35,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
     ],
     note: '',
   });
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   const addOrderItem = () => {

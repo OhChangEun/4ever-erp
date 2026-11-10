@@ -24,7 +24,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 
@@ -32,6 +32,7 @@ import { Button } from '@everp/ui';
 export default function QuotationTab() {
   const t = useTranslations('production');
   const { openModal, removeAllModals } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 가용 재고 상태 드롭다운

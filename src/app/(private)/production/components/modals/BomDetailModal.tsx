@@ -6,7 +6,8 @@ import { type ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { errorMessageOf, isAppError } from '@/lib/AppError';
+import { isAppError } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { ConflictDialog } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
@@ -47,6 +48,7 @@ interface BomDetailModalProps extends ModalProps {
 export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   const t = useTranslations('production');
   const queryClient = useQueryClient();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [showConflictModal, setShowConflictModal] = useState(false);
 

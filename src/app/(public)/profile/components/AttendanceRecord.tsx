@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAttendaceRecords, getTodayAttendance } from '../profile.api';
 import { useCheckIn, useCheckOut, useRequestVacation } from '../profile.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { profileKeys } from '../profile.keys';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -20,6 +20,7 @@ export default function AttendanceRecord() {
   const t = useTranslations('myProfile');
   const tCommon = useTranslations('common');
   const dateLocale = useLocale() === 'ko' ? 'ko-KR' : 'en-US';
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveForm, setLeaveForm] = useState<RequestVacation>({

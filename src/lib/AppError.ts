@@ -3,7 +3,7 @@ import axios from 'axios';
 /**
  * API 호출 실패를 한 모양으로 정규화한 오류.
  * 결정 기록: ai/decisions.md 2026-11-09 "AppError 모양".
- * 화면은 `kind` 로 분기하고, 문구는 `ERROR_MESSAGE_BY_KIND` 한 곳에서 고친다.
+ * 화면은 `kind` 에 해당하는 안내만 번역해 표시한다.
  */
 export type ErrorKind =
   | 'network' // 연결 끊김, DNS 실패. 응답 자체가 없음
@@ -36,28 +36,6 @@ export class AppError extends Error {
 }
 
 export const isAppError = (error: unknown): error is AppError => error instanceof AppError;
-
-export const ERROR_MESSAGE_BY_KIND: Record<ErrorKind, string> = {
-  network: '서버에 연결할 수 없습니다. 네트워크를 확인해 주세요.',
-  timeout: '서버 응답이 늦습니다. 잠시 후 다시 시도해 주세요.',
-  unauthorized: '로그인이 필요합니다.',
-  forbidden: '이 데이터를 볼 권한이 없습니다.',
-  notFound: '요청한 데이터를 찾을 수 없습니다.',
-  conflict: '다른 사용자가 먼저 수정했습니다. 다시 불러와 주세요.',
-  badRequest: '입력값이 올바르지 않습니다. 내용을 확인해 주세요.',
-  server: '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
-  invalidShape: '서버 응답 형식이 예상과 다릅니다. 관리자에게 문의해 주세요.',
-};
-
-const UNKNOWN_MESSAGE = '알 수 없는 오류가 발생했습니다.';
-
-/** 오류 상자에 덧붙일 요청 ID(앞 8자). 보고할 때 이 값으로 서버 로그를 찾는다 */
-export const requestIdLabelOf = (error: unknown): string | null =>
-  isAppError(error) && error.requestId ? `요청 ID ${error.requestId.slice(0, 8)}` : null;
-
-/** 화면에 보여줄 한 줄. AppError 가 아니면 공통 문구. */
-export const errorMessageOf = (error: unknown): string =>
-  isAppError(error) ? ERROR_MESSAGE_BY_KIND[error.kind] : UNKNOWN_MESSAGE;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);

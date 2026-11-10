@@ -14,7 +14,7 @@ import {
   useRejectPurchaseOrder,
   useStartPurchaseOrderDelivery,
 } from '@/app/(private)/purchase/api/purchase.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { Dropdown } from '@everp/ui';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { Pagination } from '@everp/ui';
@@ -31,6 +31,7 @@ import { useTranslations } from 'next-intl';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const t = useTranslations('purchase.orderList');
   const tc = useTranslations('purchase.common');

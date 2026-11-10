@@ -8,7 +8,7 @@ import type {
 } from '@/app/(private)/sales/types/CustomerEditModalType';
 import { CUSTOMER_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 import { useUpdateCustomer } from '../../sales.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useTranslations } from 'next-intl';
 
@@ -21,6 +21,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
   // 폼 상태는 이 모달이 가진다. 열 때 받은 값으로 한 번 채운다.
   // 예전엔 목록 컴포넌트의 state(처음 값 null)를 setter 로 받아 써서 입력이 하나도 반영되지 않았다
   const [editFormData, setEditFormData] = useState<CustomerDetail | null>(initial);
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   const handleEditSave = (e: React.FormEvent) => {

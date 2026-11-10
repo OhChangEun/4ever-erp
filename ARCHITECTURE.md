@@ -21,7 +21,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 목록 화면이 데이터를 받기까지.
 
 1. 도메인 `*.api.ts` 가 `*_ENDPOINTS` 상수로 URL 을 만든다. 기본 base 는 `/api/proxy` 다 (`src/app/types/api.ts:4`). 응답 래퍼는 `ApiResponse<T>` (`src/app/types/api.ts:14`).
-2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:4`). 응답 인터셉터 하나가 두 가지를 한다. 2xx 인데 래퍼가 깨진 응답(`success === false`, GET 인데 `data` 없음)을 `invalidShape` 로 올리고 (`:22`), 실패는 전부 `AppError` 로 정규화해 reject 한다 (`:44`, 종류 9개는 `src/lib/AppError.ts:8`). 실패를 URL 별 빈 데이터로 바꿔치기하던 fallback 은 2026-11-09 에 지웠다(카드 `ai/cards/2026-11-09_오류를_빈_데이터로_숨기는_fallback_제거.md`). 화면은 `TableStatusBox` 와 `StatSection` 의 `error` prop 으로 종류별 한 줄을 덧붙인다 (`src/app/components/common/TableStatusBox.tsx:9`, `StatSection.tsx:20`).
+2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:4`). 응답 인터셉터 하나가 두 가지를 한다. 2xx 인데 래퍼가 깨진 응답(`success === false`, GET 인데 `data` 없음)을 `invalidShape` 로 올리고 (`:21`), 실패는 전부 `AppError` 로 정규화해 reject 한다 (`:48`, 종류 9개는 `src/lib/AppError.ts:8`). 실패를 URL 별 빈 데이터로 바꿔치기하던 fallback 은 2026-11-09 에 지웠다(카드 `ai/cards/2026-11-09_오류를_빈_데이터로_숨기는_fallback_제거.md`). AppError 는 종류와 진단용 원문(`message`)을 보존하고 번역이나 React 훅을 쓰지 않는다. 화면과 토스트는 `useErrorMessage` (`src/i18n/useErrorMessage.ts:7`)로 공통 메시지의 `errors` 에서 종류별 안내만 번역해 표시한다. 서버 메시지는 화면에 덧붙이지 않는다. `TableStatusBox` 와 `StatSection` 은 `error` prop 으로 이 한 줄을 보인다 (`src/app/components/common/TableStatusBox.tsx:32`, `StatSection.tsx:48`).
 3. `/api/proxy/[...path]` 가 받는다. 상태 변경 요청은 same-origin 검사 (`src/app/api/proxy/[...path]/route.ts:52`), 세션 쿠키 검증 (`:61`), 업스트림 base 결정 (`:43`, `:71`), 경로 정규화 뒤 도메인별 role 검사 (`:23` 규칙표, `:36` 인사 셀프서비스 예외), 쿠키를 떼고 `Authorization: Bearer` 를 붙여 fetch.
 4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다. 응답은 단위 테스트와 같은 MSW 핸들러가 만든다 (`:18` `getResponse`, 2026-11-10 목 한 벌 카드). 예전 손으로 쓴 서버 목 1,902줄은 지웠다.
 5. 화면은 TanStack Query 로 받는다. 키는 도메인별 팩토리 (`src/app/(private)/purchase/api/purchase.keys.ts:6` 가 표준 모양: all → lists → list(params), details → detail(id)). 리터럴 키는 0건.
@@ -267,7 +267,7 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 ## 8-2. 옵저버빌리티 (2026-11-10)
 
-1. 요청 ID: 프록시가 요청마다 `x-request-id` 를 정해 업스트림과 응답에 싣는다(`src/app/api/proxy/[...path]/route.ts`, 들어온 값은 영숫자와 `-` 8~64자일 때만). `AppError.requestId` 가 받고 `TableStatusBox`, `StatSection` 이 "요청 ID" 앞 8자를 보인다. 5xx 와 연결 실패는 서버 로그에 JSON 한 줄(`evt: proxy`). 연결 실패는 502.
+1. 요청 ID: 프록시가 요청마다 `x-request-id` 를 정해 업스트림과 응답에 싣는다(`src/app/api/proxy/[...path]/route.ts`, 들어온 값은 영숫자와 `-` 8~64자일 때만). `AppError.requestId` 가 받고 `TableStatusBox`, `StatSection` 이 `useRequestIdLabel` (`src/i18n/useErrorMessage.ts:13`)로 번역한 이름과 앞 8자를 보인다. 5xx 와 연결 실패는 서버 로그에 JSON 한 줄(`evt: proxy`). 연결 실패는 502.
 2. Error Boundary 3층: `src/app/global-error.tsx`(루트 레이아웃까지 깨질 때), `src/app/(private)/error.tsx`(헤더와 메뉴는 남고 본문만), 모달(`ModalContainer` 안 `ErrorBoundary`, 그 모달만 오류로 바뀌고 닫을 수 있다). `src/app/error.tsx` 는 (private) 밖. 운영에서는 stack 대신 digest. 경계는 Next 16 의 `retry()` 를 쓴다.
 3. web-vitals: `WebVitalsLazy`(첫 로드에서 뺌)가 `/api/vitals` 로 sendBeacon. 서버는 모양과 크기(2KB)를 보고 로그 한 줄(`evt: web-vital`).
 4. Sentry 와 Vercel Speed Insights 는 계정과 대시보드 설정이 필요해 붙이지 않았다. 붙일 자리는 `global-error.tsx`, `ErrorBoundary.componentDidCatch`, `/api/vitals`.

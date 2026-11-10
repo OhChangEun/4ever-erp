@@ -14,7 +14,7 @@ import { type EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useRegisterEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
 
@@ -39,6 +39,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
     fetchDepartmentsDropdown,
     'without-all',
   );
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   const { data: positionData, isLoading: isPositionLoading } = useQuery({

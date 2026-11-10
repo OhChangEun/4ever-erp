@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 
@@ -36,6 +36,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     'mrpQuotationsDropdown',
     fetchMrpQuotationsDropdown,
   );
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   // mrp 순소요 - 가용 재고 상태 드롭다운
   const { options: mrpAvailableStatusOptions } = useDropdown(

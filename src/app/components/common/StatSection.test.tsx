@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/render';
 import StatSection from './StatSection';
-import { AppError, ERROR_MESSAGE_BY_KIND } from '@/lib/AppError';
+import { AppError } from '@/lib/AppError';
 import type { StatCardType } from '@/app/types/StatType';
 
 const card: StatCardType = {
@@ -30,7 +30,7 @@ describe('StatSection', () => {
     );
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('지표를 불러오지 못했습니다.');
-    expect(alert).toHaveTextContent(ERROR_MESSAGE_BY_KIND.server);
+    expect(alert).toHaveTextContent('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     expect(screen.queryByText('₩0')).not.toBeInTheDocument();
     expect(screen.queryByRole('definition')).not.toBeInTheDocument();
   });

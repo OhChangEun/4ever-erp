@@ -34,7 +34,7 @@ import type productionKo from '@/i18n/messages/production/ko.json';
 import { Input } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 
@@ -262,6 +262,7 @@ const COLUMNS = [
 
 export default function BomInputFormModal({ editMode = false, onClose }: BomInputFormModalProps) {
   const t = useTranslations('production');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [productName, setProductName] = useState('');
   const [unit, setUnit] = useState('');

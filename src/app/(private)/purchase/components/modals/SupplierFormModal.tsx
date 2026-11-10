@@ -18,7 +18,7 @@ import {
   useCreateSupplier,
   useUpdateSupplier,
 } from '@/app/(private)/purchase/api/purchase.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { LoadingMessage } from '@everp/ui';
@@ -32,6 +32,7 @@ interface SupplierFormModalProps extends ModalProps {
 
 export default function SupplierFormModal({ initialData, onClose }: SupplierFormModalProps) {
   const isEditMode = !!initialData; // initialData가 있으면 수정 모드
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const t = useTranslations('purchase.supplierForm');
   const tc = useTranslations('purchase.common');

@@ -13,7 +13,7 @@ import { ModalStatusBox } from '@everp/ui';
 import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 
@@ -21,6 +21,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const t = useTranslations('warehouse');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
     warehouseName: '',

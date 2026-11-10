@@ -14,7 +14,7 @@ import { Dropdown } from '@everp/ui';
 import { LoadingMessage } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateDepartment } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
@@ -28,6 +28,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const { removeAllModals } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 선택된 부서장 상태

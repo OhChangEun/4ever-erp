@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import {
   type EditUserRequest,
   type EmploymentInfoProps,
@@ -20,6 +20,7 @@ type EmploymentLabelKey =
 
 const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   const t = useTranslations('myProfile.employment');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const { data: profileInfo } = useQuery<ProfileInfoResponse>({
     queryKey: profileKeys.info(),

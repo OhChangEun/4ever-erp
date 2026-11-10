@@ -6,13 +6,14 @@ import { useCreateCustomer } from '@/app/(private)/sales/sales.mutations';
 import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useTranslations } from 'next-intl';
 const NewCustomerModal = ({ onClose }: ModalProps) => {
   const t = useTranslations('sales.newCustomer');
   const tc = useTranslations('sales.common');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [customerData, setCustomerData] = useState<CustomerData>({
     companyName: '',

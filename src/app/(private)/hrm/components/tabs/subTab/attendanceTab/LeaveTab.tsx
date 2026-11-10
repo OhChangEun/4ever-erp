@@ -15,7 +15,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
@@ -23,6 +23,7 @@ export default function LeaveTab() {
   const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 부서 드롭다운

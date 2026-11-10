@@ -8,7 +8,7 @@ import { postItemsInfo } from '../../api/production.api';
 import { type MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
 import type { ItemResponse } from '@/app/(private)/inventory';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
@@ -30,6 +30,7 @@ export default function MrpPurchaseRequestModal({
   onClose,
 }: PurchaseRequestModalProps) {
   const t = useTranslations('production');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const itemIds = orders.map((order) => order.itemId);
 

@@ -9,7 +9,7 @@ import { useEditWarehouse } from '../../warehouse.mutations';
 import { useState, useId } from 'react';
 import { ModalStatusBox } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { type WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';
 import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
@@ -31,6 +31,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const t = useTranslations('warehouse');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   // 서버 값으로 한 번만 채우는 초안. 채운 뒤의 재조회는 입력을 덮지 않는다(예전엔 effect 가 매번 덮었다)
   const [formData, setFormData] = useState<ManageWarehouseRequest | null>(null);

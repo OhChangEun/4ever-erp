@@ -6,7 +6,7 @@ import { type Period, type StatCardType } from '@/app/types/StatType';
 import { type KeyValueItem } from '@/app/types/CommonType';
 import StatCardList from '@/app/components/statCard/StatCardList';
 import { SlidingNavBar } from '@everp/ui';
-import { errorMessageOf, requestIdLabelOf } from '@/lib/AppError';
+import { useErrorMessage, useRequestIdLabel } from '@/i18n/useErrorMessage';
 
 // 지표 기간 선택 항목. 글자는 메시지의 stats.period
 const STAT_PERIODS: readonly Period[] = ['week', 'month', 'quarter', 'year'];
@@ -29,6 +29,8 @@ interface StatSectionProps {
 /** 페이지 상단 지표 띠. 지표는 왼쪽에 가로로, 기간 선택은 오른쪽 끝에. */
 export default function StatSection({ statsData, error }: StatSectionProps) {
   const t = useTranslations('stats');
+  const errorMessageOf = useErrorMessage();
+  const requestIdLabel = useRequestIdLabel(error);
   const DEFAULT_PERIOD: Period = 'week';
   // SlidingNavBar 가 items 가 바뀔 때 표시 막대를 다시 잰다. 언어가 바뀔 때만 새로 만든다
   const periodItems = useMemo<KeyValueItem<Period>[]>(
@@ -44,10 +46,8 @@ export default function StatSection({ statsData, error }: StatSectionProps) {
       <section aria-label={t('region')} className="py-3 border-b border-gray-200">
         <p role="alert" className="text-sm text-gray-700">
           {t('loadError')} <span className="text-gray-500">{errorMessageOf(error)}</span>
-          {requestIdLabelOf(error) && (
-            <span className="ml-2 text-xs text-gray-500 tabular-nums">
-              {requestIdLabelOf(error)}
-            </span>
+          {requestIdLabel && (
+            <span className="ml-2 text-xs text-gray-500 tabular-nums">{requestIdLabel}</span>
           )}
         </p>
       </section>

@@ -4,7 +4,7 @@ import { type FormEvent, useState, useId } from 'react';
 import { type InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
 import { useUpdateSafetyStock } from '../../inventory.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useTranslations } from 'next-intl';
 
 const InventorySafetyStockModal = ({
@@ -14,6 +14,7 @@ const InventorySafetyStockModal = ({
   const t = useTranslations('inventory');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [newSafetyStock, setNewSafetyStock] = useState<number>(0);
 

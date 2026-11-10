@@ -13,7 +13,7 @@ import {
   useApprovePurchaseRequest,
   useRejectPurchaseRequest,
 } from '@/app/(private)/purchase/api/purchase.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { Dropdown } from '@everp/ui';
 import {
   type PurchaseRequestListItem,
@@ -38,6 +38,7 @@ import { useTranslations } from 'next-intl';
 
 export default function PurchaseRequestListTab() {
   const { openModal } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const t = useTranslations('purchase.requestList');
   const tc = useTranslations('purchase.common');
