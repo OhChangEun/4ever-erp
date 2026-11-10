@@ -63,10 +63,6 @@
       "available": "No courses available.",
       "completed": "No completed courses."
     },
-    "category": {
-      "BASIC_TRAINING": "Basic training",
-      "TECHNICAL_TRAINING": "Technical training"
-    },
     "hours": "{hours, plural, one {# hour} other {# hours}}",
     "apply": "Enroll",
     "completedOn": "Completed on: {date}",

@@ -15,15 +15,6 @@ const TrainingStatus = () => {
   const t = useTranslations('myProfile.training');
   const toast = useToast();
   const [activeTab, setActiveTab] = useState('progress');
-  const getTrainingCategoryText = (status: string) => {
-    switch (status) {
-      case 'BASIC_TRAINING':
-      case 'TECHNICAL_TRAINING':
-        return t(`category.${status}`);
-      default:
-        return ''; // 알 수 없는 분류는 비워 둔다 (이전과 같은 표시, noImplicitReturns 대응)
-    }
-  };
   const { data: trainingRes } = useQuery<TrainingResponse[]>({
     queryKey: profileKeys.training(activeTab),
     queryFn: () => {
@@ -116,7 +107,7 @@ const TrainingStatus = () => {
                         </div>
                         <p className="text-xs text-gray-500">{training.description}</p>
                         <p className="text-xs text-gray-500">
-                          {getTrainingCategoryText(training.category)} |{' '}
+                          <StatusLabel statusCode={training.category} /> |{' '}
                           {t('hours', { hours: training.durationHours })}
                         </p>
                       </div>
@@ -147,7 +138,7 @@ const TrainingStatus = () => {
                         </div>
                         <p className="text-xs font-medium text-gray-500">{training.description}</p>
                         <p className="text-xs text-gray-500 mb-2">
-                          {getTrainingCategoryText(training.category)} |{' '}
+                          <StatusLabel statusCode={training.category} /> |{' '}
                           {t('hours', { hours: training.durationHours })}
                         </p>
                       </div>
