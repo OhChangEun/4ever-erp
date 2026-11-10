@@ -19,9 +19,10 @@ import {
 import { getAnalytics } from '../../sales.api';
 import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
 import { type SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
-import { formatCurrency } from '@/app/(private)/sales/utils';
+import { toShortWon } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { toDateKey } from '@/app/utils/date';
+import { useTranslations } from 'next-intl';
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="h-full flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
@@ -31,6 +32,10 @@ const EmptyState = ({ message }: { message: string }) => (
 );
 
 const SalesChart = () => {
+  const t = useTranslations('sales.chart');
+  const tc = useTranslations('sales.common');
+  // 축과 툴팁의 짧은 금액(₩1.2억 / ₩120M)
+  const shortWon = (value: number) => t('money', toShortWon(value));
   const today = new Date();
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(today.getMonth() - 5);
@@ -60,20 +65,20 @@ const SalesChart = () => {
 
     const monthWeekMap: Record<number, number> = {};
 
-    return analyticsData.trend.map((t) => {
-      if (!monthWeekMap[t.month]) {
-        monthWeekMap[t.month] = 1;
+    return analyticsData.trend.map((point) => {
+      if (!monthWeekMap[point.month]) {
+        monthWeekMap[point.month] = 1;
       } else {
-        monthWeekMap[t.month]++;
+        monthWeekMap[point.month]++;
       }
 
       return {
-        week: `${t.month}월 ${monthWeekMap[t.month]}주차`,
-        sales: t.sale,
-        orders: t.orderCount,
+        week: t('week', { month: point.month, week: monthWeekMap[point.month] }),
+        sales: point.sale,
+        orders: point.orderCount,
       };
     });
-  }, [analyticsData]);
+  }, [analyticsData, t]);
 
   // productShare 제품별 매출 비중
   const productData = useMemo(() => {
@@ -110,16 +115,16 @@ const SalesChart = () => {
       {/* 월별 매출 추이 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className=" flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">월별 매출 추이</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('trendTitle')}</h3>
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">매출액</span>
+              <span className="text-sm text-gray-600">{t('salesAmount')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">주문건수</span>
+              <span className="text-sm text-gray-600">{t('orderCount')}</span>
             </div>
           </div>
         </div>
@@ -129,12 +134,14 @@ const SalesChart = () => {
               <AreaChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="week" />
-                <YAxis yAxisId="left" tickFormatter={formatCurrency} />
+                <YAxis yAxisId="left" tickFormatter={shortWon} />
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip
                   formatter={(value, name) => [
-                    name === 'sales' ? formatCurrency(Number(value)) : `${value}건`,
-                    name === 'sales' ? '매출액' : '주문건수',
+                    name === 'sales'
+                      ? shortWon(Number(value))
+                      : tc('orderCount', { count: Number(value) }),
+                    name === 'sales' ? t('salesAmount') : t('orderCount'),
                   ]}
                 />
                 <Area
@@ -156,7 +163,7 @@ const SalesChart = () => {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState message="표시할 매출 추이 데이터가 없습니다." />
+            <EmptyState message={t('trendEmpty')} />
           )}
         </div>
       </div>
@@ -165,7 +172,7 @@ const SalesChart = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex flex-row items-center  justify-between mb-6">
             <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-0">
-              제품별 매출 비중
+              {t('productShareTitle')}
             </h3>
           </div>
 
@@ -186,11 +193,11 @@ const SalesChart = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value}%`, '비중']} />
+                  <Tooltip formatter={(value) => [`${value}%`, t('share')]} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState message="제품별 매출 데이터가 없습니다." />
+              <EmptyState message={t('productEmpty')} />
             )}
           </div>
           {productData.length > 0 && (
@@ -205,7 +212,7 @@ const SalesChart = () => {
                     <span className="text-sm text-gray-700">{item.name}</span>
                   </div>
                   <div className="text-sm font-medium text-gray-900">
-                    {item.value}% ({formatCurrency(item.amount)})
+                    {item.value}% ({shortWon(item.amount)})
                   </div>
                 </div>
               ))}
@@ -216,7 +223,7 @@ const SalesChart = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex flex-row items-center  justify-between mb-6">
             <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-0">
-              주요 고객별 매출
+              {t('topCustomersTitle')}
             </h3>
           </div>
           <div className="h-120 mt-15">
@@ -224,14 +231,17 @@ const SalesChart = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={customerData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tickFormatter={formatCurrency} />
+                  <XAxis type="number" tickFormatter={shortWon} />
                   <YAxis dataKey="name" type="category" width={80} />
                   <Tooltip
                     formatter={(value, name, props) => {
                       const customer = customerData.find((c) => c.name === props.payload.name);
                       return [
-                        `₩${(Number(value) / 100000000).toFixed(1)}억 (${customer?.orders ?? 0}건)`,
-                        '매출액',
+                        t('customerTooltip', {
+                          money: shortWon(Number(value)),
+                          count: customer?.orders ?? 0,
+                        }),
+                        t('salesAmount'),
                       ];
                     }}
                   />
@@ -254,7 +264,7 @@ const SalesChart = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState message="고객 매출 데이터가 없습니다." />
+              <EmptyState message={t('customerEmpty')} />
             )}
           </div>
         </div>

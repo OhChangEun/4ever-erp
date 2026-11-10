@@ -11,31 +11,39 @@ import { useToast } from '@/app/components/common/toast/useToast';
 
 import { formatCurrency } from '@/app/utils/number';
 import { toDateKey } from '@/app/utils/date';
+import { useTranslations } from 'next-intl';
+
+// 빈 견적서 폼. 처음 열 때와 작성 뒤 비울 때 같이 쓴다.
+// 결제, 인도, 보증 조건은 화면에 안 보이는 견적 데이터 기본값이라 번역하지 않는다(i18n 8)
+const emptyQuoteForm = (): QuoteFormData => ({
+  customer: '',
+  customerContact: '',
+  customerEmail: '',
+  quoteDate: toDateKey(new Date()),
+  validUntil: '',
+  items: [
+    {
+      id: 1,
+      product: '',
+      specification: '',
+      quantity: 1,
+      unitPrice: 0,
+      totalPrice: 0,
+    },
+  ],
+  totalAmount: 0,
+  notes: '',
+  paymentTerms: '30일 후 결제',
+  deliveryTerms: 'FOB 공장도',
+  warranty: '1년',
+});
+
 const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModalProps) => {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
-  const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>({
-    customer: '',
-    customerContact: '',
-    customerEmail: '',
-    quoteDate: toDateKey(new Date()),
-    validUntil: '',
-    items: [
-      {
-        id: 1,
-        product: '',
-        specification: '',
-        quantity: 1,
-        unitPrice: 0,
-        totalPrice: 0,
-      },
-    ],
-    totalAmount: 0,
-    notes: '',
-    paymentTerms: '30일 후 결제',
-    deliveryTerms: 'FOB 공장도',
-    warranty: '1년',
-  });
+  const t = useTranslations('sales.newQuote');
+  const tc = useTranslations('sales.common');
+  const [newQuoteData, setNewQuoteData] = useState<QuoteFormData>(emptyQuoteForm);
   const toast = useToast();
 
   const handleNewQuoteSubmit = (e: React.FormEvent) => {
@@ -43,32 +51,10 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
 
     const quoteNumber = `QT-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000) + 1).padStart(3, '0')}`;
 
-    toast.success(`견적번호 ${quoteNumber} 신규 견적서가 작성되었습니다.`);
+    toast.success(t('success', { number: quoteNumber }));
 
     setShowNewQuoteModal(false);
-    setNewQuoteData({
-      customer: '',
-      customerContact: '',
-      customerEmail: '',
-      quoteDate: toDateKey(new Date()),
-      validUntil: '',
-
-      items: [
-        {
-          id: 1,
-          product: '',
-          specification: '',
-          quantity: 1,
-          unitPrice: 0,
-          totalPrice: 0,
-        },
-      ],
-      totalAmount: 0,
-      notes: '',
-      paymentTerms: '30일 후 결제',
-      deliveryTerms: 'FOB 공장도',
-      warranty: '1년',
-    });
+    setNewQuoteData(emptyQuoteForm());
   };
 
   const updateQuoteData = <K extends keyof QuoteFormData>(field: K, value: QuoteFormData[K]) => {
@@ -145,7 +131,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-overlay">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">견적서 작성</h3>
+              <h3 className="text-xl font-semibold text-gray-900">{t('title')}</h3>
               <button
                 onClick={() => setShowNewQuoteModal(false)}
                 className="text-gray-400 hover:text-gray-600 cursor-pointer"
@@ -157,14 +143,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
             <form onSubmit={handleNewQuoteSubmit} className="space-y-6">
               {/* 고객 정보 */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">고객 정보</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">{t('customerTitle')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label
                       htmlFor={`${fieldId}-field0`}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      고객명 *
+                      {t('customerName')}
                     </label>
                     <input
                       id={`${fieldId}-field0`}
@@ -172,7 +158,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       value={newQuoteData.customer}
                       onChange={(e) => updateQuoteData('customer', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"
-                      placeholder="고객명을 입력하세요"
+                      placeholder={t('customerNamePlaceholder')}
                       required
                     />
                   </div>
@@ -181,7 +167,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       htmlFor={`${fieldId}-field1`}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      담당자
+                      {t('manager')}
                     </label>
                     <input
                       id={`${fieldId}-field1`}
@@ -189,7 +175,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       value={newQuoteData.customerContact}
                       onChange={(e) => updateQuoteData('customerContact', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"
-                      placeholder="담당자명을 입력하세요"
+                      placeholder={t('managerPlaceholder')}
                     />
                   </div>
                   <div>
@@ -197,7 +183,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       htmlFor={`${fieldId}-field2`}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      이메일
+                      {t('email')}
                     </label>
                     <input
                       id={`${fieldId}-field2`}
@@ -205,7 +191,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       value={newQuoteData.customerEmail}
                       onChange={(e) => updateQuoteData('customerEmail', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"
-                      placeholder="이메일을 입력하세요"
+                      placeholder={t('emailPlaceholder')}
                     />
                   </div>
                 </div>
@@ -213,14 +199,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
 
               {/* 견적 정보 */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">견적 정보</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">{t('quoteTitle')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label
                       htmlFor={`${fieldId}-field3`}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      견적일자 *
+                      {t('quoteDate')}
                     </label>
                     <input
                       id={`${fieldId}-field3`}
@@ -236,7 +222,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                       htmlFor={`${fieldId}-field4`}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      요청 납기 일자
+                      {t('dueDate')}
                     </label>
                     <input
                       id={`${fieldId}-field4`}
@@ -252,14 +238,14 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
               {/* 견적 품목 */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-medium text-gray-900">견적 품목</h4>
+                  <h4 className="text-lg font-medium text-gray-900">{t('itemsTitle')}</h4>
                   <button
                     type="button"
                     onClick={addQuoteItem}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2"
                   >
                     <i className="ri-add-line"></i>
-                    <span className="mt-0.5">품목 추가</span>
+                    <span className="mt-0.5">{t('addItem')}</span>
                   </button>
                 </div>
 
@@ -280,7 +266,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                             key={header}
                             className="px-4 py-3 text-sm font-medium text-gray-700 border-b border-gray-200 text-center"
                           >
-                            {header}
+                            {t(`columns.${header}`)}
                           </th>
                         ))}
                       </tr>
@@ -294,7 +280,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                               value={item.product}
                               onChange={(e) => updateQuoteItem(item.id, 'product', e.target.value)}
                               className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                              placeholder="제품명"
+                              placeholder={t('productPlaceholder')}
                             />
                           </td>
                           <td className="px-4 py-3">
@@ -305,7 +291,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                                 updateQuoteItem(item.id, 'specification', e.target.value)
                               }
                               className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                              placeholder="사양"
+                              placeholder={t('specPlaceholder')}
                             />
                           </td>
                           <td className="px-0 py-3">
@@ -353,7 +339,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                     <tfoot className="bg-gray-50">
                       <tr>
                         <td colSpan={5} className="px-4 py-3 text-right font-medium text-gray-900">
-                          총 견적금액
+                          {t('total')}
                         </td>
                         <td className="px-4 py-3 text-right font-bold text-lg text-blue-600">
                           {formatCurrency(newQuoteData.totalAmount)}
@@ -370,7 +356,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                   htmlFor={`${fieldId}-field5`}
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  비고
+                  {tc('note')}
                 </label>
                 <textarea
                   id={`${fieldId}-field5`}
@@ -378,7 +364,7 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                   onChange={(e) => updateQuoteData('notes', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus-border-transparent"
                   rows={3}
-                  placeholder="추가 요청사항이나 특이사항을 입력하세요"
+                  placeholder={tc('requestNotePlaceholder')}
                 />
               </div>
 
@@ -389,13 +375,13 @@ const NewQuoteModal = ({ showNewQuoteModal, setShowNewQuoteModal }: NewQuoteModa
                   onClick={() => setShowNewQuoteModal(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer whitespace-nowrap"
                 >
-                  취소
+                  {tc('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium cursor-pointer whitespace-nowrap"
                 >
-                  견적서 작성
+                  {t('submit')}
                 </button>
               </div>
             </form>

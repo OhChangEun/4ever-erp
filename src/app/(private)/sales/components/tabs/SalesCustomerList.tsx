@@ -22,8 +22,11 @@ import { Table, type TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 const CustomerList = () => {
   const { openModal } = useModal();
+  const t = useTranslations('sales.customerList');
+  const tc = useTranslations('sales.common');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('customerName');
   const [statusFilter, setStatusFilter] = useState<CustomerStatus>('ALL');
@@ -31,7 +34,7 @@ const CustomerList = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleCustomerRegisterClick = () => {
-    openModal(NewCustomerModal, { width: '1190px', title: '신규 고객 등록' });
+    openModal(NewCustomerModal, { width: '1190px', title: t('createModalTitle') });
   };
 
   const queryParams = useMemo(
@@ -63,18 +66,27 @@ const CustomerList = () => {
     openModal(CustomerDetailModal, {
       width: '900px',
       height: '1050px',
-      title: '고객 상세 정보',
+      title: t('detailModalTitle'),
       selectedCustomerId: id,
     });
   };
 
   const totalPages = pageInfo?.totalPages ?? 1;
 
+  const statusOptions = CUSTOMER_STATUS_OPTIONS.map((code) => ({
+    key: code,
+    value: t(`statusFilter.${code}`),
+  }));
+  const searchOptions = CUSTOMER_SEARCH_KEYWORD_OPTIONS.map((code) => ({
+    key: code,
+    value: t(`searchType.${code}`),
+  }));
+
   type CustomerItem = (typeof customers)[0];
   const columns: TableColumn<CustomerItem>[] = [
     {
       key: 'customerName',
-      label: '고객사',
+      label: t('columns.customer'),
       render: (_, customer) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{customer.customerName}</div>
@@ -84,7 +96,7 @@ const CustomerList = () => {
     },
     {
       key: 'manager',
-      label: '담당자',
+      label: t('columns.manager'),
       render: (_, customer) => (
         <div>
           <div className="text-sm text-gray-900">{customer.manager.managerName}</div>
@@ -95,36 +107,38 @@ const CustomerList = () => {
     },
     {
       key: 'address',
-      label: '주소',
+      label: t('columns.address'),
       render: (_, customer) => (
         <div className="text-sm text-gray-900 max-w-xs truncate">{customer.address}</div>
       ),
     },
     {
       key: 'totalTransactionAmount',
-      label: '거래액',
+      label: t('columns.transactionAmount'),
       align: 'right',
       render: (_, customer) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
             {formatCurrency(customer.totalTransactionAmount)}
           </div>
-          <div className="text-xs text-gray-500">{customer.orderCount}건</div>
+          <div className="text-xs text-gray-500">
+            {tc('orderCount', { count: customer.orderCount })}
+          </div>
         </div>
       ),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       render: (_, customer) => <StatusLabel statusCode={customer.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, customer) => (
         <Button
-          label="상세"
+          label={tc('detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -139,36 +153,36 @@ const CustomerList = () => {
       {/* 헤더 */}
       <div className="border-b border-gray-200 flex justify-end items-center gap-4 py-2 shrink-0">
         <Dropdown
-          placeholder="전체 상태"
-          items={CUSTOMER_STATUS_OPTIONS}
+          placeholder={tc('allStatuses')}
+          items={statusOptions}
           value={statusFilter}
           onChange={setStatusFilter}
           autoSelectFirst
         />
         <SearchBar
-          options={CUSTOMER_SEARCH_KEYWORD_OPTIONS}
+          options={searchOptions}
           onTypeChange={(type: string) => setSearchType(type)}
           onKeywordSearch={(keyword) => {
             setSearchTerm(keyword);
             setCurrentPage(1);
           }}
-          placeholder="검색어를 입력하세요"
+          placeholder={tc('searchPlaceholder')}
         />
-        <Button onClick={handleCustomerRegisterClick} label="고객 등록" />
+        <Button onClick={handleCustomerRegisterClick} label={t('create')} />
       </div>
 
       {/* 테이블 */}
       {isLoading ? (
-        <TableStatusBox type="loading" message="고객 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="고객 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={customers}
           keyExtractor={(row) => row.customerId}
-          emptyMessage="고객 정보가 없습니다."
+          emptyMessage={t('empty')}
           className="flex-1 min-h-0"
         />
       )}

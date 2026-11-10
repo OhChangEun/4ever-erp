@@ -7,7 +7,10 @@ import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
+import { useTranslations } from 'next-intl';
 const NewCustomerModal = ({ onClose }: ModalProps) => {
+  const t = useTranslations('sales.newCustomer');
+  const tc = useTranslations('sales.common');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const toast = useToast();
@@ -73,10 +76,10 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
   // 생성이라 낙관적 업데이트를 하지 않는다(결정 7). 무효화는 sales.mutations.ts 한 곳.
   const { mutate: createCustomer, isPending } = useCreateCustomer({
     onSuccess: () => {
-      toast.success('고객이 성공적으로 등록되었습니다.');
+      toast.success(t('success'));
       onClose();
     },
-    onError: (error) => toast.error(`고객 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('error', { message: errorMessageOf(error) })),
   });
 
   return (
@@ -86,14 +89,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
       <form onSubmit={handleCustomerSubmit} className="space-y-6">
         {/* 기본 정보 */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">기본 정보</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-4">{t('basicTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor={`${fieldId}-field0`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                회사명 *
+                {t('companyName')}
               </label>
               <input
                 id={`${fieldId}-field0`}
@@ -103,7 +106,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   updateCustomerData('companyName', e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="회사명을 입력하세요"
+                placeholder={t('companyNamePlaceholder')}
                 required
               />
             </div>
@@ -112,7 +115,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field1`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                사업자등록번호
+                {t('businessNumber')}
               </label>
               <input
                 id={`${fieldId}-field1`}
@@ -131,7 +134,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field2`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                대표자명
+                {t('ceoName')}
               </label>
               <input
                 id={`${fieldId}-field2`}
@@ -141,7 +144,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   updateCustomerData('ceoName', e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="대표자명을 입력하세요"
+                placeholder={t('ceoNamePlaceholder')}
               />
             </div>
             <div>
@@ -149,7 +152,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field3`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                전화번호 *
+                {t('phone')}
               </label>
               <input
                 id={`${fieldId}-field3`}
@@ -168,14 +171,14 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
 
         {/* 담당자 정보 */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">담당자 정보</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-4">{t('managerTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor={`${fieldId}-field4`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                담당자명 *
+                {t('managerName')}
               </label>
               <input
                 id={`${fieldId}-field4`}
@@ -185,7 +188,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   updateManagerData('name', e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="담당자명을 입력하세요"
+                placeholder={t('managerNamePlaceholder')}
                 required
               />
             </div>
@@ -195,7 +198,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field5`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                휴대폰
+                {t('mobile')}
               </label>
               <input
                 id={`${fieldId}-field5`}
@@ -213,7 +216,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field6`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                이메일 *
+                {t('email')}
               </label>
               <input
                 id={`${fieldId}-field6`}
@@ -232,7 +235,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
 
         {/* 주소 정보 */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-lg font-medium text-gray-900 mb-4">주소 정보</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-4">{t('addressTitle')}</h4>
           <div className="grid grid-cols-1 gap-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -240,7 +243,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   htmlFor={`${fieldId}-field7`}
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  우편번호
+                  {t('zipCode')}
                 </label>
                 <input
                   id={`${fieldId}-field7`}
@@ -259,7 +262,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field8`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                주소
+                {t('address')}
               </label>
               <input
                 id={`${fieldId}-field8`}
@@ -269,7 +272,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   updateCustomerData('address', e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="기본 주소를 입력하세요"
+                placeholder={t('addressPlaceholder')}
               />
             </div>
             <div>
@@ -277,7 +280,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                 htmlFor={`${fieldId}-field9`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                상세주소
+                {t('detailAddress')}
               </label>
               <input
                 id={`${fieldId}-field9`}
@@ -287,7 +290,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
                   updateCustomerData('detailAddress', e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="상세 주소를 입력하세요"
+                placeholder={t('detailAddressPlaceholder')}
               />
             </div>
           </div>
@@ -299,7 +302,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
             htmlFor={`${fieldId}-field10`}
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            비고
+            {tc('note')}
           </label>
           <textarea
             id={`${fieldId}-field10`}
@@ -309,7 +312,7 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={3}
-            placeholder="고객에 대한 추가 정보나 특이사항을 입력하세요"
+            placeholder={t('notePlaceholder')}
           />
         </div>
 
@@ -320,12 +323,12 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
             onClick={handleCustomerCancle}
             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer whitespace-nowrap"
           >
-            취소
+            {tc('cancel')}
           </button>
           <Button
             type="submit"
             disabled={isPending}
-            label={isPending ? '등록 중...' : '고객 등록'}
+            label={isPending ? t('submitting') : t('submit')}
           />
         </div>
       </form>

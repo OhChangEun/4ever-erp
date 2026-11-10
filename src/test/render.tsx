@@ -18,6 +18,8 @@ import lowStockKo from '@/i18n/messages/lowStock/ko.json';
 import lowStockEn from '@/i18n/messages/lowStock/en.json';
 import hrmKo from '@/i18n/messages/hrm/ko.json';
 import hrmEn from '@/i18n/messages/hrm/en.json';
+import salesKo from '@/i18n/messages/sales/ko.json';
+import salesEn from '@/i18n/messages/sales/en.json';
 import type { Locale } from '@/i18n/locale';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
@@ -47,6 +49,7 @@ const MESSAGES = {
     inventory: inventoryKo,
     lowStock: lowStockKo,
     hrm: hrmKo,
+    sales: salesKo,
   },
   en: {
     ...en,
@@ -57,6 +60,7 @@ const MESSAGES = {
     inventory: inventoryEn,
     lowStock: lowStockEn,
     hrm: hrmEn,
+    sales: salesEn,
   },
 } satisfies Record<Locale, object>;
 

@@ -20,7 +20,11 @@ import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
+  const t = useTranslations('sales.quoteReview');
+  const tq = useTranslations('sales.quote');
+  const tc = useTranslations('sales.common');
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
   );
@@ -52,69 +56,68 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
 
   // 무효화 범위는 sales.mutations.ts 한 곳. 재고 확인은 읽기라 아래 useMutation 그대로.
   const { mutate: quotationConfirmReq } = useConfirmQuotation({
-    onSuccess: () => toast.success('검토 요청이 완료되었습니다.'),
-    onError: (error) => toast.error(`검토 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('confirmSuccess')),
+    onError: (error) => toast.error(t('confirmError', { message: errorMessageOf(error) })),
   });
 
   const { mutate: inventoryCheckReq, isPending } = useCheckInventory({
     onSuccess: (data) => setInventoryCheckResult(data),
-    onError: (error) => toast.error(`재고 확인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('checkError', { message: errorMessageOf(error) })),
   });
 
   const { mutate: delieveryProcessReq, isPending: isProcessingDelivery } = useProcessDelivery({
     onSuccess: (data) => toast.info(`${data.status} : ${quote?.quotationNumber}`),
-    onError: (error) =>
-      toast.error(`즉시 납품 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('deliverError', { message: errorMessageOf(error) })),
   });
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading) return <ModalStatusBox type="loading" message="견적서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={tq('loading')} />;
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="견적서를 불러오는 중 오류가 발생했습니다."
+        message={tq('loadError')}
         onClose={() => errorDialog.dismiss()}
       />
     );
 
   // 오류 창을 닫았거나 데이터가 없으면 내용 대신 안내. 예전엔 `!` 로 단언해 여기서 화면이 깨졌다
-  if (!quote) return <ModalStatusBox type="error" message="견적서를 불러오지 못했습니다." />;
+  if (!quote) return <ModalStatusBox type="error" message={tq('notFound')} />;
 
   return (
     <div className="space-y-6">
       {/* 견적 정보 요약 */}
       <div className="bg-blue-50 rounded-lg p-4">
-        <h4 className="text-lg font-semibold text-gray-900 mb-3">견적 정보</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-3">{tq('infoTitle')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">고객명:</span>
+              <span className="text-gray-600">{tq('customerName')}</span>
               <span className="font-medium">{quote.customerName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">담당자:</span>
+              <span className="text-gray-600">{tq('manager')}</span>
               <span className="font-medium">{quote.ceoName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">견적일자:</span>
+              <span className="text-gray-600">{tq('quotationDate')}</span>
               <span className="font-medium">{quote.quotationDate}</span>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-600">납기일:</span>
+              <span className="text-gray-600">{tq('dueDate')}</span>
               <span className="font-medium">{quote.dueDate}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">견적금액:</span>
+              <span className="text-gray-600">{tq('amount')}</span>
               <span className="font-medium text-blue-600">{formatCurrency(quote.totalAmount)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">상태:</span>
+              <span className="text-gray-600">{tq('status')}</span>
               <StatusLabel statusCode={quote.statusCode} />
             </div>
           </div>
@@ -124,7 +127,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       {/* 재고 확인 섹션 */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-gray-900">재고 확인</h4>
+          <h4 className="text-lg font-semibold text-gray-900">{t('inventoryTitle')}</h4>
           {!inventoryCheckResult && (
             <button
               onClick={handleInventoryCheck}
@@ -134,12 +137,12 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
               {isPending ? (
                 <>
                   <i className="ri-loader-4-line animate-spin"></i>
-                  <span>확인 중...</span>
+                  <span>{t('checking')}</span>
                 </>
               ) : (
                 <>
                   <i className="ri-search-line"></i>
-                  <span>재고 확인</span>
+                  <span>{t('check')}</span>
                 </>
               )}
             </button>
@@ -150,7 +153,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
           <div className="text-center py-8">
             <div className="inline-flex items-center space-x-3">
               <i className="ri-loader-4-line text-2xl text-blue-600 animate-spin"></i>
-              <span className="text-gray-600">재고 상태를 확인하고 있습니다...</span>
+              <span className="text-gray-600">{t('checkingLong')}</span>
             </div>
           </div>
         )}
@@ -169,14 +172,14 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                   <h5
                     className={`font-semibold ${isAllInventoryFulfilled(inventoryCheckResult) ? 'text-green-800' : 'text-red-800'}`}
                   >
-                    {isAllInventoryFulfilled(inventoryCheckResult) ? '재고 충족' : '재고 부족'}
+                    {isAllInventoryFulfilled(inventoryCheckResult) ? t('fulfilled') : t('short')}
                   </h5>
                   <p
                     className={`text-sm ${isAllInventoryFulfilled(inventoryCheckResult) ? 'text-green-600' : 'text-red-600'}`}
                   >
                     {isAllInventoryFulfilled(inventoryCheckResult)
-                      ? `요청하신 납기일(${quote.dueDate})에 모든 제품의 재고가 충분합니다.`
-                      : '일부 제품의 재고가 부족하여 생산 계획 검토가 필요합니다.'}
+                      ? t('fulfilledDesc', { dueDate: quote.dueDate })
+                      : t('shortDesc')}
                   </p>
                 </div>
               </div>
@@ -192,7 +195,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                         key={header}
                         className="px-4 py-3 text-sm font-medium text-gray-700 border-b text-center"
                       >
-                        {header}
+                        {t(`columns.${header}`)}
                       </th>
                     ))}
                   </tr>
@@ -211,7 +214,9 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                               : 'bg-red-100 text-red-800'
                           }`}
                         >
-                          {isAllInventoryFulfilled(inventoryCheckResult) ? '충족' : '부족'}
+                          {isAllInventoryFulfilled(inventoryCheckResult)
+                            ? t('rowFulfilled')
+                            : t('rowShort')}
                         </span>
                       </td>
                     </tr>
@@ -222,8 +227,9 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
 
             {/* 확인 일시 */}
             <div className="text-sm text-gray-500 text-right">
-              재고 확인 일시:{' '}
-              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {t('checkedAt', {
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              })}
             </div>
           </div>
         )}
@@ -232,13 +238,13 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
       {/* 액션 버튼 */}
       {inventoryCheckResult && (
         <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">다음 단계</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('nextTitle')}</h4>
 
           {isAllInventoryFulfilled(inventoryCheckResult) ? (
             <div className="space-y-3">
               <p className="text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
                 <i className="ri-check-circle-line mr-2"></i>
-                모든 제품의 재고가 충족되어 즉시 납품이 가능합니다.
+                {t('readyDesc')}
               </p>
               <div className="flex gap-3">
                 <button
@@ -247,7 +253,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2"
                 >
                   <i className="ri-truck-line"></i>
-                  <span>즉시 납품 처리</span>
+                  <span>{t('deliver')}</span>
                 </button>
               </div>
             </div>
@@ -255,7 +261,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
             <div className="space-y-3">
               <p className="text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
                 <i className="ri-error-warning-line mr-2"></i>
-                재고 부족으로 인해 생산 계획 검토가 필요합니다.
+                {t('shortNext')}
               </p>
               <div className="flex gap-3">
                 <Link
@@ -267,7 +273,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                   }}
                 >
                   <i className="ri-settings-3-line"></i>
-                  <span>생산관리에서 검토</span>
+                  <span>{t('reviewInProduction')}</span>
                 </Link>
               </div>
             </div>
@@ -281,7 +287,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
           onClick={onClose}
           className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer whitespace-nowrap"
         >
-          닫기
+          {tc('close')}
         </button>
       </div>
     </div>
