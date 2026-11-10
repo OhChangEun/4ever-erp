@@ -25,7 +25,7 @@
     "openapi": "openapi-typescript openapi/everp.yaml -o src/lib/api/openapi.gen.ts",
     "bundle:check": "node scripts/measure-bundle.mjs --json > .next/bundle.json && node scripts/bundle-diff.mjs perf/bundle-baseline.json .next/bundle.json",
     "bundle:baseline": "node scripts/measure-bundle.mjs --json > perf/bundle-baseline.json",
-    "verify": "turbo run lint type-check test:run test build-storybook"
+    "verify": "turbo run lint type-check test:run test build-storybook check:lib"
   },
   "lint-staged": {
     "*.{ts,tsx,mjs,js}": "eslint --no-warn-ignored",
