@@ -25,6 +25,7 @@ const SalesOrderList = () => {
   const { openModal } = useModal();
   const t = useTranslations('sales.orderList');
   const tc = useTranslations('sales.common');
+  const ts = useTranslations('status');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('salesOrderNumber');
 
@@ -78,7 +79,7 @@ const SalesOrderList = () => {
   }));
   const statusOptions = ORDER_STATUS_OPTIONS.map((code) => ({
     key: code,
-    value: t(`statusFilter.${code}`),
+    value: code === 'ALL' ? tc('allStatuses') : ts(code),
   }));
 
   type OrderItem = (typeof orders)[0];

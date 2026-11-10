@@ -34,13 +34,6 @@
       "customerName": "Customer",
       "managerName": "Contact"
     },
-    "statusFilter": {
-      "ALL": "All statuses",
-      "PENDING": "Pending",
-      "REVIEW": "In review",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected"
-    },
     "columns": {
       "select": "Select",
       "number": "Quote no.",
@@ -64,14 +57,6 @@
       "salesOrderNumber": "Order no.",
       "customerName": "Customer",
       "managerName": "Contact"
-    },
-    "statusFilter": {
-      "ALL": "All statuses",
-      "IN_PRODUCTION": "In production",
-      "READY_FOR_SHIPMENT": "Ready to ship",
-      "MATERIAL_PREPARATION": "Preparing materials",
-      "DELIVERING": "Delivering",
-      "DELIVERED": "Delivered"
     },
     "columns": {
       "number": "Order no.",
@@ -184,7 +169,8 @@
     "confirmSuccess": "Review requested.",
     "confirmError": "Couldn't request a review. {message}",
     "checkError": "Couldn't check stock. {message}",
-    "deliverError": "Couldn't process the shipment. {message}"
+    "deliverError": "Couldn't process the shipment. {message}",
+    "deliverSuccess": "Immediate delivery completed for quote {number}."
   },
   "orderDetail": {
     "loading": "Loading order...",

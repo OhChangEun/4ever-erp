@@ -3,7 +3,7 @@ import { type QuoteStatus } from '@/app/(private)/sales/types/SalesQuoteListType
 import { type OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
 import { type CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
 
-// 글자는 메시지에 있다. 여기는 코드와 순서만(i18n 8). 화면이 sales.<목록>.<묶음>.<코드> 로 번역한다
+// 글자는 메시지에 있다. 여기는 코드와 순서만. 화면이 status 또는 sales 메시지로 번역한다
 
 type QuoteSearchType = keyof typeof salesKo.quoteList.searchType;
 type OrderSearchType = keyof typeof salesKo.orderList.searchType;
@@ -34,24 +34,24 @@ export const CUSTOMER_SEARCH_KEYWORD_OPTIONS = [
   'customerNumber',
 ] as const satisfies readonly (keyof typeof salesKo.customerList.searchType)[];
 
-// 견적 상태 필터. 글자는 sales.quoteList.statusFilter.<코드>
-export const QUOTE_STATUS_OPTIONS = [
+// 견적 상태 필터. 글자는 공통 status.<코드>, ALL 은 sales.common.allStatuses
+export const QUOTE_STATUS_OPTIONS: readonly QuoteStatus[] = [
   'ALL',
   'PENDING',
   'REVIEW',
   'APPROVED',
   'REJECTED',
-] as const satisfies readonly (QuoteStatus & keyof typeof salesKo.quoteList.statusFilter)[];
+];
 
-// 주문 상태 필터. 글자는 sales.orderList.statusFilter.<코드>
-export const ORDER_STATUS_OPTIONS = [
+// 주문 상태 필터. 글자는 공통 status.<코드>, ALL 은 sales.common.allStatuses
+export const ORDER_STATUS_OPTIONS: readonly OrderStatus[] = [
   'ALL',
   'IN_PRODUCTION',
   'READY_FOR_SHIPMENT',
   'MATERIAL_PREPARATION',
   'DELIVERING',
   'DELIVERED',
-] as const satisfies readonly (OrderStatus & keyof typeof salesKo.orderList.statusFilter)[];
+];
 
 // 고객 상태 필터. 글자는 sales.customerList.statusFilter.<코드>
 export const CUSTOMER_STATUS_OPTIONS = [
