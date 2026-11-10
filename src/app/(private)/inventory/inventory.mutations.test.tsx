@@ -99,6 +99,24 @@ describe('재고 mutation 훅 무효화 범위', () => {
     }));
 });
 
+describe('재고 추이(시각화 2)', () => {
+  it('재고 이동은 그 품목의 추이도 다시 받는다(추이 키가 상세 키 아래)', () =>
+    expectMatrix({
+      name: '',
+      useHook: useMoveStock,
+      variables: {
+        fromWarehouseId: 'wh-1',
+        toWarehouseId: 'wh-2',
+        itemId: 'item-1',
+        stockQuantity: 3,
+        uomName: 'EA',
+        reason: '',
+      },
+      invalidates: [inventoryKeys.history('item-1')],
+      keeps: [inventoryKeys.history('item-2')],
+    }));
+});
+
 describe('출하 준비', () => {
   it('출하 준비 → 출하 키 전부, 재고 통계 + 영업 주문 목록과 그 주문 상세(의도한 교차)', () =>
     expectMatrix({
