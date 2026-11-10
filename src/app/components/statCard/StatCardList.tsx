@@ -15,7 +15,7 @@ export default function StatCardList({ stats, period }: StatsGridProps) {
   };
 
   const currentPeriodLabel = comparisonLabelMap[period];
-  const safeStats = stats ?? [];
+  const safeStats = stats;
 
   return (
     <dl className="flex flex-wrap items-center gap-y-2 divide-x divide-gray-200 m-0">

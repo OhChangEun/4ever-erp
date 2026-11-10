@@ -73,8 +73,8 @@ export default function QuotationTab() {
 
   // API에서 가져온 견적 데이터 리스트
   const quotationDataList: QuotationData[] = quotationListData?.content || [];
-  const totalPages = quotationListData?.page?.totalPages || 1;
-  const totalElements = quotationListData?.page?.totalElements || 0;
+  const totalPages = quotationListData?.page.totalPages || 1;
+  const totalElements = quotationListData?.page.totalElements || 0;
 
   // 시뮬레이션은 서버 상태를 바꾸는 쓰기라 mutation. 무효화는 production.mutations.ts 한 곳.
   const { mutate: simulationQuotations, isPending: simulationPending } = useSimulateQuotations({

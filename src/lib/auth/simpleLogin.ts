@@ -85,7 +85,8 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   },
 ];
 
-const ACCOUNT_MAP: Record<string, DemoAccount> = Object.fromEntries(
+// 없는 아이디면 undefined 라 Partial
+const ACCOUNT_MAP: Partial<Record<string, DemoAccount>> = Object.fromEntries(
   DEMO_ACCOUNTS.map((a) => [a.loginId, a]),
 );
 

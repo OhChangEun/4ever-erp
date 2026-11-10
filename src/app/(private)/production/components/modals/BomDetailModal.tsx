@@ -64,12 +64,13 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; class: string }> = {
+    // 모르는 상태가 오면 없음(undefined)이라 Partial
+    const statusConfig: Partial<Record<string, { label: string; class: string }>> = {
       ACTIVE: { label: '활성', class: 'bg-green-100 text-green-800' },
       INACTIVE: { label: '비활성', class: 'bg-gray-100 text-gray-800' },
       DRAFT: { label: '초안', class: 'bg-yellow-100 text-yellow-800' },
     };
-    const config = statusConfig[status] || { label: status, class: 'bg-gray-100 text-gray-800' };
+    const config = statusConfig[status] ?? { label: status, class: 'bg-gray-100 text-gray-800' };
     return (
       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${config.class}`}>
         {config.label}
@@ -117,7 +118,6 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
                 {/* 상태 변경 버튼 — version을 함께 전송해 낙관적 락 검증 */}
                 <button
                   onClick={() => {
-                    if (!bomDetail) return;
                     updateStatus({
                       bomId,
                       statusCode: bomDetail.statusCode === '활성' ? '비활성' : '활성',

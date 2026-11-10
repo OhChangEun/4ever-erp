@@ -15,7 +15,8 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = previewResults.length;
-  const currentPreview = previewResults[currentPage - 1]; // 현재 페이지 데이터
+  // 목록이 비면 없다. at() 은 undefined 를 타입에 넣어 준다(인덱스 접근은 말하지 않는다)
+  const currentPreview = previewResults.at(currentPage - 1);
 
   return (
     <>

@@ -198,7 +198,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                   </tr>
                 </thead>
                 <tbody>
-                  {inventoryCheckResult?.map((item, index: number) => (
+                  {inventoryCheckResult.map((item, index: number) => (
                     <tr key={index} className="border-b">
                       <td className="px-4 py-3 text-sm font-medium">{item.itemName}</td>
                       <td className="px-4 py-3 text-sm text-center">{item.requiredQuantity}</td>

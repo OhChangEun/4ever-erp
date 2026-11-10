@@ -1,5 +1,6 @@
 // 상태 글자는 messages/{ko,en}.json 의 status 에 있다(i18n 1 카드). 여기는 색만
-export const STATUS_COLOR_MAP: Record<string, string> = {
+// 모르는 상태 코드면 undefined 라 Partial. 기본 색은 DEFAULT_STATUS_COLOR
+export const STATUS_COLOR_MAP: Partial<Record<string, string>> = {
   REQUEST_APPROVED: 'bg-green-100 text-green-700 border-green-300',
   ORDER_APPROVED: 'bg-green-100 text-green-700 border-green-300',
   PAYROLL_PAID: 'bg-green-100 text-green-700 border-green-300',
@@ -58,12 +59,12 @@ export const STATUS_COLOR_MAP: Record<string, string> = {
   FAIL: 'bg-red-100 text-red-600 border-red-300',
   STOCK_SUFFICIENT: 'bg-green-100 text-green-700 border-green-300',
 
-  DEFAULT: 'bg-gray-100 text-gray-600 border-gray-300',
-
   입고: 'bg-green-100 text-green-700 border-green-300',
   출고: 'bg-red-100 text-red-700 border-red-300',
   이동: 'bg-blue-100 text-blue-700 border-blue-300',
 };
 
+const DEFAULT_STATUS_COLOR = 'bg-gray-100 text-gray-600 border-gray-300';
+
 export const getStatusColor = (status: string): string =>
-  STATUS_COLOR_MAP[status ?? ''] ?? STATUS_COLOR_MAP.DEFAULT;
+  STATUS_COLOR_MAP[status] ?? DEFAULT_STATUS_COLOR;

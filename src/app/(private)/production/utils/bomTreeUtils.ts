@@ -30,12 +30,10 @@ export interface TreeNode {
  * @returns D3TreeChart에서 사용할 수 있는 트리 구조
  */
 export function transformBomDataToTree(bomData: BomApiNode[]): TreeNode | null {
-  if (!bomData || bomData.length === 0) return null;
+  if (bomData.length === 0) return null;
 
   // 1. 루트 노드 찾기 (level이 0이거나 parentId가 null/undefined인 노드)
-  const rootNode = bomData.find(
-    (node) => node.level === 0 || !node.parentId || node.parentId === null,
-  );
+  const rootNode = bomData.find((node) => node.level === 0 || !node.parentId);
   if (!rootNode) return null;
 
   // 2. 재귀적으로 자식 노드들을 연결

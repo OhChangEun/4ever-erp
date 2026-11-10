@@ -92,20 +92,16 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
   if (isWarehouseInfoLoading)
     return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
 
+  // 오류 창은 하나. 예전엔 같은 조건을 두 번 검사해 창고 오류에도 자재 오류 문구가 떴다
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="자재 정보를 불러오는 중 오류가 발생했습니다."
-        onClose={() => errorDialog.dismiss()}
-      />
-    );
-
-  if (errorDialog.isOpen)
-    return (
-      <ModalStatusBox
-        type="error"
-        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        message={
+          isItemInfoError
+            ? '자재 정보를 불러오는 중 오류가 발생했습니다.'
+            : '창고 정보를 불러오는 중 오류가 발생했습니다.'
+        }
         onClose={() => errorDialog.dismiss()}
       />
     );

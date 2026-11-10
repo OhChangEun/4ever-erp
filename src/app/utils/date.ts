@@ -1,5 +1,5 @@
-// 분 → x시 y분
-export const formatMinutesToHourMin = (minutes: number) => {
+// 분 → x시 y분. 서버 값(근태)이 비어 올 수 있어 null 도 받는다
+export const formatMinutesToHourMin = (minutes: number | null | undefined) => {
   if (minutes == null) return '-';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;

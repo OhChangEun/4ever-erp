@@ -13,12 +13,15 @@ export default function PrivateGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // 정리 함수가 나중에 바꾸는 값이라 함수로 읽는다. 변수로 읽으면 TS 가 첫 검사 뒤 false 로 좁혀
+    // 두 번째 검사를 '항상 거짓'으로 본다(린트 오판)
     let cancelled = false;
+    const isCancelled = () => cancelled;
 
     void (async () => {
       try {
         const res = await fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' });
-        if (cancelled) return;
+        if (isCancelled()) return;
 
         if (!res.ok) {
           clearUserInfo();
@@ -27,7 +30,7 @@ export default function PrivateGuard({ children }: { children: ReactNode }) {
         }
 
         const user = readUserResponse(await res.json());
-        if (cancelled) return;
+        if (isCancelled()) return;
         // 모양이 틀린 응답으로 화면을 열지 않는다. 세션 없음과 같이 로그인으로 보낸다
         if (!user) {
           clearUserInfo();
@@ -37,7 +40,7 @@ export default function PrivateGuard({ children }: { children: ReactNode }) {
         setUserInfo(user);
         setReady(true);
       } catch {
-        if (!cancelled) router.replace('/login');
+        if (!isCancelled()) router.replace('/login');
       }
     })();
 

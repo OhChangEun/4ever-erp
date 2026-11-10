@@ -89,25 +89,23 @@ export default function MpsTab() {
     {
       key: 'demand',
       label: '수요',
-      render: (_, row) => <span className="text-gray-700">{row.demand ?? '-'}</span>,
+      render: (_, row) => <span className="text-gray-700">{row.demand}</span>,
     },
     {
       key: 'requiredInventory',
       label: '재고 필요량',
-      render: (_, row) => <span className="text-gray-700">{row.requiredInventory ?? '-'}</span>,
+      render: (_, row) => <span className="text-gray-700">{row.requiredInventory}</span>,
     },
     {
       key: 'productionNeeded',
       label: '생산 소요량',
-      render: (_, row) => (
-        <span className="text-sm text-gray-700">{row.productionNeeded ?? '-'}</span>
-      ),
+      render: (_, row) => <span className="text-sm text-gray-700">{row.productionNeeded}</span>,
     },
     {
       key: 'plannedProduction',
       label: '계획 생산 (MPS)',
       render: (_, row) => (
-        <span className="font-semibold text-blue-600">{row.plannedProduction ?? '-'}</span>
+        <span className="font-semibold text-blue-600">{row.plannedProduction}</span>
       ),
     },
   ];

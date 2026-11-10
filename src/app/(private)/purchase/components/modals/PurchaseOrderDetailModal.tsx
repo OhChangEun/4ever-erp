@@ -30,8 +30,6 @@ export default function PurchaseOrderDetailModal({
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (!order) return null;
-
   if (isLoading)
     return <ModalStatusBox type="loading" message="발주서 상세정보를 불러오는 중입니다..." />;
 
@@ -43,6 +41,9 @@ export default function PurchaseOrderDetailModal({
         onClose={() => errorDialog.dismiss()}
       />
     );
+
+  // 불러오는 중, 실패를 먼저 보인다. 예전엔 이 검사가 위에 있어 로딩과 오류 상자가 뜨지 않고 빈 화면이었다
+  if (!order) return null;
 
   return (
     <div className="space-y-6">

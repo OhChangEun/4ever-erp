@@ -1,12 +1,13 @@
-export type SpacingSize = number;
+/** 지원하는 여백 크기. 표에 없는 숫자를 넘기면 타입 검사에서 걸린다(예전엔 아무 숫자나 받고 실행 때 경고만 했다) */
+export type SpacingSize = 2 | 3 | 4 | 6 | 8 | 10 | 12 | 16 | 20 | 24;
 
 interface SpacingProps {
-  size?: number;
+  size?: SpacingSize;
   direction?: 'vertical' | 'horizontal';
   className?: string;
 }
 
-const spacingClassMap: Record<number, { h: string; w: string }> = {
+const spacingClassMap: Record<SpacingSize, { h: string; w: string }> = {
   2: { h: 'h-2', w: 'w-2' },
   3: { h: 'h-3', w: 'w-3' },
   4: { h: 'h-4', w: 'w-4' },
@@ -32,12 +33,6 @@ export default function Spacing({
   className = '',
 }: SpacingProps) {
   const spacing = spacingClassMap[size];
-  if (!spacing) {
-    console.warn(
-      `Spacing size ${size}은 지원하지 않습니다. 지원 값: ${Object.keys(spacingClassMap).join(', ')}`,
-    );
-    return null;
-  }
 
   const dimensionClass = direction === 'vertical' ? spacing.h : spacing.w;
   return <div className={`${dimensionClass} ${className}`} />;
