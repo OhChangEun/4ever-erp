@@ -69,7 +69,7 @@ ApiResponse<T> = { status, success, message, data: T }
 
 // 통계 (기간별)
 { week: T, month: T, quarter: T, year: T }
-// T 내부: { value: number, delta_rate: number }
+// T 내부: { value: number, delta_rate: number, trend?: number[] }  // trend 는 스파크라인용(시각화 1)
 ```
 
 ### 모달 열기
