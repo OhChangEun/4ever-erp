@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, type KeyboardEvent } from 'react';
 import { useUiText } from './UiText';
 
 interface ConflictDialogProps {
-  /** 무엇이 충돌했는지. "다른 사용자가 이미 이 {subject}을 수정했습니다" */
+  /** 무엇이 충돌했는지. 한국어 목적격 조사는 UiText에서 대상의 받침에 맞춰 붙인다. */
   subject: string;
   onClose: () => void;
   onReload: () => void;

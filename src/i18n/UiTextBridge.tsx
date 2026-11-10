@@ -2,7 +2,7 @@
 
 import { useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { UiTextProvider, type UiText } from '@everp/ui';
+import { UiTextProvider, koreanObjectParticle, type UiText } from '@everp/ui';
 
 /**
  * @everp/ui 가 스스로 그리는 글자(쪽 넘김 aria, 표의 빈 줄, 충돌 안내 등)를 앱 메시지 `ui` 로 넘긴다.
@@ -39,14 +39,21 @@ export default function UiTextBridge({ children }: { children: ReactNode }) {
       error: { title: t('error.title'), unknown: t('error.unknown') },
       conflict: {
         title: t('conflict.title'),
-        description: (subject) => t('conflict.description', { subject }),
+        description: (subject) =>
+          t('conflict.description', { subject, particle: koreanObjectParticle(subject) }),
         hint: t('conflict.hint'),
         reload: t('conflict.reload'),
       },
       sparkline: {
         summary: (label, values) => t('sparkline.summary', { label, ...values }),
       },
-      inputList: { title: t('inputList.title'), add: t('inputList.add') },
+      inputList: {
+        title: t('inputList.title'),
+        add: t('inputList.add'),
+        remove: t('inputList.remove'),
+      },
+      dropdownInputModal: { open: t('dropdownInputModal.open') },
+      dropdownInputListModal: { open: t('dropdownInputListModal.open') },
     }),
     [t],
   );

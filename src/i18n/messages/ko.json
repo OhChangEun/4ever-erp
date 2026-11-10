@@ -287,7 +287,7 @@
     },
     "conflict": {
       "title": "수정 충돌이 발생했습니다",
-      "description": "다른 사용자가 이미 이 {subject}을 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.",
+      "description": "다른 사용자가 이미 이 {subject}{particle} 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.",
       "hint": "최신 데이터를 불러온 후 다시 시도해 주세요.",
       "reload": "최신 데이터 불러오기"
     },
@@ -296,7 +296,14 @@
     },
     "inputList": {
       "title": "공정 순서 입력",
-      "add": "공정 추가"
+      "add": "공정 추가",
+      "remove": "항목 삭제"
+    },
+    "dropdownInputModal": {
+      "open": "입력 창 열기"
+    },
+    "dropdownInputListModal": {
+      "open": "목록 입력 창 열기"
     }
   }
 }

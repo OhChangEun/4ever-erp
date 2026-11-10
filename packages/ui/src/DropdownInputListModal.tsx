@@ -19,7 +19,7 @@ export default function DropdownInputListModal({
   initialItems = [],
   onSubmit,
 }: DropdownInputListModalProps) {
-  const confirmText = useUiText().confirm;
+  const text = useUiText();
   const [isOpen, setIsOpen] = useState(false);
   useCloseOnEscape(isOpen, setIsOpen);
   const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
@@ -61,6 +61,7 @@ export default function DropdownInputListModal({
         <IconButton
           type="button"
           icon="ri-pencil-line"
+          aria-label={text.dropdownInputListModal.open}
           variant={items.length > 0 ? 'primary' : 'secondary'}
           size="sm"
           onClick={openModal}
@@ -80,7 +81,7 @@ export default function DropdownInputListModal({
             </div>
 
             <div className="flex justify-end mt-3">
-              <Button label={confirmText} size="sm" onClick={handleSubmit} />
+              <Button label={text.confirm} size="sm" onClick={handleSubmit} />
             </div>
           </div>
         </PopoverPortal>

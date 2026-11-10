@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, type ReactNode } from 'react';
+import { koreanObjectParticle } from './koreanObjectParticle';
 
 /**
  * 컴포넌트가 스스로 그리는 글자(aria 이름, 빈 줄, 버튼 글자, 기본 placeholder).
@@ -39,7 +40,9 @@ export interface UiText {
       values: { start: string; end: string; min: string; max: string },
     ) => string;
   };
-  inputList: { title: string; add: string };
+  inputList: { title: string; add: string; remove: string };
+  dropdownInputModal: { open: string };
+  dropdownInputListModal: { open: string };
 }
 
 export const defaultUiText: UiText = {
@@ -60,7 +63,7 @@ export const defaultUiText: UiText = {
   conflict: {
     title: '수정 충돌이 발생했습니다',
     description: (subject) =>
-      `다른 사용자가 이미 이 ${subject}을 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.`,
+      `다른 사용자가 이미 이 ${subject}${koreanObjectParticle(subject)} 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.`,
     hint: '최신 데이터를 불러온 후 다시 시도해 주세요.',
     reload: '최신 데이터 불러오기',
   },
@@ -68,7 +71,9 @@ export const defaultUiText: UiText = {
     summary: (label, { start, end, min, max }) =>
       `${label}: 시작 ${start}, 끝 ${end}, 최저 ${min}, 최고 ${max}`,
   },
-  inputList: { title: '공정 순서 입력', add: '공정 추가' },
+  inputList: { title: '공정 순서 입력', add: '공정 추가', remove: '항목 삭제' },
+  dropdownInputModal: { open: '입력 창 열기' },
+  dropdownInputListModal: { open: '목록 입력 창 열기' },
 };
 
 const UiTextContext = createContext<UiText>(defaultUiText);

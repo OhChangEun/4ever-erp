@@ -4,6 +4,20 @@ import userEvent from '@testing-library/user-event';
 import ConflictDialog from './ConflictDialog';
 
 describe('ConflictDialog', () => {
+  it.each([
+    ['상품', '상품을'],
+    ['창고', '창고를'],
+    ['견적서', '견적서를'],
+    ['BOM', 'BOM을'],
+  ])('한국어 대상 %s의 받침에 맞는 목적격 조사를 쓴다', (subject, object) => {
+    render(
+      <ConflictDialog subject={subject} onClose={() => undefined} onReload={() => undefined} />,
+    );
+    expect(screen.getByRole('alertdialog')).toHaveAccessibleDescription(
+      `다른 사용자가 이미 이 ${object} 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.`,
+    );
+  });
+
   it('alertdialog 로 알리고 제목과 설명이 연결된다', () => {
     render(<ConflictDialog subject="BOM" onClose={() => undefined} onReload={() => undefined} />);
     const dialog = screen.getByRole('alertdialog', { name: '수정 충돌이 발생했습니다' });

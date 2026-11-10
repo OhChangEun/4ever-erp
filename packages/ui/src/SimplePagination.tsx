@@ -27,6 +27,7 @@ export default function SimplePagination({
     <div className="flex items-center justify-center gap-4 py-4 border-t border-gray-200">
       {/* 이전 버튼 */}
       <button
+        type="button"
         onClick={handlePrev}
         disabled={currentPage === 1}
         className={`flex items-center gap-1 px-4 py-2 rounded-md border text-sm transition-colors ${
@@ -46,6 +47,7 @@ export default function SimplePagination({
 
       {/* 다음 버튼 */}
       <button
+        type="button"
         onClick={handleNext}
         disabled={currentPage === totalPages}
         className={`flex items-center gap-1 px-4 py-2 rounded-md border text-sm transition-colors ${
