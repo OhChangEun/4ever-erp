@@ -1,0 +1,156 @@
+/*
+ * EverP 디자인 토큰 원본(디자인 토큰 카드). 앱(src/styles/globals.css)과 Storybook 이 같이 가져온다.
+ * 색은 @theme static 에 둔다. Tailwind 가 기본 팔레트 대신 이 값으로 bg-blue-500 같은 유틸리티를 만들고,
+ * 쓰이지 않은 변수도 지우지 않는다(문자열로 조합해 쓰는 var(--color-purple-50) 같은 곳이 있어서, 리뷰 P2).
+ * 앞에 @import 'tailwindcss' 가 있어야 한다(가져오는 쪽에서).
+ */
+
+@theme static {
+  /* ===== Primary (ERP Main - Deep Corporate Blue) ===== */
+  --color-blue-50: #f4f6fb;
+  --color-blue-100: #e6ebf5;
+  --color-blue-200: #cdd6ea;
+  --color-blue-300: #aab9d9;
+  --color-blue-400: #7f96c3;
+  --color-blue-500: #2f4a7f; /* 메인 브랜드 컬러 */
+  --color-blue-600: #263e6a;
+  --color-blue-700: #1d3154;
+  --color-blue-800: #15243e;
+  --color-blue-900: #0e1728;
+
+  /* ===== Danger (오류 / 삭제 / 경고 강조) ===== */
+  --color-red-50: #fdf4f4;
+  --color-red-100: #fbe3e3;
+  --color-red-200: #f5bcbc;
+  --color-red-300: #ec8f8f;
+  --color-red-400: #e05f5f;
+  --color-red-500: #c93c3c; /* ERP용은 살짝 어둡게 */
+  --color-red-600: #a92f2f;
+  --color-red-700: #852424;
+  --color-red-800: #5e1919;
+  --color-red-900: #381010;
+
+  /* ===== Success (승인 / 완료 / 정상) ===== */
+  --color-green-50: #f2fbf7;
+  --color-green-100: #def7ec;
+  --color-green-200: #bcebd9;
+  --color-green-300: #8fd8bd;
+  --color-green-400: #5fc4a1;
+  --color-green-500: #2f9e73; /* 채도 낮춘 ERP용 */
+  --color-green-600: #247f5c;
+  --color-green-700: #1b6247;
+  --color-green-800: #134533;
+  --color-green-900: #0c2a20;
+
+  /* ===== Info / Sub Accent ===== */
+  --color-purple-50: #f6f4fb;
+  --color-purple-100: #ebe7f5;
+  --color-purple-200: #d4cde9;
+  --color-purple-300: #b5a9d8;
+  --color-purple-400: #8f7fc3;
+  --color-purple-500: #6b5ca5; /* ERP는 보조용 */
+  --color-purple-600: #574a87;
+  --color-purple-700: #43396a;
+  --color-purple-800: #2f284c;
+  --color-purple-900: #1c182e;
+
+  /* ===== Neutral (가장 중요 – ERP 가독성 핵심) ===== */
+  --color-gray-50: #f6f7f9; /* 기본 배경 */
+  --color-gray-100: #eef1f4; /* 카드 배경 */
+  --color-gray-200: #e1e5ea; /* border */
+  --color-gray-300: #cfd6de;
+  --color-gray-400: #a8b0ba;
+  --color-gray-500: #646d79; /* secondary text. 흰, gray-50, gray-100 배경 모두 4.5:1 이상(WCAG AA, 접근성 1 카드. 예전 #7a8491 은 3.35~3.79) */
+  --color-gray-600: #5d6672;
+  --color-gray-700: #434a55;
+  --color-gray-800: #2d3139; /* 본문 텍스트 */
+  --color-gray-900: #181b21; /* 제목 */
+}
+
+/*
+ * z-index 층. Tailwind v4 에는 z-index 테마 이름공간이 없어 변수와 @utility 로 만든다.
+ * 예전엔 변수만 :root 에 있고 유틸리티가 없어 z-modal 등 7종 32곳이 z-index: auto 였다.
+ */
+:root {
+  /* ===== Z-Index Scale (우선순위 낮음 → 높음) ===== */
+  --z-index-base: 0; /* 기본 스택 기준선 (타임라인 등) */
+  --z-index-local: 10; /* 컴포넌트 내부 로컬 스태킹 (탭, 뱃지, sticky thead) */
+  --z-index-header: 30; /* 고정 헤더, 모바일 백드롭 */
+  --z-index-sidebar: 40; /* 사이드바 패널 */
+  --z-index-overlay: 50; /* 인라인 오버레이 · 드롭다운 · 간이 모달 */
+  --z-index-modal: 1000; /* Portal 전역 모달 (ModalContainer) */
+  --z-index-toast: 1100; /* 토스트 알림 (모달보다 위) */
+  --z-index-popover: 9999; /* Floating UI 팝오버 (모달 위 드롭다운 · 캘린더) */
+}
+
+@utility z-local {
+  z-index: var(--z-index-local);
+}
+@utility z-header {
+  z-index: var(--z-index-header);
+}
+@utility z-sidebar {
+  z-index: var(--z-index-sidebar);
+}
+@utility z-overlay {
+  z-index: var(--z-index-overlay);
+}
+@utility z-modal {
+  z-index: var(--z-index-modal);
+}
+@utility z-toast {
+  z-index: var(--z-index-toast);
+}
+@utility z-popover {
+  z-index: var(--z-index-popover);
+}
+
+/* 짧은 등장, 사라짐 효과. framer-motion(70KB) 대신 CSS 로(성능 4 카드).
+   움직임 줄이기 설정은 아래 base 의 prefers-reduced-motion 규칙이 0.01ms 로 줄인다 */
+@theme {
+  --animate-fadeIn: fade-in 150ms ease-out both;
+  /* 프로필 드롭다운 2곳은 하이픈 이름을 쓴다. 같은 효과 */
+  --animate-fade-in: fade-in 150ms ease-out both;
+  --animate-pop-in: pop-in 200ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  --animate-toast-in: toast-in 200ms ease-out both;
+  --animate-toast-out: toast-out 200ms ease-in both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes toast-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+  }
+}

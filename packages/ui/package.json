@@ -4,9 +4,12 @@
   "private": true,
   "description": "EverP 공통 UI 컴포넌트. 앱이 소스(TS)를 그대로 가져와 Next 가 변환한다(transpilePackages)",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tokens.css": "./tokens.css"
   },
   "scripts": {
     "test": "vitest run",
