@@ -17,6 +17,7 @@ import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import StockTrend from '../StockTrend';
 const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
@@ -178,6 +179,11 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 재고 추이(시각화 2). 이동 기록을 읽기 전에 흐름을 한눈에 */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <StockTrend itemId={selectedItemId} />
         </div>
 
         {/* 재고 이동 기록 */}

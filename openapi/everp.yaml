@@ -1400,6 +1400,35 @@ paths:
           $ref: '#/components/responses/NoData'
         default:
           $ref: '#/components/responses/Error'
+  /scm-pp/iv/items/{itemId}/stock-history:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getStockHistory
+      tags:
+        - scm-pp/iv
+      summary: 품목 재고 추이(최근 30일, 시각화 2)
+      description: 날짜별 하루 끝 재고. 마지막 점이 지금 재고다. 서버 지원은 확인 전(verified=false)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StockHistory'
+        default:
+          $ref: '#/components/responses/Error'
   /scm-pp/iv/items/{itemId}/safety-stock:
     parameters:
       - name: itemId
@@ -3805,6 +3834,33 @@ components:
             마지막 값이 value 와 같다. 서버 지원은 확인 전(verified=false)
           items:
             type: number
+    StockHistory:
+      type: object
+      required:
+        - itemId
+        - uomName
+        - safetyStock
+        - points
+      properties:
+        itemId:
+          type: string
+        uomName:
+          type: string
+        safetyStock:
+          type: number
+        points:
+          type: array
+          items:
+            type: object
+            required:
+              - date
+              - stock
+            properties:
+              date:
+                type: string
+                description: 현지 날짜 YYYY-MM-DD
+              stock:
+                type: number
     WarehouseStat:
       type: object
       required:

@@ -16,6 +16,9 @@ export const inventoryKeys = {
   details: () => [...inventoryKeys.all, 'detail'] as const,
 
   detail: (itemId: string) => [...inventoryKeys.details(), itemId] as const,
+
+  // 상세 키 아래에 둔다. 재고 이동, 안전재고 수정이 상세를 무효화하면 추이도 같이 다시 받는다(시각화 2)
+  history: (itemId: string) => [...inventoryKeys.detail(itemId), 'history'] as const,
 };
 
 export const lowStockItemKeys = {

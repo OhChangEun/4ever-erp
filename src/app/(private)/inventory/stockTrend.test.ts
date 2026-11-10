@@ -23,4 +23,8 @@ describe('daysUntilBelow(안전재고 아래까지 남은 날)', () => {
   it('점이 2개 미만이면 null', () => {
     expect(daysUntilBelow(series([100]), 50)).toBeNull();
   });
+
+  it('안전재고와 딱 같고 줄고 있으면 0(이미 아래)이 아니라 1(리뷰 P2)', () => {
+    expect(daysUntilBelow(series([60, 55, 50]), 50)).toBe(1);
+  });
 });

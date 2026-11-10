@@ -6,6 +6,7 @@ import { salesHandlers } from './handlers/sales.handlers';
 import { financeHandlers } from './handlers/finance.handlers';
 import { inventoryHandlers } from './handlers/inventory.handlers';
 import { warehouseHandlers } from './handlers/warehouse.handlers';
+import { stockHistoryHandlers } from './handlers/stockHistory.handlers';
 import { purchaseHandlers } from './handlers/purchase.handlers';
 import { productionHandlers } from './handlers/production.handlers';
 import { hrmHandlers } from './handlers/hrm.handlers';
@@ -17,6 +18,7 @@ const domainHandlers: RequestHandler[] = [
   ...financeHandlers,
   ...inventoryHandlers,
   ...warehouseHandlers,
+  ...stockHistoryHandlers,
   ...purchaseHandlers,
   ...productionHandlers,
   ...hrmHandlers,
