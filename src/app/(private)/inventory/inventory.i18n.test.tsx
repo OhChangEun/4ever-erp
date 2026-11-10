@@ -65,7 +65,7 @@ const item = (id: string, name: string, current: number, safety: number): Invent
 describe('재고 화면 영어(i18n 6)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 건수에 단위 "건"이 붙지 않는다', async () => {
     renderWithProviders(<InventoryClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(await within(metrics).findByText('Total stock value')).toBeInTheDocument();
     expect(within(metrics).getByText('Shipped')).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
         <LowStockPage />
       </LowStockLayout>,
     );
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(await within(metrics).findByText('Urgent shortages')).toBeInTheDocument();
     await userEvent.click(
       await screen.findByRole('checkbox', { name: 'Select all low-stock items' }),

@@ -74,6 +74,112 @@
     "logout": "Log out",
     "language": "Language",
     "korean": "한국어",
-    "english": "English"
+    "english": "English",
+    "menu": "Profile menu"
+  },
+  "common": {
+    "all": "All",
+    "close": "Close"
+  },
+  "sidebar": {
+    "openMenu": "Open menu",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "role": {
+    "ALL_ADMIN": "Company admin",
+    "CUSTOMER_ADMIN": "Customer admin",
+    "SUPPLIER_ADMIN": "Supplier admin",
+    "USER": "{dept} staff",
+    "ADMIN": "{dept} manager"
+  },
+  "partnerProfile": {
+    "title": "Customer profile",
+    "businessNumber": "Business registration no. {number}",
+    "address": "Address",
+    "officePhone": "Main phone",
+    "contact": "Contact",
+    "email": "Email"
+  },
+  "notification": {
+    "title": "Notifications",
+    "readAll": "Mark all as read",
+    "empty": "No notifications",
+    "emptyHint": "New notifications will show up here",
+    "source": {
+      "PR": "Purchasing",
+      "SD": "Sales",
+      "IM": "Inventory",
+      "FCM": "Facilities",
+      "HRM": "HR",
+      "PP": "Production",
+      "CUS": "Customer",
+      "SUP": "Supplier",
+      "unknown": "Unknown"
+    },
+    "sseError": {
+      "unauthorized": "Your session has expired. Please log in again.",
+      "connectFailed": "Couldn't connect to the notification server.",
+      "parseAlarm": "Something went wrong while reading a notification.",
+      "parseUnreadCount": "Couldn't load the unread notification count.",
+      "connection": "Lost connection to the notification server."
+    }
+  },
+  "calendar": {
+    "selectDate": "Select date",
+    "reset": "Reset",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "year": "Year",
+    "month": "Month",
+    "yearOption": "{year}",
+    "monthOption": "{month, select, 1 {January} 2 {February} 3 {March} 4 {April} 5 {May} 6 {June} 7 {July} 8 {August} 9 {September} 10 {October} 11 {November} 12 {December} other {{month}}}",
+    "monthLabel": "{month, select, 1 {January} 2 {February} 3 {March} 4 {April} 5 {May} 6 {June} 7 {July} 8 {August} 9 {September} 10 {October} 11 {November} 12 {December} other {{month}}} {year}",
+    "dayLabel": "{weekday}, {month, select, 1 {January} 2 {February} 3 {March} 4 {April} 5 {May} 6 {June} 7 {July} 8 {August} 9 {September} 10 {October} 11 {November} 12 {December} other {{month}}} {day}, {year}",
+    "weekday": {
+      "sun": "Su",
+      "mon": "Mo",
+      "tue": "Tu",
+      "wed": "We",
+      "thu": "Th",
+      "fri": "Fr",
+      "sat": "Sa"
+    },
+    "weekdayLong": {
+      "sun": "Sunday",
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday"
+    }
+  },
+  "stats": {
+    "region": "Metrics",
+    "loadError": "Couldn't load metrics.",
+    "period": {
+      "week": "This week",
+      "month": "This month",
+      "quarter": "This quarter",
+      "year": "By year"
+    },
+    "compare": {
+      "week": "vs last week",
+      "month": "vs last month",
+      "quarter": "vs last quarter",
+      "year": "vs last year"
+    },
+    "trend": "{title} trend"
+  },
+  "modal": {
+    "untitled": "Dialog",
+    "renderError": "Something went wrong while showing this window.",
+    "closeWindow": "Close window"
+  },
+  "toast": {
+    "dismiss": "Dismiss"
   }
 }

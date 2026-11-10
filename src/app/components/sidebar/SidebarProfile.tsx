@@ -6,7 +6,7 @@ import { useRole } from '@/app/hooks/useRole';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
-import { mapRoleToKorean } from '@/app/components/header/ProfileDropdown';
+import { useRoleLabel } from '@/app/components/header/ProfileDropdown';
 import { logout } from '@/lib/auth/logout';
 import { useLocale, useTranslations } from 'next-intl';
 import { LOCALES } from '@/i18n/locale';
@@ -21,6 +21,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   const [isSupOrCusModalOpen, setIsSupOrCusModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const role = useRole();
+  const roleLabel = useRoleLabel(role);
   const router = useRouter();
 
   const { userInfo, clearUserInfo } = useAuthStore();
@@ -80,7 +81,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
         {isExpanded && (
           <div className="flex-1 text-left overflow-hidden">
             <div className="text-sm font-medium text-gray-900 truncate">{userName}</div>
-            <div className="text-xs text-gray-500 truncate">{mapRoleToKorean(role)}</div>
+            <div className="text-xs text-gray-500 truncate">{roleLabel}</div>
           </div>
         )}
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '@/test/render';
 import StatSection from './StatSection';
 import { AppError, ERROR_MESSAGE_BY_KIND } from '@/lib/AppError';
 import type { StatCardType } from '@/app/types/StatType';
@@ -15,13 +16,13 @@ const empty = { week: [], month: [], quarter: [], year: [] };
 
 describe('StatSection', () => {
   it('오류가 없으면 지표 카드를 그린다', () => {
-    render(<StatSection statsData={statsData} />);
+    renderWithProviders(<StatSection statsData={statsData} />);
     expect(screen.getByText('매출')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('오류가 있으면 0 값 카드 대신 role=alert 한 줄을 그린다', () => {
-    render(
+    renderWithProviders(
       <StatSection
         statsData={empty}
         error={new AppError('server', '서버 오류', { status: 500 })}

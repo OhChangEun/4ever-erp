@@ -17,6 +17,12 @@ interface Alarm {
   linkType: string;
 }
 
+/**
+ * 연결 오류 종류. 글자는 부르는 쪽이 t(`notification.sseError.${error}`) 로 꺼낸다(훅은 글자를 만들지 않는다)
+ */
+export type NotificationSseError =
+  'unauthorized' | 'connectFailed' | 'parseAlarm' | 'parseUnreadCount' | 'connection';
+
 interface UseNotificationSSEOptions {
   enabled?: boolean;
   onAlarm?: (alarm: Alarm) => void;
@@ -34,7 +40,7 @@ export function useNotificationSSE({
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<NotificationSseError | null>(null);
 
   useEffect(() => {
     if (!sseEnabled || !userId) {
@@ -65,10 +71,10 @@ export function useNotificationSSE({
               console.info('[SSE] Connection opened successfully');
               setError(null);
             } else if (response.status === 401) {
-              setError('인증이 만료되었습니다. 다시 로그인해주세요.');
+              setError('unauthorized');
               throw new Error('Unauthorized');
             } else {
-              setError('알림 서버 연결에 실패했습니다.');
+              setError('connectFailed');
               throw new Error('Failed to connect');
             }
           },
@@ -88,7 +94,7 @@ export function useNotificationSSE({
                   onAlarm?.(alarm);
                 } catch (err) {
                   console.error('[SSE] Failed to parse alarm:', err);
-                  setError('알림 데이터를 처리하는 중 오류가 발생했습니다.');
+                  setError('parseAlarm');
                 }
                 break;
 
@@ -98,7 +104,7 @@ export function useNotificationSSE({
                   onUnreadCountChange?.(count);
                 } catch (err) {
                   console.error('[SSE] Failed to parse unread count:', err);
-                  setError('읽지 않은 알림 개수를 불러오는 중 오류가 발생했습니다.');
+                  setError('parseUnreadCount');
                 }
                 break;
 
@@ -108,7 +114,7 @@ export function useNotificationSSE({
           },
           onerror: (err) => {
             console.error('[SSE] Error:', err);
-            setError('알림 서버 연결 중 오류가 발생했습니다.');
+            setError('connection');
             throw err; // 재연결 시도를 멈추고 싶다면 throw
           },
         });

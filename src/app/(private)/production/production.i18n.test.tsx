@@ -79,7 +79,7 @@ const bomData = [
 describe('생산 화면 영어(i18n 9)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 건수에 단위 "건"이 붙지 않는다', async () => {
     renderWithProviders(<ProductionClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(await within(metrics).findByText('Items in production')).toBeInTheDocument();
     expect(within(metrics).getByText('BOMs')).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();

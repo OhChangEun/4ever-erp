@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import SidebarNavigation from './SidebarNavigation';
 import SidebarProfile from './SidebarProfile';
 import Logo from '@/app/components/header/Logo';
 import { useSidebarStore } from '@/store/sidebarStore';
 
 export default function Sidebar() {
+  const t = useTranslations('sidebar');
   const { isExpanded, toggleSidebar, setExpanded } = useSidebarStore();
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function Sidebar() {
         className={`fixed top-4 left-4 z-overlay lg:hidden p-3 bg-white rounded-lg shadow-lg border border-gray-200 transition-opacity ${
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
-        aria-label="메뉴 열기"
+        aria-label={t('openMenu')}
       >
         <i className="ri-menu-line text-xl text-gray-600" />
       </button>
@@ -62,7 +64,7 @@ export default function Sidebar() {
           <button
             onClick={toggleSidebar}
             className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors shrink-0 cursor-pointer"
-            aria-label={isExpanded ? '사이드바 접기' : '사이드바 펼치기'}
+            aria-label={isExpanded ? t('collapse') : t('expand')}
           >
             <i
               className={`text-lg text-gray-500 ${

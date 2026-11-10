@@ -68,6 +68,22 @@ const MESSAGES = {
   },
 } satisfies Record<Locale, object>;
 
+/**
+ * 언어 메시지만 주는 wrapper(i18n 10). 모달, 토스트처럼 Provider 자체를 시험하는 테스트가
+ * renderWithProviders 대신 쓴다(Provider 를 겹치지 않게).
+ */
+export const IntlTestProvider = ({
+  children,
+  locale = 'ko',
+}: {
+  children: ReactNode;
+  locale?: Locale;
+}) => (
+  <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]}>
+    {children}
+  </NextIntlClientProvider>
+);
+
 export const renderWithProviders = (
   ui: ReactElement,
   { locale = 'ko', ...options }: RenderOptions & { locale?: Locale } = {},

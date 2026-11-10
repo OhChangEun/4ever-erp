@@ -7,38 +7,51 @@ import { useRole } from '@/app/hooks/useRole';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { logout } from '@/lib/auth/logout';
+import { useTranslations } from 'next-intl';
+import { type NavLabelKey } from '@/app/components/sidebar/SidebarNavigation';
 
-export function mapRoleToKorean(role: string | undefined): string {
-  if (!role) return '';
+type SpecialRole = 'ALL_ADMIN' | 'CUSTOMER_ADMIN' | 'SUPPLIER_ADMIN';
+const SPECIAL_ROLES: readonly SpecialRole[] = ['ALL_ADMIN', 'CUSTOMER_ADMIN', 'SUPPLIER_ADMIN'];
+const isSpecialRole = (role: string): role is SpecialRole =>
+  SPECIAL_ROLES.some((special) => special === role);
 
-  // 특수 관리자 케이스
-  const specialRoles: Record<string, string> = {
-    ALL_ADMIN: '전사 관리자',
-    CUSTOMER_ADMIN: '고객사 관리자',
-    SUPPLIER_ADMIN: '공급사 관리자',
-  };
+// 일반 권한의 접두사(부서) → 메뉴 이름 키(messages 의 nav). 없는 접두사면 undefined
+const DEPARTMENT_NAV_KEY: Partial<Record<string, NavLabelKey>> = {
+  MM: 'purchase',
+  SD: 'sales',
+  IM: 'inventory',
+  FCM: 'finance',
+  HRM: 'hrm',
+  PP: 'production',
+};
 
-  if (specialRoles[role]) return specialRoles[role];
+/** 역할 표시의 메시지 키(messages 의 role). 모르는 역할은 코드를 그대로 보인다 */
+export type RoleLabel =
+  | { kind: 'special'; key: SpecialRole }
+  | { kind: 'department'; key: 'USER' | 'ADMIN'; department: NavLabelKey }
+  | { kind: 'raw'; text: string };
+
+export function getRoleLabel(role: string | undefined): RoleLabel | null {
+  if (!role) return null;
+  if (isSpecialRole(role)) return { kind: 'special', key: role };
 
   // 일반 권한: 접두사(부서) + USER/ADMIN
-  const departmentMap: Record<string, string> = {
-    MM: '구매관리',
-    SD: '영업관리',
-    IM: '재고관리',
-    FCM: '재무관리',
-    HRM: '인적자원관리',
-    PP: '생산관리',
-  };
-
   const [deptCode, position] = role.split('_'); // 예: MM_USER → ['MM', 'USER']
+  const department = DEPARTMENT_NAV_KEY[deptCode];
+  if (department && (position === 'USER' || position === 'ADMIN')) {
+    return { kind: 'department', key: position, department };
+  }
+  return { kind: 'raw', text: role }; // 매칭 안 되면 원본
+}
 
-  const departmentName = departmentMap[deptCode];
-  if (!departmentName) return role; // 매칭 안 되면 원본 반환
-
-  if (position === 'USER') return `${departmentName} 부서 사원`;
-  if (position === 'ADMIN') return `${departmentName} 부서 관리자`;
-
-  return role;
+/** 역할 글자(예: 영업관리 부서 관리자). 헤더 프로필과 사이드바 프로필이 같이 쓴다 */
+export function useRoleLabel(role: string | undefined): string {
+  const t = useTranslations();
+  const label = getRoleLabel(role);
+  if (!label) return '';
+  if (label.kind === 'raw') return label.text;
+  if (label.kind === 'special') return t(`role.${label.key}`);
+  return t(`role.${label.key}`, { dept: t(`nav.${label.department}`) });
 }
 
 export default function ProfileDropdown() {
@@ -46,7 +59,9 @@ export default function ProfileDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isSupOrCusModalOpen, setIsSupOrCusModalOpen] = useState(false);
   const role = useRole();
+  const roleLabel = useRoleLabel(role);
   const router = useRouter();
+  const t = useTranslations('profile');
 
   const { userInfo, clearUserInfo } = useAuthStore();
   const userName = userInfo?.name;
@@ -90,7 +105,7 @@ export default function ProfileDropdown() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 p-2 text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors duration-200"
-        aria-label="프로필 메뉴"
+        aria-label={t('menu')}
       >
         {/* 프로필 */}
         <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
@@ -99,7 +114,7 @@ export default function ProfileDropdown() {
         {/* 이름 & 직급 */}
         <div className="hidden md:block text-left pl-1">
           <div className="text-sm font-medium text-gray-900">{userName}</div>
-          <div className="text-xs text-gray-400">{mapRoleToKorean(role)}</div>
+          <div className="text-xs text-gray-400">{roleLabel}</div>
         </div>
         <i
           className={`ri-arrow-down-s-line text-lg font-medium transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -129,7 +144,7 @@ export default function ProfileDropdown() {
               onClick={handleProfile}
             >
               <i className="ri-user-settings-line mr-3 text-gray-400"></i>
-              프로필 설정
+              {t('profile')}
             </Link>
             <hr className="my-1 border-gray-200" />
             <button
@@ -137,7 +152,7 @@ export default function ProfileDropdown() {
               className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
             >
               <i className="ri-logout-box-line mr-3"></i>
-              로그아웃
+              {t('logout')}
             </button>
           </div>
         </div>

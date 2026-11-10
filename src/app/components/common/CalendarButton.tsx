@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import { PopoverPortal } from '@everp/ui';
 import { parseDateKey, toDateKey } from '@/app/utils/date';
@@ -12,6 +13,7 @@ interface CalendarButtonProps {
   /** 현지 날짜 YYYY-MM-DD */
   selectedDate: string | null;
   onDateChange: (date: string | null) => void;
+  /** 날짜가 없을 때 버튼 글자. 없으면 '날짜 선택'(calendar.selectDate) */
   placeholder?: string;
   minDate?: Date;
   maxDate?: Date;
@@ -24,11 +26,12 @@ interface CalendarButtonProps {
 export default function CalendarButton({
   selectedDate,
   onDateChange,
-  placeholder = '날짜 선택',
+  placeholder,
   // 생년월일도 고를 수 있게 1940년부터(예전 MUI 기본값 2000-01-01 은 2000년 이전 생년월일을 막았다)
   minDate = new Date(1940, 0, 1),
   maxDate = new Date(2030, 11, 31),
 }: CalendarButtonProps) {
+  const t = useTranslations('calendar');
   const [isOpen, setIsOpen] = useState(false);
 
   const { refs, floatingStyles } = useFloating({
@@ -92,7 +95,7 @@ export default function CalendarButton({
         <IconButton
           type="button"
           icon="ri-calendar-line"
-          label={selectedDate || placeholder}
+          label={selectedDate || (placeholder ?? t('selectDate'))}
           variant={selectedDate ? 'soft' : 'secondary'}
           size="sm"
           aria-haspopup="dialog"
@@ -107,7 +110,7 @@ export default function CalendarButton({
             ref={setFloating}
             style={floatingStyles}
             role="dialog"
-            aria-label="날짜 선택"
+            aria-label={t('selectDate')}
             className="z-popover bg-white rounded-md shadow-lg border border-gray-200 animate-fadeIn"
           >
             <CalendarGrid
@@ -117,7 +120,7 @@ export default function CalendarButton({
               maxDate={maxDate}
             />
             <div className="flex justify-end px-3 pb-3">
-              <Button label="초기화" variant="ghost" size="sm" onClick={handleReset} />
+              <Button label={t('reset')} variant="ghost" size="sm" onClick={handleReset} />
             </div>
           </div>
         </PopoverPortal>

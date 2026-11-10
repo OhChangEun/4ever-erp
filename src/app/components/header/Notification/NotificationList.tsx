@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { type NotificationData } from '../types/NotificatioApiType';
 
 interface NotificationListProps {
@@ -8,26 +9,27 @@ interface NotificationListProps {
 interface SourceConfig {
   color: string;
   icon: string;
-  label: string;
+  /** 메시지 notification.source 의 키 */
+  labelKey: NotificationData['source'] | 'unknown';
 }
 
 const UNKNOWN_CONFIG: SourceConfig = {
   color: 'bg-green-500',
   icon: 'ri-shopping-cart-line',
-  label: '알 수 없음',
+  labelKey: 'unknown',
 };
 
 /** 알림 출처 표시. 서버가 모르는 출처를 보내면 undefined 라 Partial 로 두고 기본값을 쓴다 */
 const getSourceConfig = (source: NotificationData['source']): SourceConfig => {
   const configs: Partial<Record<string, SourceConfig>> = {
-    PR: { color: 'bg-blue-500', icon: 'ri-file-list-3-line', label: '구매' },
-    SD: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', label: '판매' },
-    IM: { color: 'bg-yellow-500', icon: 'ri-inbox-line', label: '재고' },
-    FCM: { color: 'bg-purple-500', icon: 'ri-building-line', label: '시설' },
-    HRM: { color: 'bg-pink-500', icon: 'ri-user-line', label: '인사' },
-    PP: { color: 'bg-indigo-500', icon: 'ri-box-3-line', label: '생산' },
-    CUS: { color: 'bg-cyan-500', icon: 'ri-customer-service-2-line', label: '고객사' },
-    SUP: { color: 'bg-orange-500', icon: 'ri-truck-line', label: '공급사' },
+    PR: { color: 'bg-blue-500', icon: 'ri-file-list-3-line', labelKey: 'PR' },
+    SD: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', labelKey: 'SD' },
+    IM: { color: 'bg-yellow-500', icon: 'ri-inbox-line', labelKey: 'IM' },
+    FCM: { color: 'bg-purple-500', icon: 'ri-building-line', labelKey: 'FCM' },
+    HRM: { color: 'bg-pink-500', icon: 'ri-user-line', labelKey: 'HRM' },
+    PP: { color: 'bg-indigo-500', icon: 'ri-box-3-line', labelKey: 'PP' },
+    CUS: { color: 'bg-cyan-500', icon: 'ri-customer-service-2-line', labelKey: 'CUS' },
+    SUP: { color: 'bg-orange-500', icon: 'ri-truck-line', labelKey: 'SUP' },
   };
   return configs[source] ?? UNKNOWN_CONFIG;
 };
@@ -46,6 +48,7 @@ export default function NotificationList({
   notifications,
   onNotificationClick,
 }: NotificationListProps) {
+  const t = useTranslations('notification');
   // 알람 없을 때
   if (notifications.length === 0) {
     return (
@@ -53,8 +56,8 @@ export default function NotificationList({
         <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-4">
           <i className="ri-notification-off-line text-3xl text-gray-400"></i>
         </div>
-        <p className="text-sm font-medium text-gray-500">알림이 없습니다</p>
-        <p className="text-xs text-gray-400 mt-1">새로운 알림이 오면 여기에 표시됩니다</p>
+        <p className="text-sm font-medium text-gray-500">{t('empty')}</p>
+        <p className="text-xs text-gray-400 mt-1">{t('emptyHint')}</p>
       </div>
     );
   }
@@ -111,7 +114,7 @@ export default function NotificationList({
               <div
                 className={`${config.color} text-white text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0`} // self-start로 상단 정렬 및 flex-shrink-0으로 공간 확보
               >
-                {config.label}
+                {t(`source.${config.labelKey}`)}
               </div>
             </div>
           </div>

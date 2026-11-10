@@ -13,6 +13,7 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNotifications } from '@/lib/api/notification.api';
 import NotificationHeader from './NotificationHeader';
@@ -22,6 +23,7 @@ import { notificationKeys } from '../header.keys';
 import { useReadAllNotifications, useReadNotification } from '../notification.mutations';
 
 export default function NotificationDropdown() {
+  const t = useTranslations('notification');
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const ITEMS_PER_PAGE = 3;
@@ -74,7 +76,7 @@ export default function NotificationDropdown() {
         ref={setReference}
         {...getReferenceProps()}
         className="relative w-11 h-11 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors duration-200 cursor-pointer"
-        aria-label="알림"
+        aria-label={t('title')}
       >
         <i className="ri-notification-3-line text-xl"></i>
         {unreadCount > 0 && (

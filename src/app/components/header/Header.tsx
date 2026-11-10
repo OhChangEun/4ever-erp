@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useSidebarStore } from '@/store/sidebarStore';
 
 export default function Header() {
+  const t = useTranslations('sidebar');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
   const { isExpanded, toggleSidebar } = useSidebarStore();
@@ -43,7 +45,7 @@ export default function Header() {
           <button
             onClick={toggleSidebar}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="메뉴 열기"
+            aria-label={t('openMenu')}
           >
             <i className="ri-menu-line text-2xl text-gray-600" />
           </button>

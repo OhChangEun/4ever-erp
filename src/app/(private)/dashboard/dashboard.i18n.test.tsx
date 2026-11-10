@@ -57,7 +57,7 @@ describe('대시보드 영어(i18n 4)', () => {
   it('통계 카드 제목이 영어, 직원 수에 단위 "명"이 붙지 않는다', async () => {
     loginAs('MM_ADMIN');
     renderWithProviders(<DashboardClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Total employees')).toBeInTheDocument();
     expect(within(metrics).getByText('Total sales')).toBeInTheDocument();
     expect(within(metrics).getByText('1,200')).toBeInTheDocument();

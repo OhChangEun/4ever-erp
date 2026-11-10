@@ -36,7 +36,7 @@ vi.mock('@/app/(private)/_RouteProviders', () => ({
 describe('인사 화면 영어(i18n 7)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 인원 수에 단위 "명"이 붙지 않는다', async () => {
     renderWithProviders(<HrmClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(await within(metrics).findByText('Total employees')).toBeInTheDocument();
     expect(within(metrics).getByText('New hires')).toBeInTheDocument();
     expect(within(metrics).queryByText(/명/)).not.toBeInTheDocument();
