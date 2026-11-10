@@ -6698,15 +6698,13 @@ components:
         - amount
     CreatePurchaseRequestBody:
       type: object
+      description: The gateway resolves the requester from the authenticated principal.
       properties:
-        requesterId:
-          type: string
         items:
           type: array
           items:
             $ref: '#/components/schemas/CreatePurchaseRequestItem'
       required:
-        - requesterId
         - items
     CreatePurchaseRequestItem:
       type: object

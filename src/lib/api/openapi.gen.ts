@@ -3284,8 +3284,8 @@ export interface components {
             unitPrice: number;
             amount: number;
         };
+        /** @description The gateway resolves the requester from the authenticated principal. */
         CreatePurchaseRequestBody: {
-            requesterId: string;
             items: components["schemas"]["CreatePurchaseRequestItem"][];
         };
         CreatePurchaseRequestItem: {

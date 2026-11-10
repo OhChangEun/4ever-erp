@@ -30,7 +30,7 @@ import {
 // 다른 도메인 키. 구매 mutation 이 여기를 건드리면 10월에 잡은 "재고가 인사 목록 무효화" 버그의 재발이다.
 const SALES_ORDER_LIST: QueryKey = ['sales', 'orders', 'list'];
 
-const createRequestBody: CreatePurchaseRequestBody = { requesterId: 'emp-001', items: [] };
+const createRequestBody: CreatePurchaseRequestBody = { items: [] };
 const createSupplierBody: CreateSupplierBody = {
   supplierInfo: {
     supplierName: '대양상사',

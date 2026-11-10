@@ -150,7 +150,10 @@
   },
   "requestForm": {
     "department": "요청 부서",
-    "departmentValue": "생산팀",
+    "departmentLoading": "요청 부서를 불러오는 중입니다...",
+    "departmentError": "요청 부서를 불러오지 못했습니다.",
+    "departmentMissing": "로그인 사용자의 부서가 없어 구매 요청을 제출할 수 없습니다.",
+    "retry": "다시 시도",
     "requestDate": "요청일",
     "itemsTitle": "구매 품목 목록",
     "addItem": "품목 추가",
