@@ -159,7 +159,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
         managerEmail: managerInfo.managerEmail,
       };
 
-      const supplierId = initialData?.supplierInfo.supplierId;
+      const supplierId = initialData.supplierInfo.supplierId;
       if (!supplierId) {
         toast.error('공급업체 ID를 찾을 수 없습니다.');
         return;

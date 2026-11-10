@@ -48,7 +48,7 @@ const InvoiceList = () => {
     () => ({
       page: currentPage - 1,
       size: 10,
-      status: statusFilter || 'ALL',
+      status: statusFilter,
     }),
     [currentPage, statusFilter],
   );
@@ -124,13 +124,9 @@ const InvoiceList = () => {
           disabled={
             currentTab === 'sales'
               ? invoice.statusCode === 'PAID' || invoice.statusCode === 'UNPAID'
-              : currentTab === 'purchase'
-                ? role === 'SUPPLIER_ADMIN'
-                  ? invoice.statusCode === 'PAID' || invoice.statusCode === 'UNPAID'
-                  : role === 'CUSTOMER_ADMIN'
-                    ? invoice.statusCode === 'PAID' || invoice.statusCode === 'PENDING'
-                    : invoice.statusCode === 'PAID' || invoice.statusCode === 'PENDING'
-                : false
+              : role === 'SUPPLIER_ADMIN'
+                ? invoice.statusCode === 'PAID' || invoice.statusCode === 'UNPAID'
+                : invoice.statusCode === 'PAID' || invoice.statusCode === 'PENDING'
           }
           onChange={(e) => handleSelectVoucher(invoice.invoiceId, e.target.checked)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"

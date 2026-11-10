@@ -5,8 +5,21 @@ interface NotificationListProps {
   onNotificationClick: (notificationId: string) => void;
 }
 
-const getSourceConfig = (source: NotificationData['source']) => {
-  const configs = {
+interface SourceConfig {
+  color: string;
+  icon: string;
+  label: string;
+}
+
+const UNKNOWN_CONFIG: SourceConfig = {
+  color: 'bg-green-500',
+  icon: 'ri-shopping-cart-line',
+  label: '알 수 없음',
+};
+
+/** 알림 출처 표시. 서버가 모르는 출처를 보내면 undefined 라 Partial 로 두고 기본값을 쓴다 */
+const getSourceConfig = (source: NotificationData['source']): SourceConfig => {
+  const configs: Partial<Record<string, SourceConfig>> = {
     PR: { color: 'bg-blue-500', icon: 'ri-file-list-3-line', label: '구매' },
     SD: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', label: '판매' },
     IM: { color: 'bg-yellow-500', icon: 'ri-inbox-line', label: '재고' },
@@ -15,9 +28,8 @@ const getSourceConfig = (source: NotificationData['source']) => {
     PP: { color: 'bg-indigo-500', icon: 'ri-box-3-line', label: '생산' },
     CUS: { color: 'bg-cyan-500', icon: 'ri-customer-service-2-line', label: '고객사' },
     SUP: { color: 'bg-orange-500', icon: 'ri-truck-line', label: '공급사' },
-    UNKNOWN: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', label: '알 수 없음' },
   };
-  return configs[source] || configs.UNKNOWN; // UNKNOWN 처리 추가
+  return configs[source] ?? UNKNOWN_CONFIG;
 };
 
 const formatDateTime = (dateString: string) => {

@@ -205,7 +205,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
       <td className="px-3 py-2">
         <Input
           type="text"
-          value={materialInfo?.unitPrice ? materialInfo?.unitPrice.toLocaleString() + '원' : ''}
+          value={materialInfo?.unitPrice ? materialInfo.unitPrice.toLocaleString() + '원' : ''}
           disabled
         />
       </td>

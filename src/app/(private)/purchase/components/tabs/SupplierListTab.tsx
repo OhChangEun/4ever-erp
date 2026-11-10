@@ -76,9 +76,9 @@ export default function SupplierListTab() {
   if (isLoading) return <p>불러오는 중...</p>;
   if (isError || !supplierData) return <p>데이터를 불러오지 못했습니다.</p>;
 
-  const suppliers = supplierData.content || [];
+  const suppliers = supplierData.content;
   const pageInfo = supplierData.page;
-  const totalPages = pageInfo?.totalPages ?? 1;
+  const totalPages = pageInfo.totalPages;
 
   const handleViewAddSupplier = () => {
     openModal(SupplierFormModal, { title: '공급업체 등록', height: '800px' });
@@ -196,14 +196,13 @@ export default function SupplierListTab() {
         className="flex-1 min-h-0"
       />
       {/* 페이지네이션 */}
-      {isError || isLoading ? null : (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalElements={pageInfo?.totalElements}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-      )}
+      {/* 로딩과 오류는 위에서 먼저 끝난다(응답은 zod 로 검증됨) */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalElements={pageInfo.totalElements}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 }

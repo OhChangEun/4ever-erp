@@ -40,7 +40,7 @@ const SalesOrderList = () => {
       size: 10,
       keyword: debouncedSearchTerm || '',
       type: searchType || '',
-      status: statusFilter || 'ALL',
+      status: statusFilter,
     }),
     [startDate, endDate, currentPage, statusFilter, debouncedSearchTerm, searchType],
   );

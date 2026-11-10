@@ -40,7 +40,7 @@ const SalesQuoteList = () => {
       size: 10,
       startDate: startDate || '',
       endDate: endDate || '',
-      status: statusFilter || 'ALL',
+      status: statusFilter,
       type: searchType || '',
       keyword: debouncedSearchTerm || '',
     }),

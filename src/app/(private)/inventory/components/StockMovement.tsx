@@ -35,7 +35,7 @@ export default function StockMovement() {
             </div>
           )}
 
-          {isError && !isLoading && (
+          {isError && (
             <div className="rounded-lg bg-red-50 text-red-600 text-sm px-4 py-6">
               최근 재고 이동 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </div>

@@ -51,7 +51,7 @@ export default function AppError({
           <h1 className="text-2xl font-semibold">예기치 않은 오류가 발생했습니다</h1>
 
           <p className="text-sm text-gray-600 text-center">
-            {error?.message ?? '알 수 없는 오류가 발생했습니다.'}
+            {error.message || '알 수 없는 오류가 발생했습니다.'}
           </p>
 
           <div className="w-full flex items-center justify-center gap-3 mt-4">
