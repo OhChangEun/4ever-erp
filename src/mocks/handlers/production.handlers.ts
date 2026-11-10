@@ -1,4 +1,5 @@
 import { http, HttpResponse, type PathParams } from 'msw';
+import { addDays, startOfDay, toDateKey } from '@/app/utils/date';
 import {
   PRODUCTION_BASE_PATH,
   PRODUCTION_ENDPOINTS,
@@ -505,6 +506,7 @@ export const productionHandlers = [
     const quotationIds = ['qt-001', 'qt-002', 'qt-003', 'qt-004', 'qt-005'];
     const statuses = ['WAITING', 'IN_PROGRESS', 'WAITING', 'IN_PROGRESS', 'WAITING'];
     const baseTotal = 50;
+    const today = startOfDay(new Date());
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
       const statusIdx = idx % statuses.length;
@@ -521,8 +523,10 @@ export const productionHandlers = [
         quotationNumber: quotationNumbers[qIdx],
         status: statuses[statusIdx],
         currentOperation: statuses[statusIdx] === 'IN_PROGRESS' ? 2 : 1,
-        startDate: `2026-0${(idx % 3) + 1}-${String((idx % 28) + 1).padStart(2, '0')}`,
-        endDate: `2026-0${(idx % 3) + 2}-${String((idx % 28) + 1).padStart(2, '0')}`,
+        // 오늘 기준 상대 날짜(시각화 3 간트). 시작은 오늘-14일~오늘, 기간 5~12일.
+        // 진행 중인데 끝날이 지난 건(지연)이 몇 개 생긴다
+        startDate: toDateKey(addDays(today, -((idx * 3) % 15))),
+        endDate: toDateKey(addDays(today, -((idx * 3) % 15) + 5 + (idx % 8))),
         progressRate: progress,
         sequence: ['OP10', 'OP20', 'OP30'],
       };
