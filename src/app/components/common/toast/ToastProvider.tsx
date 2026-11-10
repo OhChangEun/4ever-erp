@@ -2,6 +2,7 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 import { type ToastItem, type ToastType } from '@/app/components/common/toast/types';
 import { useIsClient } from '@/app/hooks/useMediaQuery';
 
@@ -64,6 +65,7 @@ function ToastItemComponent({
   toast: ToastItem;
   onRemove: (id: string) => void;
 }) {
+  const t = useTranslations('toast');
   const s = STYLES[toast.type];
   // 사라지는 중. CSS 애니메이션(200ms) 동안 DOM 에 남겼다가 지운다
   const [leaving, setLeaving] = useState(false);
@@ -89,7 +91,7 @@ function ToastItemComponent({
       <p className={`text-sm leading-snug flex-1 ${s.text}`}>{toast.message}</p>
       <button
         type="button"
-        aria-label="알림 닫기"
+        aria-label={t('dismiss')}
         onClick={() => setLeaving(true)}
         className={`${s.icon} opacity-60 hover:opacity-100 cursor-pointer shrink-0 leading-none`}
       >

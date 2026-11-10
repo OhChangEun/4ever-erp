@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
+import { IntlTestProvider } from '@/test/render';
 import { ToastProvider } from './ToastProvider';
 import { useToast } from './useToast';
 
@@ -21,6 +22,7 @@ describe('토스트', () => {
       <ToastProvider>
         <Trigger />
       </ToastProvider>,
+      { wrapper: IntlTestProvider },
     );
     void act(() => screen.getByRole('button', { name: '알림' }).click());
   };

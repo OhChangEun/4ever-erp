@@ -74,6 +74,112 @@
     "logout": "로그아웃",
     "language": "언어",
     "korean": "한국어",
-    "english": "English"
+    "english": "English",
+    "menu": "프로필 메뉴"
+  },
+  "common": {
+    "all": "전체",
+    "close": "닫기"
+  },
+  "sidebar": {
+    "openMenu": "메뉴 열기",
+    "collapse": "사이드바 접기",
+    "expand": "사이드바 펼치기"
+  },
+  "role": {
+    "ALL_ADMIN": "전사 관리자",
+    "CUSTOMER_ADMIN": "고객사 관리자",
+    "SUPPLIER_ADMIN": "공급사 관리자",
+    "USER": "{dept} 부서 사원",
+    "ADMIN": "{dept} 부서 관리자"
+  },
+  "partnerProfile": {
+    "title": "고객사 프로필",
+    "businessNumber": "사업자등록번호 {number}",
+    "address": "주소",
+    "officePhone": "대표 전화",
+    "contact": "담당자",
+    "email": "이메일"
+  },
+  "notification": {
+    "title": "알림",
+    "readAll": "전체 읽음",
+    "empty": "알림이 없습니다",
+    "emptyHint": "새로운 알림이 오면 여기에 표시됩니다",
+    "source": {
+      "PR": "구매",
+      "SD": "판매",
+      "IM": "재고",
+      "FCM": "시설",
+      "HRM": "인사",
+      "PP": "생산",
+      "CUS": "고객사",
+      "SUP": "공급사",
+      "unknown": "알 수 없음"
+    },
+    "sseError": {
+      "unauthorized": "인증이 만료되었습니다. 다시 로그인해주세요.",
+      "connectFailed": "알림 서버 연결에 실패했습니다.",
+      "parseAlarm": "알림 데이터를 처리하는 중 오류가 발생했습니다.",
+      "parseUnreadCount": "읽지 않은 알림 개수를 불러오는 중 오류가 발생했습니다.",
+      "connection": "알림 서버 연결 중 오류가 발생했습니다."
+    }
+  },
+  "calendar": {
+    "selectDate": "날짜 선택",
+    "reset": "초기화",
+    "startDate": "시작 날짜",
+    "endDate": "끝 날짜",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "year": "연도",
+    "month": "월",
+    "yearOption": "{year}년",
+    "monthOption": "{month}월",
+    "monthLabel": "{year}년 {month}월",
+    "dayLabel": "{year}년 {month}월 {day}일 {weekday}",
+    "weekday": {
+      "sun": "일",
+      "mon": "월",
+      "tue": "화",
+      "wed": "수",
+      "thu": "목",
+      "fri": "금",
+      "sat": "토"
+    },
+    "weekdayLong": {
+      "sun": "일요일",
+      "mon": "월요일",
+      "tue": "화요일",
+      "wed": "수요일",
+      "thu": "목요일",
+      "fri": "금요일",
+      "sat": "토요일"
+    }
+  },
+  "stats": {
+    "region": "지표",
+    "loadError": "지표를 불러오지 못했습니다.",
+    "period": {
+      "week": "이번 주",
+      "month": "이번 달",
+      "quarter": "이번 분기",
+      "year": "연도별"
+    },
+    "compare": {
+      "week": "전주 대비",
+      "month": "전월 대비",
+      "quarter": "전분기 대비",
+      "year": "전년 대비"
+    },
+    "trend": "{title} 추이"
+  },
+  "modal": {
+    "untitled": "대화 상자",
+    "renderError": "이 창을 그리는 중 오류가 발생했습니다.",
+    "closeWindow": "창 닫기"
+  },
+  "toast": {
+    "dismiss": "알림 닫기"
   }
 }

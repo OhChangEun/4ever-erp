@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { IconButton } from '@everp/ui';
 import { addDays, addMonths, isSameDay, startOfDay, toDateKey } from '@/app/utils/date';
 
@@ -12,7 +13,9 @@ interface CalendarGridProps {
   maxDate?: Date;
 }
 
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+type WeekdayKey = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+/** Date.getDay() 순서(일요일 0). 글자는 메시지의 calendar.weekday */
+const WEEKDAYS: readonly WeekdayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const MONTHS = Array.from({ length: 12 }, (_, i) => i);
 
 /** 날(day)을 유지하며 연, 월을 바꾼다. 그 달에 없는 날이면 말일로 */
@@ -21,9 +24,12 @@ const withYearMonth = (date: Date, year: number, month: number) => {
   return new Date(year, month, Math.min(date.getDate(), lastDay));
 };
 
-const monthLabel = (date: Date) => `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
-const dayLabel = (date: Date) =>
-  `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${WEEKDAYS[date.getDay()]}요일`;
+/** 메시지에 넘길 연, 월(1~12), 일. 영어 월 이름은 select 로 고르므로 글자로 넘긴다 */
+const dateParts = (date: Date) => ({
+  year: String(date.getFullYear()),
+  month: String(date.getMonth() + 1),
+  day: String(date.getDate()),
+});
 
 /** 그 달의 첫 주 일요일부터 6주(42칸). 다른 달의 날은 null 로 비운다 */
 const monthCells = (month: Date): (Date | null)[] => {
@@ -42,6 +48,7 @@ const monthCells = (month: Date): (Date | null)[] => {
  * 포커스는 roving tabindex 로 한 칸만 Tab 으로 들어온다.
  */
 export default function CalendarGrid({ value, onSelect, minDate, maxDate }: CalendarGridProps) {
+  const t = useTranslations('calendar');
   const min = minDate ? startOfDay(minDate) : null;
   const max = maxDate ? startOfDay(maxDate) : null;
   const today = startOfDay(new Date());
@@ -102,14 +109,14 @@ export default function CalendarGrid({ value, onSelect, minDate, maxDate }: Cale
           icon="ri-arrow-left-s-line"
           size="sm"
           variant="ghost"
-          aria-label="이전 달"
+          aria-label={t('prevMonth')}
           disabled={min !== null && prevMonthLast < min}
           onClick={() => setFocused(addMonths(focused, -1))}
         />
         {/* 연도와 월을 바로 고른다. 생년월일처럼 먼 날짜를 한 달씩 넘기지 않게(리뷰 지적 P2) */}
         <div className="flex items-center gap-1" aria-live="polite">
           <select
-            aria-label="연도"
+            aria-label={t('year')}
             value={viewMonth.getFullYear()}
             onChange={(e) =>
               setFocused(withYearMonth(focused, Number(e.target.value), focused.getMonth()))
@@ -118,12 +125,12 @@ export default function CalendarGrid({ value, onSelect, minDate, maxDate }: Cale
           >
             {years.map((year) => (
               <option key={year} value={year}>
-                {year}년
+                {t('yearOption', { year: String(year) })}
               </option>
             ))}
           </select>
           <select
-            aria-label="월"
+            aria-label={t('month')}
             value={viewMonth.getMonth()}
             onChange={(e) =>
               setFocused(withYearMonth(focused, focused.getFullYear(), Number(e.target.value)))
@@ -132,7 +139,7 @@ export default function CalendarGrid({ value, onSelect, minDate, maxDate }: Cale
           >
             {MONTHS.map((month) => (
               <option key={month} value={month}>
-                {month + 1}월
+                {t('monthOption', { month: String(month + 1) })}
               </option>
             ))}
           </select>
@@ -142,22 +149,22 @@ export default function CalendarGrid({ value, onSelect, minDate, maxDate }: Cale
           icon="ri-arrow-right-s-line"
           size="sm"
           variant="ghost"
-          aria-label="다음 달"
+          aria-label={t('nextMonth')}
           disabled={max !== null && nextMonthFirst > max}
           onClick={() => setFocused(addMonths(focused, 1))}
         />
       </div>
 
-      <div ref={gridRef} role="grid" aria-label={monthLabel(viewMonth)}>
+      <div ref={gridRef} role="grid" aria-label={t('monthLabel', dateParts(viewMonth))}>
         <div role="row" className="grid grid-cols-7 mb-1">
           {WEEKDAYS.map((weekday) => (
             <span
               key={weekday}
               role="columnheader"
-              aria-label={`${weekday}요일`}
+              aria-label={t(`weekdayLong.${weekday}`)}
               className="text-center text-xs text-gray-500 py-1"
             >
-              {weekday}
+              {t(`weekday.${weekday}`)}
             </span>
           ))}
         </div>
@@ -173,7 +180,10 @@ export default function CalendarGrid({ value, onSelect, minDate, maxDate }: Cale
                   <button
                     type="button"
                     data-date={toDateKey(day)}
-                    aria-label={dayLabel(day)}
+                    aria-label={t('dayLabel', {
+                      ...dateParts(day),
+                      weekday: t(`weekdayLong.${WEEKDAYS[day.getDay()]}`),
+                    })}
                     aria-current={isToday ? 'date' : undefined}
                     tabIndex={isSameDay(day, focused) ? 0 : -1}
                     disabled={disabled}

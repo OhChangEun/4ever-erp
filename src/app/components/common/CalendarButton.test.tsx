@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
+import { renderWithProviders } from '@/test/render';
 import userEvent from '@testing-library/user-event';
 import CalendarButton from './CalendarButton';
 
@@ -15,7 +16,7 @@ const openCalendar = async (label: string) => {
 describe('CalendarButton', () => {
   it('고른 날짜를 YYYY-MM-DD 로 넘긴다(한국 시간에서도 전날이 되지 않는다)', async () => {
     const onDateChange = vi.fn();
-    render(<CalendarButton selectedDate="2026-11-01" onDateChange={onDateChange} />);
+    renderWithProviders(<CalendarButton selectedDate="2026-11-01" onDateChange={onDateChange} />);
     const dialog = await openCalendar('2026-11-01');
     await userEvent.click(within(dialog).getByRole('button', { name: /11월 10일/ }));
     expect(onDateChange).toHaveBeenCalledWith('2026-11-10');
@@ -23,7 +24,7 @@ describe('CalendarButton', () => {
   });
 
   it('이전 달, 다음 달로 넘긴다', async () => {
-    render(<CalendarButton selectedDate="2026-11-15" onDateChange={vi.fn()} />);
+    renderWithProviders(<CalendarButton selectedDate="2026-11-15" onDateChange={vi.fn()} />);
     const dialog = await openCalendar('2026-11-15');
     expect(within(dialog).getByRole('grid', { name: '2026년 11월' })).toBeInTheDocument();
     await userEvent.click(within(dialog).getByRole('button', { name: '다음 달' }));
@@ -35,7 +36,7 @@ describe('CalendarButton', () => {
 
   it('초기화하면 null', async () => {
     const onDateChange = vi.fn();
-    render(<CalendarButton selectedDate="2026-11-15" onDateChange={onDateChange} />);
+    renderWithProviders(<CalendarButton selectedDate="2026-11-15" onDateChange={onDateChange} />);
     const dialog = await openCalendar('2026-11-15');
     await userEvent.click(within(dialog).getByRole('button', { name: '초기화' }));
     expect(onDateChange).toHaveBeenCalledWith(null);
@@ -43,7 +44,7 @@ describe('CalendarButton', () => {
 
   it('범위 밖 날짜는 고를 수 없다', async () => {
     const onDateChange = vi.fn();
-    render(
+    renderWithProviders(
       <CalendarButton
         selectedDate="2026-11-15"
         onDateChange={onDateChange}
@@ -56,7 +57,7 @@ describe('CalendarButton', () => {
 
   it('키보드: 화살표로 날짜를 옮기고 Enter 로 고른다', async () => {
     const onDateChange = vi.fn();
-    render(<CalendarButton selectedDate="2026-11-15" onDateChange={onDateChange} />);
+    renderWithProviders(<CalendarButton selectedDate="2026-11-15" onDateChange={onDateChange} />);
     const dialog = await openCalendar('2026-11-15');
     within(dialog)
       .getByRole('button', { name: /11월 15일/ })
@@ -67,7 +68,7 @@ describe('CalendarButton', () => {
 
   it('연도와 월을 바로 고른다(생년월일)', async () => {
     const onDateChange = vi.fn();
-    render(
+    renderWithProviders(
       <CalendarButton selectedDate={null} onDateChange={onDateChange} placeholder="생년월일" />,
     );
     const dialog = await openCalendar('생년월일');
@@ -79,7 +80,7 @@ describe('CalendarButton', () => {
 
   it('키보드로 최소 날짜를 넘어가지 않는다(포커스와 선택이 어긋나지 않게)', async () => {
     const onDateChange = vi.fn();
-    render(
+    renderWithProviders(
       <CalendarButton
         selectedDate="2026-11-05"
         onDateChange={onDateChange}
@@ -95,7 +96,7 @@ describe('CalendarButton', () => {
   });
 
   it('Esc 로 닫고 포커스를 버튼으로 돌린다', async () => {
-    render(<CalendarButton selectedDate="2026-11-15" onDateChange={vi.fn()} />);
+    renderWithProviders(<CalendarButton selectedDate="2026-11-15" onDateChange={vi.fn()} />);
     await openCalendar('2026-11-15');
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

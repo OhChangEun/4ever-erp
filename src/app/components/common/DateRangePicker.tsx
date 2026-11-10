@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import CalendarButton from './CalendarButton';
 
 interface DateRangePickerProps {
@@ -14,6 +15,7 @@ export default function DateRangePicker({
   onStartDateChange,
   onEndDateChange,
 }: DateRangePickerProps) {
+  const t = useTranslations('calendar');
   const handleStartDateChange = (date: string | null) => {
     const newStartDate = date || '';
 
@@ -41,13 +43,13 @@ export default function DateRangePicker({
       <CalendarButton
         selectedDate={startDate}
         onDateChange={handleStartDateChange}
-        placeholder="시작 날짜"
+        placeholder={t('startDate')}
       />
       <span className="text-gray-400 text-sm">~</span>
       <CalendarButton
         selectedDate={endDate}
         onDateChange={handleEndDateChange}
-        placeholder="끝 날짜"
+        placeholder={t('endDate')}
       />
     </div>
   );

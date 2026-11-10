@@ -59,7 +59,7 @@ describe('영업 화면 영어(i18n 8)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 건수에 단위 "건"이 붙지 않는다', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<SalesClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Sales')).toBeInTheDocument();
     expect(within(metrics).getByText('New orders')).toBeInTheDocument();
     expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('영업 화면 영어(i18n 8)', () => {
   it('고객사는 견적, 주문 탭과 견적 건수 카드만 영어로 본다', async () => {
     loginAs('CUSTOMER_ADMIN');
     renderWithProviders(<SalesClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Quotes')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Orders' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Customers' })).not.toBeInTheDocument();

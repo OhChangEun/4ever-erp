@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
+import { IntlTestProvider } from '@/test/render';
 import userEvent from '@testing-library/user-event';
 import { ModalProvider } from './ModalProvider';
 import { useModal } from './useModal';
@@ -98,6 +99,7 @@ const setupLayers = async () => {
     <ModalProvider>
       <LayerPage />
     </ModalProvider>,
+    { wrapper: IntlTestProvider },
   );
   await userEvent.click(screen.getByRole('button', { name: '폼 열기' }));
   // 모달 틀은 동적 import 라 처음 열 때 한 박자 늦게 뜬다
@@ -109,6 +111,7 @@ const setup = async () => {
     <ModalProvider>
       <Page />
     </ModalProvider>,
+    { wrapper: IntlTestProvider },
   );
   const trigger = screen.getByRole('button', { name: '모달 열기' });
   await userEvent.click(trigger);
@@ -200,6 +203,7 @@ describe('모달(포커스와 키보드)', () => {
       <ModalProvider>
         <BrokenPage />
       </ModalProvider>,
+      { wrapper: IntlTestProvider },
     );
     await userEvent.click(screen.getByRole('button', { name: '깨지는 모달 열기' }));
     const dialog = await screen.findByRole('dialog', { name: '깨지는 모달' });

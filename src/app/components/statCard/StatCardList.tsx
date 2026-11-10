@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { type Period, type StatCardType } from '@/app/types/StatType';
 import StatCardItem from '@/app/components/statCard/StatCardItem';
 
@@ -7,14 +8,8 @@ interface StatsGridProps {
 }
 
 export default function StatCardList({ stats, period }: StatsGridProps) {
-  const comparisonLabelMap: Record<Period, string> = {
-    week: '전주 대비',
-    month: '전월 대비',
-    quarter: '전분기 대비',
-    year: '전년 대비',
-  };
-
-  const currentPeriodLabel = comparisonLabelMap[period];
+  const t = useTranslations('stats');
+  const currentPeriodLabel = t(`compare.${period}`);
   const safeStats = stats;
 
   return (

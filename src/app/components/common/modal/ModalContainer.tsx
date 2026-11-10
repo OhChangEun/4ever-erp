@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslations } from 'next-intl';
 import { NESTED_LAYER_SELECTOR, PopoverRootContext } from '@everp/ui';
 import { ErrorBoundary } from '@everp/ui';
 
@@ -33,6 +34,7 @@ const ModalContainer = ({
   onClose,
   returnFocusTo,
 }: ModalContainerProps) => {
+  const t = useTranslations();
   const modalWidth = width || 'auto';
   const modalHeight = height || 'auto';
   // 팝업을 붙일 요소. state 여야 붙은 뒤 다시 그려 팝업이 이 요소를 받는다
@@ -73,10 +75,10 @@ const ModalContainer = ({
           {/* 제목 줄 */}
           <div className="flex justify-between items-center h-12 px-5 border-b border-gray-200 shrink-0">
             <Dialog.Title className="text-[15px] font-semibold text-gray-900">
-              {title ?? '대화 상자'}
+              {title ?? t('modal.untitled')}
             </Dialog.Title>
             <Dialog.Close
-              aria-label="닫기"
+              aria-label={t('common.close')}
               className="w-8 h-8 -mr-2 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
             >
               <i aria-hidden="true" className="ri-close-line text-lg" />
@@ -91,13 +93,13 @@ const ModalContainer = ({
                 fallback={() => (
                   <div role="alert" className="flex flex-col items-center gap-3 py-10 text-center">
                     <i aria-hidden="true" className="ri-error-warning-line text-3xl text-red-500" />
-                    <p className="text-sm text-gray-700">이 창을 그리는 중 오류가 발생했습니다.</p>
+                    <p className="text-sm text-gray-700">{t('modal.renderError')}</p>
                     <button
                       type="button"
                       onClick={onClose}
                       className="h-8 px-3 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                     >
-                      창 닫기
+                      {t('modal.closeWindow')}
                     </button>
                   </div>
                 )}

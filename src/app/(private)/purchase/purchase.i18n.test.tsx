@@ -26,7 +26,7 @@ describe('구매 화면 영어(i18n 5)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 건수에 단위 "건"이 붙지 않는다', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<PurchaseClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Purchase requests')).toBeInTheDocument();
     expect(within(metrics).getByText('Purchase order amount')).toBeInTheDocument();
     expect(within(metrics).getByText('1,200')).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('구매 화면 영어(i18n 5)', () => {
   it('공급사는 발주서 탭 하나와 발주 건수 카드만 영어로 본다', async () => {
     loginAs('SUPPLIER_ADMIN');
     renderWithProviders(<PurchaseClient />, { locale: 'en' });
-    const metrics = await screen.findByRole('region', { name: '지표' });
+    const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Purchase orders')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Purchase orders' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Suppliers' })).not.toBeInTheDocument();
