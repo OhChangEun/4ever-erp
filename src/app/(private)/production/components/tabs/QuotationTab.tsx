@@ -26,9 +26,11 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@everp/ui';
 export default function QuotationTab() {
+  const t = useTranslations('production');
   const { openModal, removeAllModals } = useModal();
   const toast = useToast();
 
@@ -81,25 +83,26 @@ export default function QuotationTab() {
     onSuccess: (simulationResults) => {
       if (simulationResults.length > 0) {
         openModal(SimulationResultModal, {
-          title: '시뮬레이션 결과',
+          title: t('quotation.simulationTitle'),
           simulationResults,
           onConfirm: handleConfirmMps,
         });
       } else {
-        toast.info('시뮬레이션 결과가 없습니다.');
+        toast.info(t('simulation.empty'));
       }
     },
     onError: (error) =>
-      toast.error(`시뮬레이션 결과를 가져오는데 실패했습니다. ${errorMessageOf(error)}`),
+      toast.error(t('quotation.simulationError', { message: errorMessageOf(error) })),
   });
 
   const { mutate: confirmQuotations } = useConfirmQuotations({
     onSuccess: () => {
-      toast.success('제안납기를 확정하였습니다.');
+      toast.success(t('quotation.confirmSuccess'));
       removeAllModals();
     },
     // 실패를 success 토스트로 알리던 버그 수정
-    onError: (error) => toast.error(`제안납기를 확정하는데 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('quotation.confirmError', { message: errorMessageOf(error) })),
   });
 
   const handleQuoteSelect = (quotationId: string) => {
@@ -111,7 +114,7 @@ export default function QuotationTab() {
   // --- 이벤트 핸들러 ---
   const handleSimulation = () => {
     if (selectedQuotes.length === 0) {
-      toast.warning('시뮬레이션을 실행할 견적을 선택해주세요');
+      toast.warning(t('quotation.selectToSimulate'));
       return;
     }
     // API 데이터에서 선택된 견적 중 'NOT_CHECKED'인지 확인
@@ -121,7 +124,7 @@ export default function QuotationTab() {
     });
 
     if (unCheckedQuotes.length === 0) {
-      toast.warning("가용 재고가 '미확인'인 견적을 선택해주세요.");
+      toast.warning(t('quotation.selectUnchecked'));
       return;
     }
 
@@ -156,7 +159,7 @@ export default function QuotationTab() {
       headerRender: () => (
         <input
           type="checkbox"
-          aria-label="미확인 견적 전체 선택"
+          aria-label={t('quotation.selectAllUnchecked')}
           className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
@@ -181,14 +184,14 @@ export default function QuotationTab() {
         quote.availableStatus === 'CHECKED' ? (
           <input
             type="checkbox"
-            aria-label={`${quote.quotationNumber} 가용재고 확인 완료(선택할 수 없음)`}
+            aria-label={t('quotation.checkedRow', { number: quote.quotationNumber })}
             className="rounded border-gray-300 text-gray-300"
             disabled
           />
         ) : (
           <input
             type="checkbox"
-            aria-label={`${quote.quotationNumber} 선택`}
+            aria-label={t('common.selectRow', { name: quote.quotationNumber })}
             className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
             checked={selectedQuotes.includes(quote.quotationId)}
             onClick={(e) => e.stopPropagation()}
@@ -196,18 +199,18 @@ export default function QuotationTab() {
           />
         ),
     },
-    { key: 'quotationNumber', label: '견적 번호' },
-    { key: 'customerName', label: '고객사' },
-    { key: 'productName', label: '제품명' },
-    { key: 'requestDate', label: '요청 납기' },
+    { key: 'quotationNumber', label: t('quotation.quotationNumber') },
+    { key: 'customerName', label: t('common.customer') },
+    { key: 'productName', label: t('common.productName') },
+    { key: 'requestDate', label: t('common.requestDueDate') },
     {
       key: 'dueDate',
-      label: '제안 납기',
+      label: t('common.suggestedDueDate'),
       render: (_, quote) => <>{quote.dueDate || '-'}</>,
     },
     {
       key: 'availableStatus',
-      label: '가용 재고',
+      label: t('quotation.availability'),
       render: (_, quote) => <StatusLabel statusCode={quote.availableStatus} />,
     },
   ];
@@ -224,7 +227,7 @@ export default function QuotationTab() {
         />
         <div className="flex items-center gap-3">
           <Dropdown
-            placeholder="전체 가용재고"
+            placeholder={t('quotation.allAvailability')}
             items={availableStatusOptions}
             value={selectedStockStatus}
             onChange={(status) => {
@@ -233,7 +236,7 @@ export default function QuotationTab() {
             }}
           />
           <Button
-            label="시뮬레이션"
+            label={t('quotation.simulate')}
             loading={simulationPending}
             onClick={handleSimulation}
             disabled={selectedQuotes.length === 0 || simulationPending}
@@ -241,16 +244,16 @@ export default function QuotationTab() {
         </div>
       </div>
       {isQuotationListLoading ? (
-        <TableStatusBox type="loading" message="견적 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('quotation.loading')} />
       ) : isQuotationListError ? (
-        <TableStatusBox type="error" message="견적 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('quotation.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={quotationDataList}
           keyExtractor={(row) => row.quotationId}
-          emptyMessage="조회된 견적 데이터가 없습니다."
+          emptyMessage={t('quotation.empty')}
           className="flex-1 min-h-0"
           onRowClick={(row) => {
             if (row.availableStatus !== 'CHECKED') handleQuoteSelect(row.quotationId);

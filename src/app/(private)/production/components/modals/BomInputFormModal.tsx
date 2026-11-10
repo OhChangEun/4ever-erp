@@ -30,11 +30,13 @@ import {
 import { useCreateBom } from '../../api/production.mutations';
 import { useQuery } from '@tanstack/react-query';
 import { type BomRequestBody } from '../../types/BomType';
+import type productionKo from '@/i18n/messages/production/ko.json';
 import { Input } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -141,6 +143,7 @@ interface SortableRowProps {
 }
 
 function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: SortableRowProps) {
+  const t = useTranslations('production');
   const { options: productsOptions } = useDropdown('productsDropdown', fetchProductDropdown);
   const { options: operationOptions } = useDropdown('operationsDropdown', fetchOperationDropdown);
 
@@ -176,13 +179,13 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
           onChange={(selectedMaterialId) => {
             onMaterialChange(item.id, selectedMaterialId);
           }}
-          placeholder="자재 선택"
+          placeholder={t('bomForm.selectMaterial')}
         />
       </td>
       <td className="px-3 py-2">
         {isMaterialError ? (
           <span role="alert" className="text-xs text-red-600">
-            불러오지 못함
+            {t('bomForm.materialLoadFailed')}
           </span>
         ) : (
           <Input type="text" value={materialInfo?.productNumber || ''} disabled />
@@ -205,7 +208,11 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
       <td className="px-3 py-2">
         <Input
           type="text"
-          value={materialInfo?.unitPrice ? materialInfo.unitPrice.toLocaleString() + '원' : ''}
+          value={
+            materialInfo?.unitPrice
+              ? t('bomForm.won', { value: materialInfo.unitPrice.toLocaleString() })
+              : ''
+          }
           disabled
         />
       </td>
@@ -222,12 +229,12 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
           items={operationOptions}
           value={item.operationId}
           onChange={(value) => onItemChange(item.id, 'operationId', value)}
-          placeholder="공정 선택"
+          placeholder={t('bomForm.selectOperation')}
         />
       </td>
       <td className="px-3 py-2">
         <Button
-          label="삭제"
+          label={t('common.delete')}
           type="button"
           variant="secondary"
           size="sm"
@@ -239,7 +246,22 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
   );
 }
 
+// 구성품 표 머리. 메시지 키(production.bomForm.columns.<키>)
+const COLUMNS = [
+  'sequence',
+  'material',
+  'productCode',
+  'type',
+  'supplier',
+  'unit',
+  'unitPrice',
+  'quantity',
+  'operation',
+  'delete',
+] satisfies (keyof typeof productionKo.bomForm.columns)[];
+
 export default function BomInputFormModal({ editMode = false, onClose }: BomInputFormModalProps) {
+  const t = useTranslations('production');
   const toast = useToast();
   const [productName, setProductName] = useState('');
   const [unit, setUnit] = useState('');
@@ -247,10 +269,10 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
 
   const { mutate: updateBomItem, isPending } = useCreateBom({
     onSuccess: () => {
-      toast.success('BOM 생성이 완료되었습니다.');
+      toast.success(t('bomForm.createSuccess'));
       onClose();
     },
-    onError: (error) => toast.error(`BOM 생성 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('bomForm.createError', { message: errorMessageOf(error) })),
   });
 
   const sensors = useSensors(
@@ -339,9 +361,9 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
         <div className="flex justify-between gap-3">
           <div className="flex-1">
             <Input
-              label="제품명"
+              label={t('common.productName')}
               type="text"
-              placeholder="휴대폰"
+              placeholder={t('bomForm.productPlaceholder')}
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               required
@@ -350,7 +372,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
 
           <div className="flex-1">
             <Input
-              label="단위"
+              label={t('common.unit')}
               type="text"
               placeholder="EA"
               value={unit}
@@ -362,9 +384,9 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
 
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h4 className="text-md font-semibold text-gray-900">구성품 리스트</h4>
+            <h4 className="text-md font-semibold text-gray-900">{t('bomForm.componentsTitle')}</h4>
             <Button
-              label="행 추가"
+              label={t('bomForm.addRow')}
               type="button"
               variant="secondary"
               size="sm"
@@ -384,23 +406,12 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
                     <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap w-8">
                       <i className="ri-draggable"></i>
                     </th>
-                    {[
-                      '공정 순서',
-                      '자재',
-                      '제품 코드',
-                      '타입',
-                      '공급사',
-                      '단위',
-                      '단가',
-                      '수량',
-                      '작업',
-                      '삭제',
-                    ].map((h) => (
+                    {COLUMNS.map((column) => (
                       <th
-                        key={h}
+                        key={column}
                         className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase whitespace-nowrap"
                       >
-                        {h}
+                        {t(`bomForm.columns.${column}`)}
                       </th>
                     ))}
                   </tr>
@@ -424,7 +435,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
                     {bomItems.length === 0 && (
                       <tr>
                         <td colSpan={11} className="px-3 py-8 text-center text-gray-500 text-sm">
-                          구성품을 추가해주세요
+                          {t('bomForm.empty')}
                         </td>
                       </tr>
                     )}
@@ -436,7 +447,11 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">
-          <Button label={editMode ? '수정' : '생성'} type="submit" disabled={isPending} />
+          <Button
+            label={editMode ? t('bomForm.edit') : t('bomForm.create')}
+            type="submit"
+            disabled={isPending}
+          />
         </div>
       </form>
     </div>

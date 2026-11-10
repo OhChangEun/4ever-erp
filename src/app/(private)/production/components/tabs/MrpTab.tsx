@@ -3,8 +3,10 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MRP_TABS } from '@/app/(private)/production/constants';
 import { TabButtons } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 
 export default function MrpTab() {
+  const t = useTranslations('production.tabs');
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathName = usePathname();
@@ -22,7 +24,7 @@ export default function MrpTab() {
 
   const tabButtons = (
     <TabButtons
-      tabs={MRP_TABS.map(({ id, name, icon }) => ({ id, name, icon }))}
+      tabs={MRP_TABS.map(({ id, name, icon }) => ({ id, name: t(name), icon }))}
       activeTab={currentSubTab}
       onTabChange={handleSubTabChange}
     />

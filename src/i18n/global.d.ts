@@ -7,6 +7,7 @@ import type inventory from './messages/inventory/ko.json';
 import type lowStock from './messages/lowStock/ko.json';
 import type hrm from './messages/hrm/ko.json';
 import type sales from './messages/sales/ko.json';
+import type production from './messages/production/ko.json';
 import type { Locale } from './locale';
 
 // 메시지 키를 타입으로. ko.json 에 없는 키를 t() 에 넘기면 타입 검사에서 걸린다(en.json 은 테스트가 키를 맞춘다)
@@ -23,6 +24,7 @@ declare module 'next-intl' {
       lowStock: typeof lowStock;
       hrm: typeof hrm;
       sales: typeof sales;
+      production: typeof production;
     };
   }
 }

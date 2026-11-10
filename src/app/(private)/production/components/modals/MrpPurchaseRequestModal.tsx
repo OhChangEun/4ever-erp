@@ -9,6 +9,7 @@ import { type MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiTyp
 import type { ItemResponse } from '@/app/(private)/inventory';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
+import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
 interface ItemWithQuantity extends ItemResponse {
@@ -28,6 +29,7 @@ export default function MrpPurchaseRequestModal({
   onConfirm,
   onClose,
 }: PurchaseRequestModalProps) {
+  const t = useTranslations('production');
   const toast = useToast();
   const itemIds = orders.map((order) => order.itemId);
 
@@ -60,11 +62,11 @@ export default function MrpPurchaseRequestModal({
   // 구매 도메인 데이터를 만드는 요청. 구매 요청 목록과 통계도 훅이 같이 무효화한다.
   const { mutate: createStockPurchase, isPending } = useCreateStockPurchaseRequest({
     onSuccess: () => {
-      toast.success('자재 구매 요청이 완료되었습니다.');
+      toast.success(t('purchaseRequest.success'));
       onConfirm();
       onClose();
     },
-    onError: (err) => toast.error(`자재 구매 요청에 실패했습니다. ${errorMessageOf(err)}`),
+    onError: (err) => toast.error(t('purchaseRequest.error', { message: errorMessageOf(err) })),
   });
 
   // 총 금액 계산
@@ -74,7 +76,7 @@ export default function MrpPurchaseRequestModal({
   if (editableOrders.length === 0 && !isLoading && !isError) {
     return (
       <div className="min-w-3xl flex justify-center items-center p-8">
-        <div className="text-gray-500">구매 요청할 자재가 없습니다.</div>
+        <div className="text-gray-500">{t('purchaseRequest.empty')}</div>
       </div>
     );
   }
@@ -82,7 +84,7 @@ export default function MrpPurchaseRequestModal({
   if (isLoading) {
     return (
       <div className="min-w-3xl flex justify-center items-center p-8">
-        <div className="text-gray-500">자재 정보를 불러오는 중...</div>
+        <div className="text-gray-500">{t('purchaseRequest.loading')}</div>
       </div>
     );
   }
@@ -92,7 +94,7 @@ export default function MrpPurchaseRequestModal({
     return (
       <ModalStatusBox
         type="error"
-        message={`자재 정보를 불러오지 못했습니다. ${errorMessageOf(error)}`}
+        message={t('purchaseRequest.loadError', { message: errorMessageOf(error) })}
         onClose={onClose}
       />
     );
@@ -103,18 +105,20 @@ export default function MrpPurchaseRequestModal({
       {/* 요약 영역 */}
       <div className="space-y-6">
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">구매 요청 요약</h4>
+          <h4 className="font-medium text-blue-900 mb-2">{t('purchaseRequest.summary')}</h4>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-blue-600">선택된 주문:</span>
-              <span className="ml-2 font-medium">{editableOrders.length}건</span>
+              <span className="text-blue-600">{t('purchaseRequest.selectedOrders')}</span>
+              <span className="ml-2 font-medium">
+                {t('purchaseRequest.orderCount', { count: editableOrders.length })}
+              </span>
             </div>
             <div>
-              <span className="text-blue-600">총 예상 금액:</span>
+              <span className="text-blue-600">{t('purchaseRequest.totalAmount')}</span>
               <span className="ml-2 font-medium">{formatCurrency(totalAmount)}</span>
             </div>
             <div>
-              <span className="text-blue-600">요청일:</span>
+              <span className="text-blue-600">{t('purchaseRequest.requestDate')}</span>
               <span className="ml-2 font-medium">{new Date().toLocaleDateString()}</span>
             </div>
           </div>
@@ -126,22 +130,22 @@ export default function MrpPurchaseRequestModal({
             <thead className="sticky top-0 z-local bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  참조 견적서
+                  {t('common.referenceQuote')}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  자재
+                  {t('common.material')}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  수량
+                  {t('common.quantity')}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  단가
+                  {t('common.unitPrice')}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  총액
+                  {t('purchaseRequest.total')}
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  공급사
+                  {t('common.supplier')}
                 </th>
               </tr>
             </thead>
@@ -170,7 +174,7 @@ export default function MrpPurchaseRequestModal({
       {/* 버튼 영역 */}
       <div className="flex justify-end pt-2 pb-6">
         <Button
-          label="구매 요청 확정"
+          label={t('purchaseRequest.confirm')}
           onClick={() =>
             createStockPurchase({
               items: editableOrders.map((order) => ({

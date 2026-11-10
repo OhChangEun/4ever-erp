@@ -5,6 +5,7 @@ import { type QuotationPreviewData } from '@/app/(private)/production/types/Quot
 import { Pagination } from '@everp/ui'; // Pagination 경로 맞춰서 import
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 
 interface MpsPreviewModalProps extends ModalProps {
   previewResults: QuotationPreviewData[]; // 배열 형태
@@ -12,6 +13,7 @@ interface MpsPreviewModalProps extends ModalProps {
 }
 
 export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPreviewModalProps) {
+  const t = useTranslations('production');
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = previewResults.length;
@@ -21,7 +23,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
   return (
     <>
       {!currentPreview ? (
-        <p className="text-center text-gray-500">미리보기 데이터가 없습니다.</p>
+        <p className="text-center text-gray-500">{t('mpsPreview.empty')}</p>
       ) : (
         <>
           <div className="border border-gray-200 rounded-lg p-4 mb-4">
@@ -29,8 +31,10 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
               {currentPreview.productName} - {currentPreview.customerCompanyName}
             </h4>
             <p className="text-sm text-gray-700 mb-4">
-              견적 번호: {currentPreview.quotationNumber} | 확정 납기:{' '}
-              {currentPreview.confirmedDueDate}
+              {t('mpsPreview.summary', {
+                number: currentPreview.quotationNumber,
+                dueDate: currentPreview.confirmedDueDate,
+              })}
             </p>
 
             <div className="overflow-x-auto">
@@ -38,7 +42,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-medium text-gray-900">
-                      구분
+                      {t('mpsPreview.category')}
                     </th>
                     {currentPreview.weeks.map((week, index) => (
                       <th
@@ -53,7 +57,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
                 <tbody>
                   <tr>
                     <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">
-                      수요
+                      {t('common.demand')}
                     </td>
                     {currentPreview.weeks.map((week, index) => (
                       <td
@@ -66,7 +70,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
                   </tr>
                   <tr>
                     <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">
-                      재고 필요량
+                      {t('common.requiredInventory')}
                     </td>
                     {currentPreview.weeks.map((week, index) => (
                       <td
@@ -79,7 +83,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
                   </tr>
                   <tr>
                     <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">
-                      생산 소요량
+                      {t('common.productionNeeded')}
                     </td>
                     {currentPreview.weeks.map((week, index) => (
                       <td
@@ -92,7 +96,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
                   </tr>
                   <tr>
                     <td className="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900 bg-blue-50">
-                      계획 생산 (MPS)
+                      {t('common.plannedProduction')}
                     </td>
                     {currentPreview.weeks.map((week, index) => (
                       <td
@@ -117,7 +121,7 @@ export default function MpsPreviewModal({ previewResults, onConfirm }: MpsPrevie
           />
 
           <div className="flex justify-end">
-            <Button label="MPS 확정" onClick={onConfirm} />
+            <Button label={t('mpsPreview.confirm')} onClick={onConfirm} />
           </div>
         </>
       )}

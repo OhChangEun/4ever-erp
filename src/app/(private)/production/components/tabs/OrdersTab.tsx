@@ -23,12 +23,14 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 interface OrdersTabProps {
   tabButtons?: React.ReactNode;
 }
 
 export default function OrdersTab({ tabButtons }: OrdersTabProps) {
+  const t = useTranslations('production');
   // mrp 순소요 - 견적 드롭다운
   const { options: mrpQuotationOptions } = useDropdown(
     'mrpQuotationsDropdown',
@@ -94,17 +96,18 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   const router = useRouter();
   const { mutate: mrpConvert, isPending: isConverting } = useConvertMrpOrders({
     onSuccess: () => {
-      toast.success('계획 주문 전환이 완료되었습니다.');
+      toast.success(t('requirements.convertSuccess'));
       router.push('/production?tab=mrp&subTab=orders');
     },
     // 실패를 success 토스트로 알리던 버그 수정
-    onError: (error) => toast.error(`계획 주문 전환에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('requirements.convertError', { message: errorMessageOf(error) })),
   });
 
   // 계획 주문 전환 실행
   const handleConvertToPlannedOrder = () => {
     if (selectedRequirements.length === 0) {
-      toast.success('전환할 항목을 선택해주세요.');
+      toast.warning(t('requirements.selectToConvert'));
       return;
     }
 
@@ -132,7 +135,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       headerRender: () => (
         <input
           type="checkbox"
-          aria-label="순소요 전체 선택"
+          aria-label={t('requirements.selectAll')}
           checked={
             selectedRequirements.length > 0 && selectedRequirements.length === orderItems.length
           }
@@ -144,44 +147,44 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
         item.convertStatus !== 'NOT_CONVERTED' ? (
           <input
             type="checkbox"
-            aria-label={`${item.itemName} 계획 주문 전환됨(선택할 수 없음)`}
+            aria-label={t('requirements.convertedRow', { name: item.itemName })}
             disabled
             className="rounded border-gray-300 text-gray-300"
           />
         ) : (
           <input
             type="checkbox"
-            aria-label={`${item.itemName} 선택`}
+            aria-label={t('common.selectRow', { name: item.itemName })}
             checked={selectedRequirements.includes(item.itemId)}
             onChange={() => handleRequirementSelection(item.itemId)}
             className="rounded border-gray-300 cursor-pointer"
           />
         ),
     },
-    { key: 'itemName', label: '자재' },
+    { key: 'itemName', label: t('common.material') },
     {
       key: 'requiredQuantity',
-      label: '소요 수량',
+      label: t('requirements.requiredQuantity'),
       render: (_, item) => <>{item.requiredQuantity.toLocaleString()}</>,
     },
     {
       key: 'availableStock',
-      label: '가용 재고',
+      label: t('requirements.availableStock'),
       render: (_, item) => <>{item.availableStock.toLocaleString()}</>,
     },
     {
       key: 'consumptionQuantity',
-      label: '소모량',
+      label: t('requirements.consumption'),
       render: (_, item) => <>{item.consumptionQuantity.toLocaleString()}</>,
     },
     {
       key: 'availableStatusCode',
-      label: '가용 재고 상태',
+      label: t('requirements.availableStatus'),
       render: (_, item) => <StatusLabel statusCode={item.availableStatusCode} />,
     },
     {
       key: 'shortageQuantity',
-      label: '부족 재고',
+      label: t('requirements.shortage'),
       render: (_, item) =>
         item.shortageQuantity > 0 ? (
           <span className="text-red-600 font-medium">{item.shortageQuantity.toLocaleString()}</span>
@@ -191,23 +194,23 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     },
     {
       key: 'itemType',
-      label: '자재 유형',
+      label: t('requirements.itemType'),
       render: (_, item) => <StatusLabel statusCode={item.itemType} />,
     },
     {
       key: 'procurementStartDate',
-      label: '구매 권장일',
+      label: t('common.procurementStartDate'),
       render: (_, item) => <>{item.procurementStartDate || '-'}</>,
     },
     {
       key: 'expectedArrivalDate',
-      label: '예상 도착일',
+      label: t('requirements.expectedArrival'),
       render: (_, item) => <>{item.expectedArrivalDate || '-'}</>,
     },
-    { key: 'supplierCompanyName', label: '공급사' },
+    { key: 'supplierCompanyName', label: t('common.supplier') },
     {
       key: 'convertStatus',
-      label: '전환 상태',
+      label: t('requirements.convertStatus'),
       render: (_, item) => <StatusLabel statusCode={item.convertStatus} />,
     },
   ];
@@ -218,7 +221,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
         {tabButtons}
         <div className="flex gap-4 items-center">
           <Dropdown
-            placeholder="견적 선택"
+            placeholder={t('common.selectQuote')}
             items={mrpQuotationOptions}
             value={selectedQuote}
             onChange={(quote: string) => {
@@ -228,7 +231,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
             autoSelectFirst
           />
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={t('common.allStatuses')}
             items={mrpAvailableStatusOptions}
             value={selectedStockStatus}
             onChange={(status: string) => {
@@ -237,7 +240,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
             }}
           />
           <Button
-            label="계획 주문 전환"
+            label={t('requirements.convert')}
             onClick={handleConvertToPlannedOrder}
             loading={isConverting}
             disabled={selectedRequirements.length === 0}
@@ -246,16 +249,16 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="순소요 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('requirements.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="순소요 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('requirements.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={orderItems}
           keyExtractor={(row) => row.itemId}
-          emptyMessage="조회된 순소요 데이터가 없습니다"
+          emptyMessage={t('requirements.empty')}
           className="flex-1 min-h-0"
         />
       )}

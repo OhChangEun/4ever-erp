@@ -10,6 +10,7 @@ import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mpsKeys } from '@/app/(private)/production/api/production.keys';
 import { toDateKey } from '@/app/utils/date';
+import { useTranslations } from 'next-intl';
 
 interface MpsRow {
   productName: string;
@@ -22,6 +23,7 @@ interface MpsRow {
 }
 
 export default function MpsTab() {
+  const t = useTranslations('production');
   const { options: dropdownOptions } = useDropdown('mpsBomsDropdown', fetchMpsBomDropdown);
 
   const date = toDateKey(new Date());
@@ -78,32 +80,32 @@ export default function MpsTab() {
   const columns: TableColumn<MpsRow>[] = [
     {
       key: 'productName',
-      label: '제품명',
+      label: t('common.productName'),
       render: (_, row) => <span className="font-medium text-gray-700">{row.productName}</span>,
     },
     {
       key: 'week',
-      label: '주차',
+      label: t('mps.week'),
       render: (_, row) => <span className="text-gray-600">{row.week}</span>,
     },
     {
       key: 'demand',
-      label: '수요',
+      label: t('common.demand'),
       render: (_, row) => <span className="text-gray-700">{row.demand}</span>,
     },
     {
       key: 'requiredInventory',
-      label: '재고 필요량',
+      label: t('common.requiredInventory'),
       render: (_, row) => <span className="text-gray-700">{row.requiredInventory}</span>,
     },
     {
       key: 'productionNeeded',
-      label: '생산 소요량',
+      label: t('common.productionNeeded'),
       render: (_, row) => <span className="text-sm text-gray-700">{row.productionNeeded}</span>,
     },
     {
       key: 'plannedProduction',
-      label: '계획 생산 (MPS)',
+      label: t('common.plannedProduction'),
       render: (_, row) => (
         <span className="font-semibold text-blue-600">{row.plannedProduction}</span>
       ),
@@ -128,16 +130,16 @@ export default function MpsTab() {
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="MPS 데이터를 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('mps.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="데이터를 불러오는 데 실패했습니다." />
+        <TableStatusBox type="error" message={t('mps.loadError')} />
       ) : (
         <Table
           columns={columns}
           data={paginatedRows}
           keyExtractor={(row, index) => `${row.bomId}-${row.week}-${index}`}
           hoverable={false}
-          emptyMessage="조회된 MPS 데이터가 없습니다."
+          emptyMessage={t('mps.empty')}
           className="flex-1 min-h-0"
         />
       )}

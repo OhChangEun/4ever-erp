@@ -1,9 +1,12 @@
 import { transformBomDataToTree, type BomApiNode, type TreeNode } from './bomTreeUtils';
 import type { BomLevelStructureNode } from '../types/BomDetailApiType';
 
+/** 오류는 메시지 키(production.costTree.error.<키>). 글자는 화면이 바꾼다(i18n 9) */
+export type BomTreeError = 'convert' | 'process';
+
 export interface BomTreeResult {
   treeData: TreeNode | null;
-  error: string | null;
+  error: BomTreeError | null;
 }
 
 /**
@@ -24,9 +27,9 @@ export function buildBomTree(bomData: readonly BomLevelStructureNode[]): BomTree
       unitCost: node.unitCost,
     }));
     const treeData = transformBomDataToTree(nodes);
-    if (!treeData) return { treeData: null, error: 'BOM 데이터를 트리 구조로 변환할 수 없습니다.' };
+    if (!treeData) return { treeData: null, error: 'convert' };
     return { treeData, error: null };
   } catch {
-    return { treeData: null, error: 'BOM 데이터를 처리하는데 실패했습니다.' };
+    return { treeData: null, error: 'process' };
   }
 }

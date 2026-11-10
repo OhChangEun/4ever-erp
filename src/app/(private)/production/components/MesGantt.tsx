@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { ganttLayout, type GanttRow } from '../gantt';
 
 const ROW = 32;
@@ -23,6 +24,7 @@ export default function MesGantt({
   today?: Date;
   onSelect: (mesId: string) => void;
 }) {
+  const t = useTranslations('production.gantt');
   const layout = ganttLayout(rows, { today, width: CHART_W, rowHeight: ROW });
   const [focused, setFocused] = useState(0);
   const [moved, setMoved] = useState(false);
@@ -93,13 +95,21 @@ export default function MesGantt({
             strokeDasharray="3 3"
           />
           <text x={layout.todayX + 4} y={AXIS_H - 8} className="fill-blue-600 text-[11px]">
-            오늘
+            {t('today')}
           </text>
         </g>
 
-        <g role="list" aria-label="MES 작업 일정(간트)" transform={`translate(0, ${AXIS_H})`}>
+        <g role="list" aria-label={t('listLabel')} transform={`translate(0, ${AXIS_H})`}>
           {layout.bars.map((bar, i) => {
             const row = rows[i];
+            const name = t(bar.delayed ? 'barDelayed' : 'bar', {
+              number: row.mesNumber,
+              product: row.productName,
+              start: row.startDate,
+              end: row.endDate,
+              // 숫자 형식(쉼표, 소수 자르기)을 타지 않게 글자로 넘긴다. 예전 이름과 같은 값
+              progress: String(bar.progress),
+            });
             return (
               <g
                 key={bar.id}
@@ -107,7 +117,7 @@ export default function MesGantt({
                   itemRefs.current[i] = node;
                 }}
                 role="listitem"
-                aria-label={bar.label}
+                aria-label={name}
                 tabIndex={i === active ? 0 : -1}
                 onKeyDown={(e) => handleKeyDown(e, i, bar.id)}
                 onFocus={() => setFocused(i)}
@@ -147,7 +157,7 @@ export default function MesGantt({
                     y={ROW / 2 + 4}
                     className="fill-red-600 text-[11px] font-medium"
                   >
-                    지연
+                    {t('delayed')}
                   </text>
                 )}
               </g>

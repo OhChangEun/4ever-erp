@@ -21,12 +21,14 @@ import MrpPurchaseRequestModal from '@/app/(private)/production/components/modal
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 interface PlannedOrdersTabProps {
   tabButtons?: React.ReactNode;
 }
 
 export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) {
+  const t = useTranslations('production');
   const { openModal } = useModal();
 
   // mrp 계획주문 견적 드롭다운
@@ -105,7 +107,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
     );
 
     openModal(MrpPurchaseRequestModal, {
-      title: '자재 구매 요청',
+      title: t('plannedOrders.purchaseRequest'),
       orders: selectedOrdersData,
       onConfirm: () => setSelectedOrders([]),
     });
@@ -147,21 +149,21 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
     },
     {
       key: 'quotationNumber',
-      label: '참조 견적서',
+      label: t('common.referenceQuote'),
       render: (_, order) => (
         <span className="text-sm font-medium text-blue-600">{order.quotationNumber}</span>
       ),
     },
-    { key: 'itemName', label: '자재' },
+    { key: 'itemName', label: t('common.material') },
     {
       key: 'quantity',
-      label: '수량',
+      label: t('common.quantity'),
       render: (_, order) => <>{order.quantity.toLocaleString()}</>,
     },
-    { key: 'procurementStartDate', label: '구매 권장일' },
+    { key: 'procurementStartDate', label: t('common.procurementStartDate') },
     {
       key: 'status',
-      label: '상태',
+      label: t('common.status'),
       render: (_, order) => <StatusLabel statusCode={order.status} />,
     },
   ];
@@ -172,7 +174,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
         {tabButtons}
         <div className="flex items-center gap-3">
           <Dropdown
-            placeholder="견적 선택"
+            placeholder={t('common.selectQuote')}
             items={mrpQuotationOptions}
             value={selectedQutations}
             onChange={(quotation: string) => {
@@ -181,7 +183,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
             }}
           />
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={t('common.allStatuses')}
             items={mrpStatusOptions}
             value={selectedStatus}
             onChange={(status) => {
@@ -190,7 +192,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
             }}
           />
           <Button
-            label="자재 구매 요청"
+            label={t('plannedOrders.purchaseRequest')}
             onClick={handlePurchaseRequest}
             disabled={selectedOrders.length === 0}
           />
@@ -198,16 +200,16 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="계획 주문 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('plannedOrders.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="계획 주문 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('plannedOrders.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={plannedOrders}
           keyExtractor={(row) => row.mrpRunId}
-          emptyMessage="조회된 계획 주문 데이터가 없습니다"
+          emptyMessage={t('plannedOrders.empty')}
           className="flex-1 min-h-0"
         />
       )}
