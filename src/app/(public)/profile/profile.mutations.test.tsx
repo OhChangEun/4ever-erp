@@ -21,6 +21,7 @@ import {
 const FOREIGN = ['purchase', 'orders', 'list'];
 const LEAVE_LIST = leaveKeys.list({ page: 0, size: 10 });
 const ATTENDANCE_LIST = attendanceKeys.list({ page: 0, size: 10, date: '2026-11-09' });
+const ATTENDANCE_SUMMARY = attendanceKeys.summary();
 const TRAINING_LIST = trainingKeys.list({ page: 0, size: 10 });
 
 describe('프로필 셀프서비스 mutation 훅', () => {
@@ -42,6 +43,7 @@ describe('프로필 셀프서비스 mutation 훅', () => {
         profileKeys.todayAttendance(),
         profileKeys.attendanceRecords(),
         ATTENDANCE_LIST,
+        ATTENDANCE_SUMMARY,
       ],
       keeps: [profileKeys.info(), LEAVE_LIST, FOREIGN],
     }));
@@ -55,6 +57,7 @@ describe('프로필 셀프서비스 mutation 훅', () => {
         profileKeys.todayAttendance(),
         profileKeys.attendanceRecords(),
         ATTENDANCE_LIST,
+        ATTENDANCE_SUMMARY,
       ],
       keeps: [profileKeys.info(), LEAVE_LIST, FOREIGN],
     }));

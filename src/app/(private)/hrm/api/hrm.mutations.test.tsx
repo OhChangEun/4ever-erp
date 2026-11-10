@@ -30,6 +30,7 @@ import {
 const PURCHASE_ORDER_LIST: QueryKey = ['purchase', 'orders', 'list'];
 const LEAVE_LIST = leaveKeys.list({ page: 0, size: 10 });
 const ATTENDANCE_LIST = attendanceKeys.list({ page: 0, size: 10, date: '2026-11-09' });
+const ATTENDANCE_SUMMARY = attendanceKeys.summary();
 const PROGRAM_LIST = programKeys.list({ page: 0, size: 10 });
 const PROGRAM_DETAIL = programKeys.detail('prog-1');
 const PROGRAM_DROPDOWN = programKeys.dropdown();
@@ -44,6 +45,7 @@ const PAYROLL_DETAIL = payrollKeys.detail('pay-1');
 const ALL_KEYS = [
   LEAVE_LIST,
   ATTENDANCE_LIST,
+  ATTENDANCE_SUMMARY,
   PROGRAM_LIST,
   PROGRAM_DETAIL,
   PROGRAM_DROPDOWN,
@@ -112,13 +114,13 @@ const cases: Case[] = [
   {
     name: '휴가 승인 → 휴가 목록 + 근태 목록',
     run: (qc) => runHook(qc, useApproveLeave, 'leave-1'),
-    invalidates: [LEAVE_LIST, ATTENDANCE_LIST],
+    invalidates: [LEAVE_LIST, ATTENDANCE_LIST, ATTENDANCE_SUMMARY],
     keeps: [EMPLOYEE_LIST, PAYROLL_LIST, PURCHASE_ORDER_LIST],
   },
   {
     name: '휴가 반려 → 휴가 목록 + 근태 목록',
     run: (qc) => runHook(qc, useRejectLeave, 'leave-1'),
-    invalidates: [LEAVE_LIST, ATTENDANCE_LIST],
+    invalidates: [LEAVE_LIST, ATTENDANCE_LIST, ATTENDANCE_SUMMARY],
     keeps: [EMPLOYEE_LIST, PURCHASE_ORDER_LIST],
   },
   {
@@ -156,7 +158,7 @@ const cases: Case[] = [
         checkInTime: '2026-11-09T09:00',
         checkOutTime: '2026-11-09T18:00',
       }),
-    invalidates: [ATTENDANCE_LIST],
+    invalidates: [ATTENDANCE_LIST, ATTENDANCE_SUMMARY],
     keeps: [LEAVE_LIST, PURCHASE_ORDER_LIST],
   },
   {
