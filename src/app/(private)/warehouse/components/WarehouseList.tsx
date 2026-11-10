@@ -2,6 +2,7 @@
 
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Pagination } from '@everp/ui';
 import { getWarehouseList } from '../warehouse.api';
@@ -14,27 +15,35 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 import { Button } from '@everp/ui';
+
+/** 3D 청크를 받는 동안 보이는 글자. 모달 안에서 그려져 창고 메시지를 본다 */
+function ViewerLoading() {
+  const t = useTranslations('warehouse.list');
+  return (
+    <div role="status" className="flex h-96 items-center justify-center text-sm text-gray-500">
+      {t('viewerLoading')}
+    </div>
+  );
+}
+
 // three.js 는 3D 보기를 누를 때만 받는다. 틀은 공통 모달이라 Esc, 포커스 가두기, 포커스 되돌리기가 된다
 const Warehouse3DModal = dynamic(
   () => import('./warehouseVisualizer/components/Warehouse3DModal'),
   {
     ssr: false,
-    loading: () => (
-      <div role="status" className="flex h-96 items-center justify-center text-sm text-gray-500">
-        3D 뷰어를 준비하는 중...
-      </div>
-    ),
+    loading: () => <ViewerLoading />,
   },
 );
 
 const WarehouseList = () => {
+  const t = useTranslations('warehouse.list');
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleWarehouseDetail = (warehouseId: string, warehouseName: string) => {
     openModal(WarehouseDetailModal, {
       width: '900px',
-      title: '창고 상세 정보',
+      title: t('detailModalTitle'),
       handleWarehouseManage: handleWarehouseManage,
       selectedWarehouseId: warehouseId,
       selectedWarehouseName: warehouseName,
@@ -44,14 +53,14 @@ const WarehouseList = () => {
   const handleWarehouseManage = (warehouseId: string, warehouseName: string) => {
     openModal(ManageWarehouseModal, {
       width: '600px',
-      title: `창고 관리 - ${warehouseName}`,
+      title: t('manageModalTitle', { name: warehouseName }),
       selectedWarehouseId: warehouseId,
     });
   };
 
   const handleWarehouse3D = (warehouseId: string, warehouseName: string) => {
     openModal(Warehouse3DModal, {
-      title: `창고 3D 뷰 - ${warehouseName}`,
+      title: t('view3dModalTitle', { name: warehouseName }),
       width: '900px',
       warehouseId,
       warehouseName,
@@ -84,21 +93,21 @@ const WarehouseList = () => {
     <div className="bg-white rounded-lg  border border-gray-200 mt-8">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">창고 목록</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
           <Button
-            label="창고 추가"
+            label={t('add')}
             onClick={() => {
-              openModal(AddWarehouseModal, { width: '700px', title: '새 창고 추가' });
+              openModal(AddWarehouseModal, { width: '700px', title: t('addModalTitle') });
             }}
           />
         </div>
       </div>
       {isLoading ? (
-        <TableStatusBox type="loading" message="창고 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="창고 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('loadError')} />
       ) : warehouses.length === 0 ? (
-        <TableStatusBox type="empty" message="등록된 창고가 없습니다." />
+        <TableStatusBox type="empty" message={t('empty')} />
       ) : (
         <div
           aria-busy={isPlaceholderData || undefined}
@@ -144,7 +153,7 @@ const WarehouseList = () => {
               <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 sm:flex-row">
                 <Button
                   variant="secondary"
-                  label="상세보기"
+                  label={t('detail')}
                   onClick={() =>
                     handleWarehouseDetail(warehouse.warehouseId, warehouse.warehouseName)
                   }
@@ -152,12 +161,12 @@ const WarehouseList = () => {
                 />
                 <Button
                   variant="secondary"
-                  label="3D 보기"
+                  label={t('view3d')}
                   onClick={() => handleWarehouse3D(warehouse.warehouseId, warehouse.warehouseName)}
                   className="w-[31%]"
                 />
                 <Button
-                  label="관리"
+                  label={t('manage')}
                   onClick={() =>
                     handleWarehouseManage(warehouse.warehouseId, warehouse.warehouseName)
                   }

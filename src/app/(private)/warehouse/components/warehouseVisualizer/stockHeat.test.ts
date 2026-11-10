@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { BAND_LABEL, stockBand } from './stockHeat';
+import ko from '@/i18n/messages/warehouse/ko.json';
+import { BANDS, stockBand } from './stockHeat';
 
 describe('stockBand', () => {
   it.each([
@@ -14,8 +15,10 @@ describe('stockBand', () => {
     expect(stockBand(current, safety)).toBe(band);
   });
 
+  // 단계 이름은 상수(BAND_LABEL)에서 메시지로 옮겼다(i18n 3). 같은 글자를 메시지에서 확인한다
   it('단계 이름', () => {
-    expect(BAND_LABEL.short).toBe('부족');
-    expect(BAND_LABEL.none).toBe('기준 없음');
+    expect(ko.band.short).toBe('부족');
+    expect(ko.band.none).toBe('기준 없음');
+    expect(Object.keys(ko.band).sort()).toEqual([...BANDS].sort());
   });
 });

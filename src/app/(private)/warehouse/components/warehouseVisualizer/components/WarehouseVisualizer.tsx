@@ -1,7 +1,8 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { BAND_LABEL, BAND_TOKEN, BANDS } from '../stockHeat';
+import { useTranslations } from 'next-intl';
+import { BAND_TOKEN, BANDS } from '../stockHeat';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import WarehouseStockPanel from './WarehouseStockPanel';
 import { Environment, OrbitControls } from '@react-three/drei';
@@ -21,6 +22,10 @@ const WarehouseVisualizer = ({
   warehouseName,
   hideSummary,
 }: WarehouseVisualizerProps) => {
+  const t = useTranslations('warehouse');
+  const tv = useTranslations('warehouse.visualizer');
+  // 계산은 이름 없는 창고를 null 로 준다. 글자는 여기서
+  const nameOf = (name: string | null) => name ?? tv('unnamedWarehouse');
   const filterOptions = useMemo<WarehouseFilter | undefined>(
     () => (warehouseId ? { warehouseId, warehouseName } : undefined),
     [warehouseId, warehouseName],
@@ -73,15 +78,13 @@ const WarehouseVisualizer = ({
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">창고 3D 뷰</h2>
-            <p className="text-sm text-gray-500">
-              창고를 선택해 내부 선반을 확인하고, 블록을 클릭해 재고 상세 정보를 확인하세요.
-            </p>
+            <h2 className="text-lg font-semibold text-gray-900">{tv('title')}</h2>
+            <p className="text-sm text-gray-500">{tv('help')}</p>
           </div>
 
           {/* 재고율 4단계 + 기준 없음(시각화 8). 색은 장면과 같은 토큰 */}
           <div
-            aria-label="재고율 범례"
+            aria-label={tv('legend')}
             className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
           >
             {BANDS.map((band) => (
@@ -89,7 +92,7 @@ const WarehouseVisualizer = ({
                 <span
                   className={`inline-flex h-3 w-3 rounded-full ${BAND_TOKEN[band].className}`}
                 />
-                {BAND_LABEL[band]}
+                {t(`band.${band}`)}
               </span>
             ))}
           </div>
@@ -104,16 +107,12 @@ const WarehouseVisualizer = ({
               role="status"
               className="absolute inset-0 z-local flex items-center justify-center text-sm text-gray-600"
             >
-              창고 재고를 불러오는 중...
+              {tv('loading')}
             </div>
           )}
           {isError && (
             <div className="absolute inset-x-4 top-16 z-local">
-              <TableStatusBox
-                type="error"
-                message="창고 재고를 불러오지 못했습니다."
-                error={error}
-              />
+              <TableStatusBox type="error" message={tv('loadError')} error={error} />
             </div>
           )}
           {viewMode === 'warehouse' && (
@@ -122,13 +121,13 @@ const WarehouseVisualizer = ({
               onClick={() => setFreeMode((prev) => !prev)}
               className="absolute right-4 bottom-4 z-local rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow hover:bg-blue-50"
             >
-              {freeMode ? '마우스 탐색 종료' : '자유 시점 이동'}
+              {freeMode ? tv('freeModeOff') : tv('freeModeOn')}
             </button>
           )}
           {viewMode === 'warehouse' && activeCluster && (
             <div className="absolute left-4 top-4 z-local flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow">
               <i className="ri-home-5-line text-base text-blue-600"></i>
-              <span>{activeCluster.name}</span>
+              <span>{nameOf(activeCluster.name)}</span>
             </div>
           )}
 
@@ -139,13 +138,13 @@ const WarehouseVisualizer = ({
               className="absolute right-4 top-4 z-local inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold text-blue-700 shadow transition hover:bg-blue-50"
             >
               <i className="ri-arrow-left-line text-sm"></i>
-              <span>창고 목록으로</span>
+              <span>{tv('backToWarehouses')}</span>
             </button>
           )}
 
           {allowWarehouseNavigation && viewMode === 'overview' && (
             <div className="pointer-events-none absolute left-4 top-4 z-local rounded-lg bg-white/85 px-3 py-2 text-xs text-gray-600 shadow">
-              창고 바닥을 더블 클릭하거나 창고 요약 카드에서 이동해 내부를 확인하세요.
+              {tv('overviewHint')}
             </div>
           )}
 
@@ -192,7 +191,7 @@ const WarehouseVisualizer = ({
       {!hideSummary && (
         <aside className="space-y-4">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-base font-semibold text-gray-900">창고 요약</h3>
+            <h3 className="mb-3 text-base font-semibold text-gray-900">{tv('summaryTitle')}</h3>
             <div className="space-y-3">
               {summaries.map((summary) => {
                 const isActive = activeCluster?.key === summary.key;
@@ -204,23 +203,23 @@ const WarehouseVisualizer = ({
                       className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-left"
                     >
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-gray-800">{summary.name}</p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          {nameOf(summary.name)}
+                        </p>
                         <span className="text-xs font-medium text-blue-600">
-                          평균 충전율 {summary.avgFillPercent}%
+                          {tv('avgFill', { percent: summary.avgFillPercent })}
                         </span>
                       </div>
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
-                        <span>품목 {summary.totalItems}개</span>
-                        <span>총 재고 {summary.totalQty.toLocaleString()} EA</span>
+                        <span>{tv('itemCount', { count: summary.totalItems })}</span>
+                        <span>{tv('totalQty', { qty: summary.totalQty.toLocaleString() })}</span>
                         <span className={summary.lowStock > 0 ? 'text-red-500 font-semibold' : ''}>
-                          부족 {summary.lowStock}개
+                          {tv('lowStock', { count: summary.lowStock })}
                         </span>
                       </div>
                       <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600">
                         <i className="ri-compass-3-line text-sm" />
-                        {isActive
-                          ? '이 창고의 재고를 3D로 탐색 중입니다.'
-                          : '창고 재고 정보를 확인하세요.'}
+                        {isActive ? tv('exploringFixed') : tv('checkStock')}
                       </div>
                     </div>
                   );
@@ -238,28 +237,28 @@ const WarehouseVisualizer = ({
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-800">{summary.name}</p>
+                      <p className="text-sm font-semibold text-gray-800">{nameOf(summary.name)}</p>
                       <span className="text-xs font-medium text-blue-600">
-                        평균 충전율 {summary.avgFillPercent}%
+                        {tv('avgFill', { percent: summary.avgFillPercent })}
                       </span>
                     </div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
-                      <span>품목 {summary.totalItems}개</span>
-                      <span>총 재고 {summary.totalQty.toLocaleString()} EA</span>
+                      <span>{tv('itemCount', { count: summary.totalItems })}</span>
+                      <span>{tv('totalQty', { qty: summary.totalQty.toLocaleString() })}</span>
                       <span className={summary.lowStock > 0 ? 'text-red-500 font-semibold' : ''}>
-                        부족 {summary.lowStock}개
+                        {tv('lowStock', { count: summary.lowStock })}
                       </span>
                     </div>
                     <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600">
                       <i className="ri-door-open-line text-sm" />
-                      {isActive ? '현재 이 창고를 탐색 중입니다.' : '클릭해서 창고 내부로 이동'}
+                      {isActive ? tv('exploring') : tv('enter')}
                     </div>
                   </button>
                 );
               })}
               {!summaries.length && (
                 <p className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-500">
-                  표시할 창고 데이터가 없습니다. 재고를 추가하면 자동으로 시각화됩니다.
+                  {tv('noData')}
                 </p>
               )}
             </div>
@@ -267,9 +266,9 @@ const WarehouseVisualizer = ({
 
           {activeCluster && (
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-3 text-base font-semibold text-gray-900">재고율</h3>
+              <h3 className="mb-3 text-base font-semibold text-gray-900">{tv('stockRateTitle')}</h3>
               {isLoading || isError ? (
-                <p className="text-sm text-gray-500">재고를 받은 뒤에 보입니다.</p>
+                <p className="text-sm text-gray-500">{tv('waitForStock')}</p>
               ) : (
                 <WarehouseStockPanel
                   cluster={activeCluster}

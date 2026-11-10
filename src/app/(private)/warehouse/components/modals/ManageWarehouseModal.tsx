@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { type ManageWarehouseModalProps } from '../../types/ManageWarehouseModalType';
 import { type WarehouseDetailResponse } from '../../types/WarehouseDetailModalType';
 import { getWarehouseDetail, getWarehouseManagerInfo } from '../../warehouse.api';
@@ -29,6 +30,7 @@ interface ManageWarehouseRequest {
 const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseModalProps) => {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const t = useTranslations('warehouse');
   const toast = useToast();
   // 서버 값으로 한 번만 채우는 초안. 채운 뒤의 재조회는 입력을 덮지 않는다(예전엔 effect 가 매번 덮었다)
   const [formData, setFormData] = useState<ManageWarehouseRequest | null>(null);
@@ -78,10 +80,10 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   // 낙관적 업데이트(목록 행의 이름, 유형, 위치, 상태)와 무효화는 warehouse.mutations.ts 한 곳.
   const { mutate: editWarehouse, isPending: isEditing } = useEditWarehouse({
     onSuccess: () => {
-      toast.success('창고 수정이 완료되었습니다.');
+      toast.success(t('manage.success'));
       onClose();
     },
-    onError: (error) => toast.error(`창고 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('manage.error', { message: errorMessageOf(error) })),
   });
 
   // 세 조회가 다 오면 렌더 중에 한 번 채운다. 담당자 목록이 비어 있어도 상세의 담당자로 채운다
@@ -107,15 +109,15 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   const errorDialog = useDismissibleError(isWarehouseInfoError, isManagerInfoError);
 
   if (isWarehouseInfoLoading)
-    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message={t('manage.loading')} />;
 
   if (isManagerInfoLoading)
-    return <ModalStatusBox type="loading" message="담당자 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message={t('managerInfo.loading')} />;
 
   // 두 조회 중 무엇이 실패했는지 한 창에 적는다(예전엔 같은 조건의 분기가 둘이라 두 번째는 닿지 않았다)
   const loadErrorMessage = isWarehouseInfoError
-    ? '창고 정보를 불러오는 중 오류가 발생했습니다.'
-    : '담당자 정보를 불러오는 중 오류가 발생했습니다.';
+    ? t('manage.loadError')
+    : t('managerInfo.loadError');
 
   if (errorDialog.isOpen)
     return (
@@ -131,7 +133,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     return isWarehouseInfoError || isManagerInfoError ? (
       <ModalStatusBox type="error" message={loadErrorMessage} onClose={onClose} />
     ) : (
-      <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />
+      <ModalStatusBox type="loading" message={t('manage.loading')} />
     );
 
   return (
@@ -142,7 +144,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-warehouseName`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            창고명
+            {t('form.name')}
           </label>
           <input
             id={`${fieldId}-warehouseName`}
@@ -158,7 +160,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-warehouseNumber`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            창고 코드
+            {t('form.code')}
           </label>
           <input
             id={`${fieldId}-warehouseNumber`}
@@ -179,7 +181,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-warehouseType`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            창고 유형
+            {t('form.type')}
           </label>
           <select
             id={`${fieldId}-warehouseType`}
@@ -188,9 +190,9 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             name="warehouseType"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
           >
-            <option value="MATERIAL">원자재</option>
-            <option value="ITEM">부품</option>
-            <option value="ETC">기타</option>
+            <option value="MATERIAL">{t('warehouseType.MATERIAL')}</option>
+            <option value="ITEM">{t('warehouseType.ITEM')}</option>
+            <option value="ETC">{t('warehouseType.ETC')}</option>
           </select>
         </div>
         <div>
@@ -198,7 +200,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-statusCode`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            상태
+            {t('form.status')}
           </label>
           <select
             id={`${fieldId}-statusCode`}
@@ -207,8 +209,8 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             name="statusCode"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
           >
-            <option value="ACTIVE">운영중</option>
-            <option value="INACTIVE">비활성</option>
+            <option value="ACTIVE">{t('statusOption.ACTIVE')}</option>
+            <option value="INACTIVE">{t('statusOption.INACTIVE')}</option>
           </select>
         </div>
       </div>
@@ -218,7 +220,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           htmlFor={`${fieldId}-location`}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          주소
+          {t('form.address')}
         </label>
         <input
           id={`${fieldId}-location`}
@@ -236,7 +238,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-managerId`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            담당자
+            {t('form.manager')}
           </label>
           <select
             id={`${fieldId}-managerId`}
@@ -259,7 +261,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             value={formData.managerId}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
           >
-            <option value="">창고 담당자를 선택하세요</option>
+            <option value="">{t('form.managerPlaceholder')}</option>
             {ManagerInfoRes?.map((manager) => (
               <option key={manager.managerId} value={manager.managerId}>
                 {manager.managerName}
@@ -272,7 +274,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             htmlFor={`${fieldId}-managerPhoneNumber`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            연락처
+            {t('form.phone')}
           </label>
           <input
             id={`${fieldId}-managerPhoneNumber`}
@@ -297,7 +299,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           htmlFor={`${fieldId}-managerEmail`}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          이메일
+          {t('form.email')}
         </label>
         <input
           id={`${fieldId}-managerEmail`}
@@ -316,7 +318,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           htmlFor={`${fieldId}-description`}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          설명
+          {t('form.note')}
         </label>
         <textarea
           id={`${fieldId}-description`}
@@ -334,14 +336,14 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
           onClick={() => onClose()}
           className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
         >
-          취소
+          {t('form.cancel')}
         </button>
         <button
           type="submit"
           disabled={isEditing}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isEditing ? '저장 중...' : '저장'}
+          {isEditing ? t('form.saving') : t('form.save')}
         </button>
       </div>
     </form>

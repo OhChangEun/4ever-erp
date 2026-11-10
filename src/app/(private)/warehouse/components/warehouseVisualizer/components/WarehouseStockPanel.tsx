@@ -1,8 +1,9 @@
 'use client';
 
+import { useLocale, useTranslations } from 'next-intl';
 import { InventoryDetailModal } from '@/app/(private)/inventory/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { BAND_LABEL, BAND_TOKEN } from '../stockHeat';
+import { BAND_TOKEN } from '../stockHeat';
 import type { VisualizerItem, WarehouseCluster } from '../WarehouseVisualizerType';
 
 const percentOf = (item: VisualizerItem) =>
@@ -30,12 +31,13 @@ export default function WarehouseStockPanel({
   selectedItemId: string | null;
   onSelect: (itemId: string) => void;
 }) {
+  const t = useTranslations('warehouse');
+  const locale = useLocale();
   const { openModal } = useModal();
   const items = [...cluster.items].sort(byRatio);
   const selected = cluster.items.find((i) => i.itemId === selectedItemId) ?? null;
 
-  if (items.length === 0)
-    return <p className="text-sm text-gray-500">이 창고에 재고가 없습니다.</p>;
+  if (items.length === 0) return <p className="text-sm text-gray-500">{t('stockPanel.empty')}</p>;
 
   const short = items.filter((i) => i.band === 'short').length;
   const caution = items.filter((i) => i.band === 'caution').length;
@@ -43,11 +45,11 @@ export default function WarehouseStockPanel({
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-700">
-        품목 {items.length}개 중 부족 {short}개, 주의 {caution}개.
-        {total > items.length && ` ${total}개 중 ${items.length}개만 그렸습니다.`}
+        {t('stockPanel.summary', { total: items.length, short, caution })}
+        {total > items.length && ` ${t('stockPanel.truncated', { total, shown: items.length })}`}
       </p>
 
-      <ul aria-label="품목(재고율 낮은 순)" className="max-h-64 space-y-1 overflow-auto">
+      <ul aria-label={t('stockPanel.listLabel')} className="max-h-64 space-y-1 overflow-auto">
         {items.map((item) => {
           const pressed = item.itemId === selectedItemId;
           return (
@@ -67,7 +69,7 @@ export default function WarehouseStockPanel({
                 <span className="flex-1 truncate">{item.itemName}</span>
                 <span className="tabular-nums text-gray-600">{percentOf(item)}</span>
                 <span className="w-14 text-right text-xs text-gray-500">
-                  {BAND_LABEL[item.band]}
+                  {t(`band.${item.band}`)}
                 </span>
               </button>
             </li>
@@ -79,26 +81,30 @@ export default function WarehouseStockPanel({
         <div className="space-y-2 rounded-lg border border-gray-200 p-3 text-sm text-gray-700">
           <p className="font-semibold text-gray-900">{selected.itemName}</p>
           <p className="tabular-nums">
-            현재고 {selected.currentStock.toLocaleString('ko-KR')} {selected.uomName}, 안전재고{' '}
-            {selected.safetyStock.toLocaleString('ko-KR')} {selected.uomName}, 재고율{' '}
-            {percentOf(selected)}({BAND_LABEL[selected.band]})
+            {t('stockPanel.selectedStock', {
+              current: selected.currentStock.toLocaleString(locale),
+              safety: selected.safetyStock.toLocaleString(locale),
+              uom: selected.uomName,
+              percent: percentOf(selected),
+              band: t(`band.${selected.band}`),
+            })}
           </p>
           <button
             type="button"
             onClick={() =>
               openModal(InventoryDetailModal, {
-                title: '재고 상세',
+                title: t('stockPanel.inventoryDetailTitle'),
                 width: '1000px',
                 selectedItemId: selected.itemId,
               })
             }
             className="text-sm text-blue-600 hover:underline cursor-pointer"
           >
-            재고 상세 열기
+            {t('stockPanel.openInventoryDetail')}
           </button>
         </div>
       ) : (
-        <p className="text-sm text-gray-500">블록이나 목록에서 품목을 고르세요.</p>
+        <p className="text-sm text-gray-500">{t('stockPanel.pickHint')}</p>
       )}
     </div>
   );

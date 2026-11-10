@@ -28,7 +28,8 @@ export interface VisualizerItem extends InventoryResponse {
 
 export interface WarehouseCluster {
   key: string;
-  name: string;
+  /** null 이면 이름 없는 창고. 글자는 화면이 붙인다(계산은 한국어를 돌려주지 않는다) */
+  name: string | null;
   origin: [number, number, number];
   items: VisualizerItem[];
 }

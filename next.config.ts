@@ -7,7 +7,7 @@ const withNextIntl = createNextIntlPlugin({
   experimental: {
     // 도메인 메시지 폴더도 넣어야 precompile 된다(빠지면 ICU 해석기가 번들에 다시 들어온다)
     messages: {
-      path: ['./src/i18n/messages', './src/i18n/messages/finance'],
+      path: ['./src/i18n/messages', './src/i18n/messages/finance', './src/i18n/messages/warehouse'],
       format: 'json',
       locales: 'infer',
       precompile: true,
