@@ -42,3 +42,4 @@ coverage/
 /e2e/.auth/
 scripts/codemods/.openapi-map.json
 .turbo
+storybook-static

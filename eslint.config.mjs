@@ -14,6 +14,8 @@ export default defineConfig([
     'public/mockServiceWorker.js', // msw 가 생성한 파일
     'src/lib/api/openapi.gen.ts', // openapi-typescript 가 계약에서 만든 파일(npm run openapi)
     'coverage/**',
+    '**/storybook-static/**', // Storybook 빌드 결과(Storybook 1 카드). 압축 JS 라 린트하면 10분 넘게 걸렸다
+    '.turbo/**',
   ]),
   ...nextVitals,
   ...nextTs,

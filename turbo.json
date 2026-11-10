@@ -13,6 +13,10 @@
     },
     "test": {
       "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "build-storybook": {
+      "inputs": ["$TURBO_DEFAULT$", "../../src/styles/globals.css"],
+      "outputs": ["storybook-static/**"]
     }
   }
 }
