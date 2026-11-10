@@ -179,7 +179,7 @@ function DemoLogin() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              login(inputId);
+              void login(inputId);
             }}
           >
             <Flex align="center" gap={2}>

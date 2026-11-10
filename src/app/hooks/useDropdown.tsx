@@ -30,7 +30,7 @@ export const useDropdown = (
         return hasAll ? data : [ALL_OPTION, ...data];
       case 'without-all':
         return data.filter((item) => item.value !== ALL_OPTION.value);
-      default:
+      case 'as-is':
         return data;
     }
   }, [data, mode]);

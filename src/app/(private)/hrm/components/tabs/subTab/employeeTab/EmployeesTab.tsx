@@ -2,14 +2,14 @@
 
 import { fetchDepartmentsDropdown, fetchEmployeesList } from '@/app/(private)/hrm/api/hrm.api';
 import {
-  EmployeeData,
-  EmployeeListRequestParams,
+  type EmployeeData,
+  type EmployeeListRequestParams,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { EmployeeDetailModal } from '@/app/(private)/hrm/components/modals/EmployeeDetailModal';

@@ -1,8 +1,11 @@
 'use client';
 
-import { QuoteFormData, QuoteFormItem } from '@/app/(private)/sales/types/SalesQuoteListType';
+import {
+  type QuoteFormData,
+  type QuoteFormItem,
+} from '@/app/(private)/sales/types/SalesQuoteListType';
 import { useState, useId } from 'react';
-import { NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalType';
+import { type NewQuoteModalProps } from '@/app/(private)/sales/types/NewQuoteModalType';
 import { NEW_QUOTE_PRODUCT_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import { useToast } from '@/app/components/common/toast/useToast';
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 import { useRole } from '@/app/hooks/useRole';
 import { useTranslations } from 'next-intl';
 import { getNavLabelKey } from '@/app/components/sidebar/SidebarNavigation';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DashboardProps } from '../types/DashboardWorkflowType';
+import { type DashboardProps } from '../types/DashboardWorkflowType';
 import { getTabCodeText } from '../dashboard.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';

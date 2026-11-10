@@ -1,4 +1,4 @@
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 import PurchaseRequestListTab from '@/app/(private)/purchase/components/tabs/PurchaseRequestListTab';
 import PurchaseOrderListTab from '@/app/(private)/purchase/components/tabs/PurchaseOrderListTab';
 import SupplierListTab from '@/app/(private)/purchase/components/tabs/SupplierListTab';

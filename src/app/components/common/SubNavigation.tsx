@@ -1,6 +1,6 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 
 interface SubNavigationProps {
   tabs: Tab[];

@@ -20,6 +20,7 @@ export const getTabCodeText = (tabCode: string | undefined) => {
       return '견적 프로세스';
     case 'MES':
       return '생산 프로세스';
+    case undefined:
     default:
       return '알 수 없는 프로세스';
   }

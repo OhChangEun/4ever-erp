@@ -1,7 +1,7 @@
 'use client';
 
-import { CustomerDetailModalProps } from '@/app/(private)/sales/types/CustomerDetailModalProps';
-import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
+import { type CustomerDetailModalProps } from '@/app/(private)/sales/types/CustomerDetailModalProps';
+import { type CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
 import { getCustomerDetail } from '../../sales.api';
 import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useQuery } from '@tanstack/react-query';

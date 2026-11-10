@@ -1,9 +1,9 @@
-import { AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
-import { EmployeeListRequestParams } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import { LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
-import { PayrollRequestParams } from '@/app/(private)/hrm/types/HrmPayrollApiType';
-import { ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
-import { TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
+import { type AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
+import { type EmployeeListRequestParams } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
+import { type LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
+import { type PayrollRequestParams } from '@/app/(private)/hrm/types/HrmPayrollApiType';
+import { type ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
+import { type TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 
 export const hrmStatsKeys = {
   all: ['hrm', 'stats'] as const,

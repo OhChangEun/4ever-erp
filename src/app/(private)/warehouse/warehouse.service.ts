@@ -1,5 +1,5 @@
-import { StatCardType } from '@/app/types/StatType';
-import { WarehouseStatResponse } from './types/WarehouseStatsType';
+import { type StatCardType } from '@/app/types/StatType';
+import { type WarehouseStatResponse } from './types/WarehouseStatsType';
 import { createStatCard } from '@/lib/CreateStatCard';
 
 export const mapWarehouseStatsToCards = (

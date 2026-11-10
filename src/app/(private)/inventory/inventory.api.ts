@@ -1,31 +1,34 @@
 import type { Schema } from '@/lib/api/contract';
 
 type StockHistory = Schema<'StockHistory'>;
-import { InventoryStatResponse } from './types/InventoryStatsType';
+import { type InventoryStatResponse } from './types/InventoryStatsType';
 import axios from '@/lib/axiosInstance';
-import { InventoryQueryParams, InventoryResponse } from './types/InventoryListType';
-import { InventoryDetailResponse, StockMovementRequest } from './types/InventoryDetailModalType';
+import { type InventoryQueryParams, type InventoryResponse } from './types/InventoryListType';
+import {
+  type InventoryDetailResponse,
+  type StockMovementRequest,
+} from './types/InventoryDetailModalType';
 import type { LowStockItemResponse } from '@/app/(private)/low-stock';
-import { StockMovementResponse } from './types/StockMovement';
+import { type StockMovementResponse } from './types/StockMovement';
 import {
-  ManageMentCommonQueryParams,
-  ProductionListResponse,
-  ReadyToShipListResponse,
+  type ManageMentCommonQueryParams,
+  type ProductionListResponse,
+  type ReadyToShipListResponse,
 } from './types/ShippingManagementListType';
-import { ReceivedListResponse } from './types/ReceivingManagementListType';
+import { type ReceivedListResponse } from './types/ReceivingManagementListType';
 import {
-  markAsReadyRequest,
-  markAsReadyToShipResponse,
-  ShippingDetailResponse,
+  type markAsReadyRequest,
+  type markAsReadyToShipResponse,
+  type ShippingDetailResponse,
 } from './types/ShippingDetailModalType';
 import {
-  AddInventoryItemsRequest,
-  AddInventoryItemsToggleResponse,
-  WarehouseToggleQueryParams,
-  WarehouseToggleResponse,
+  type AddInventoryItemsRequest,
+  type AddInventoryItemsToggleResponse,
+  type WarehouseToggleQueryParams,
+  type WarehouseToggleResponse,
 } from './types/AddInventoryModalType';
-import { ApiResponse, ApiResponseNoData, INVENTORY_ENDPOINTS } from '@/app/types/api';
-import { Page } from '@/app/types/Page';
+import { type ApiResponse, type ApiResponseNoData, INVENTORY_ENDPOINTS } from '@/app/types/api';
+import { type Page } from '@/app/types/Page';
 // ----------------------- 재고 통계 -----------------------
 export const getInventoryStats = async (): Promise<InventoryStatResponse> => {
   const res = await axios.get<ApiResponse<InventoryStatResponse>>(INVENTORY_ENDPOINTS.STATS);

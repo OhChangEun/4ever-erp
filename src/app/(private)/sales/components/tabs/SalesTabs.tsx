@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import TabNavigation from '@/app/components/common/TabNavigation';
 import { useRole } from '@/app/hooks/useRole';
 import { getSalesTabsByRole } from '../../utils';

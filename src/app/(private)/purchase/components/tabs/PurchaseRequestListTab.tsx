@@ -16,13 +16,13 @@ import {
 import { errorMessageOf } from '@/lib/AppError';
 import { Dropdown } from '@everp/ui';
 import {
-  PurchaseRequestListItem,
-  PurchaseRequestListParams,
-  PurchaseRequestListResponse,
+  type PurchaseRequestListItem,
+  type PurchaseRequestListParams,
+  type PurchaseRequestListResponse,
 } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { Pagination } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';

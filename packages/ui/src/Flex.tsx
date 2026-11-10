@@ -1,4 +1,4 @@
-import { HTMLAttributes, ReactNode } from 'react';
+import { type HTMLAttributes, type ReactNode } from 'react';
 
 type FlexDirection = 'row' | 'col' | 'row-reverse' | 'col-reverse';
 type FlexAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';

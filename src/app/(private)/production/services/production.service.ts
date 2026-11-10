@@ -1,6 +1,6 @@
 import { createStatCard } from '@/lib/CreateStatCard';
-import { StatCardType } from '@/app/types/StatType';
-import { ProductionStatResponse } from '@/app/(private)/production/types/ProductionStatsType';
+import { type StatCardType } from '@/app/types/StatType';
+import { type ProductionStatResponse } from '@/app/(private)/production/types/ProductionStatsType';
 
 // 변환 함수
 export const mapProductionStatsToCards = (

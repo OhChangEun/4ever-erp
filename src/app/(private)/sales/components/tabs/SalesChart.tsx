@@ -18,7 +18,7 @@ import {
 } from 'recharts';
 import { getAnalytics } from '../../sales.api';
 import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
-import { SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
+import { type SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
 import { formatCurrency } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { toDateKey } from '@/app/utils/date';

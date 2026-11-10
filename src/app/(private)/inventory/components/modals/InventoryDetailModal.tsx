@@ -4,8 +4,8 @@ import { useState } from 'react';
 import InventoryMoveModal from './InventoryMoveModal';
 import InventorySafetyModal from './InventorySafetyStockModal';
 import {
-  InventoryDetailModalProps,
-  InventoryDetailResponse,
+  type InventoryDetailModalProps,
+  type InventoryDetailResponse,
 } from '../../types/InventoryDetailModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getInventoryDetail } from '../../inventory.api';
@@ -33,7 +33,7 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
     uomName: '',
   });
 
-  const handleStockMove = (itemId: string) => {
+  const handleStockMove = () => {
     setSelectedStock({
       itemId: inventoryDetailRes?.itemId || '',
       itemName: inventoryDetailRes?.itemName || '',
@@ -248,7 +248,7 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
               variant="secondary"
               label="재고 이동"
               onClick={() => {
-                handleStockMove(inventoryDetailRes?.itemId ?? '');
+                handleStockMove();
               }}
               className="w-[49%]"
             />

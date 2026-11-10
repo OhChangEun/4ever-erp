@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getWarehouseInfo } from '../../inventory.api';
 import { useMoveStock } from '../../inventory.mutations';
 import { useMemo, useState, useId } from 'react';
-import { InventoryMoveModalProps } from '../../types/InventoryMoveModalType';
+import { type InventoryMoveModalProps } from '../../types/InventoryMoveModalType';
 import {
-  WarehouseToggleQueryParams,
-  WarehouseToggleResponse,
+  type WarehouseToggleQueryParams,
+  type WarehouseToggleResponse,
 } from '../../types/AddInventoryModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';

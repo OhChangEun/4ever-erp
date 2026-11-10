@@ -1,10 +1,10 @@
 'use client';
 
-import { SupplierDetail } from '@/app/(private)/purchase/types/SupplierType';
+import { type SupplierDetail } from '@/app/(private)/purchase/types/SupplierType';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSupplierDetail } from '@/app/(private)/purchase/api/purchase.api';
 import { ModalStatusBox } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';

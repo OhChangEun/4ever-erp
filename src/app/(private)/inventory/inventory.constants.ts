@@ -1,4 +1,4 @@
-import { KeyValueItem } from '@/app/types/CommonType';
+import { type KeyValueItem } from '@/app/types/CommonType';
 
 export const SHIPPING_TABLE_HEADERS = [
   '주문 번호',

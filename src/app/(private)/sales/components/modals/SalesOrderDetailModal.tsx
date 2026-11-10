@@ -1,7 +1,7 @@
 'use client';
 import {
-  OrderDetail,
-  SalesOrderDetailProps,
+  type OrderDetail,
+  type SalesOrderDetailProps,
 } from '@/app/(private)/sales/types/SalesOrderDetailType';
 import { useQuery } from '@tanstack/react-query';
 import { getOrderDetail } from '@/app/(private)/sales/sales.api';

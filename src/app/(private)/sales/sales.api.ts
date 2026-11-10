@@ -1,23 +1,32 @@
-import { SALES_ENDPOINTS, ApiResponse, ApiResponseNoData } from '@/app/types/api';
+import { SALES_ENDPOINTS, type ApiResponse, type ApiResponseNoData } from '@/app/types/api';
 import {
-  CustomerSalesStatResponse,
-  SalesStatResponse,
+  type CustomerSalesStatResponse,
+  type SalesStatResponse,
 } from '@/app/(private)/sales/types/SalesStatsType';
-import { Quote, QuoteQueryParams } from '@/app/(private)/sales/types/SalesQuoteListType';
-import { Inventories, QuoteDetail } from '@/app/(private)/sales/types/QuoteDetailModalType';
-import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
+import { type Quote, type QuoteQueryParams } from '@/app/(private)/sales/types/SalesQuoteListType';
 import {
-  SalesCustomer,
-  CustomerQueryParams,
+  type Inventories,
+  type QuoteDetail,
+} from '@/app/(private)/sales/types/QuoteDetailModalType';
+import { type CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
+import {
+  type SalesCustomer,
+  type CustomerQueryParams,
 } from '@/app/(private)/sales/types/SalesCustomerListType';
-import { CustomerData, ServerResponse } from '@/app/(private)/sales/types/NewCustomerModalType';
-import { AnalyticsQueryParams, SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
-import { Order, OrderQueryParams } from '@/app/(private)/sales/types/SalesOrderListType';
-import { OrderDetail } from '@/app/(private)/sales/types/SalesOrderDetailType';
-import { InventoryCheckRes } from './types/QuoteReviewModalType';
-import { CustomerEditData, CustomerResponse } from './types/CustomerEditModalType';
-import { Page } from '@/app/types/Page';
-import { ItemResponse, NewOrderRequest } from './types/NewOrderModalType';
+import {
+  type CustomerData,
+  type ServerResponse,
+} from '@/app/(private)/sales/types/NewCustomerModalType';
+import {
+  type AnalyticsQueryParams,
+  type SalesAnalysis,
+} from '@/app/(private)/sales/types/SalesChartType';
+import { type Order, type OrderQueryParams } from '@/app/(private)/sales/types/SalesOrderListType';
+import { type OrderDetail } from '@/app/(private)/sales/types/SalesOrderDetailType';
+import { type InventoryCheckRes } from './types/QuoteReviewModalType';
+import { type CustomerEditData, type CustomerResponse } from './types/CustomerEditModalType';
+import { type Page } from '@/app/types/Page';
+import { type ItemResponse, type NewOrderRequest } from './types/NewOrderModalType';
 import axios from '@/lib/axiosInstance';
 import { getParsed } from '@/lib/api/parse';
 import {

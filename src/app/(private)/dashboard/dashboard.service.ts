@@ -1,5 +1,5 @@
-import { StatCardType } from '@/app/types/StatType';
-import { DashboardStatRes } from './types/DashboardStatsType';
+import { type StatCardType } from '@/app/types/StatType';
+import { type DashboardStatRes } from './types/DashboardStatsType';
 import { createStatCard } from '@/lib/CreateStatCard';
 
 export const mapDashboardStatsToCards = (

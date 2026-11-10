@@ -1,8 +1,8 @@
-import { BomDetailResponse } from '@/app/(private)/production/types/BomDetailApiType';
+import { type BomDetailResponse } from '@/app/(private)/production/types/BomDetailApiType';
 import { fetchBomDetail } from '../../api/production.api';
 import { useSimulateBomConflict, useUpdateBomStatus } from '../../api/production.mutations';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
@@ -60,7 +60,7 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
   // 충돌 발생 시 최신 데이터 재조회 후 모달 닫기
   const handleConflictReload = () => {
     setShowConflictModal(false);
-    queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
+    void queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
   };
 
   const getStatusBadge = (status: string) => {

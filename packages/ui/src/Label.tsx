@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 type LabelVariant = 'solid' | 'ghost' | 'outline';
 type LabelColor = 'blue' | 'green' | 'red' | 'gray' | 'white';

@@ -1,10 +1,14 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
-import { EditUserRequest, EmploymentInfoProps, ProfileInfoResponse } from '../ProfileType';
+import {
+  type EditUserRequest,
+  type EmploymentInfoProps,
+  type ProfileInfoResponse,
+} from '../ProfileType';
 import { getProfile } from '../profile.api';
 import { useEditProfile } from '../profile.mutations';
 import { profileKeys } from '../profile.keys';

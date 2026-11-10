@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getProductionList, getReadyToShipList } from '../../inventory.api';
 import {
-  ProductionListResponse,
-  ReadyToShipListResponse,
+  type ProductionListResponse,
+  type ReadyToShipListResponse,
 } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Pagination } from '@everp/ui';

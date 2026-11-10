@@ -1,5 +1,8 @@
-import { EmployeeData, EmployeeUpdateRequest } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import { ModalProps } from '@/app/components/common/modal/types';
+import {
+  type EmployeeData,
+  type EmployeeUpdateRequest,
+} from '@/app/(private)/hrm/types/HrmEmployeesApiType';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';

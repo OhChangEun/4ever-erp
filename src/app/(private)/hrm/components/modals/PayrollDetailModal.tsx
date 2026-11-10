@@ -1,4 +1,4 @@
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPayRollDetail } from '@/app/(private)/hrm/api/hrm.api';
 import { Button } from '@everp/ui';

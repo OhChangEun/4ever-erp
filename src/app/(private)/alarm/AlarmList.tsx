@@ -15,7 +15,6 @@ interface Alarm {
 export default function AlarmList() {
   const [alarms, setAlarms] = useState<Alarm[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -148,50 +147,14 @@ export default function AlarmList() {
           possibleTimeout: isTimeout,
         });
 
-        // close on error to avoid browser auto-reconnection storm
-        // try {
-        //   eventSource.close();
-        //   if (isTimeout) {
-        //     console.info(
-        //       '[AlarmList] SSE connection closed (likely timeout - will auto-reconnect)',
-        //     );
-        //   } else {
-        //     console.info('[AlarmList] SSE connection closed due to error');
-        //   }
-        // } catch (e) {
-        //   console.warn('[AlarmList] error while closing eventSource', e);
-        // }
-
-        // 무제한 재연결 (백엔드 타임아웃에 대응)
-        // 타임아웃은 정상 상황이므로 재시도 횟수 리셋
-        // if (isTimeout) {
-        //   reconnectAttemptsRef.current = 0;
-        // }
-
-        // exponential backoff reconnection
-        // const maxAttempts = isTimeout ? Infinity : 5; // 타임아웃은 무한 재시도
-        // if (reconnectAttemptsRef.current < maxAttempts) {
-        //   const delay = Math.min(1000 * 2 ** reconnectAttemptsRef.current, 16000);
-        //   console.info(
-        //     `[AlarmList] will reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current + 1}${maxAttempts === Infinity ? '' : `/${maxAttempts}`})`,
-        //   );
-        //   reconnectTimeoutRef.current = setTimeout(() => {
-        //     reconnectAttemptsRef.current += 1;
-        //     connect();
-        //   }, delay);
-        // } else {
-        //   console.warn('[AlarmList] max reconnect attempts reached, giving up');
-        // }
+        // 재연결은 브라우저 EventSource 기본 동작에 맡긴다(직접 재연결하던 코드는 주석으로만 남아 있어 지웠다)
       };
     };
 
-    connect();
+    void connect();
 
     return () => {
-      console.info('[AlarmList] unmounting, closing SSE and clearing reconnect timer');
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
+      console.info('[AlarmList] unmounting, closing SSE');
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
       }

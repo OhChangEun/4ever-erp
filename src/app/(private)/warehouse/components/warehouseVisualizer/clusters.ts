@@ -1,5 +1,9 @@
 import type { InventoryResponse } from '@/app/(private)/inventory';
-import { VisualizerItem, WarehouseCluster, WarehouseFilter } from './WarehouseVisualizerType';
+import {
+  type VisualizerItem,
+  type WarehouseCluster,
+  type WarehouseFilter,
+} from './WarehouseVisualizerType';
 import { stockBand } from './stockHeat';
 
 /** 랙 4개 × 칸 15. 이보다 많은 품목은 그리지 않는다(시각화 8 결정 2) */

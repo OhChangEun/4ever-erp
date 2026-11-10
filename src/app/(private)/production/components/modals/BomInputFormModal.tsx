@@ -2,7 +2,7 @@
 
 import { Button } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import {
   DndContext,
@@ -11,7 +11,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -29,7 +29,7 @@ import {
 } from '../../api/production.api';
 import { useCreateBom } from '../../api/production.mutations';
 import { useQuery } from '@tanstack/react-query';
-import { BomRequestBody } from '../../types/BomType';
+import { type BomRequestBody } from '../../types/BomType';
 import { Input } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';

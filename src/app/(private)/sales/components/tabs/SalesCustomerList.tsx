@@ -3,12 +3,11 @@
 import { useMemo, useState } from 'react';
 import CustomerDetailModal from '@/app/(private)/sales/components/modals/CustomerDetailModal';
 import NewCustomerModal from '@/app/(private)/sales/components/modals/NewCustomerModal';
-import { CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
+import { type CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getCustomerList } from '../../sales.api';
 import { customerKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
-import { CustomerDetail } from '../../types/SalesCustomerDetailType';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import {
   CUSTOMER_SEARCH_KEYWORD_OPTIONS,
@@ -19,7 +18,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { SearchBar } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';

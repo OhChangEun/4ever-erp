@@ -1,5 +1,5 @@
 import type { Schema } from '@/lib/api/contract';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 
 export interface ShippingDetailModalProps extends ModalProps {
   selectedSubTab: string;

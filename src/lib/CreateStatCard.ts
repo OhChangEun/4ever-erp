@@ -1,4 +1,4 @@
-import { StatCardType } from '@/app/types/StatType';
+import { type StatCardType } from '@/app/types/StatType';
 
 // 지표 공통 처리 함수
 export const createStatCard = (

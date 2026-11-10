@@ -1,7 +1,7 @@
 import { readFreshSession } from '@/server/auth/session';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { canAccessApi } from '@/lib/authz/policy';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // BFF 프록시 - 브라우저는 세션 쿠키만 보내고, 백엔드가 요구하는 Bearer 토큰은 서버에서 붙인다.
 // 브라우저 어디에도 액세스 토큰이 남지 않는다.

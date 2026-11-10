@@ -6,10 +6,10 @@ import { Button } from '@everp/ui';
 import { Input } from '@everp/ui';
 import { useCreatePurchaseRequest } from '@/app/(private)/purchase/api/purchase.mutations';
 import { DropdownInputModal } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import {
-  CreatePurchaseRequestBody,
-  PurchaseRequestFormItem,
+  type CreatePurchaseRequestBody,
+  type PurchaseRequestFormItem,
 } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';

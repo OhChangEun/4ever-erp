@@ -1,9 +1,9 @@
 'use client';
 
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import {
-  DepartmentsData,
-  DepartmentsRequestBody,
+  type DepartmentsData,
+  type DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useState, useId } from 'react';
 import { useModal } from '@/app/components/common/modal/useModal';

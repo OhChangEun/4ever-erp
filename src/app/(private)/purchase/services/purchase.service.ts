@@ -1,10 +1,10 @@
 // services/purchase.ts
 import {
-  PurchaseStatResponse,
-  SupplierPurchaseStatResponse,
+  type PurchaseStatResponse,
+  type SupplierPurchaseStatResponse,
 } from '@/app/(private)/purchase/types/PurchaseStatsType';
 import { createStatCard } from '@/lib/CreateStatCard';
-import { StatCardType } from '@/app/types/StatType';
+import { type StatCardType } from '@/app/types/StatType';
 
 // 변환 함수
 export const mapPurchaseStatsToCards = (

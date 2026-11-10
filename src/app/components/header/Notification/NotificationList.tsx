@@ -1,4 +1,4 @@
-import { NotificationData } from '../types/NotificatioApiType';
+import { type NotificationData } from '../types/NotificatioApiType';
 
 interface NotificationListProps {
   notifications: NotificationData[];

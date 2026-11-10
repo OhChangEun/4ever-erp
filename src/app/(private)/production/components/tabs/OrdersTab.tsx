@@ -11,11 +11,11 @@ import {
 import { useConvertMrpOrders } from '../../api/production.mutations';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Pagination } from '@everp/ui';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import {
-  FetchMrpOrdersListParams,
-  MrpOrdersListData,
-  MrpOrdersListResponse,
+  type FetchMrpOrdersListParams,
+  type MrpOrdersListData,
+  type MrpOrdersListResponse,
 } from '../../types/MrpOrdersApiType';
 import { useRouter } from 'next/navigation';
 import { useDropdown } from '@/app/hooks/useDropdown';

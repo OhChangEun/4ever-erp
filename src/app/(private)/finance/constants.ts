@@ -1,5 +1,5 @@
-import { KeyValueItem } from '@/app/types/CommonType';
-import { InvoiceStatus } from './types/InvoiceListType';
+import { type KeyValueItem } from '@/app/types/CommonType';
+import { type InvoiceStatus } from './types/InvoiceListType';
 
 // 전표 상태 필터링
 export const VOUCHER_STATUS_OPTIONS: KeyValueItem<InvoiceStatus>[] = [

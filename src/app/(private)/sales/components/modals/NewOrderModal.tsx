@@ -2,16 +2,16 @@
 
 import { useState, useId } from 'react';
 import {
-  NewOrderRequest,
-  NewOrderItem,
-  ItemResponse,
+  type NewOrderRequest,
+  type NewOrderItem,
+  type ItemResponse,
 } from '@/app/(private)/sales/types/NewOrderModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getItemInfoForNewQuote } from '../../sales.api';
 import { useCreateQuote } from '../../sales.mutations';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { ModalStatusBox } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

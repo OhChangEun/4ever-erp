@@ -1,6 +1,6 @@
-import { InventoryCheckRes } from '@/app/(private)/sales/types/QuoteReviewModalType';
+import { type InventoryCheckRes } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import { SALES_TABS } from '@/app/(private)/sales/sales.tabs';
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 
 // 숫자 값을 억으로 변환(통화)
 export const formatCurrency = (value: number) => {

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { TrainingResponse } from '../ProfileType';
+import { type TrainingResponse } from '../ProfileType';
 import { getAvailableTraining, getCompletedTraining, getProgressTraining } from '../profile.api';
 import { useRegisterTraining } from '../profile.mutations';
 import StatusLabel from '@/app/components/common/StatusLabel';

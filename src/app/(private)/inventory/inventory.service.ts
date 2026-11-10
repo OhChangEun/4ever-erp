@@ -1,6 +1,6 @@
 import { createStatCard } from '@/lib/CreateStatCard';
-import { InventoryStatResponse } from '@/app/(private)/inventory/types/InventoryStatsType';
-import { StatCardType } from '@/app/types/StatType';
+import { type InventoryStatResponse } from '@/app/(private)/inventory/types/InventoryStatsType';
+import { type StatCardType } from '@/app/types/StatType';
 
 export const mapInventoryStatsToCards = (
   data: InventoryStatResponse,

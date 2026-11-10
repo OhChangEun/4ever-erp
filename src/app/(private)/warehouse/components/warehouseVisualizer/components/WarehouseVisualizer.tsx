@@ -6,7 +6,11 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import WarehouseStockPanel from './WarehouseStockPanel';
 import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense, useMemo, useState } from 'react';
-import { ViewMode, WarehouseFilter, WarehouseVisualizerProps } from '../WarehouseVisualizerType';
+import {
+  type ViewMode,
+  type WarehouseFilter,
+  type WarehouseVisualizerProps,
+} from '../WarehouseVisualizerType';
 import { summarizeClusters } from '../clusters';
 import { useWarehouseClusters } from '../useWarehouseClusters';
 import WarehouseScene from './WarehouseScene';

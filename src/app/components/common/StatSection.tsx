@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Period, StatCardType } from '@/app/types/StatType';
-import { KeyValueItem } from '@/app/types/CommonType';
+import { type Period, type StatCardType } from '@/app/types/StatType';
+import { type KeyValueItem } from '@/app/types/CommonType';
 import StatCardList from '@/app/components/statCard/StatCardList';
 import { SlidingNavBar } from '@everp/ui';
 import { errorMessageOf, requestIdLabelOf } from '@/lib/AppError';

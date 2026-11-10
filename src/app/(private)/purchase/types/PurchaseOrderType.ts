@@ -1,7 +1,7 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
-import { KeywordRequest } from '@/app/types/KeywordType';
-import { DateRequest } from '@/app/types/Date';
+import { type PageRequest } from '@/app/types/Page';
+import { type KeywordRequest } from '@/app/types/KeywordType';
+import { type DateRequest } from '@/app/types/Date';
 
 // 발주서 상태 코드
 export type PurchaseOrderStatus = 'APPROVAL' | 'PENDING' | 'REJECTED' | 'DELIVERING' | 'DELIVERED';

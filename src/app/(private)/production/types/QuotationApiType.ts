@@ -1,6 +1,6 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
-import { DateRequest } from '@/app/types/Date';
+import { type PageRequest } from '@/app/types/Page';
+import { type DateRequest } from '@/app/types/Date';
 
 export type itemsData = Schema<'itemsData'>;
 

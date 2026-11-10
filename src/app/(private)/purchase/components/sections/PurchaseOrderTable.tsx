@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { PurchaseOrderListItem } from '@/app/(private)/purchase/types/PurchaseOrderType';
+import { type PurchaseOrderListItem } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { formatDateTime } from '@/app/utils/date';
 import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 export interface PurchaseOrderTableProps {

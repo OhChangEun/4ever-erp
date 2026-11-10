@@ -23,7 +23,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { SearchBar } from '@everp/ui';
 import { useDebounce } from 'use-debounce';
-import { PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
+import { type PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';

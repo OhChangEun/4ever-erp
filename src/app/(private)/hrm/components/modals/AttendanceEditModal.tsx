@@ -1,10 +1,10 @@
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import {
-  AttendanceListData,
-  UpdateTimeRecord,
+  type AttendanceListData,
+  type UpdateTimeRecord,
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import { Button } from '@everp/ui';
-import { FormEvent, useId } from 'react';
+import { type FormEvent, useId } from 'react';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';

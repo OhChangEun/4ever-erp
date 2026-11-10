@@ -1,4 +1,4 @@
-import { WarehouseListQueryParams } from '@/app/(private)/warehouse/types/WarehouseListType';
+import { type WarehouseListQueryParams } from '@/app/(private)/warehouse/types/WarehouseListType';
 
 export const warehouseStatsKeys = {
   all: ['warehouse', 'stats'] as const,

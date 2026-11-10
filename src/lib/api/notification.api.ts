@@ -1,9 +1,9 @@
 import { NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
 import {
-  NotificationCountResponse,
-  NotificationListResponse,
+  type NotificationCountResponse,
+  type NotificationListResponse,
 } from '@/app/components/header/types/NotificatioApiType';
-import { ApiResponse } from '@/app/types/api';
+import { type ApiResponse } from '@/app/types/api';
 import axios from '../axiosInstance';
 
 // 알림 목록 조회

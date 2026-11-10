@@ -1,6 +1,10 @@
 'use client';
 
-import { QueryClientProvider, HydrationBoundary, DehydratedState } from '@tanstack/react-query';
+import {
+  QueryClientProvider,
+  HydrationBoundary,
+  type DehydratedState,
+} from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect, useState } from 'react';
 import { createQueryClient } from '@/lib/queryClient';

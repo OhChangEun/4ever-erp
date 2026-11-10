@@ -1,4 +1,4 @@
-import { PageRequest } from '@/app/types/Page';
+import { type PageRequest } from '@/app/types/Page';
 
 export interface WeekData {
   week: string;

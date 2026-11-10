@@ -5,9 +5,9 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
 import SupplierDetailModal from '@/app/(private)/purchase/components/modals/SupplierDetailModal';
 import {
-  SupplierListItem,
-  SupplierListParams,
-  SupplierListResponse,
+  type SupplierListItem,
+  type SupplierListParams,
+  type SupplierListResponse,
 } from '@/app/(private)/purchase/types/SupplierType';
 import {
   fetchSupplierCategoryOptions,
@@ -20,7 +20,7 @@ import { Pagination } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { Button } from '@everp/ui';

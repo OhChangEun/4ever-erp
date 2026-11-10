@@ -8,7 +8,7 @@ import {
 import { Pagination } from '@everp/ui';
 import { useDebounce } from 'use-debounce';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { InventoryResponse } from '../../types/InventoryListType';
+import { type InventoryResponse } from '../../types/InventoryListType';
 import { getInventoryList } from '../../inventory.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import InventoryDetailModal from '../modals/InventoryDetailModal';
@@ -16,13 +16,13 @@ import LowStockAlert from '../LowStockAlert';
 import StockMovement from '../StockMovement';
 import AddInventoryModal from '../modals/AddInventoryModal';
 import Link from 'next/link';
-import { Page } from '@/app/types/Page';
+import { type Page } from '@/app/types/Page';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Button } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { SearchBar } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
 import { formatCurrency } from '@/app/utils/number';

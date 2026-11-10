@@ -1,4 +1,4 @@
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 import EmployeeManagement from '@/app/(private)/hrm/components/tabs/mainTab/EmployeeManagement';
 import PayrollManagement from '@/app/(private)/hrm/components/tabs/mainTab/PayrollManagement';
 import AttendanceManagement from '@/app/(private)/hrm/components/tabs/mainTab/AttendanceManagement';

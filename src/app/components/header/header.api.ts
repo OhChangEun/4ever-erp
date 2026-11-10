@@ -1,8 +1,8 @@
-import { ApiResponse, PROFILE_ENDPOINTS } from '@/app/types/api';
+import { type ApiResponse, PROFILE_ENDPOINTS } from '@/app/types/api';
 import {
-  CustomerInfoResponse,
-  ProfileInfo,
-  SupplierInfoResponse,
+  type CustomerInfoResponse,
+  type ProfileInfo,
+  type SupplierInfoResponse,
 } from './types/CustomerOrSupplierInfoType';
 import axios from '@/lib/axiosInstance';
 

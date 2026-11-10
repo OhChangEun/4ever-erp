@@ -1,7 +1,10 @@
 // services/purchase.ts
 import { createStatCard } from '@/lib/CreateStatCard';
-import { StatCardType } from '@/app/types/StatType';
-import { CustomerSupplierStatResponse, FinanceStatResponse } from './types/FinanceStatsType';
+import { type StatCardType } from '@/app/types/StatType';
+import {
+  type CustomerSupplierStatResponse,
+  type FinanceStatResponse,
+} from './types/FinanceStatsType';
 
 // 변환 함수
 export const mapFinanceStatsToCards = (

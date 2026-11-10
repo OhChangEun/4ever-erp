@@ -1,9 +1,9 @@
 'use client';
 
 import { Button } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
-import React, { FormEvent, useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import { fetchProgramListDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';

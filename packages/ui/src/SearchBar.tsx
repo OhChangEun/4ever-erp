@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Dropdown from './Dropdown';
 import Input from './Input';
-import { KeyValueItem } from './types';
+import { type KeyValueItem } from './types';
 
 interface SearchBarProps {
   /** 검색 타입 옵션 */

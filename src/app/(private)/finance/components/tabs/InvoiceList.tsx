@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import { VOUCHER_STATUS_OPTIONS } from '@/app/(private)/finance/constants';
-import { InvoiceStatus } from '@/app/(private)/finance/types/InvoiceListType';
+import { type InvoiceStatus } from '@/app/(private)/finance/types/InvoiceListType';
 import { useQuery } from '@tanstack/react-query';
 import { getPurchaseInvoicesList, getSalesInvoicesList } from '@/app/(private)/finance/finance.api';
-import { InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
+import { type InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import { useCompleteInvoice, type InvoiceAction } from '@/app/(private)/finance/finance.mutations';
 import { Pagination } from '@everp/ui';
 import { useSearchParams } from 'next/navigation';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import InvoiceDetailModal from '@/app/(private)/finance/components/modals/InvoiceDetailModal';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useRole } from '@/app/hooks/useRole';

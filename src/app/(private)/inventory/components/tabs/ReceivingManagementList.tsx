@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import {} from '../../inventory.constants';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
-import { ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
+import { type ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';

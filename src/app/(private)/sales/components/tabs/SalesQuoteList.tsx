@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { QuoteStatus, Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
+import { type QuoteStatus, type Quote } from '@/app/(private)/sales/types/SalesQuoteListType';
 import QuoteDetailModal from '../modals/QuoteDetailModal';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getQuoteList } from '@/app/(private)/sales/sales.api';
@@ -9,7 +9,7 @@ import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { useDebounce } from 'use-debounce';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { getQuoteSearchKeywordOptions, QUOTE_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 import { Pagination } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';

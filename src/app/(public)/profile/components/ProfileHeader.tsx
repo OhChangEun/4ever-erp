@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ProfileHeaderProps } from '../ProfileType';
+import { type ProfileHeaderProps } from '../ProfileType';
 
 const ProfileHeader = ({ isEditing, setIsEditing }: ProfileHeaderProps) => {
   return (

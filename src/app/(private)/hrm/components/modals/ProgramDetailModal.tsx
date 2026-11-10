@@ -1,4 +1,4 @@
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { fetchProgramDetail } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
 import { ModalStatusBox } from '@everp/ui';

@@ -1,6 +1,6 @@
 'use client';
 
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { Input } from '@everp/ui';
@@ -9,7 +9,7 @@ import { LoadingMessage } from '@everp/ui';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '@/app/(private)/hrm/api/hrm.api';
-import { EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
+import { type EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useRegisterEmployee } from '@/app/(private)/hrm/api/hrm.mutations';

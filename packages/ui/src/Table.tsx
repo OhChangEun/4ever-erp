@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 export interface TableColumn<T = Record<string, unknown>> {
   key: string;
@@ -54,6 +54,7 @@ export default function Table<T = Record<string, unknown>>({
         return 'text-center';
       case 'right':
         return 'text-right tabular-nums';
+      case undefined:
       default:
         return 'text-left';
     }

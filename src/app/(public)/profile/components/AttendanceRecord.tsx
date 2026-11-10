@@ -1,7 +1,11 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
-import { AttendanceRecordsResponse, RequestVacation, TodayAttendResponse } from '../ProfileType';
+import { type FormEvent, useState } from 'react';
+import {
+  type AttendanceRecordsResponse,
+  type RequestVacation,
+  type TodayAttendResponse,
+} from '../ProfileType';
 import { useQuery } from '@tanstack/react-query';
 import { getAttendaceRecords, getTodayAttendance } from '../profile.api';
 import { useCheckIn, useCheckOut, useRequestVacation } from '../profile.mutations';
