@@ -4,3 +4,6 @@
  */
 export { default as InventoryPurchaseRequestModal } from './components/modals/InventoryPurchaseRequestModal';
 export { default as InventoryDetailModal } from './components/modals/InventoryDetailModal';
+// api 함수도 여기서 연다. index.ts 에 두면 키나 상수만 쓰는 화면(안전재고, 창고 목록)이
+// 재고 api 전체를 첫 로드에 받는다(시각화 8 뒤 /low-stock +5.0KB, CI 번들 표)
+export { getInventoryList } from './inventory.api';
