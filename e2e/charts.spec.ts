@@ -134,3 +134,11 @@ test('창고 3D 모달은 Esc 로 닫히고 포커스가 돌아온다', async ({
   await expect(dialog).toBeHidden();
   await expect(open).toBeFocused();
 });
+
+/** 안전재고 화면의 발주 요청 모달은 누를 때 받는다(동적). 그래도 바로 열려야 한다 */
+test('안전재고 화면에서 품목을 골라 발주 요청 모달을 연다', async ({ page }) => {
+  await page.goto('/low-stock');
+  await page.getByRole('checkbox', { name: '부족 품목 전체 선택' }).check();
+  await page.getByRole('button', { name: '선택 품목 발주' }).click();
+  await expect(page.getByRole('dialog', { name: '발주 요청' })).toBeVisible();
+});

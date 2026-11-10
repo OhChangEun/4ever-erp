@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  getInventoryList,
-  inventoryKeys,
-  type InventoryQueryParams,
-} from '@/app/(private)/inventory';
+import { inventoryKeys, type InventoryQueryParams } from '@/app/(private)/inventory';
+// api 함수는 무거운 입구(ui.ts)에서. 이 훅은 3D 모달(동적 청크) 안에서만 쓰인다
+import { getInventoryList } from '@/app/(private)/inventory/ui';
 import type { WarehouseFilter } from './WarehouseVisualizerType';
 import { buildCluster, MAX_SLOTS } from './clusters';
 

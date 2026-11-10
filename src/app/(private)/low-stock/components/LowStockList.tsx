@@ -3,6 +3,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Pagination } from '@everp/ui';
 import { LOW_STOCK_STATUS_OPTIONS } from '@/app/(private)/inventory';
@@ -12,11 +13,16 @@ import { Table, TableColumn } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { InventoryPurchaseRequestModal } from '@/app/(private)/inventory/ui';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+// 구매 요청 모달은 누를 때만 받는다. 재고 화면 공개 입구(ui.ts)에는 다른 모달도 있어
+// 정적으로 가져오면 그것까지 첫 로드에 딸려 온다(시각화 8 뒤 /low-stock +5.0KB, CI 번들 표)
+const InventoryPurchaseRequestModal = dynamic(() =>
+  import('@/app/(private)/inventory/ui').then((m) => m.InventoryPurchaseRequestModal),
+);
+
 export default function LowStockList() {
   const { openModal } = useModal();
   const toast = useToast();
