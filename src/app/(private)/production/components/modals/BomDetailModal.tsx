@@ -34,6 +34,10 @@ const STATUS_BADGE: Partial<
   ACTIVE: { key: 'ACTIVE', class: 'bg-green-100 text-green-800' },
   INACTIVE: { key: 'INACTIVE', class: 'bg-gray-100 text-gray-800' },
   DRAFT: { key: 'DRAFT', class: 'bg-yellow-100 text-yellow-800' },
+  // 목과 지금 화면은 상태를 한국어 글자로 주고받는다. 실제 서버(scm-pp)가 어느 쪽인지는
+  // 게이트웨이 사본으로 확인이 안 돼 둘 다 받는다
+  활성: { key: 'ACTIVE', class: 'bg-green-100 text-green-800' },
+  비활성: { key: 'INACTIVE', class: 'bg-gray-100 text-gray-800' },
 };
 
 interface BomDetailModalProps extends ModalProps {
