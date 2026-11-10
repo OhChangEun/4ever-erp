@@ -97,11 +97,12 @@ const { options, isLoading } = useDropdown('items', fetchItemList, 'include');
 KeyValueItem = { key: string; value: string }  // Dropdown items 등에 사용
 ```
 
-### 상태값 한글 매핑
-`src/lib/status.constants.ts`의 `STATUS_TEXT_MAP` 사용
+### 상태값 글자와 화면 문구(i18n)
+상태 글자는 `src/i18n/messages/{ko,en}.json` 의 `status`. 화면은 `StatusLabel` 을 쓴다(색은 `src/lib/status.constants.ts`).
+새 문구는 같은 메시지 파일에 ko 와 en 을 같이 넣고 `useTranslations` 로 꺼낸다(키가 같은지는 `src/i18n/messages.test.ts` 가 본다).
 ```ts
-STATUS_TEXT_MAP['APPROVED'] // → '승인'
-STATUS_TEXT_MAP['IN_PROGRESS'] // → '진행중'
+const t = useTranslations('status');
+t('APPROVED') // → '승인' / 'Approved'
 ```
 
 ### 엔드포인트 관리
