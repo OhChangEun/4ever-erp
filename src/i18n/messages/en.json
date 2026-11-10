@@ -296,7 +296,14 @@
     },
     "inputList": {
       "title": "Process steps",
-      "add": "Add step"
+      "add": "Add step",
+      "remove": "Delete item"
+    },
+    "dropdownInputModal": {
+      "open": "Open input"
+    },
+    "dropdownInputListModal": {
+      "open": "Open list input"
     }
   }
 }

@@ -65,7 +65,7 @@ export default function InputList({ initialItems = [], onChange }: InputListProp
           />
           <IconButton
             icon="ri-close-line"
-            label=""
+            aria-label={text.remove}
             className="bg-white !text-gray-400"
             size="lg"
             onClick={() => handleRemove(item.key)}

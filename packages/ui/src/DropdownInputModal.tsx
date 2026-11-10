@@ -20,7 +20,7 @@ export default function DropdownInputModal({
   rows = 5,
   onSubmit,
 }: DropdownModalProps) {
-  const confirmText = useUiText().confirm;
+  const text = useUiText();
   const [isOpen, setIsOpen] = useState(false); // 모달 열림/닫힘 상태
   useCloseOnEscape(isOpen, setIsOpen);
   const [inputValue, setInputValue] = useState(value); // textarea 값 상태
@@ -68,6 +68,7 @@ export default function DropdownInputModal({
         <IconButton
           type="button"
           icon="ri-pencil-line"
+          aria-label={text.dropdownInputModal.open}
           variant={value.trim() ? 'primary' : 'secondary'} // 값 존재 여부에 따라 버튼 색 변경
           size="sm"
           onClick={openModal}
@@ -92,7 +93,7 @@ export default function DropdownInputModal({
             />
             {/* 확인 버튼 */}
             <div className="flex justify-end">
-              <Button label={confirmText} size="sm" onClick={handleSubmit} />
+              <Button label={text.confirm} size="sm" onClick={handleSubmit} />
             </div>
           </div>
         </PopoverPortal>

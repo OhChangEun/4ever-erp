@@ -35,3 +35,4 @@ export { useCloseOnEscape } from './hooks/useCloseOnEscape';
 export type { KeyValueItem } from './types';
 export { UiTextProvider, defaultUiText, useUiText } from './UiText';
 export type { UiText } from './UiText';
+export { koreanObjectParticle } from './koreanObjectParticle';
