@@ -1,100 +1,100 @@
 [
   {
     "route": "/production",
-    "chunks": 19,
-    "raw": 977433,
-    "gzip": 306345,
+    "chunks": 20,
+    "raw": 989571,
+    "gzip": 312221,
     "packages": ["dnd-kit", "zod"]
   },
   {
     "route": "/inventory",
-    "chunks": 20,
-    "raw": 916138,
-    "gzip": 286343,
+    "chunks": 21,
+    "raw": 928276,
+    "gzip": 292214,
     "packages": ["zod"]
   },
   {
     "route": "/purchase",
-    "chunks": 18,
-    "raw": 910313,
-    "gzip": 283897,
+    "chunks": 19,
+    "raw": 922451,
+    "gzip": 289782,
     "packages": ["zod"]
   },
   {
     "route": "/sales",
-    "chunks": 19,
-    "raw": 916242,
-    "gzip": 283835,
+    "chunks": 20,
+    "raw": 928380,
+    "gzip": 289706,
     "packages": ["zod"]
   },
   {
     "route": "/hrm",
-    "chunks": 18,
-    "raw": 872398,
-    "gzip": 271762,
+    "chunks": 19,
+    "raw": 884536,
+    "gzip": 277630,
     "packages": []
   },
   {
     "route": "/finance",
-    "chunks": 17,
-    "raw": 808799,
-    "gzip": 257762,
+    "chunks": 18,
+    "raw": 820937,
+    "gzip": 263680,
     "packages": []
   },
   {
     "route": "/low-stock",
-    "chunks": 16,
-    "raw": 796047,
-    "gzip": 254096,
+    "chunks": 17,
+    "raw": 808108,
+    "gzip": 260005,
     "packages": []
   },
   {
     "route": "/dashboard",
-    "chunks": 17,
-    "raw": 803058,
-    "gzip": 252770,
+    "chunks": 18,
+    "raw": 815119,
+    "gzip": 258702,
     "packages": ["zod"]
   },
   {
     "route": "/warehouse",
-    "chunks": 16,
-    "raw": 747601,
-    "gzip": 235063,
+    "chunks": 17,
+    "raw": 759662,
+    "gzip": 240933,
     "packages": []
   },
   {
     "route": "/profile",
     "chunks": 15,
-    "raw": 733323,
-    "gzip": 231020,
+    "raw": 745270,
+    "gzip": 235715,
     "packages": []
   },
   {
     "route": "/alarm",
-    "chunks": 15,
-    "raw": 708614,
-    "gzip": 225089,
+    "chunks": 16,
+    "raw": 721872,
+    "gzip": 231495,
     "packages": []
   },
   {
     "route": "/login",
     "chunks": 10,
-    "raw": 588884,
-    "gzip": 182549,
+    "raw": 601095,
+    "gzip": 187431,
     "packages": []
   },
   {
     "route": "/unauthorized",
     "chunks": 10,
-    "raw": 587062,
-    "gzip": 182113,
+    "raw": 599070,
+    "gzip": 186918,
     "packages": []
   },
   {
     "route": "/callback",
     "chunks": 10,
-    "raw": 577967,
-    "gzip": 178468,
+    "raw": 589975,
+    "gzip": 183273,
     "packages": []
   },
   {

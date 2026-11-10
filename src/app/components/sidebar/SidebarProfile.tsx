@@ -8,6 +8,9 @@ import { useAuthStore } from '@/store/authStore';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
 import { mapRoleToKorean } from '@/app/components/header/ProfileDropdown';
 import { logout } from '@/lib/auth/logout';
+import { useLocale, useTranslations } from 'next-intl';
+import { LOCALES } from '@/i18n/locale';
+import { useSetLocale } from '@/i18n/useSetLocale';
 
 interface SidebarProfileProps {
   isExpanded: boolean;
@@ -21,6 +24,9 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   const router = useRouter();
 
   const { userInfo, clearUserInfo } = useAuthStore();
+  const t = useTranslations('profile');
+  const locale = useLocale();
+  const setLocale = useSetLocale();
   const userName = userInfo?.name;
   const userEmail = userInfo?.email;
 
@@ -45,7 +51,8 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   }, [isOpen]);
 
   // 세션 쿠키는 httpOnly 라 서버가 지운다. OIDC 면 IdP 로그아웃 화면을 거쳐 /login 으로 돌아온다(src/lib/auth/logout.ts)
-  const handleLogout = () => logout({ clearUserInfo, goToLogin: () => router.replace('/login') });
+  const handleLogout = () =>
+    void logout({ clearUserInfo, goToLogin: () => router.replace('/login') });
 
   const handleProfile = (e: React.MouseEvent) => {
     if (role === 'SUPPLIER_ADMIN' || role === 'CUSTOMER_ADMIN') {
@@ -116,15 +123,32 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
               onClick={handleProfile}
             >
               <i className="ri-user-settings-line mr-3 text-gray-400"></i>
-              프로필 설정
+              {t('profile')}
             </Link>
+            <hr className="my-1 border-gray-100" />
+            {/* 언어(i18n 1 카드). 쿠키에 두고 서버 컴포넌트를 다시 그린다 */}
+            <div role="group" aria-label={t('language')} className="flex gap-1 px-4 py-2">
+              {LOCALES.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  aria-pressed={locale === code}
+                  onClick={() => setLocale(code)}
+                  className={`flex-1 rounded-md px-2 py-1 text-xs cursor-pointer ${
+                    locale === code ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {code === 'ko' ? t('korean') : t('english')}
+                </button>
+              ))}
+            </div>
             <hr className="my-1 border-gray-100" />
             <button
               onClick={handleLogout}
               className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
               <i className="ri-logout-box-line mr-3"></i>
-              로그아웃
+              {t('logout')}
             </button>
           </div>
         </div>

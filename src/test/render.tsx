@@ -1,6 +1,8 @@
 import { type ReactElement, type ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { NextIntlClientProvider } from 'next-intl';
+import ko from '@/i18n/messages/ko.json';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 
@@ -21,11 +23,13 @@ export const createTestQueryClient = () =>
 export const renderWithProviders = (ui: ReactElement, options?: RenderOptions) => {
   const queryClient = createTestQueryClient();
   const Wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <ModalProvider>{children}</ModalProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+    <NextIntlClientProvider locale="ko" messages={ko}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </NextIntlClientProvider>
   );
   return { queryClient, ...render(ui, { wrapper: Wrapper, ...options }) };
 };
