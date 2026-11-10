@@ -78,7 +78,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
             <span className="font-medium">합계</span>
             <span className="text-blue-600 font-semibold">{formatCurrency(pay.basePay)}</span>
           </div>
-          {pay.basePayItem && pay.basePayItem.length > 0 && (
+          {pay.basePayItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.basePayItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
@@ -99,7 +99,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
             <span className="font-medium">합계</span>
             <span className="text-green-600 font-semibold">{formatCurrency(pay.overtimePay)}</span>
           </div>
-          {pay.overtimePayItem && pay.overtimePayItem.length > 0 && (
+          {pay.overtimePayItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.overtimePayItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
@@ -120,7 +120,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
             <span className="font-medium">합계</span>
             <span className="text-red-600 font-semibold">{formatCurrency(pay.deduction)}</span>
           </div>
-          {pay.deductionItem && pay.deductionItem.length > 0 && (
+          {pay.deductionItem.length > 0 && (
             <div className="ml-4 space-y-1 text-sm text-gray-600">
               {pay.deductionItem.map((item, idx) => (
                 <div key={idx} className="flex justify-between">

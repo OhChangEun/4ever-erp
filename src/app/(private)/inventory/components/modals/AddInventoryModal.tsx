@@ -152,7 +152,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             <input
               type="text"
               readOnly
-              value={selectedItem?.unitPrice?.toLocaleString() ?? ''}
+              value={selectedItem?.unitPrice.toLocaleString() ?? ''}
               className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
             />
           </div>

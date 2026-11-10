@@ -43,7 +43,6 @@ export const mapFinanceStatsToCards = (
 export const mapCustomerSupplierStatsToCards = (
   data: CustomerSupplierStatResponse,
 ): Record<string, StatCardType[]> => {
-  if (!data) return {};
   return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
     const cards: StatCardType[] = [
       createStatCard(

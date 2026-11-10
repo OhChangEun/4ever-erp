@@ -24,7 +24,8 @@ export const EMPTY_STATS: Record<Period, StatCardType[]> = {
 };
 
 interface StatSectionProps {
-  statsData: Record<Period, StatCardType[]>;
+  /** 기간별 카드. 매핑 함수가 응답에 온 기간만 키로 만들어서 빠진 기간이 있을 수 있다 */
+  statsData: Partial<Record<Period, StatCardType[]>>;
   /** useQuery 의 error. 있으면 카드 대신 오류 한 줄을 보여준다. 0 값 카드로 실패를 숨기지 않는다. */
   error?: unknown;
 }
@@ -34,7 +35,7 @@ export default function StatSection({ statsData, error }: StatSectionProps) {
   const DEFAULT_PERIOD: Period = 'week';
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(DEFAULT_PERIOD);
 
-  const stats = statsData?.[selectedPeriod] ?? [];
+  const stats = statsData[selectedPeriod] ?? [];
 
   if (error != null) {
     return (

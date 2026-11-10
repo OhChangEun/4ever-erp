@@ -3,6 +3,12 @@ import type { Schema } from '@/lib/api/contract';
 type StockHistory = Schema<'StockHistory'>;
 import { type InventoryStatResponse } from './types/InventoryStatsType';
 import axios from '@/lib/axiosInstance';
+import { getParsed } from '@/lib/api/parse';
+import {
+  addInventoryItemsSchema,
+  inventoryDetailSchema,
+  inventoryListSchema,
+} from './inventory.schemas';
 import { type InventoryQueryParams, type InventoryResponse } from './types/InventoryListType';
 import {
   type InventoryDetailResponse,
@@ -46,11 +52,12 @@ export const getInventoryList = async (
     ...(params?.statusCode && { statusCode: params.statusCode }),
   }).toString();
 
-  const res = await axios.get<ApiResponse<{ content: InventoryResponse[]; page: Page }>>(
+  const { content, page } = await getParsed(
+    inventoryListSchema,
     `${INVENTORY_ENDPOINTS.INVENTORY_LIST}?${query}`,
   );
 
-  return { data: res.data.data.content, pageData: res.data.data.page };
+  return { data: content, pageData: page };
 };
 
 /** 품목 재고 추이(최근 30일, 시각화 2) */
@@ -59,12 +66,8 @@ export const getStockHistory = async (itemId: string): Promise<StockHistory> => 
   return res.data.data;
 };
 
-export const getInventoryDetail = async (inventoryId: string): Promise<InventoryDetailResponse> => {
-  const res = await axios.get<ApiResponse<InventoryDetailResponse>>(
-    INVENTORY_ENDPOINTS.INVENTORY_DETAIL(inventoryId),
-  );
-  return res.data.data;
-};
+export const getInventoryDetail = (inventoryId: string): Promise<InventoryDetailResponse> =>
+  getParsed(inventoryDetailSchema, INVENTORY_ENDPOINTS.INVENTORY_DETAIL(inventoryId));
 
 export const getLowStockItems = async (): Promise<LowStockItemResponse[]> => {
   const res = await axios.get<ApiResponse<{ content: LowStockItemResponse[] }>>(
@@ -204,12 +207,8 @@ export const getReceivedList = async (
 };
 
 // ----------------------- 원자재 추가 -----------------------
-export const getItemInfo = async (): Promise<AddInventoryItemsToggleResponse[]> => {
-  const res = await axios.get<ApiResponse<AddInventoryItemsToggleResponse[]>>(
-    INVENTORY_ENDPOINTS.ITEM_TOGGLE,
-  );
-  return res.data.data;
-};
+export const getItemInfo = (): Promise<AddInventoryItemsToggleResponse[]> =>
+  getParsed(addInventoryItemsSchema, INVENTORY_ENDPOINTS.ITEM_TOGGLE);
 
 export const getWarehouseInfo = async (
   params?: WarehouseToggleQueryParams,

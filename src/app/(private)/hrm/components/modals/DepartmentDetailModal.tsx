@@ -42,7 +42,7 @@ export function DepartmentDetailModal({ departments, onEdit }: DepartmentDetailM
         </div>
 
         {/* 소속 직원 목록 */}
-        {departments.employees && departments.employees.length > 0 && (
+        {departments.employees.length > 0 && (
           <div className="bg-blue-50 rounded-lg p-4">
             <h3 className="text-base font-semibold text-gray-900 mb-3">
               소속 직원 ({departments.employees.length}명)

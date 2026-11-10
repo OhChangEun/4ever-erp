@@ -25,11 +25,9 @@ export default function FinanceClient() {
     queryFn: async () => {
       // success 가 false 인 응답은 axios 인터셉터가 오류로 바꾼다. 여기 오는 응답은 성공뿐이다
       if (role === 'CUSTOMER_ADMIN') {
-        const res = await getCustomerStats();
-        return mapCustomerSupplierStatsToCards(res.data);
+        return mapCustomerSupplierStatsToCards(await getCustomerStats());
       } else if (role === 'SUPPLIER_ADMIN') {
-        const res = await getSupplierStats();
-        return mapCustomerSupplierStatsToCards(res.data);
+        return mapCustomerSupplierStatsToCards(await getSupplierStats());
       } else {
         const res = await getFinanceStats();
         return mapFinanceStatsToCards(res.data);

@@ -27,3 +27,20 @@ export const getParsed = async <T>(
   const res = await axios.get<ApiResponse<unknown>>(url, config);
   return parseData(schema, res.data.data, url);
 };
+
+/**
+ * getParsed 와 같지만 스키마 모듈을 요청과 동시에 받는다(타입 4차). 스키마와 zod 가 첫 로드 JS 에서 빠진다.
+ * 데이터가 오는 시간은 응답과 스키마 청크 중 늦은 쪽이라 거의 늘지 않는다. 화면 첫 로드에 zod 가 없던
+ * 도메인(재무, 인사, 창고)이 쓴다. 정적으로 붙이면 이 세 화면이 각각 약 14KB 늘었다.
+ */
+export const getParsedLazy = async <T>(
+  loadSchema: () => Promise<z.ZodMiniType<T>>,
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<T> => {
+  const [res, schema] = await Promise.all([
+    axios.get<ApiResponse<unknown>>(url, config),
+    loadSchema(),
+  ]);
+  return parseData(schema, res.data.data, url);
+};

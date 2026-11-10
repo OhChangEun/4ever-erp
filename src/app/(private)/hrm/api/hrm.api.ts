@@ -3,6 +3,9 @@ import type { OptionResponse } from '@/app/types/api';
 import { type ApiResponse, type ApiResponseNoData } from '@/app/types/api';
 import { HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import axios from '@/lib/axiosInstance';
+import { getParsedLazy } from '@/lib/api/parse';
+// 스키마(zod)는 요청과 같이 받는다. 첫 로드에서 빼려고(타입 4차)
+const schemas = () => import('@/app/(private)/hrm/hrm.schemas');
 import { type HrmStatResponse } from '@/app/(private)/hrm/types/HrmStatsApiType';
 import {
   type EmployeeListRequestParams,
@@ -78,10 +81,8 @@ export const fetchPositionsDetail = async (positionId: string): Promise<Position
 };
 
 // 부서 목록 조회
-export const fetchDepartmentsList = async (): Promise<DepartmentsListResponse> => {
-  const res = await axios.get<ApiResponse<DepartmentsListResponse>>(`${HRM_ENDPOINTS.DEPARTMENTS}`);
-  return res.data.data;
-};
+export const fetchDepartmentsList = (): Promise<DepartmentsListResponse> =>
+  getParsedLazy(() => schemas().then((m) => m.departmentsListSchema), HRM_ENDPOINTS.DEPARTMENTS);
 
 // 부서 수정
 export const patchDepartments = async (departmentId: string, body: DepartmentsRequestBody) => {
@@ -103,23 +104,17 @@ export const fetchPayRollList = async (
 };
 
 // 월별 급여 상세 조회
-export const fetchPayRollDetail = async (payrollId: string): Promise<PayRollDetailResponse> => {
-  const res = await axios.get<ApiResponse<PayRollDetailResponse>>(
-    `${HRM_ENDPOINTS.PAYROLL_DETAIL(payrollId)}`,
+export const fetchPayRollDetail = (payrollId: string): Promise<PayRollDetailResponse> =>
+  getParsedLazy(
+    () => schemas().then((m) => m.payrollDetailSchema),
+    HRM_ENDPOINTS.PAYROLL_DETAIL(payrollId),
   );
-  return res.data.data;
-};
 
 // 직원 교육 목록 조회
-export const fetchTrainingList = async (
-  params: TrainingRequestParams,
-): Promise<TrainingListResponse> => {
-  const res = await axios.get<ApiResponse<TrainingListResponse>>(
-    `${HRM_ENDPOINTS.TRAINING_STATUS}`,
-    { params },
-  );
-  return res.data.data;
-};
+export const fetchTrainingList = (params: TrainingRequestParams): Promise<TrainingListResponse> =>
+  getParsedLazy(() => schemas().then((m) => m.trainingListSchema), HRM_ENDPOINTS.TRAINING_STATUS, {
+    params,
+  });
 
 // 직원 교육 상세 조회
 export const fetchTrainingDetail = async (employeeId: string): Promise<TrainingDetailResponse> => {
@@ -140,22 +135,19 @@ export const fetchProgramList = async (
 };
 
 // 교육 프로그램 상세 조회
-export const fetchProgramDetail = async (programId: string): Promise<ProgramDetailResponse> => {
-  const res = await axios.get<ApiResponse<ProgramDetailResponse>>(
-    `${HRM_ENDPOINTS.PROGRAM_DETAIL(programId)}`,
+export const fetchProgramDetail = (programId: string): Promise<ProgramDetailResponse> =>
+  getParsedLazy(
+    () => schemas().then((m) => m.programDetailSchema),
+    HRM_ENDPOINTS.PROGRAM_DETAIL(programId),
   );
-  return res.data.data;
-};
 
 // 출퇴근기록 목록 조회
-export const fetchAttendanceList = async (
+export const fetchAttendanceList = (
   params: AttendanceRequestParams,
-): Promise<AttendanceListResponse> => {
-  const res = await axios.get<ApiResponse<AttendanceListResponse>>(`${HRM_ENDPOINTS.TIME_RECORD}`, {
+): Promise<AttendanceListResponse> =>
+  getParsedLazy(() => schemas().then((m) => m.attendanceListSchema), HRM_ENDPOINTS.TIME_RECORD, {
     params,
   });
-  return res.data.data;
-};
 
 // 휴가 목록 조회
 export const fetchLeaveList = async (params: LeaveRequestParams): Promise<LeaveListResponse> => {

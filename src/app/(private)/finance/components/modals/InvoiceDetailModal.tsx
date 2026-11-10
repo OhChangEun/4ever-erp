@@ -131,9 +131,9 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
               {invoiceRes?.items.map((item, index: number) => (
                 <tr key={index} className="border-b">
                   <td className="px-4 py-3 text-sm text-gray-900">{item.itemName}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900 text-center">{item?.quantity}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900 text-center">{item.quantity}</td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-center">
-                    {item?.unitOfMaterialName}
+                    {item.unitOfMaterialName}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right">
                     {formatCurrency(item.unitPrice)}

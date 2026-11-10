@@ -91,7 +91,7 @@ export default function EmployeeTrainingTab() {
     {
       key: 'lastTrainingDate',
       label: '최근 교육일',
-      render: (_, t) => t.lastTrainingDate?.split('T')[0] ?? '-',
+      render: (_, t) => t.lastTrainingDate.split('T')[0],
     },
     {
       key: 'action',

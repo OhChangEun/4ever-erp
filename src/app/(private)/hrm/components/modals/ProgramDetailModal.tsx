@@ -54,10 +54,10 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
 
             <div className="bg-blue-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-3">
-                지정된 직원 목록 ({program.designatedEmployee?.length || 0}명)
+                지정된 직원 목록 ({program.designatedEmployee.length}명)
               </h4>
               <div className="space-y-3 max-h-60 overflow-y-auto">
-                {program.designatedEmployee && program.designatedEmployee.length > 0 ? (
+                {program.designatedEmployee.length > 0 ? (
                   program.designatedEmployee.map((employee) => (
                     <div
                       key={employee.employeeId}
