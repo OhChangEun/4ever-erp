@@ -110,9 +110,22 @@ export const canAccessPage = (role: Role, pathname: string): boolean => {
   return !area || area.roles.includes(role);
 };
 
+/** 회사 전체 손익(재무 현황, 시각화 4)을 볼 역할. 재무 화면은 고객사, 공급사도 들어오지만 이건 사내 재무만 */
+export const FINANCE_ANALYTICS_ROLES = ['ALL_ADMIN', ...FCM] as const satisfies readonly Role[];
+
+/**
+ * 영역보다 좁은 API 규칙. 영역 표보다 먼저 본다.
+ * 탭을 숨기는 것만으로는 직접 요청을 못 막는다(시각화 4 리뷰 P1).
+ */
+export const API_RULES: readonly { prefix: string; roles: readonly Role[] }[] = [
+  { prefix: 'business/fcm/analytics', roles: FINANCE_ANALYTICS_ROLES },
+];
+
 /** API 접근. upstreamPath 는 /api/proxy 뒤의 정규화된 경로. 표에 없는 경로는 로그인만 되면 통과 */
 export const canAccessApi = (role: Role, upstreamPath: string): boolean => {
   if (HRM_SELF_SERVICE.has(upstreamPath)) return true;
+  const rule = API_RULES.find((r) => upstreamPath.startsWith(r.prefix));
+  if (rule) return rule.roles.includes(role);
   const area = ACCESS_AREAS.find((a) =>
     a.apiPrefixes.some((prefix) => upstreamPath.startsWith(prefix)),
   );

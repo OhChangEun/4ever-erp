@@ -186,6 +186,52 @@ paths:
                         $ref: '#/components/schemas/DashboardWorkflowRes'
         default:
           $ref: '#/components/responses/Error'
+  /business/fcm/analytics/monthly:
+    get:
+      operationId: getFinanceMonthly
+      tags:
+        - business/fcm
+      summary: 월별 매출, 매입, 순이익(최근 12개월, 시각화 4)
+      description: 오래된 달부터. 마지막이 이번 달이다. 금액은 원. 서버 지원은 확인 전(verified=false)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FinanceMonthly'
+        default:
+          $ref: '#/components/responses/Error'
+  /business/fcm/analytics/ar-aging:
+    get:
+      operationId: getArAging
+      tags:
+        - business/fcm
+      summary: 미수금 경과 구간(시각화 4)
+      description: 기준일에 받지 못한 매출 전표를 만기일 기준 경과일로 나눈다. 구간 5개가 이 순서로 온다. 서버 지원은 확인 전(verified=false)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ArAging'
+        default:
+          $ref: '#/components/responses/Error'
   /business/fcm/statictics:
     get:
       operationId: getBusinessFcmStatictics
@@ -3834,6 +3880,60 @@ components:
             마지막 값이 value 와 같다. 서버 지원은 확인 전(verified=false)
           items:
             type: number
+    FinanceMonthly:
+      type: object
+      required:
+        - months
+      properties:
+        months:
+          type: array
+          items:
+            type: object
+            required:
+              - month
+              - sales
+              - purchases
+              - netProfit
+            properties:
+              month:
+                type: string
+                description: YYYY-MM
+              sales:
+                type: number
+              purchases:
+                type: number
+              netProfit:
+                type: number
+    ArAging:
+      type: object
+      required:
+        - asOf
+        - buckets
+      properties:
+        asOf:
+          type: string
+          description: 기준일(현지 날짜 YYYY-MM-DD)
+        buckets:
+          type: array
+          items:
+            type: object
+            required:
+              - bucket
+              - amount
+              - count
+            properties:
+              bucket:
+                type: string
+                enum:
+                  - CURRENT
+                  - D1_30
+                  - D31_60
+                  - D61_90
+                  - D90_PLUS
+              amount:
+                type: number
+              count:
+                type: number
     StockHistory:
       type: object
       required:

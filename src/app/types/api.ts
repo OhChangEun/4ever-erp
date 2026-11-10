@@ -67,6 +67,9 @@ export const FINANCE_ENDPOINTS = {
     `${FINANCE_BASE_PATH}/invoice/ap/${invoiceId}/payable/complete`,
   // SUPPLIER_AP_COMPLETE: (invoiceId: string) =>
   //   `${FINANCE_BASE_PATH}/invoice/ap/${invoiceId}/payable/complete`,
+  // 재무 현황(시각화 4). 서버 지원은 확인 전(verified=false)
+  ANALYTICS_MONTHLY: `${FINANCE_BASE_PATH}/analytics/monthly`,
+  AR_AGING: `${FINANCE_BASE_PATH}/analytics/ar-aging`,
   CUSTOMER_STATISTICS: `${FINANCE_BASE_PATH}/statistics/customer/total-purchases`,
   SUPPLIER_STATISTICS: `${FINANCE_BASE_PATH}/statistics/supplier/total-sales`,
 } as const;
