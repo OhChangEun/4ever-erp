@@ -13,3 +13,5 @@ export const readEnvFile = (path: string): Record<string, string> =>
 export const oidcEnv = () => readEnvFile('dev/keycloak/.env.oidc');
 /** 테스트 러너만 쓰는 값(Keycloak 관리 계정) */
 export const keycloakEnv = () => readEnvFile('dev/keycloak/.env.keycloak');
+/** SSO 포털(apps/portal) 서버에 넘기는 값 */
+export const portalEnv = () => readEnvFile('dev/keycloak/.env.portal');

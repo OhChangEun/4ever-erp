@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import { oidcEnv } from './e2e-oidc/env';
+import { oidcEnv, portalEnv } from './e2e-oidc/env';
 
 /**
  * OIDC 모드 브라우저 확인(인증 4단계 카드). 로컬 Keycloak 이 떠 있어야 한다(bash dev/keycloak/start.sh).
@@ -25,14 +25,24 @@ export default defineConfig({
     locale: 'ko-KR',
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: `pnpm dev --port ${PORT}`,
-    url: `http://localhost:${PORT}/login`,
-    reuseExistingServer: false,
-    timeout: 180_000,
-    env: {
-      ...env,
-      SESSION_SECRET: process.env.SESSION_SECRET ?? 'oidc-e2e-only-secret-not-for-prod',
+  webServer: [
+    {
+      command: `pnpm dev --port ${PORT}`,
+      url: `http://localhost:${PORT}/login`,
+      reuseExistingServer: false,
+      timeout: 180_000,
+      env: {
+        ...env,
+        SESSION_SECRET: process.env.SESSION_SECRET ?? 'oidc-e2e-only-secret-not-for-prod',
+      },
     },
-  },
+    // SSO 포털(apps/portal). 같은 Keycloak realm 의 두 번째 클라이언트. 값은 dev/keycloak/.env.portal(git 에 안 올림)
+    {
+      command: 'pnpm --filter @everp/portal dev',
+      url: 'http://localhost:3300/signed-out',
+      reuseExistingServer: false,
+      timeout: 180_000,
+      env: portalEnv(),
+    },
+  ],
 });

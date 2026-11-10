@@ -1,0 +1,27 @@
+{
+  "name": "@everp/portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "공급사와 고객사용 얇은 포털(SSO 포털 카드). erp 와 같은 Keycloak realm 으로 SSO, 같은 @everp/auth 를 쓴다. 로컬 전용(포트 3300)",
+  "scripts": {
+    "dev": "next dev --port 3300",
+    "build": "next build",
+    "start": "next start --port 3300",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@everp/auth": "workspace:*",
+    "next": "^16.1.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0"
+  }
+}
