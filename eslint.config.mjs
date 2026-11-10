@@ -60,7 +60,7 @@ export default defineConfig([
       // 상태값 switch 누락 (STATUS_TEXT_MAP 류)
       '@typescript-eslint/switch-exhaustiveness-check': 'error', // 0 (린트 2차)
       // 항상 참/거짓인 조건. 가드가 죽었는지 드러낸다
-      '@typescript-eslint/no-unnecessary-condition': 'warn', // 36 (2026-11-10 린트 3차 뒤). 전부 응답 검증(zod)이 없는 도메인의 서버 값 가드. 읽기 검증을 넓히면 지운다
+      '@typescript-eslint/no-unnecessary-condition': 'error', // 0 (타입 4차). 서버 값 가드는 응답을 zod 로 검증한 뒤에만 지운다
       // 타입 import 분리. 린트 2차에서 --fix 로 343 → 0, error 로
       '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
       // 날짜는 현지 기준(toDateKey). toISOString 은 UTC 라 한국 시간 오전 9시 전엔 어제가 된다(성능 2, 3 카드에서 8곳)

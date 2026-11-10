@@ -49,7 +49,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       location: formData.location,
       managerId: formData.managerId,
       warehouseStatusCode: formData.statusCode,
-      note: formData.description ?? '',
+      note: formData.description,
     };
     editWarehouse({ warehouseId: selectedWarehouseId, payload: data });
   };
@@ -90,16 +90,16 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       ManagerInfoRes.find((m) => m.managerId === managerInfo.managerId) ??
       ManagerInfoRes.find((m) => m.managerName === managerInfo.managerName);
     setFormData({
-      warehouseName: warehouseInfo.warehouseName ?? '',
-      warehouseNumber: warehouseInfo.warehouseNumber ?? '',
-      warehouseType: warehouseInfo.warehouseType ?? '',
-      statusCode: warehouseInfo.statusCode ?? '',
-      location: warehouseInfo.location ?? '',
-      managerId: matched?.managerId ?? managerInfo.managerId ?? '',
-      managerName: managerInfo.managerName ?? '',
-      managerPhoneNumber: managerInfo.managerPhoneNumber ?? '',
-      managerEmail: managerInfo.managerEmail ?? '',
-      description: warehouseInfo.description ?? '',
+      warehouseName: warehouseInfo.warehouseName,
+      warehouseNumber: warehouseInfo.warehouseNumber,
+      warehouseType: warehouseInfo.warehouseType,
+      statusCode: warehouseInfo.statusCode,
+      location: warehouseInfo.location,
+      managerId: matched?.managerId ?? managerInfo.managerId,
+      managerName: managerInfo.managerName,
+      managerPhoneNumber: managerInfo.managerPhoneNumber,
+      managerEmail: managerInfo.managerEmail,
+      description: warehouseInfo.description,
     });
   }
 

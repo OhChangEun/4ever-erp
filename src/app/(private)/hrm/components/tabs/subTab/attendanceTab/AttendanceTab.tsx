@@ -89,9 +89,9 @@ export default function AttendanceTab() {
       render: (_, attend) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
-            {attend.employee?.employeeName || '-'}
+            {attend.employee.employeeName || '-'}
           </div>
-          <div className="text-sm text-gray-500">{attend.employee?.position || '-'}</div>
+          <div className="text-sm text-gray-500">{attend.employee.position || '-'}</div>
         </div>
       ),
     },

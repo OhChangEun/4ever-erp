@@ -2690,7 +2690,8 @@ export interface components {
             department: string;
             position: string;
             statusCode: string;
-            completedAt: null;
+            /** @description 완료 시각. 아직 안 끝났으면 null(코드 생성기가 목의 null 만 보고 'null' 로만 적었던 것을 고침) */
+            completedAt: string | null;
         };
         AttendanceListResponse: {
             content: components["schemas"]["AttendanceListData"][];

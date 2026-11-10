@@ -1,5 +1,8 @@
 import { type WarehouseStatResponse } from './types/WarehouseStatsType';
 import axios from '@/lib/axiosInstance';
+import { getParsedLazy } from '@/lib/api/parse';
+// 스키마(zod)는 요청과 같이 받는다. 첫 로드에서 빼려고(타입 4차)
+const schemas = () => import('./warehouse.schemas');
 import {
   type WarehouseListQueryParams,
   type WarehouseListResponse,
@@ -36,12 +39,11 @@ export const getWarehouseList = async (
   return { data: res.data.data.content, pageData: res.data.data.page };
 };
 
-export const getWarehouseDetail = async (warehouseId: string): Promise<WarehouseDetailResponse> => {
-  const res = await axios.get<ApiResponse<WarehouseDetailResponse>>(
+export const getWarehouseDetail = (warehouseId: string): Promise<WarehouseDetailResponse> =>
+  getParsedLazy(
+    () => schemas().then((m) => m.warehouseDetailSchema),
     WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL(warehouseId),
   );
-  return res.data.data;
-};
 
 export const postAddWarehouse = async (
   payload: AddWarehouseRequest,
@@ -51,12 +53,11 @@ export const postAddWarehouse = async (
   return res.data;
 };
 
-export const getWarehouseManagerInfo = async (): Promise<WarehouseManagerInfoResponse[]> => {
-  const res = await axios.get<ApiResponse<WarehouseManagerInfoResponse[]>>(
+export const getWarehouseManagerInfo = (): Promise<WarehouseManagerInfoResponse[]> =>
+  getParsedLazy(
+    () => schemas().then((m) => m.warehouseManagerListSchema),
     WAREHOUSE_ENDPOINTS.WAREHOUSE_MANAGER_INFO,
   );
-  return res.data.data;
-};
 
 export const patchManageWarehouse = async ({
   warehouseId,

@@ -5011,7 +5011,10 @@ components:
         statusCode:
           type: string
         completedAt:
-          type: 'null'
+          description: 완료 시각. 아직 안 끝났으면 null(코드 생성기가 목의 null 만 보고 'null' 로만 적었던 것을 고침)
+          anyOf:
+            - type: string
+            - type: 'null'
       required:
         - employeeId
         - employeeName

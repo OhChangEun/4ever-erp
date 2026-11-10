@@ -10,8 +10,9 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState('first');
 
   const tabs = workflowData?.tabs ?? [];
-  const firstTab = tabs[0];
-  const secondTab = tabs[1];
+  // 탭 수는 서버가 정한다. 두 개보다 적게 오면 빈 탭으로 둔다
+  const firstTab = tabs.at(0);
+  const secondTab = tabs.at(1);
 
   const firstTabCode = firstTab?.tabCode;
   const secondTabCode = secondTab?.tabCode;
