@@ -69,6 +69,17 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 
 로컬에서 돌리기: `bash dev/keycloak/start.sh`(Keycloak 26.8.1, 포트 8180, realm 은 `dev/keycloak/everp-realm.json` 을 가져온다) 뒤 `pnpm dev:oidc`(앱 3100 포트. Keycloak 클라이언트의 콜백과 백채널 주소가 3100 하나다) 또는 `pnpm e2e:oidc`. 값은 `dev/keycloak/.env.keycloak`, `.env.oidc`(git 에 안 올림, 변수 목록은 `start.sh` 머리말). 확인 항목 5개(`e2e-oidc/oidc.spec.ts`): 로그인과 sid 쿠키, 역할 차단, 60초 토큰 두 번 갱신 중 동시 요청 5개, RP 로그아웃 뒤 Keycloak 로그인 화면, 백채널 로그아웃 뒤 401. Keycloak 이 없는 CI 는 돌리지 않는다.
 
+### 4-1. SSO 포털(apps/portal, 2026-11-10)
+
+`apps/portal` 은 공급사와 고객사용 얇은 Next 앱(포트 3300, 로컬 전용, 배포 안 함)이다. erp 와 같은 Keycloak realm 의 두 번째 클라이언트(`everp-portal`)이고, 인증 코드는 같은 `@everp/auth` 를 쓴다.
+
+- SSO: erp 에 로그인한 브라우저가 포털에 오면 Keycloak 이 로그인 폼 없이 code 를 돌려준다(같은 IdP 세션).
+- 로그아웃: 어느 쪽에서 로그아웃해도 RP 시작 로그아웃으로 Keycloak 세션이 끝나고, Keycloak 이 다른 쪽 `/api/auth/backchannel-logout` 에 알려 그쪽 세션도 지운다.
+- 쿠키는 포트로 나뉘지 않는다. 같은 localhost 에서 겹치지 않게 포털은 `portal_session`, `portal_oidc_tx` 를 쓴다(`createOidcLoginFlow` 의 `txCookie`).
+- 역할: ALL_ADMIN, SUPPLIER_ADMIN, CUSTOMER_ADMIN 만. 그 밖은 `/signed-out?error=no_role`. 화면 데이터는 고정 값(verified=false).
+- 포털에 `src/proxy.ts`(지나가기만 함)가 있는 이유: 없으면 Next 16.3.4 Turbopack 이 저장소 루트(erp)의 `src/proxy.ts` 를 집어 빌드가 깨진다.
+- 돌리기: `bash dev/keycloak/start.sh`, 클라이언트를 더했으면 `node dev/keycloak/sync-clients.mjs`(이미 있는 realm 에 반영), `pnpm --filter @everp/portal dev` 또는 `pnpm e2e:oidc`(erp 와 포털을 같이 띄운다, `e2e-oidc/sso.spec.ts` 4개). 값은 `dev/keycloak/.env.portal`(git 에 안 올림).
+
 ## 5. 서버 상태 레이어
 
 - QueryClient 는 한 팩토리 `createQueryClient` 에서 나온다 (`src/lib/queryClient.ts`). 서버 컴포넌트용 `cache()` 래퍼 `getQueryClient` (retry 0) 와 클라이언트 Provider (`src/app/providers.tsx`). 기본값은 staleTime 30초, gcTime 5분, 포커스 refetch 켬, retry 는 `AppError.kind` 가 network 나 server 일 때만 2회. 401 은 QueryCache 와 MutationCache 의 onError 한 곳에서 `redirectToLogin` (`src/lib/auth/redirectToLogin.ts`) 으로 보낸다(클라이언트당 1회, 전체 새로고침).
