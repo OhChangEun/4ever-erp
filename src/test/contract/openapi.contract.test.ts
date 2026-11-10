@@ -201,3 +201,18 @@ describe('OpenAPI 계약: 전 도메인', () => {
     expect(failures).toEqual([]);
   });
 });
+
+describe('OpenAPI 계약: 통계 추이(시각화 1)', () => {
+  it('통계 응답의 지표마다 기간 길이에 맞는 추이가 있고 마지막 점이 지금 값이다', async () => {
+    const body = (await mockJson(WAREHOUSE_ENDPOINTS.STATS)) as {
+      data: Record<string, Record<string, { value: number; trend?: number[] }>>;
+    };
+    const lengths: Record<string, number> = { week: 7, month: 5, quarter: 13, year: 12 };
+    for (const [period, stats] of Object.entries(body.data)) {
+      for (const stat of Object.values(stats)) {
+        expect(stat.trend).toHaveLength(lengths[period]);
+        expect(stat.trend?.at(-1)).toBe(stat.value);
+      }
+    }
+  });
+});
