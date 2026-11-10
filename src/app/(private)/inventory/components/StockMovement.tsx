@@ -3,7 +3,7 @@
 import { type StockMovementResponse } from '../types/StockMovement';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentStockMovement } from '../inventory.api';
-import { FormatDate, getMovementColor, getMovementIcon } from '../inventory.utils';
+import { FormatDate, getMovementColor, getMovementIcon, getMovementType } from '../inventory.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { stockMovementKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useTranslations } from 'next-intl';
@@ -70,7 +70,7 @@ export default function StockMovement() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <StatusLabel statusCode={movement.type} />
+                    <StatusLabel statusCode={getMovementType(movement.type)} />
                     <span className="text-sm font-medium text-gray-900">
                       {movement.quantity} {movement.uomName}
                     </span>

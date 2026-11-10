@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { useInventoryLabels } from '@/app/(private)/inventory';
 import {
   type WarehouseDetailModalProps,
   type WarehouseDetailResponse,
@@ -17,6 +18,7 @@ const WarehouseDetailModal = ({
   selectedWarehouseId,
   selectedWarehouseName,
 }: WarehouseDetailModalProps) => {
+  const { warehouseTypeLabel } = useInventoryLabels();
   const t = useTranslations('warehouse.detail');
   const {
     data: warehouseDetailRes,
@@ -62,7 +64,7 @@ const WarehouseDetailModal = ({
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">{t('type')}</span>
                 <span className="text-sm font-medium text-gray-900">
-                  {warehouseInfo?.warehouseType}
+                  {warehouseTypeLabel(warehouseInfo?.warehouseType ?? '')}
                 </span>
               </div>
               <div className="flex justify-between">

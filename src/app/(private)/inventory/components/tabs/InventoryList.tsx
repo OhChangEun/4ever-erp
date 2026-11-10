@@ -25,10 +25,12 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { Table, type TableColumn } from '@everp/ui';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useTranslations } from 'next-intl';
+import { useInventoryLabels } from '../../inventory.labels';
 
 import { formatCurrency } from '@/app/utils/number';
 const InventoryList = () => {
   const t = useTranslations('inventory');
+  const { hasCategoryLabel, categoryLabel, warehouseTypeLabel } = useInventoryLabels();
   const { openModal } = useModal();
   const [searchType, setSearchType] = useState('warehouse');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -89,11 +91,16 @@ const InventoryList = () => {
     {
       key: 'category',
       label: t('list.columns.category'),
-      render: (_, inv) => (
-        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-          {inv.category}
-        </span>
-      ),
+      // StatusLabel은 공통 status를 읽으므로 도메인 번역과 기존 회색 점을 직접 표시한다.
+      render: (_, inv) =>
+        hasCategoryLabel(inv.category) ? (
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] text-gray-800">
+            <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full shrink-0 bg-gray-400" />
+            {categoryLabel(inv.category)}
+          </span>
+        ) : (
+          <span>{inv.category}</span>
+        ),
     },
     {
       key: 'currentStock',
@@ -137,7 +144,7 @@ const InventoryList = () => {
       render: (_, inv) => (
         <div>
           <div className="text-sm text-gray-900">{inv.warehouseName}</div>
-          <div className="text-sm text-gray-500">{inv.warehouseType}</div>
+          <div className="text-sm text-gray-500">{warehouseTypeLabel(inv.warehouseType)}</div>
         </div>
       ),
     },

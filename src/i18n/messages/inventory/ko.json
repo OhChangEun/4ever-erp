@@ -1,4 +1,15 @@
 {
+  "labels": {
+    "CATEGORY_MATERIAL": "원자재",
+    "CATEGORY_ITEM": "부품",
+    "CATEGORY_ETC": "기타",
+    "CATEGORY_MOTOR": "모터",
+    "CATEGORY_BEARING": "베어링",
+    "WAREHOUSE_MATERIAL": "원자재창고",
+    "WAREHOUSE_ITEM": "부품창고",
+    "WAREHOUSE_PRODUCT": "완제품창고",
+    "WAREHOUSE_ETC": "기타창고"
+  },
   "tabs": {
     "inventory": "재고 목록",
     "shipping": "출고 관리",
