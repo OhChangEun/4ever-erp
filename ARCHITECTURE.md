@@ -285,3 +285,4 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 | Vercel 함수에서 서버 목(msw getResponse)이 응답한다                                                          | CI 의 next start e2e 로만 확인. 2026-11-10 Vercel 무료 플랜 하루 배포 제한으로 preview 실패 | 제한 풀린 뒤 운영 /warehouse 확인      |
 | Vercel 이 pnpm-lock.yaml 을 보고 pnpm 10 으로 설치, 빌드한다                                                 | 2026-11-10 모노레포 1. CI 만 확인, Vercel 은 하루 배포 제한 중                              | 제한 풀린 뒤 배포 로그의 Installing 줄 |
 | 서버가 통계의 `trend`(기간 추이)를 준다                                                                      | 2026-11-10 시각화 1. 계약과 목만                                                            | 서버 생기면 통계 API 응답              |
+| 서버가 품목 재고 추이(`/items/{itemId}/stock-history`)를 준다                                                | 2026-11-10 시각화 2. 계약과 목만                                                            | 서버 생기면 재고 상세                  |
