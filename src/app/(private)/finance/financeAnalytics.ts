@@ -65,15 +65,3 @@ export const agingSummary = (buckets: AgingBucket[]) => {
     })),
   };
 };
-
-const trim = (n: number) => n.toLocaleString('ko-KR', { maximumFractionDigits: 1 });
-
-/** 차트 축용 짧은 금액. 1.2억, 3,500만, 9천. 정확한 값은 표와 툴팁이 보인다 */
-export const compactWon = (n: number): string => {
-  const sign = n < 0 ? '-' : '';
-  const abs = Math.abs(n);
-  if (abs >= 100_000_000) return `${sign}${trim(abs / 100_000_000)}억`;
-  if (abs >= 10_000) return `${sign}${trim(abs / 10_000)}만`;
-  if (abs >= 1_000) return `${sign}${trim(abs / 1_000)}천`;
-  return `${sign}${abs}`;
-};

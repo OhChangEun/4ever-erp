@@ -1,3 +1,4 @@
+import type { SupplyFlow } from './types/SupplyFlowType';
 import { DashboardStatRes } from './types/DashboardStatsType';
 import { ApiResponse, DASHBOARD_ENDPOINTS } from '@/app/types/api';
 import { DashboardWorkflowRes } from './types/DashboardWorkflowType';
@@ -14,5 +15,11 @@ export const getWorkflowStatus = async (): Promise<DashboardWorkflowRes> => {
   const res = await axios.get<ApiResponse<DashboardWorkflowRes>>(
     DASHBOARD_ENDPOINTS.WORKFLOW_STATUS,
   );
+  return res.data.data;
+};
+
+// ----------------------- 자재 흐름(시각화 6) -----------------------
+export const getSupplyFlow = async (): Promise<SupplyFlow> => {
+  const res = await axios.get<ApiResponse<SupplyFlow>>(DASHBOARD_ENDPOINTS.SUPPLY_FLOW);
   return res.data.data;
 };
