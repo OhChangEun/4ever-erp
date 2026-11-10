@@ -19,6 +19,8 @@ import salesKo from './messages/sales/ko.json';
 import salesEn from './messages/sales/en.json';
 import productionKo from './messages/production/ko.json';
 import productionEn from './messages/production/en.json';
+import profileKo from './messages/profile/ko.json';
+import profileEn from './messages/profile/en.json';
 
 // 공통과 도메인 메시지 쌍. 도메인을 옮길 때마다 여기 더한다
 const PAIRS: [string, object, object][] = [
@@ -32,6 +34,7 @@ const PAIRS: [string, object, object][] = [
   ['hrm', hrmKo, hrmEn],
   ['sales', salesKo, salesEn],
   ['production', productionKo, productionEn],
+  ['profile', profileKo, profileEn],
 ];
 
 /** 메시지 키를 모은다(중첩은 점으로) */

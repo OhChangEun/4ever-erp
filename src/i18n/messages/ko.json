@@ -182,5 +182,68 @@
   },
   "toast": {
     "dismiss": "알림 닫기"
+  },
+  "login": {
+    "oidcTitle": "4Ever 로그인",
+    "companyAccount": "회사 계정으로 로그인",
+    "oidcError": {
+      "access_denied": "로그인을 취소했습니다.",
+      "no_role": "이 계정에는 EverP 역할이 없습니다. 관리자에게 역할을 요청하세요.",
+      "invalid_transaction": "로그인 시간이 지났거나 다른 창에서 시작한 로그인입니다. 다시 시도해 주세요.",
+      "state_mismatch": "로그인 요청을 확인할 수 없습니다. 다시 시도해 주세요.",
+      "unknown": "로그인에 실패했습니다. 다시 시도해 주세요."
+    },
+    "demoTitle": "간편 로그인",
+    "demoHint": "역할 카드를 선택하거나 아이디를 직접 입력하세요.",
+    "idPlaceholder": "아이디 입력",
+    "submit": "로그인",
+    "error": {
+      "empty": "아이디를 입력해 주세요.",
+      "unknownId": "목록의 아이디를 선택하거나 올바른 아이디를 입력해 주세요.",
+      "failed": "로그인에 실패했습니다.",
+      "badResponse": "서버 응답 형식이 예상과 다릅니다.",
+      "network": "서버에 연결할 수 없습니다."
+    },
+    "account": {
+      "admin": "전체 관리자",
+      "mm_admin": "구매 관리자",
+      "sd_admin": "영업 관리자",
+      "fcm_admin": "재무 관리자",
+      "hrm_admin": "인사 관리자",
+      "im_admin": "재고 관리자",
+      "customer": "고객사 관리자",
+      "supplier": "공급사 관리자"
+    },
+    "menu": {
+      "dashboard": "대시보드",
+      "sales": "영업",
+      "production": "생산",
+      "purchase": "구매",
+      "inventory": "재고",
+      "finance": "재무",
+      "hrm": "인사",
+      "purchaseManage": "구매관리",
+      "salesManage": "영업관리"
+    }
+  },
+  "auth": {
+    "callback": {
+      "title": "로그인 페이지로 이동 중입니다",
+      "body": "간편 로그인 화면으로 이동하고 있습니다. 잠시만 기다려 주세요.",
+      "stepsTitle": "진행 중인 작업",
+      "stepPrepare": "간편 로그인 화면을 준비하고 있습니다.",
+      "stepReturnTo": "이전 경로를 확인하고 있습니다.",
+      "stepRedirect": "준비가 완료되면 로그인 화면으로 이동합니다.",
+      "stuck": "화면이 오래 머물러 있으면 새로고침하거나 관리자에게 문의해 주세요."
+    },
+    "unauthorized": {
+      "title": "접근 권한이 필요합니다",
+      "body": "요청하신 페이지를 열 수 있는 권한이 없습니다. 권한이 있어야 하는 경우 관리자에게 요청하거나, 올바른 역할로 로그인했는지 확인하세요.",
+      "checkTitle": "다음 항목을 확인해 보세요.",
+      "checkAccount": "현재 계정이 해당 메뉴에 접근할 수 있는지 확인합니다.",
+      "checkRequest": "권한 요청이 필요한 경우 관리자에게 연락하여 역할을 부여받습니다.",
+      "back": "이전 페이지",
+      "home": "메인으로 이동"
+    }
   }
 }

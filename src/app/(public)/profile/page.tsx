@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import AttendanceRecord from './components/AttendanceRecord';
 import TrainingStatus from './components/TrainingStatus';
 import EmploymentInfo from './components/EmploymentInfo';
 
 export default function ProfilePage() {
+  const t = useTranslations('myProfile.page');
   const [isEditing, setIsEditing] = useState(false);
 
   return (
@@ -16,8 +18,8 @@ export default function ProfilePage() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">내 프로필</h1>
-              <p className="text-sm text-gray-500 mt-1">개인 정보 및 근무 현황</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+              <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
             </div>
             <button
               onClick={() => {
@@ -30,7 +32,7 @@ export default function ProfilePage() {
               }`}
             >
               <i className={isEditing ? 'ri-close-line' : 'ri-edit-line'}></i>
-              <span>{isEditing ? '수정 취소' : '프로필 수정'}</span>
+              <span>{isEditing ? t('cancelEdit') : t('edit')}</span>
             </button>
           </div>
         </div>

@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { type ProfileHeaderProps } from '../ProfileType';
 
 const ProfileHeader = ({ isEditing, setIsEditing }: ProfileHeaderProps) => {
+  const t = useTranslations('myProfile.page');
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,8 +15,8 @@ const ProfileHeader = ({ isEditing, setIsEditing }: ProfileHeaderProps) => {
               <i className="ri-arrow-left-line text-xl"></i>
             </Link>
             <div className="pl-2">
-              <h1 className="text-xl font-bold text-gray-900">내 프로필</h1>
-              <p className="text-sm text-gray-500">개인 정보 및 근무 현황</p>
+              <h1 className="text-xl font-bold text-gray-900">{t('title')}</h1>
+              <p className="text-sm text-gray-500">{t('subtitle')}</p>
             </div>
           </div>
 
@@ -30,7 +32,7 @@ const ProfileHeader = ({ isEditing, setIsEditing }: ProfileHeaderProps) => {
               }`}
             >
               <i className={isEditing ? 'ri-close-line' : 'ri-edit-line'}></i>
-              <span>{isEditing ? '수정 취소' : '프로필 수정'}</span>
+              <span>{isEditing ? t('cancelEdit') : t('edit')}</span>
             </button>
           </div>
         </div>

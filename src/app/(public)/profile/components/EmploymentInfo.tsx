@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import {
@@ -13,43 +14,48 @@ import { getProfile } from '../profile.api';
 import { useEditProfile } from '../profile.mutations';
 import { profileKeys } from '../profile.keys';
 
+// 칸 이름은 메시지 키로 두고 그릴 때 번역한다
+type EmploymentLabelKey =
+  'department' | 'position' | 'hireDate' | 'serviceYears' | 'email' | 'phone' | 'address';
+
 const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
+  const t = useTranslations('myProfile.employment');
   const toast = useToast();
   const { data: profileInfo } = useQuery<ProfileInfoResponse>({
     queryKey: profileKeys.info(),
     queryFn: getProfile,
   });
-  const summaryItems = [
+  const summaryItems: Array<{ label: EmploymentLabelKey; value?: string; highlight?: boolean }> = [
     {
-      label: '부서',
+      label: 'department',
       value: profileInfo?.department,
     },
     {
-      label: '직책',
+      label: 'position',
       value: profileInfo?.position,
     },
     {
-      label: '입사일',
+      label: 'hireDate',
       value: profileInfo?.hireDate,
     },
     {
-      label: '근속기간',
+      label: 'serviceYears',
       value: profileInfo?.serviceYears,
       highlight: true,
     },
   ];
 
-  const detailItems = [
+  const detailItems: Array<{ label: EmploymentLabelKey; value?: string }> = [
     {
-      label: '이메일',
+      label: 'email',
       value: profileInfo?.email,
     },
     {
-      label: '연락처',
+      label: 'phone',
       value: profileInfo?.phoneNumber,
     },
     {
-      label: '주소',
+      label: 'address',
       value: profileInfo?.address,
     },
   ];
@@ -58,9 +64,9 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   const { mutate: editProfile, isPending: isSaving } = useEditProfile({
     onSuccess: () => {
       setIsEditing(false);
-      toast.success('프로필 수정이 완료되었습니다.');
+      toast.success(t('editSuccess'));
     },
-    onError: (error) => toast.error(`프로필 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('editError', { message: errorMessageOf(error) })),
   });
 
   return (
@@ -89,7 +95,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
                 <span
                   className={`text-xs font-medium ${item.highlight ? 'text-blue-500' : 'text-white/70'}`}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </span>
                 <p
                   className={`mt-1 text-sm font-semibold ${item.highlight ? 'text-blue-700' : 'text-white'}`}
@@ -123,7 +129,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
                 key={item.label}
                 className={`rounded-xl border border-gray-100 bg-gray-50 px-4 py-4`}
               >
-                <span className="text-xs font-medium text-gray-500">{item.label}</span>
+                <span className="text-xs font-medium text-gray-500">{t(item.label)}</span>
                 <p className="mt-1 text-sm font-medium text-gray-900">{item.value}</p>
               </div>
             ))}
@@ -136,13 +142,13 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
 
 const FORM_FIELDS: Array<{
   key: keyof EditUserRequest;
-  label: string;
+  label: EmploymentLabelKey;
   type?: string;
   readOnly?: boolean;
 }> = [
-  { key: 'email', label: '이메일', type: 'email', readOnly: true },
-  { key: 'phoneNumber', label: '연락처' },
-  { key: 'address', label: '주소' },
+  { key: 'email', label: 'email', type: 'email', readOnly: true },
+  { key: 'phoneNumber', label: 'phone' },
+  { key: 'address', label: 'address' },
 ];
 
 interface ProfileEditFormProps {
@@ -157,6 +163,7 @@ interface ProfileEditFormProps {
  * 그렇게 하면 저장 실패 롤백이나 재조회 때 effect 가 다시 돌아 입력이 지워진다.
  */
 function ProfileEditForm({ initial, isSaving, onSubmit, onCancel }: ProfileEditFormProps) {
+  const t = useTranslations('myProfile.employment');
   const [formData, setFormData] = useState<EditUserRequest>(initial);
 
   const handleChange = (key: keyof EditUserRequest, value: string) => {
@@ -184,7 +191,7 @@ function ProfileEditForm({ initial, isSaving, onSubmit, onCancel }: ProfileEditF
           return (
             <div key={field.key} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-4">
               <label htmlFor={field.key} className="mb-2 block text-xs font-medium text-gray-500">
-                {field.label}
+                {t(field.label)}
               </label>
               <input
                 id={field.key}
@@ -207,14 +214,14 @@ function ProfileEditForm({ initial, isSaving, onSubmit, onCancel }: ProfileEditF
           onClick={onCancel}
           className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
         >
-          취소
+          {t('cancel')}
         </button>
         <button
           type="submit"
           disabled={isSaving}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSaving ? '저장 중...' : '저장'}
+          {isSaving ? t('saving') : t('save')}
         </button>
       </div>
     </form>

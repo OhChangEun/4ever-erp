@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   type AttendanceRecordsResponse,
   type RequestVacation,
@@ -13,7 +14,15 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { profileKeys } from '../profile.keys';
 
+// 서버가 보내는 근태 상태 값(한국어). 비교에만 쓰고 번역하지 않는다
+const BEFORE_CHECK_IN = '출근전';
+const CHECKED_OUT = '퇴근완료';
+const ON_TIME = '정상';
+
 export default function AttendanceRecord() {
+  const t = useTranslations('myProfile');
+  const tCommon = useTranslations('common');
+  const dateLocale = useLocale() === 'ko' ? 'ko-KR' : 'en-US';
   const toast = useToast();
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveForm, setLeaveForm] = useState<RequestVacation>({
@@ -24,7 +33,7 @@ export default function AttendanceRecord() {
 
   const handleCheckInOut = () => {
     // 상태는 서버 응답에서 바로 읽는다. 출퇴근 훅은 재조회가 끝날 때까지 pending 이라 두 번 눌리지 않는다
-    if (todayAttendanceRes?.status === '출근전') {
+    if (todayAttendanceRes?.status === BEFORE_CHECK_IN) {
       checkIn();
     } else {
       checkOut();
@@ -40,20 +49,22 @@ export default function AttendanceRecord() {
 
   // 무효화(내 근태 + 인사 근태, 휴가 목록)는 profile.mutations.ts 한 곳.
   const { mutate: sendVacation, isPending: isRequestingVacation } = useRequestVacation({
-    onSuccess: () => toast.success('휴가 신청이 접수되었습니다.'),
-    onError: (error) => toast.error(`휴가 신청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('leave.success')),
+    onError: (error) => toast.error(t('leave.error', { message: errorMessageOf(error) })),
   });
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn({
     onSuccess: () => {
-      toast.success('출근 처리가 완료되었습니다.');
+      toast.success(t('attendance.checkInSuccess'));
     },
-    onError: (error) => toast.error(`출근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('attendance.checkInError', { message: errorMessageOf(error) })),
   });
   const { mutate: checkOut, isPending: isCheckingOut } = useCheckOut({
     onSuccess: () => {
-      toast.success('퇴근 처리가 완료되었습니다.');
+      toast.success(t('attendance.checkOutSuccess'));
     },
-    onError: (error) => toast.error(`퇴근 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('attendance.checkOutError', { message: errorMessageOf(error) })),
   });
 
   const handleLeaveSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -87,8 +98,8 @@ export default function AttendanceRecord() {
                 <i className="ri-time-line text-purple-600 text-lg"></i>
               </div> */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">근태 기록</h2>
-                <p className="text-sm text-gray-500">출퇴근 관리 및 근무 현황</p>
+                <h2 className="text-lg font-semibold text-gray-900">{t('attendance.title')}</h2>
+                <p className="text-sm text-gray-500">{t('attendance.subtitle')}</p>
               </div>
             </div>
             <button
@@ -96,7 +107,7 @@ export default function AttendanceRecord() {
               className="inline-flex items-center justify-center space-x-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-purple-700"
             >
               <i className="ri-flight-takeoff-line"></i>
-              <span>휴가 신청</span>
+              <span>{t('leave.request')}</span>
             </button>
           </div>
         </div>
@@ -105,35 +116,35 @@ export default function AttendanceRecord() {
           {/* 오늘 근태 현황 */}
           <div className="mb-6 rounded-lg bg-gray-50 p-4 ">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-900">오늘 근태 현황</h3>
+              <h3 className="text-sm font-medium text-gray-900">{t('attendance.today')}</h3>
               <span className="text-xs text-gray-500">
-                {new Date().toLocaleDateString('ko-KR')}
+                {new Date().toLocaleDateString(dateLocale)}
               </span>
             </div>
 
             <div className="mb-4 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-xs text-gray-500">출근시간</span>
+                <span className="text-xs text-gray-500">{t('attendance.checkInTime')}</span>
                 <p className="text-sm font-medium text-gray-900">
                   {todayAttendanceRes?.checkInTime || '-'}
                 </p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">퇴근시간</span>
+                <span className="text-xs text-gray-500">{t('attendance.checkOutTime')}</span>
                 <p className="text-sm font-medium text-gray-900">
                   {todayAttendanceRes?.checkOutTime || '-'}
                 </p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">근무시간</span>
+                <span className="text-xs text-gray-500">{t('attendance.workHours')}</span>
                 <p className="text-sm font-medium text-gray-900">
                   {todayAttendanceRes?.workHours || '-'}
                 </p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">상태</span>
+                <span className="text-xs text-gray-500">{t('attendance.status')}</span>
                 <p
-                  className={`text-sm font-medium ${todayAttendanceRes?.status === '출근전' ? 'text-green-600' : 'text-blue-600'}`}
+                  className={`text-sm font-medium ${todayAttendanceRes?.status === BEFORE_CHECK_IN ? 'text-green-600' : 'text-blue-600'}`}
                 >
                   {todayAttendanceRes?.status}
                 </p>
@@ -142,28 +153,28 @@ export default function AttendanceRecord() {
 
             <button
               onClick={handleCheckInOut}
-              disabled={todayAttendanceRes?.status === '퇴근완료' || isCheckingIn || isCheckingOut}
+              disabled={todayAttendanceRes?.status === CHECKED_OUT || isCheckingIn || isCheckingOut}
               className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
     ${
-      todayAttendanceRes?.status === '퇴근완료'
+      todayAttendanceRes?.status === CHECKED_OUT
         ? 'bg-gray-400 text-white cursor-not-allowed'
-        : todayAttendanceRes?.status === '출근전'
+        : todayAttendanceRes?.status === BEFORE_CHECK_IN
           ? 'bg-green-600 text-white hover:bg-green-700'
           : 'bg-red-600 text-white hover:bg-red-700'
     }
   `}
             >
-              {todayAttendanceRes?.status === '퇴근완료'
-                ? '퇴근완료'
-                : todayAttendanceRes?.status === '출근전'
-                  ? '출근하기'
-                  : '퇴근하기'}
+              {todayAttendanceRes?.status === CHECKED_OUT
+                ? t('attendance.checkedOut')
+                : todayAttendanceRes?.status === BEFORE_CHECK_IN
+                  ? t('attendance.checkIn')
+                  : t('attendance.checkOut')}
             </button>
           </div>
 
           {/* 최근 근태 기록 */}
           <div>
-            <h3 className="mb-3 text-sm font-medium text-gray-900">최근 근태 기록</h3>
+            <h3 className="mb-3 text-sm font-medium text-gray-900">{t('attendance.recent')}</h3>
             <div className="space-y-2">
               {AttendanceRecordsRes && AttendanceRecordsRes.length > 0 ? (
                 AttendanceRecordsRes.map((record, index) => (
@@ -175,7 +186,7 @@ export default function AttendanceRecord() {
                       <span className="text-sm font-medium text-gray-900">{record.date}</span>
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                          record.status === '정상'
+                          record.status === ON_TIME
                             ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}
@@ -192,7 +203,7 @@ export default function AttendanceRecord() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">근태 기록이 없습니다.</p>
+                <p className="text-sm text-gray-500 text-center py-4">{t('attendance.empty')}</p>
               )}
             </div>
           </div>
@@ -204,13 +215,13 @@ export default function AttendanceRecord() {
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">휴가 신청</h3>
-                <p className="text-sm text-gray-500">휴가 정보를 입력하고 신청을 완료하세요.</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t('leave.request')}</h3>
+                <p className="text-sm text-gray-500">{t('leave.hint')}</p>
               </div>
               <button
                 onClick={() => setIsLeaveModalOpen(false)}
                 className="text-gray-400 transition-colors hover:text-gray-600"
-                aria-label="닫기"
+                aria-label={tCommon('close')}
               >
                 <i className="ri-close-line text-xl"></i>
               </button>
@@ -222,7 +233,7 @@ export default function AttendanceRecord() {
                   htmlFor="leave-type"
                   className="mb-2 block text-sm font-medium text-gray-700"
                 >
-                  휴가 유형
+                  {t('leave.type')}
                 </label>
                 <select
                   id="leave-type"
@@ -230,8 +241,8 @@ export default function AttendanceRecord() {
                   onChange={(event) => handleLeaveFormChange('leaveType', event.target.value)}
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
                 >
-                  <option value="ANNUAL">연차</option>
-                  <option value="SICK">병가</option>
+                  <option value="ANNUAL">{t('leave.ANNUAL')}</option>
+                  <option value="SICK">{t('leave.SICK')}</option>
                 </select>
               </div>
 
@@ -241,7 +252,7 @@ export default function AttendanceRecord() {
                     htmlFor="leave-start"
                     className="mb-2 block text-sm font-medium text-gray-700"
                   >
-                    시작일
+                    {t('leave.startDate')}
                   </label>
                   <input
                     id="leave-start"
@@ -257,7 +268,7 @@ export default function AttendanceRecord() {
                     htmlFor="leave-end"
                     className="mb-2 block text-sm font-medium text-gray-700"
                   >
-                    종료일
+                    {t('leave.endDate')}
                   </label>
                   <input
                     id="leave-end"
@@ -276,14 +287,14 @@ export default function AttendanceRecord() {
                   onClick={() => setIsLeaveModalOpen(false)}
                   className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:w-auto"
                 >
-                  취소
+                  {t('leave.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isRequestingVacation}
                   className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700 sm:w-auto"
                 >
-                  신청하기
+                  {t('leave.submit')}
                 </button>
               </div>
             </form>

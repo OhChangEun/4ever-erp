@@ -22,6 +22,8 @@ import salesKo from '@/i18n/messages/sales/ko.json';
 import salesEn from '@/i18n/messages/sales/en.json';
 import productionKo from '@/i18n/messages/production/ko.json';
 import productionEn from '@/i18n/messages/production/en.json';
+import profileKo from '@/i18n/messages/profile/ko.json';
+import profileEn from '@/i18n/messages/profile/en.json';
 import type { Locale } from '@/i18n/locale';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
@@ -53,6 +55,7 @@ const MESSAGES = {
     hrm: hrmKo,
     sales: salesKo,
     production: productionKo,
+    myProfile: profileKo,
   },
   en: {
     ...en,
@@ -65,6 +68,7 @@ const MESSAGES = {
     hrm: hrmEn,
     sales: salesEn,
     production: productionEn,
+    myProfile: profileEn,
   },
 } satisfies Record<Locale, object>;
 
