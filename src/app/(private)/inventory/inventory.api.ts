@@ -1,3 +1,6 @@
+import type { Schema } from '@/lib/api/contract';
+
+type StockHistory = Schema<'StockHistory'>;
 import { InventoryStatResponse } from './types/InventoryStatsType';
 import axios from '@/lib/axiosInstance';
 import { InventoryQueryParams, InventoryResponse } from './types/InventoryListType';
@@ -45,6 +48,12 @@ export const getInventoryList = async (
   );
 
   return { data: res.data.data.content, pageData: res.data.data.page };
+};
+
+/** 품목 재고 추이(최근 30일, 시각화 2) */
+export const getStockHistory = async (itemId: string): Promise<StockHistory> => {
+  const res = await axios.get<ApiResponse<StockHistory>>(INVENTORY_ENDPOINTS.STOCK_HISTORY(itemId));
+  return res.data.data;
 };
 
 export const getInventoryDetail = async (inventoryId: string): Promise<InventoryDetailResponse> => {

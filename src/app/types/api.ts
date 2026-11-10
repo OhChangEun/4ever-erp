@@ -82,6 +82,7 @@ export const INVENTORY_ENDPOINTS = {
   STATS: `${INVENTORY_BASE_PATH}/iv/statistic`,
   INVENTORY_LIST: `${INVENTORY_BASE_PATH}/iv/inventory-items`,
   INVENTORY_DETAIL: (itemId: string) => `${INVENTORY_BASE_PATH}/iv/items/${itemId}`,
+  STOCK_HISTORY: (itemId: string) => `${INVENTORY_BASE_PATH}/iv/items/${itemId}/stock-history`,
   LOW_STOCK: `${INVENTORY_BASE_PATH}/iv/shortage/preview`,
   RECENT_STOCK_MOVEMENT: `${INVENTORY_BASE_PATH}/iv/stock-transfers`,
   PRODUCTION_LIST: `${INVENTORY_BASE_PATH}/sales-orders/production`,

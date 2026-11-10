@@ -830,6 +830,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/scm-pp/iv/items/{itemId}/stock-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * 품목 재고 추이(최근 30일, 시각화 2)
+         * @description 날짜별 하루 끝 재고. 마지막 점이 지금 재고다. 서버 지원은 확인 전(verified=false)
+         */
+        get: operations["getStockHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/scm-pp/iv/items/{itemId}/safety-stock": {
         parameters: {
             query?: never;
@@ -2194,6 +2216,16 @@ export interface components {
             delta_rate: number;
             /** @description 기간 안의 추이(시각화 1). 주는 일 7개, 월은 주 5개, 분기는 주 13개, 연은 월 12개. 마지막 값이 value 와 같다. 서버 지원은 확인 전(verified=false) */
             trend?: number[];
+        };
+        StockHistory: {
+            itemId: string;
+            uomName: string;
+            safetyStock: number;
+            points: {
+                /** @description 현지 날짜 YYYY-MM-DD */
+                date: string;
+                stock: number;
+            }[];
         };
         WarehouseStat: {
             total_warehouse: components["schemas"]["Stat"];
@@ -4876,6 +4908,31 @@ export interface operations {
         };
         responses: {
             200: components["responses"]["NoData"];
+            default: components["responses"]["Error"];
+        };
+    };
+    getStockHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["StockHistory"];
+                    };
+                };
+            };
             default: components["responses"]["Error"];
         };
     };
