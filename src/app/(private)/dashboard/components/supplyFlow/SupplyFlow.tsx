@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { formatCurrency } from '@/app/utils/number';
 import { getSupplyFlow } from '../../dashboard.api';
@@ -21,6 +22,7 @@ const SupplyFlowChart = dynamic(() => import('./SupplyFlowChart'), {
  * 그래프 모양은 서버가 준다. 모르는 노드를 가리키는 흐름은 빼고 알리며, 순환이 있으면 표만 보인다.
  */
 export default function SupplyFlow() {
+  const t = useTranslations('dashboard.supplyFlow');
   const summaryId = useId();
   const [showTable, setShowTable] = useState(false);
   const { data, isLoading, isError, error } = useQuery({
@@ -35,10 +37,10 @@ export default function SupplyFlow() {
   const tableOnly = !!sankey?.cyclic;
 
   return (
-    <section aria-label="이번 달 자재 흐름(금액)" className="card-base p-6 space-y-3">
+    <section aria-label={t('title')} className="card-base p-6 space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">
-          이번 달 자재 흐름(금액)
+          {t('title')}
           {data && <span className="ml-2 text-sm font-normal text-gray-500">{data.period}</span>}
         </h2>
         {hasFlow && !tableOnly && (
@@ -48,26 +50,18 @@ export default function SupplyFlow() {
             aria-expanded={showTable}
             className="text-sm text-blue-600 hover:underline cursor-pointer"
           >
-            {showTable ? '차트로 보기' : '표로 보기'}
+            {showTable ? t('showChart') : t('showTable')}
           </button>
         )}
       </div>
 
-      {isLoading && <div className="h-72" role="status" aria-label="자재 흐름 불러오는 중" />}
-      {isError && (
-        <TableStatusBox type="error" message="자재 흐름을 불러오지 못했습니다." error={error} />
-      )}
-      {sankey && !hasFlow && (
-        <TableStatusBox type="empty" message="이번 달 자재 흐름이 없습니다." />
-      )}
+      {isLoading && <div className="h-72" role="status" aria-label={t('loading')} />}
+      {isError && <TableStatusBox type="error" message={t('loadError')} error={error} />}
+      {sankey && !hasFlow && <TableStatusBox type="empty" message={t('empty')} />}
 
       {data && sankey && hasFlow && (
         <>
-          {tableOnly && (
-            <p className="text-sm text-red-600">
-              흐름이 되돌아가는 구간이 있어 차트로 그리지 않았습니다. 표로 보입니다.
-            </p>
-          )}
+          {tableOnly && <p className="text-sm text-red-600">{t('cyclic')}</p>}
           {showTable || tableOnly ? (
             <FlowTable nodes={sankey.nodes} links={sankey.links} />
           ) : (
@@ -78,24 +72,25 @@ export default function SupplyFlow() {
       )}
       {/* 흐름이 전부 걸러져도 경고는 보인다. 빈 달과 잘못된 응답을 구별한다(리뷰 P2) */}
       {sankey && sankey.unknown > 0 && (
-        <p className="text-sm text-red-600">알 수 없는 흐름 {sankey.unknown}건은 뺐습니다.</p>
+        <p className="text-sm text-red-600">{t('unknownLinks', { count: sankey.unknown })}</p>
       )}
     </section>
   );
 }
 
 function Summary({ id, nodes, links }: { id: string; nodes: FlowNode[]; links: FlowLink[] }) {
+  const t = useTranslations('dashboard.supplyFlow');
   const s = flowSummary(nodes, links);
   const dropNames = nodes.filter((n) => n.kind === 'drop').map((n) => n.name);
   return (
     <p id={id} className="text-sm text-gray-700">
-      단계별 금액: {s.stages.map((st) => `${st.name} ${formatCurrency(st.value)}`).join(', ')}. 새는
-      금액{dropNames.length > 0 && `(${dropNames.join(', ')})`}{' '}
-      <strong className="text-gray-900">
-        {formatCurrency(s.dropped)}
-        {s.dropRate === null ? '(시작 금액을 정할 수 없음)' : `(시작 금액의 ${s.dropRate}%)`}
-      </strong>
-      .
+      {t.rich('summary', {
+        stages: s.stages.map((st) => `${st.name} ${formatCurrency(st.value)}`).join(', '),
+        dropNames: dropNames.length > 0 ? t('dropNames', { names: dropNames.join(', ') }) : '',
+        dropped: formatCurrency(s.dropped),
+        rate: s.dropRate === null ? t('rateUnknown') : t('rate', { rate: s.dropRate }),
+        strong: (chunks) => <strong className="text-gray-900">{chunks}</strong>,
+      })}
     </p>
   );
 }
@@ -108,13 +103,14 @@ function FlowTable({
   nodes: { name: string }[];
   links: { source: number; target: number; value: number }[];
 }) {
+  const t = useTranslations('dashboard.supplyFlow');
   return (
-    <table aria-label="자재 흐름 표" className="w-full text-sm tabular-nums">
+    <table aria-label={t('table')} className="w-full text-sm tabular-nums">
       <thead>
         <tr className="text-left text-gray-500">
-          <th className="py-1 font-medium">출발</th>
-          <th className="py-1 font-medium">도착</th>
-          <th className="py-1 text-right font-medium">금액</th>
+          <th className="py-1 font-medium">{t('columns.from')}</th>
+          <th className="py-1 font-medium">{t('columns.to')}</th>
+          <th className="py-1 text-right font-medium">{t('columns.amount')}</th>
         </tr>
       </thead>
       <tbody>

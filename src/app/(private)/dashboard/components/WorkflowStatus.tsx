@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { type DashboardProps } from '../types/DashboardWorkflowType';
-import { getTabCodeText } from '../dashboard.utils';
+import { workflowTabKey } from '../dashboard.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 
 const WorkflowStatus = ({ workflowData }: DashboardProps) => {
+  const t = useTranslations('dashboard.workflow');
   const [activeTab, setActiveTab] = useState('first');
 
   const tabs = workflowData?.tabs ?? [];
@@ -27,7 +29,7 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <i className="ri-flow-chart text-blue-600 text-lg"></i>
-          <h2 className="text-lg font-semibold text-gray-900">워크플로우 현황</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
         </div>
 
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -37,7 +39,7 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
               activeTab === 'first' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 '
             }`}
           >
-            {getTabCodeText(firstTabCode)}
+            {t(`tabs.${workflowTabKey(firstTabCode)}`)}
           </button>
           <button
             onClick={() => setActiveTab('second')}
@@ -47,7 +49,7 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            {getTabCodeText(secondTabCode)}
+            {t(`tabs.${workflowTabKey(secondTabCode)}`)}
           </button>
         </div>
       </div>
@@ -55,7 +57,7 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
       <div className="space-y-3">
         {currentWorkflows.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
-            표시할 워크플로우가 없습니다.
+            {t('empty')}
           </div>
         ) : (
           currentWorkflows.map((workflow) => (
@@ -73,7 +75,8 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{workflow.itemNumber}</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {workflow.name ? workflow.name : '알수없음'} • {formatDateTime(workflow.date)}
+                    {workflow.name ? workflow.name : t('unknownName')} •{' '}
+                    {formatDateTime(workflow.date)}
                   </p>
                 </div>
               </div>

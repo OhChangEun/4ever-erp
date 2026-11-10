@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import QuickActions from '@/app/(private)/dashboard/components/QuickActions';
 import WorkflowStatus from '@/app/(private)/dashboard/components/WorkflowStatus';
 import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
@@ -14,6 +15,7 @@ import type { Role } from '@/lib/authz/policy';
 
 export default function DashboardClient() {
   const role = useRole();
+  const t = useTranslations('dashboard');
   // 회사 전체 자재 금액이라 운영 역할만. API 도 같은 표로 막는다(시각화 6)
   const readonlyOps: readonly Role[] = OPERATIONS;
   const showSupplyFlow = readonlyOps.some((r) => r === role);
@@ -39,8 +41,21 @@ export default function DashboardClient() {
     );
   }
 
+  // 카드에는 제목 키와 단위 없는 직원 수가 있다. 글자와 단위는 여기서 붙인다
   const dashboardStatsData = dashboardStats
-    ? mapDashboardStatsToCards(dashboardStats)
+    ? Object.fromEntries(
+        Object.entries(mapDashboardStatsToCards(dashboardStats)).map(([period, cards]) => [
+          period,
+          cards.map((card) => ({
+            ...card,
+            title: t(`stats.${card.title}`),
+            value:
+              card.title === 'totalEmployees'
+                ? t('employeeCount', { value: card.value })
+                : card.value,
+          })),
+        ]),
+      )
     : EMPTY_STATS;
 
   return (
