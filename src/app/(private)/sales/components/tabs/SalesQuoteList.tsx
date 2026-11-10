@@ -26,6 +26,7 @@ const SalesQuoteList = () => {
   const { openModal } = useModal();
   const t = useTranslations('sales.quoteList');
   const tc = useTranslations('sales.common');
+  const ts = useTranslations('status');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('quotationNumber');
@@ -95,7 +96,7 @@ const SalesQuoteList = () => {
   }));
   const statusOptions = QUOTE_STATUS_OPTIONS.map((code) => ({
     key: code,
-    value: t(`statusFilter.${code}`),
+    value: code === 'ALL' ? tc('allStatuses') : ts(code),
   }));
 
   const columns: TableColumn<QuoteItem>[] = [

@@ -34,13 +34,6 @@
       "customerName": "고객명",
       "managerName": "담당자"
     },
-    "statusFilter": {
-      "ALL": "전체 상태",
-      "PENDING": "대기",
-      "REVIEW": "검토",
-      "APPROVED": "승인",
-      "REJECTED": "반려"
-    },
     "columns": {
       "select": "선택",
       "number": "견적번호",
@@ -64,14 +57,6 @@
       "salesOrderNumber": "주문번호",
       "customerName": "고객명",
       "managerName": "담당자"
-    },
-    "statusFilter": {
-      "ALL": "전체 상태",
-      "IN_PRODUCTION": "생산중",
-      "READY_FOR_SHIPMENT": "출하 준비 완료",
-      "MATERIAL_PREPARATION": "자재 준비중",
-      "DELIVERING": "배송중",
-      "DELIVERED": "배송완료"
     },
     "columns": {
       "number": "주문번호",
@@ -184,7 +169,8 @@
     "confirmSuccess": "검토 요청이 완료되었습니다.",
     "confirmError": "검토 요청 중 오류가 발생했습니다. {message}",
     "checkError": "재고 확인 중 오류가 발생했습니다. {message}",
-    "deliverError": "즉시 납품 처리 중 오류가 발생했습니다. {message}"
+    "deliverError": "즉시 납품 처리 중 오류가 발생했습니다. {message}",
+    "deliverSuccess": "견적 {number}의 즉시 납품 처리가 완료되었습니다."
   },
   "orderDetail": {
     "loading": "주문서를 불러오는 중입니다...",

@@ -66,7 +66,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
   });
 
   const { mutate: delieveryProcessReq, isPending: isProcessingDelivery } = useProcessDelivery({
-    onSuccess: (data) => toast.info(`${data.status} : ${quote?.quotationNumber}`),
+    onSuccess: () => toast.success(t('deliverSuccess', { number: quote?.quotationNumber ?? '' })),
     onError: (error) => toast.error(t('deliverError', { message: errorMessageOf(error) })),
   });
 
