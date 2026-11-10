@@ -15,6 +15,47 @@ const mockLowStockStats = statResponse({
   total_warning: stat,
 });
 
+/** 창고 하나의 재고(시각화 8). 값은 순번으로 정해진다. 안전재고 대비 30%~420%, 하나는 안전재고 0 */
+const WAREHOUSE_ITEMS = [
+  '모터 A',
+  '베어링 B',
+  '볼트 M6',
+  '알루미늄 판',
+  '구리선',
+  '샤프트',
+  '커버',
+  '패킹',
+  '너트 M6',
+  '와셔',
+  '하우징',
+  '기어',
+  '스프링',
+  '케이블',
+];
+const warehouseStock = (warehouseName: string) =>
+  WAREHOUSE_ITEMS.map((itemName, i) => {
+    const safetyStock = i === 13 ? 0 : 50 + (i % 4) * 25;
+    const ratio = [0.3, 0.8, 1.1, 1.3, 1.8, 2.4, 3.5, 4.2][i % 8];
+    const currentStock = Math.round((safetyStock || 40) * ratio);
+    return {
+      itemId: i === 0 ? 'item-1001' : `item-wh-${String(i + 1).padStart(3, '0')}`,
+      itemNumber: `ITM-${String(3000 + i)}`,
+      itemName,
+      category: '자재',
+      currentStock,
+      forShipmentStock: 0,
+      reservedStock: 0,
+      safetyStock,
+      uomName: 'EA',
+      unitPrice: 1000 + i * 150,
+      totalAmount: currentStock * (1000 + i * 150),
+      warehouseName,
+      warehouseType: 'RAW',
+      statusCode: currentStock < safetyStock ? 'URGENT' : 'NORMAL',
+      shelfNumber: i + 1,
+    };
+  });
+
 export const inventoryHandlers = [
   // ----------------------- Inventory -----------------------
   http.get(INVENTORY_ENDPOINTS.STATS, ({ request }) => {
@@ -26,6 +67,12 @@ export const inventoryHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
+    // 창고 3D(시각화 8)는 창고 이름으로 거른다. 그 창고의 품목 14개(재고율 4단계와 기준 없음이 다 나온다)
+    const keyword = url.searchParams.get('keyword');
+    if (url.searchParams.get('type') === 'WAREHOUSE_NAME' && keyword) {
+      const content = warehouseStock(keyword);
+      return ok({ content: content.slice(0, size), page: makePage(page, size, content.length) });
+    }
     return ok({
       content: [
         {

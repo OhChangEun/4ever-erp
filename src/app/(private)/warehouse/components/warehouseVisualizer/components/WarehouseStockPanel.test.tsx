@@ -43,7 +43,7 @@ describe('창고 재고 칸(시각화 8)', () => {
     expect(names[2]).toMatch(/볼트.*400%.*많음/);
   });
 
-  it('80개를 넘으면 일부만 그린다고 알린다', () => {
+  it('60개를 넘으면 일부만 그린다고 알린다', () => {
     renderWithProviders(
       <WarehouseStockPanel
         cluster={cluster}

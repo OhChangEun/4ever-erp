@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { STOCK_COLORS } from '../stockColors';
+import { readBandColors } from '../stockHeat';
 import { SceneProps } from '../WarehouseVisualizerType';
 import { useCursor, Text } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
@@ -9,10 +9,13 @@ const WarehouseScene = ({
   clusters,
   viewMode,
   activeWarehouseKey,
+  selectedItemId,
   onSelectWarehouse,
   onSelectItem,
 }: SceneProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // 재질 색은 CSS 토큰에서 한 번 읽는다(시각화 8). 이 장면은 클라이언트에서만 뜬다(ssr false)
+  const [bandColors] = useState(readBandColors);
   useCursor(!!hoveredId, 'pointer', 'auto');
 
   // Load logo texture for overlay
@@ -156,7 +159,8 @@ const WarehouseScene = ({
                 const boxes = clusterItems.map((item) => {
                   // ShelfNumber-based indexing
                   const maxBoxesPerRack = levelsPerRack * boxesPerLevel; // 15
-                  const shelfNumber = (item.shelfNumber ?? 1) - 1;
+                  // 블록 자리는 buildCluster 가 선반 번호 순서로 매긴 slot(시각화 8). 겹치지 않는다
+                  const shelfNumber = item.slot;
                   const rackIndex = Math.floor(shelfNumber / maxBoxesPerRack);
                   const indexInRack = shelfNumber % maxBoxesPerRack;
                   const level = Math.floor(indexInRack / boxesPerLevel);
@@ -170,12 +174,10 @@ const WarehouseScene = ({
                   // Hover logic
                   const isHovered = hoveredId === item.itemId;
                   // Color logic with highlight on hover
-                  const tone = item.isLowStock
-                    ? STOCK_COLORS.low
-                    : item.fillRatio < 1
-                      ? STOCK_COLORS.warning
-                      : STOCK_COLORS.normal;
+                  // 재고율 4단계 색(시각화 8). 고른 품목은 살짝 밝힌다
+                  const tone = bandColors[item.band];
                   const color = isHovered ? tone.hover : tone.base;
+                  const isSelected = selectedItemId === item.itemId;
                   return (
                     <mesh
                       key={`box-${item.itemId}`}
@@ -194,7 +196,11 @@ const WarehouseScene = ({
                       onPointerOut={() => setHoveredId(null)}
                     >
                       <boxGeometry args={[1.2, boxHeight, 1.2]} />
-                      <meshStandardMaterial color={color} />
+                      <meshStandardMaterial
+                        color={color}
+                        emissive={isSelected ? '#ffffff' : '#000000'}
+                        emissiveIntensity={isSelected ? 0.25 : 0}
+                      />
                       <Text
                         position={[0, 0, 0.61]} // move to front toward camera
                         fontSize={0.15}
