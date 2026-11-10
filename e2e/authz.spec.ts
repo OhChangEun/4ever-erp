@@ -42,8 +42,12 @@ test('로그아웃하면 세션 쿠키가 실제로 지워지고 다음 요청�
   const before = (await context.cookies()).map((c) => c.name);
   expect(before.some((name) => name.endsWith('session'))).toBe(true);
 
-  // 화면의 로그아웃과 같은 요청(같은 출처 POST)
-  await page.evaluate(() => fetch('/api/auth/logout', { method: 'POST' }));
+  // 화면의 로그아웃과 같은 요청(같은 출처 POST). 페이지 안 fetch 로 보내면, 세션이 지워진 뒤 열린 화면의 다른 요청이
+  // 401 을 받아 로그인으로 이동하면서 evaluate 의 실행 맥락이 사라져 가끔 실패했다(전체 실행에서 두 번).
+  // 쿠키를 같이 쓰는 page.request 로 보낸다. Origin 은 서버의 같은 출처 검사 때문에 붙인다
+  const origin = new URL(page.url()).origin;
+  const logout = await page.request.post('/api/auth/logout', { headers: { origin } });
+  expect(logout.ok()).toBe(true);
 
   const after = (await context.cookies()).map((c) => c.name);
   expect(after.some((name) => name.endsWith('session'))).toBe(false);
