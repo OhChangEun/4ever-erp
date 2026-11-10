@@ -116,6 +116,16 @@ describe('인가 표 하나', () => {
     expect(canAccessPage('FCM_ADMIN', '/salesreport')).toBe(true);
   });
 
+  it('의도한 변화: 재무 현황 API 는 사내 재무 역할만(재무 화면의 다른 API 는 그대로)', () => {
+    const path = 'business/fcm/analytics/monthly';
+    expect(canAccessApi('ALL_ADMIN', path)).toBe(true);
+    expect(canAccessApi('FCM_USER', 'business/fcm/analytics/ar-aging')).toBe(true);
+    expect(canAccessApi('CUSTOMER_ADMIN', path)).toBe(false);
+    expect(canAccessApi('SUPPLIER_ADMIN', 'business/fcm/analytics/ar-aging')).toBe(false);
+    expect(canAccessApi('SD_ADMIN', path)).toBe(false);
+    expect(canAccessApi('CUSTOMER_ADMIN', 'business/fcm/invoice/ap')).toBe(true);
+  });
+
   it('메뉴: 대시보드는 공급사에게 숨긴다(페이지는 열림). 나머지는 페이지 표와 같다', () => {
     expect(menuRoles('/dashboard')).not.toContain('SUPPLIER_ADMIN');
     expect(canAccessPage('SUPPLIER_ADMIN', '/dashboard')).toBe(true);

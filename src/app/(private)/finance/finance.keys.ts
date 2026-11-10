@@ -7,6 +7,13 @@ export const financeStatsKeys = {
   byRole: (role: string | undefined) => [...financeStatsKeys.all, role] as const,
 };
 
+/** 재무 현황(시각화 4). 월별 손익과 미수금 경과 */
+export const financeAnalyticsKeys = {
+  all: ['finance', 'analytics'] as const,
+  monthly: () => [...financeAnalyticsKeys.all, 'monthly'] as const,
+  aging: () => [...financeAnalyticsKeys.all, 'aging'] as const,
+};
+
 export const invoiceKeys = {
   all: ['finance', 'invoices'] as const,
 

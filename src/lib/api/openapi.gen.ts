@@ -108,6 +108,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/business/fcm/analytics/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 월별 매출, 매입, 순이익(최근 12개월, 시각화 4)
+         * @description 오래된 달부터. 마지막이 이번 달이다. 금액은 원. 서버 지원은 확인 전(verified=false)
+         */
+        get: operations["getFinanceMonthly"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/business/fcm/analytics/ar-aging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 미수금 경과 구간(시각화 4)
+         * @description 기준일에 받지 못한 매출 전표를 만기일 기준 경과일로 나눈다. 구간 5개가 이 순서로 온다. 서버 지원은 확인 전(verified=false)
+         */
+        get: operations["getArAging"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/business/fcm/statictics": {
         parameters: {
             query?: never;
@@ -2217,6 +2257,25 @@ export interface components {
             /** @description 기간 안의 추이(시각화 1). 주는 일 7개, 월은 주 5개, 분기는 주 13개, 연은 월 12개. 마지막 값이 value 와 같다. 서버 지원은 확인 전(verified=false) */
             trend?: number[];
         };
+        FinanceMonthly: {
+            months: {
+                /** @description YYYY-MM */
+                month: string;
+                sales: number;
+                purchases: number;
+                netProfit: number;
+            }[];
+        };
+        ArAging: {
+            /** @description 기준일(현지 날짜 YYYY-MM-DD) */
+            asOf: string;
+            buckets: {
+                /** @enum {string} */
+                bucket: "CURRENT" | "D1_30" | "D31_60" | "D61_90" | "D90_PLUS";
+                amount: number;
+                count: number;
+            }[];
+        };
         StockHistory: {
             itemId: string;
             uomName: string;
@@ -3779,6 +3838,52 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApiEnvelope"] & {
                         data: components["schemas"]["DashboardWorkflowRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getFinanceMonthly: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["FinanceMonthly"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getArAging: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["ArAging"];
                     };
                 };
             };

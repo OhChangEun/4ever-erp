@@ -5,6 +5,7 @@ import {
 } from '@/app/(private)/finance/types/FinanceStatsType';
 import { InvoiceListRes, InvoiceQueryParams } from './types/InvoiceListType';
 import { InvoicetDetailRes } from './types/InvoiceDetailModalType';
+import type { ArAging, FinanceMonthly } from './types/FinanceAnalyticsType';
 import { Page } from '@/app/types/Page';
 import axios from '@/lib/axiosInstance';
 
@@ -92,5 +93,16 @@ export const getSalesInvoiceDetail = async (invoiceId: string): Promise<Invoicet
   const res = await axios.get<ApiResponse<InvoicetDetailRes>>(
     FINANCE_ENDPOINTS.SALES_INVOICE_DETAIL(invoiceId),
   );
+  return res.data.data;
+};
+
+// ----------------------- 재무 현황(시각화 4) -----------------------
+export const getFinanceMonthly = async (): Promise<FinanceMonthly> => {
+  const res = await axios.get<ApiResponse<FinanceMonthly>>(FINANCE_ENDPOINTS.ANALYTICS_MONTHLY);
+  return res.data.data;
+};
+
+export const getArAging = async (): Promise<ArAging> => {
+  const res = await axios.get<ApiResponse<ArAging>>(FINANCE_ENDPOINTS.AR_AGING);
   return res.data.data;
 };

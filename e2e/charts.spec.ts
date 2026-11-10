@@ -40,3 +40,22 @@ test('MES 간트에서 막대를 키보드로 옮기고 Enter 로 상세를 연�
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'MES 현황' })).toBeVisible();
 });
+
+/** 시각화 4: 재무 현황 탭의 월별 복합 차트와 미수금 경과 */
+test('재무 현황에 월별 매출, 매입 차트와 미수금 경과 표가 있다', async ({ page }) => {
+  await page.goto('/finance');
+  await page.getByRole('button', { name: '재무 현황' }).first().click();
+  const monthly = page.getByRole('region', { name: '월별 매출과 매입' });
+  await expect(monthly.getByRole('img', { name: '월별 매출과 매입 차트' })).toBeVisible();
+  await expect(monthly.locator('.recharts-bar-rectangle').first()).toBeVisible();
+  await expect(monthly).toContainText(/적자 1개월/);
+  await monthly.getByRole('button', { name: '표로 보기' }).click();
+  await expect(
+    monthly.getByRole('table', { name: '월별 매출과 매입 표' }).locator('tbody tr'),
+  ).toHaveCount(12);
+  const aging = page.getByRole('region', { name: '미수금 경과' });
+  await expect(aging).toContainText(/기한 지난 금액 ₩100,700,000\(36%\)/);
+  await expect(
+    aging.getByRole('table', { name: '미수금 경과 표' }).locator('tbody tr'),
+  ).toHaveCount(5);
+});
