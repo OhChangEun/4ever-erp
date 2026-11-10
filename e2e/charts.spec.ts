@@ -23,3 +23,20 @@ test('재고 상세에 30일 추이, 안전재고, 소진 예상이 있고 표�
     30,
   );
 });
+
+/** 시각화 3: MES 간트. 키보드로 막대를 옮기고 Enter 로 상세를 연다 */
+test('MES 간트에서 막대를 키보드로 옮기고 Enter 로 상세를 연다', async ({ page }) => {
+  await page.goto('/production');
+  await page.getByRole('button', { name: 'MES' }).first().click();
+  await page.getByRole('button', { name: '간트' }).click();
+  const list = page.getByRole('list', { name: 'MES 작업 일정(간트)' });
+  const bars = list.getByRole('listitem');
+  await expect(bars.first()).toBeVisible();
+  expect(await bars.count()).toBeGreaterThan(1);
+  await expect(list.getByRole('listitem', { name: /지연/ }).first()).toBeVisible();
+  await bars.first().focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(bars.nth(1)).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'MES 현황' })).toBeVisible();
+});

@@ -16,7 +16,19 @@ import {
 import { useModal } from '@/app/components/common/modal/useModal';
 import ProcessDetailModal from '../modals/ProcessDetailModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
-import { Pagination } from '@everp/ui';
+import { Pagination, TabButtons } from '@everp/ui';
+import dynamic from 'next/dynamic';
+
+// 간트는 전환할 때만 받는다(시각화 3, 첫 로드 예산)
+const MesGantt = dynamic(() => import('../MesGantt'), {
+  ssr: false,
+  loading: () => <div className="h-64" aria-hidden="true" />,
+});
+
+const VIEWS = [
+  { id: 'table', name: '표' },
+  { id: 'gantt', name: '간트' },
+];
 import { Table, TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
@@ -26,6 +38,7 @@ export default function MesTab() {
   const [selectedMesStatus, setSelectedMesStatus] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [view, setView] = useState('table');
   const pageSize = 10;
 
   const { openModal } = useModal();
@@ -233,6 +246,10 @@ export default function MesTab() {
   return (
     <div className="flex flex-col h-full gap-6">
       <div className="flex items-center justify-end gap-3 shrink-0">
+        {/* 보기 전환(DESIGN_GUIDELINES: 툴바 왼쪽 세그먼트, 아이콘 없음) */}
+        <div className="mr-auto">
+          <TabButtons tabs={VIEWS} activeTab={view} onTabChange={setView} />
+        </div>
         <Dropdown
           placeholder="견적 선택"
           items={mrpQuotationOptions}
@@ -258,6 +275,13 @@ export default function MesTab() {
           <TableStatusBox type="loading" message="MES 데이터를 불러오는 중입니다..." />
         ) : isError ? (
           <TableStatusBox type="error" message="데이터를 불러오는데 실패했습니다." />
+        ) : view === 'gantt' ? (
+          // 결과가 없으면 빈 눈금 대신 표 보기와 같은 안내(리뷰 P2)
+          mesListData.length === 0 ? (
+            <TableStatusBox type="empty" message="선택한 조건에 해당하는 작업지시가 없습니다." />
+          ) : (
+            <MesGantt rows={mesListData} onSelect={handleShowProcessDetail} />
+          )
         ) : (
           <Table
             isStale={isPlaceholderData}

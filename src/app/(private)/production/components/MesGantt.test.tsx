@@ -61,4 +61,25 @@ describe('MesGantt(시각화 3)', () => {
     await userEvent.keyboard('{Enter}');
     expect(onSelect).toHaveBeenCalledWith('mes-1');
   });
+
+  it('뒤쪽 막대에 있다가 줄이 줄어도 Tab 으로 들어올 막대가 하나 있다(리뷰 P2)', async () => {
+    const { rerender } = render(
+      <MesGantt rows={rows} today={new Date(2026, 10, 10)} onSelect={() => {}} />,
+    );
+    screen.getAllByRole('listitem')[0].focus();
+    await userEvent.keyboard('{End}');
+    rerender(
+      <MesGantt rows={rows.slice(0, 1)} today={new Date(2026, 10, 10)} onSelect={() => {}} />,
+    );
+    expect(screen.getAllByRole('listitem')[0]).toHaveAttribute('tabindex', '0');
+  });
+
+  it('긴 이름은 왼쪽 칸에서 자르고 전체 이름은 접근성 이름에 남긴다(리뷰 P2)', () => {
+    const long = [{ ...rows[0], productName: '아주아주아주 긴 이름의 대형 컨베이어 벨트 조립품' }];
+    const { container } = render(
+      <MesGantt rows={long} today={new Date(2026, 10, 10)} onSelect={() => {}} />,
+    );
+    expect(container.querySelector('text[clip-path]')).not.toBeNull();
+    expect(screen.getByRole('listitem')).toHaveAccessibleName(/대형 컨베이어 벨트 조립품/);
+  });
 });
