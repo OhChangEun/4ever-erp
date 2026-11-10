@@ -15,7 +15,7 @@
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "build-storybook": {
-      "inputs": ["$TURBO_DEFAULT$", "../../src/styles/globals.css"],
+      "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["storybook-static/**"]
     }
   }

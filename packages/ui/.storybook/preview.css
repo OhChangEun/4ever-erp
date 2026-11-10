@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+/* 앱과 같은 토큰. 예전엔 앱 globals.css 를 빌려 왔다(디자인 토큰 카드) */
+@import '../tokens.css';
+@import 'remixicon/fonts/remixicon.css';
