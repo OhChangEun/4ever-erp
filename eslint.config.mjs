@@ -26,7 +26,13 @@ export default defineConfig([
   // 타입 정보를 쓰는 규칙. 근거는 ai/rules/react-typescript-antipatterns.md 의 R03, R12, R13, R14, R21.
   // 2026-11-09 측정값(현재 위반 수)을 주석에 적었다. 0이 되는 순서대로 warn → error 로 올린다.
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx', 'packages/ui/src/**/*.ts', 'packages/ui/src/**/*.tsx'],
+    files: [
+      'src/**/*.ts',
+      'src/**/*.tsx',
+      'packages/ui/src/**/*.ts',
+      'packages/ui/src/**/*.tsx',
+      'packages/auth/src/**/*.ts',
+    ],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -102,6 +108,7 @@ export default defineConfig([
     files: [
       'src/**/*.test.ts',
       'src/**/*.test.tsx',
+      'packages/*/src/**/*.test.ts',
       'packages/*/src/**/*.test.tsx',
       'vitest.setup.ts',
     ],

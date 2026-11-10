@@ -1,7 +1,14 @@
 // @vitest-environment node
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { CLIENT_ID, CLIENT_SECRET, ISSUER, installFakeIdp, type FakeIdp } from '@/test/fakeIdp';
+import {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  ISSUER,
+  installFakeIdp,
+  type FakeIdp,
+} from '@everp/auth/testing';
+import { server } from '@/test/msw-server';
 import { finishOidcLogin, pickRole, startOidcLogin } from './oidcLogin';
 import { SESSION_COOKIE, readSession } from './session';
 import { POST as backchannelLogout } from '@/app/api/auth/backchannel-logout/route';
@@ -45,7 +52,7 @@ const sessionReader = (sid: string | undefined) => ({
 describe('OIDC 로그인 흐름', () => {
   let fake: FakeIdp;
   beforeEach(async () => {
-    fake = await installFakeIdp();
+    fake = await installFakeIdp(server);
   });
 
   const tokensFor = async (nonce: string, roles: string[]) => ({

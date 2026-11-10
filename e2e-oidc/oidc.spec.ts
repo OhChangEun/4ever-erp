@@ -68,7 +68,8 @@ test('Keycloak 으로 로그인하면 대시보드가 열리고, 쿠키에는 �
 test('역할 표대로 막는다: 재무 관리자는 인사 API 403', async ({ page }) => {
   await loginViaKeycloak(page, 'fcm_admin');
   expect((await page.request.get('/api/proxy/business/hrm/employee')).status()).toBe(403);
-  expect((await page.request.get('/api/proxy/business/fcm/statistics')).status()).toBe(200);
+  // 재무 통계의 실제 경로는 계약 철자 그대로 statictics(FINANCE_ENDPOINTS.STATISTICS). 예전 statistics 는 목 한 벌 뒤 404
+  expect((await page.request.get('/api/proxy/business/fcm/statictics')).status()).toBe(200);
 });
 
 test('access token(수명 60초)이 만료에 가까워도 동시 요청 5개가 모두 성공한다(갱신)', async ({

@@ -1,5 +1,6 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
+import { createShortLivedSigner } from '@everp/auth';
 import { isRole, type Role } from '@/lib/authz/policy';
 
 // 1. 비밀키 준비 - 쓰는 시점에 읽는다. import 시점에 읽으면 Next 빌드가 라우트 모듈을
@@ -67,21 +68,5 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
 }
 
 // 6. 짧은 수명 서명 값 - OIDC 로그인 트랜잭션(state, nonce, PKCE verifier, returnTo)을 10분짜리 쿠키에 담을 때 쓴다.
-//    서명해야 하는 이유: 쿠키를 바꿔 다른 사람의 code_verifier 나 returnTo 를 넣는 것을 막는다.
-export async function signShortLived(claims: Record<string, string>, ttl: string): Promise<string> {
-  return new SignJWT(claims)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime(ttl)
-    .sign(getSecret());
-}
-
-export async function verifyShortLived(token: string): Promise<Record<string, unknown> | null> {
-  const secret = getSecret();
-  try {
-    const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
-    return payload;
-  } catch {
-    return null;
-  }
-}
+//    서명과 검증은 @everp/auth 가 하고(포털과 같이 쓴다), 비밀키만 여기서 넘긴다.
+export const shortLivedSigner = createShortLivedSigner(getSecret);

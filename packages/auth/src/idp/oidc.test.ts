@@ -1,7 +1,14 @@
 // @vitest-environment node
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { setupServer } from 'msw/node';
 import { createOidcIdp } from './oidc';
-import { CLIENT_ID, CLIENT_SECRET, ISSUER, installFakeIdp, type FakeIdp } from '@/test/fakeIdp';
+import { CLIENT_ID, CLIENT_SECRET, ISSUER, installFakeIdp, type FakeIdp } from '../testing';
+
+// 이 패키지 테스트 전용 MSW 서버. 가짜 IdP(discovery, JWKS, 토큰 엔드포인트)를 여기에 붙인다
+const server = setupServer();
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 const BACKCHANNEL = { 'http://schemas.openid.net/event/backchannel-logout': {} };
 
@@ -10,7 +17,7 @@ describe('OIDC 클라이언트', () => {
   const idp = () =>
     createOidcIdp({ issuer: ISSUER, clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
   beforeEach(async () => {
-    fake = await installFakeIdp();
+    fake = await installFakeIdp(server);
   });
 
   it('authorize 주소에 code 흐름과 PKCE(S256), state, nonce 가 들어간다', async () => {
