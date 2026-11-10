@@ -14,8 +14,10 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 
 const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveModalProps) => {
+  const t = useTranslations('inventory');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const toast = useToast();
@@ -60,23 +62,22 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
   // 낙관적 업데이트(출발 창고 상세의 현재고)와 무효화는 inventory.mutations.ts 한 곳.
   const { mutate: moveStock, isPending: isMoving } = useMoveStock({
     onSuccess: () => {
-      toast.success('재고가 이동되었습니다.');
+      toast.success(t('move.success'));
       setShowMoveModal(false);
     },
-    onError: (error) => toast.error(`재고 이동 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('move.error', { message: errorMessageOf(error) })),
   });
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading)
-    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('move.loading')} />;
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="창고 정보를 불러오는 중 오류가 발생했습니다."
+        message={t('move.loadError')}
         onClose={() => errorDialog.dismiss()}
       />
     );
@@ -84,7 +85,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-overlay">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">재고 이동</h3>
+          <h3 className="text-lg font-semibold">{t('move.title')}</h3>
           <button
             onClick={() => setShowMoveModal(false)}
             className="text-gray-400 hover:text-gray-600 cursor-pointer"
@@ -97,10 +98,16 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
           <div className="text-sm font-medium text-gray-900">{selectedStock.itemName}</div>
           <div className="text-sm text-gray-500">{selectedStock.itemNumber}</div>
           <div className="text-sm text-gray-600 mt-1">
-            현재 위치: {selectedStock.warehouseName} ({selectedStock.warehouseNumber})
+            {t('move.currentLocation', {
+              name: selectedStock.warehouseName,
+              number: selectedStock.warehouseNumber,
+            })}
           </div>
           <div className="text-sm text-gray-600">
-            현재 재고: {selectedStock.currentStock} {selectedStock.uomName}
+            {t('move.currentStock', {
+              stock: String(selectedStock.currentStock),
+              unit: selectedStock.uomName,
+            })}
           </div>
         </div>
 
@@ -110,7 +117,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               htmlFor={`${fieldId}-toWarehouseId`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              이동할 창고
+              {t('move.toWarehouse')}
             </label>
             <select
               id={`${fieldId}-toWarehouseId`}
@@ -118,7 +125,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               name="toWarehouseId"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
             >
-              <option value="">창고를 선택하세요</option>
+              <option value="">{t('move.selectWarehouse')}</option>
               {warehouseInfoRes?.map((warehouse) => (
                 <option key={warehouse.warehouseId} value={warehouse.warehouseId}>
                   {warehouse.warehouseName}
@@ -132,7 +139,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               htmlFor={`${fieldId}-field1`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              이동할 위치
+              {t('move.toLocation')}
             </label>
             <input
               id={`${fieldId}-field1`}
@@ -140,7 +147,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               readOnly
               disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              placeholder="예: A-01-01"
+              placeholder={t('move.locationPlaceholder')}
               value={
                 warehouseInfoRes?.find(
                   (w) => String(w.warehouseId) === String(formData.toWarehouseId),
@@ -154,7 +161,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               htmlFor={`${fieldId}-stockQuantity`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              이동 수량
+              {t('move.quantity')}
             </label>
             <input
               id={`${fieldId}-stockQuantity`}
@@ -163,7 +170,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               value={formData.stockQuantity}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              placeholder="이동할 수량을 입력하세요"
+              placeholder={t('move.quantityPlaceholder')}
               max={selectedStock.currentStock}
             />
           </div>
@@ -173,7 +180,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               htmlFor={`${fieldId}-reason`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              이동 사유
+              {t('move.reason')}
             </label>
             <input
               id={`${fieldId}-reason`}
@@ -182,7 +189,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               value={formData.reason}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              placeholder="이동 사유를 입력하세요"
+              placeholder={t('move.reasonPlaceholder')}
               maxLength={18}
             />
           </div>
@@ -193,14 +200,14 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
               onClick={() => setShowMoveModal(false)}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
             >
-              취소
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isMoving}
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isMoving ? '이동 중...' : '이동'}
+              {isMoving ? t('move.submitting') : t('move.submit')}
             </button>
           </div>
         </form>

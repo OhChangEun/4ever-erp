@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 
 /**
  * 재고 선 하나 + 안전재고 기준선(시각화 2). 색은 토큰 두 개(선: 브랜드, 기준선: 빨강), 그라데이션 없음.
@@ -24,8 +25,9 @@ export default function StockTrendChart({
   safetyStock: number;
   describedBy: string;
 }) {
+  const t = useTranslations('inventory.trend');
   return (
-    <div role="img" aria-label="재고 추이 차트" aria-describedby={describedBy} className="h-40">
+    <div role="img" aria-label={t('chartLabel')} aria-describedby={describedBy} className="h-40">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={points} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="var(--color-gray-100)" vertical={false} />
@@ -43,7 +45,7 @@ export default function StockTrendChart({
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip formatter={(v) => [Number(v).toLocaleString('ko-KR'), '재고']} />
+          <Tooltip formatter={(v) => [Number(v).toLocaleString('ko-KR'), t('tooltipStock')]} />
           <ReferenceLine
             y={safetyStock}
             // 재고가 전부 안전재고보다 낮아도 기준선이 보이게 축을 늘린다. 기본값은 화면 밖이면 지운다(리뷰 P2)
@@ -51,7 +53,7 @@ export default function StockTrendChart({
             stroke="var(--color-red-500)"
             strokeDasharray="4 3"
             label={{
-              value: `안전재고 ${safetyStock}`,
+              value: t('safetyLine', { value: String(safetyStock) }),
               position: 'insideTopRight',
               fontSize: 11,
               fill: 'var(--color-red-600)',

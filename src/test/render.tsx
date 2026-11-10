@@ -12,6 +12,10 @@ import dashboardKo from '@/i18n/messages/dashboard/ko.json';
 import dashboardEn from '@/i18n/messages/dashboard/en.json';
 import purchaseKo from '@/i18n/messages/purchase/ko.json';
 import purchaseEn from '@/i18n/messages/purchase/en.json';
+import inventoryKo from '@/i18n/messages/inventory/ko.json';
+import inventoryEn from '@/i18n/messages/inventory/en.json';
+import lowStockKo from '@/i18n/messages/lowStock/ko.json';
+import lowStockEn from '@/i18n/messages/lowStock/en.json';
 import type { Locale } from '@/i18n/locale';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
@@ -38,6 +42,8 @@ const MESSAGES = {
     warehouse: warehouseKo,
     dashboard: dashboardKo,
     purchase: purchaseKo,
+    inventory: inventoryKo,
+    lowStock: lowStockKo,
   },
   en: {
     ...en,
@@ -45,6 +51,8 @@ const MESSAGES = {
     warehouse: warehouseEn,
     dashboard: dashboardEn,
     purchase: purchaseEn,
+    inventory: inventoryEn,
+    lowStock: lowStockEn,
   },
 } satisfies Record<Locale, object>;
 

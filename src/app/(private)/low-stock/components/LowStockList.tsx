@@ -14,6 +14,7 @@ import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
+import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
@@ -24,6 +25,7 @@ const InventoryPurchaseRequestModal = dynamic(() =>
 );
 
 export default function LowStockList() {
+  const t = useTranslations('lowStock.list');
   const { openModal } = useModal();
   const toast = useToast();
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
@@ -80,7 +82,7 @@ export default function LowStockList() {
 
   const handleBulkOrder = () => {
     if (selectedItems.length === 0) {
-      toast.warning('발주할 품목을 선택해주세요.');
+      toast.warning(t('selectRequired'));
       return;
     }
 
@@ -98,7 +100,7 @@ export default function LowStockList() {
       }));
 
     openModal(InventoryPurchaseRequestModal, {
-      title: '발주 요청',
+      title: t('purchaseModalTitle'),
       items: selectedItemsData,
       width: '600px',
       height: '400px',
@@ -115,7 +117,7 @@ export default function LowStockList() {
         <input
           ref={selectAllCheckboxRef}
           type="checkbox"
-          aria-label="부족 품목 전체 선택"
+          aria-label={t('selectAll')}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           onChange={toggleSelectAll}
           checked={lowStocks.length > 0 && selectedItems.length === lowStocks.length}
@@ -124,7 +126,7 @@ export default function LowStockList() {
       render: (_, lowStock) => (
         <input
           type="checkbox"
-          aria-label={`${lowStock.itemName} 선택`}
+          aria-label={t('selectItem', { name: lowStock.itemName })}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           checked={selectedItems.includes(lowStock.itemId)}
           onChange={() => toggleSelectItem(lowStock.itemId)}
@@ -133,7 +135,7 @@ export default function LowStockList() {
     },
     {
       key: 'itemName',
-      label: '품목',
+      label: t('columns.itemName'),
       render: (_, lowStock) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{lowStock.itemName}</div>
@@ -143,7 +145,7 @@ export default function LowStockList() {
     },
     {
       key: 'category',
-      label: '카테고리',
+      label: t('columns.category'),
       render: (_, lowStock) => (
         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
           <StatusLabel statusCode={lowStock.category} />
@@ -152,7 +154,7 @@ export default function LowStockList() {
     },
     {
       key: 'currentStock',
-      label: '현재재고',
+      label: t('columns.currentStock'),
       render: (_, lowStock) => (
         <span className="text-sm text-gray-900">
           {lowStock.currentStock.toLocaleString()} {lowStock.uomName}
@@ -161,7 +163,7 @@ export default function LowStockList() {
     },
     {
       key: 'safetyStock',
-      label: '안전재고',
+      label: t('columns.safetyStock'),
       render: (_, lowStock) => (
         <span className="text-sm text-gray-500">
           {lowStock.safetyStock.toLocaleString()} {lowStock.uomName}
@@ -171,12 +173,12 @@ export default function LowStockList() {
     {
       key: 'unitPrice',
       align: 'right',
-      label: '단가',
+      label: t('columns.unitPrice'),
       render: (_, lowStock) => formatCurrency(lowStock.unitPrice),
     },
     {
       key: 'totalAmount',
-      label: '총 가치',
+      label: t('columns.totalAmount'),
       render: (_, lowStock) => (
         <span className="text-sm font-medium text-gray-900">
           {formatCurrency(lowStock.totalAmount)}
@@ -185,7 +187,7 @@ export default function LowStockList() {
     },
     {
       key: 'warehouseName',
-      label: '창고 위치',
+      label: t('columns.warehouseName'),
       render: (_, lowStock) => (
         <div>
           <div className="text-sm text-gray-900">{lowStock.warehouseName}</div>
@@ -195,7 +197,7 @@ export default function LowStockList() {
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.statusCode'),
       render: (_, lowStock) => <StatusLabel statusCode={lowStock.statusCode} />,
     },
   ];
@@ -207,41 +209,41 @@ export default function LowStockList() {
         className="px-3 text-sm text-gray-600 hover:text-gray-800 cursor-pointer flex items-center justify-end my-5"
       >
         <i className="ri-arrow-left-line mr-1"></i>
-        재고관리로 돌아가기
+        {t('back')}
       </Link>
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">주의 재고 부족</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
             <div className="flex items-center space-x-4">
               <Dropdown
-                placeholder="전체 상태"
-                items={LOW_STOCK_STATUS_OPTIONS}
+                placeholder={t('allStatuses')}
+                items={LOW_STOCK_STATUS_OPTIONS.map((code) => ({
+                  key: code,
+                  value: t(`statusFilter.${code}`),
+                }))}
                 value={statusFilter}
                 onChange={(status: string) => setStatusFilter(status)}
                 autoSelectFirst
               />
 
-              <Button label={`선택 품목 발주`} onClick={handleBulkOrder} />
+              <Button label={t('orderSelected')} onClick={handleBulkOrder} />
             </div>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           {isLoading ? (
-            <TableStatusBox type="loading" message="재고 부족 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message={t('loading')} />
           ) : isError ? (
-            <TableStatusBox
-              type="error"
-              message="재고 부족 목록을 불러오는 중 오류가 발생했습니다."
-            />
+            <TableStatusBox type="error" message={t('loadError')} />
           ) : (
             <Table
               isStale={isPlaceholderData}
               columns={columns}
               data={lowStocks}
               keyExtractor={(row) => row.itemId}
-              emptyMessage="부족한 재고가 없습니다."
+              emptyMessage={t('empty')}
             />
           )}
         </div>

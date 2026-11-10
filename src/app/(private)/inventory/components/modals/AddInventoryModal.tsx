@@ -15,8 +15,10 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { itemInfoKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
+  const t = useTranslations('inventory');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const toast = useToast();
@@ -77,31 +79,26 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
   // 생성이라 낙관적 업데이트를 하지 않는다(결정 7). 무효화는 inventory.mutations.ts 한 곳.
   const { mutate: addMaterial, isPending: isAddingMaterial } = useAddMaterial({
     onSuccess: () => {
-      toast.success('원자재가 성공적으로 등록되었습니다.');
+      toast.success(t('add.success'));
       onClose();
     },
-    onError: (error) => toast.error(`원자재 등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('add.error', { message: errorMessageOf(error) })),
   });
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isItemInfoError, isWarehouseInfoError);
 
-  if (isItemInfoLoading)
-    return <ModalStatusBox type="loading" message="자재 정보를 불러오는 중입니다..." />;
+  if (isItemInfoLoading) return <ModalStatusBox type="loading" message={t('add.itemLoading')} />;
 
   if (isWarehouseInfoLoading)
-    return <ModalStatusBox type="loading" message="창고 정보를 불러오는 중입니다..." />;
+    return <ModalStatusBox type="loading" message={t('add.warehouseLoading')} />;
 
   // 오류 창은 하나. 예전엔 같은 조건을 두 번 검사해 창고 오류에도 자재 오류 문구가 떴다
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message={
-          isItemInfoError
-            ? '자재 정보를 불러오는 중 오류가 발생했습니다.'
-            : '창고 정보를 불러오는 중 오류가 발생했습니다.'
-        }
+        message={isItemInfoError ? t('add.itemLoadError') : t('add.warehouseLoadError')}
         onClose={() => errorDialog.dismiss()}
       />
     );
@@ -111,7 +108,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            자재명 <span className="text-red-500">*</span>
+            {t('add.material')} <span className="text-red-500">*</span>
           </label>
           <select
             name="itemId"
@@ -120,7 +117,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
             required
           >
-            <option value="">자재를 선택하세요</option>
+            <option value="">{t('add.selectMaterial')}</option>
             {ItemInfoRes?.map((item) => (
               <option key={item.itemId} value={item.itemId}>
                 {item.itemName}
@@ -134,7 +131,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             htmlFor={`${fieldId}-field0`}
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            공급사
+            {t('add.supplier')}
           </label>
           <input
             id={`${fieldId}-field0`}
@@ -146,7 +143,9 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">단가</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('add.unitPrice')}
+          </label>
           <div className="relative">
             <span className="absolute left-3 top-2 text-gray-500 text-sm">₩</span>
             <input
@@ -163,7 +162,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             htmlFor={`${fieldId}-field1`}
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            단위
+            {t('add.unit')}
           </label>
           <input
             id={`${fieldId}-field1`}
@@ -176,7 +175,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            안전재고 <span className="text-red-500">*</span>
+            {t('add.safetyStock')} <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -184,14 +183,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             value={formData.safetyStock}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            placeholder="최소 보유 수량"
+            placeholder={t('add.safetyStockPlaceholder')}
             required
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            초기재고 <span className="text-red-500">*</span>
+            {t('add.initialStock')} <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -199,14 +198,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             value={formData.currentStock}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            placeholder="초기 재고 수량"
+            placeholder={t('add.initialStockPlaceholder')}
             required
           />
         </div>
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            보관위치 (창고) <span className="text-red-500">*</span>
+            {t('add.location')} <span className="text-red-500">*</span>
           </label>
           <select
             name="warehouseId"
@@ -215,7 +214,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
             required
           >
-            <option value="">창고를 선택하세요</option>
+            <option value="">{t('add.selectWarehouse')}</option>
             {warehouseInfoRes?.map((warehouse) => (
               <option key={warehouse.warehouseId} value={warehouse.warehouseId}>
                 {warehouse.warehouseName}
@@ -231,14 +230,14 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
           onClick={handleClose}
           className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
         >
-          취소
+          {t('common.cancel')}
         </button>
         <button
           type="submit"
           disabled={isAddingMaterial}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isAddingMaterial ? '추가 중...' : '추가'}
+          {isAddingMaterial ? t('add.submitting') : t('add.submit')}
         </button>
       </div>
     </form>

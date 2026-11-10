@@ -24,9 +24,11 @@ import { SearchBar } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Table, type TableColumn } from '@everp/ui';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
+import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
 const InventoryList = () => {
+  const t = useTranslations('inventory');
   const { openModal } = useModal();
   const [searchType, setSearchType] = useState('warehouse');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -34,7 +36,7 @@ const InventoryList = () => {
 
   const handleItemDetail = (itemId: string) => {
     openModal(InventoryDetailModal, {
-      title: '재고 이동 기록',
+      title: t('list.detailModalTitle'),
       width: '1000px',
       height: '1600px',
       selectedItemId: itemId,
@@ -76,7 +78,7 @@ const InventoryList = () => {
   const columns: TableColumn<InventoryItem>[] = [
     {
       key: 'itemName',
-      label: '품목',
+      label: t('list.columns.itemName'),
       render: (_, inv) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{inv.itemName}</div>
@@ -86,7 +88,7 @@ const InventoryList = () => {
     },
     {
       key: 'category',
-      label: '카테고리',
+      label: t('list.columns.category'),
       render: (_, inv) => (
         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
           {inv.category}
@@ -95,43 +97,43 @@ const InventoryList = () => {
     },
     {
       key: 'currentStock',
-      label: '현재재고',
+      label: t('list.columns.currentStock'),
       align: 'right',
       render: (_, inv) => `${inv.currentStock.toLocaleString()} ${inv.uomName}`,
     },
     {
       key: 'forShipmentStock',
-      label: '출고예정',
+      label: t('list.columns.forShipmentStock'),
       align: 'right',
       render: (_, inv) => `${inv.forShipmentStock.toLocaleString()} ${inv.uomName}`,
     },
     {
       key: 'reservedStock',
-      label: '예약재고',
+      label: t('list.columns.reservedStock'),
       align: 'right',
       render: (_, inv) => `${inv.reservedStock.toLocaleString()} ${inv.uomName}`,
     },
     {
       key: 'safetyStock',
-      label: '안전재고',
+      label: t('list.columns.safetyStock'),
       align: 'right',
       render: (_, inv) => `${inv.safetyStock.toLocaleString()} ${inv.uomName}`,
     },
     {
       key: 'unitPrice',
-      label: '단가',
+      label: t('list.columns.unitPrice'),
       align: 'right',
       render: (_, inv) => formatCurrency(inv.unitPrice),
     },
     {
       key: 'totalAmount',
-      label: '재고가치',
+      label: t('list.columns.totalAmount'),
       align: 'right',
       render: (_, inv) => formatCurrency(inv.totalAmount),
     },
     {
       key: 'warehouseName',
-      label: '창고',
+      label: t('list.columns.warehouseName'),
       render: (_, inv) => (
         <div>
           <div className="text-sm text-gray-900">{inv.warehouseName}</div>
@@ -141,16 +143,16 @@ const InventoryList = () => {
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('list.columns.statusCode'),
       render: (_, inv) => <StatusLabel statusCode={inv.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('list.columns.action'),
       align: 'right',
       render: (_, inv) => (
         <Button
-          label="상세"
+          label={t('common.detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -169,33 +171,39 @@ const InventoryList = () => {
       <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200 shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">재고 목록</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('list.title')}</h2>
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
                 <Dropdown
-                  placeholder="전체 상태"
-                  items={INVENTORY_STATUS_OPTIONS}
+                  placeholder={t('common.allStatuses')}
+                  items={INVENTORY_STATUS_OPTIONS.map((code) => ({
+                    key: code,
+                    value: t(`list.statusFilter.${code}`),
+                  }))}
                   value={statusFilter}
                   onChange={(status: string) => setStatusFilter(status)}
                   autoSelectFirst
                 />
                 <SearchBar
-                  options={INVENTORY_SEARCH_KEYWORD_OPTIONS}
+                  options={INVENTORY_SEARCH_KEYWORD_OPTIONS.map((code) => ({
+                    key: code,
+                    value: t(`list.searchType.${code}`),
+                  }))}
                   onTypeChange={(type: string) => setSearchType(type)}
                   onKeywordSearch={(keyword) => {
                     setSearchTerm(keyword);
                     setCurrentPage(1);
                   }}
-                  placeholder="검색어를 입력하세요"
+                  placeholder={t('list.searchPlaceholder')}
                 />
 
                 <Link href="/warehouse">
-                  <Button label="창고 관리" variant="secondary" />
+                  <Button label={t('list.warehouses')} variant="secondary" />
                 </Link>
                 <Button
-                  label="원자재 추가"
+                  label={t('list.addMaterial')}
                   onClick={() => {
-                    openModal(AddInventoryModal, { title: '원자재 추가', width: '700px' });
+                    openModal(AddInventoryModal, { title: t('list.addMaterial'), width: '700px' });
                   }}
                 />
               </div>
@@ -203,16 +211,16 @@ const InventoryList = () => {
           </div>
         </div>
         {isLoading ? (
-          <TableStatusBox type="loading" message="재고 목록을 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message={t('list.loading')} />
         ) : isError ? (
-          <TableStatusBox type="error" message="재고 목록을 불러오는 중 오류가 발생했습니다." />
+          <TableStatusBox type="error" message={t('list.loadError')} />
         ) : (
           <Table
             isStale={isPlaceholderData}
             columns={columns}
             data={inventories}
             keyExtractor={(row) => row.itemId}
-            emptyMessage="등록된 재고가 없습니다."
+            emptyMessage={t('list.empty')}
             className="flex-1 min-h-0"
           />
         )}

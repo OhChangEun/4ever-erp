@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "urgentShortage": "Urgent shortages",
+    "cautionShortage": "Caution shortages"
+  },
+  "statCount": "{value}",
+  "list": {
+    "back": "Back to inventory",
+    "title": "Low stock items",
+    "allStatuses": "All statuses",
+    "orderSelected": "Order selected",
+    "selectAll": "Select all low-stock items",
+    "selectItem": "Select {name}",
+    "selectRequired": "Select items to order.",
+    "purchaseModalTitle": "Order request",
+    "loading": "Loading low stock...",
+    "loadError": "Couldn't load low stock.",
+    "empty": "No low-stock items.",
+    "statusFilter": {
+      "ALL": "All",
+      "CAUTION": "Caution",
+      "URGENT": "Urgent"
+    },
+    "columns": {
+      "itemName": "Item",
+      "category": "Category",
+      "currentStock": "On hand",
+      "safetyStock": "Safety stock",
+      "unitPrice": "Unit price",
+      "totalAmount": "Total value",
+      "warehouseName": "Warehouse",
+      "statusCode": "Status"
+    }
+  }
+}

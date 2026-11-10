@@ -13,12 +13,14 @@ import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 
 const ShippingDetailModal = ({
   onClose,
   selectedSubTab,
   selectedOrderId,
 }: ShippingDetailModalProps) => {
+  const t = useTranslations('inventory');
   const toast = useToast();
   const getShippingDetailBySubTab = (subTab: string, id: string) => {
     switch (subTab) {
@@ -47,20 +49,19 @@ const ShippingDetailModal = ({
   // 무효화(출하 목록, 재고 통계, 영업 주문)는 inventory.mutations.ts 한 곳
   const { mutate: markAsReadyToShip, isPending } = useMarkReadyToShip({
     onSuccess: () => {
-      toast.success('출고 준비 완료로 상태가 변경되었습니다.');
+      toast.success(t('shippingDetail.success'));
       onClose();
     },
-    onError: (error) => toast.error(`상태 변경 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('shippingDetail.error', { message: errorMessageOf(error) })),
   });
 
-  if (isLoading)
-    return <ModalStatusBox type="loading" message="출고 상세 데이터를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('shippingDetail.loading')} />;
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="출고 상세 데이터를 불러오는 중 오류가 발생했습니다."
+        message={t('shippingDetail.loadError')}
         onClose={() => errorDialog.dismiss()}
       />
     );
@@ -69,17 +70,19 @@ const ShippingDetailModal = ({
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
         <div>
-          <span className="text-sm text-gray-600">고객:</span>
+          <span className="text-sm text-gray-600">{t('shippingDetail.customer')}</span>
           <div className="font-medium text-gray-900">{shippingDetailRes?.customerCompanyName}</div>
         </div>
         <div>
-          <span className="text-sm text-gray-600">납기일:</span>
+          <span className="text-sm text-gray-600">{t('shippingDetail.dueDate')}</span>
           <div className="font-medium text-gray-900">{shippingDetailRes?.dueDate.slice(0, 10)}</div>
         </div>
       </div>
 
       <div>
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">주문 품목</h4>
+        <h4 className="text-lg font-semibold text-gray-900 mb-4">
+          {t('shippingDetail.orderItems')}
+        </h4>
         <div className="space-y-2">
           {shippingDetailRes?.orderItems.map((item: OrderItemsType, index: number) => (
             <div
@@ -101,7 +104,7 @@ const ShippingDetailModal = ({
             onClick={() => onClose()}
             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium cursor-pointer"
           >
-            닫기
+            {t('shippingDetail.close')}
           </button>
           <button
             onClick={() => {
@@ -115,7 +118,7 @@ const ShippingDetailModal = ({
             disabled={isPending}
             className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? '처리 중...' : '배송 시작'}
+            {isPending ? t('shippingDetail.processing') : t('shippingDetail.startDelivery')}
           </button>
         </div>
       )}
