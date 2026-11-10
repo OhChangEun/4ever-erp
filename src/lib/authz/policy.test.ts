@@ -126,6 +126,15 @@ describe('인가 표 하나', () => {
     expect(canAccessApi('CUSTOMER_ADMIN', 'business/fcm/invoice/ap')).toBe(true);
   });
 
+  it('의도한 변화: 대시보드 자재 흐름 API 는 사내 운영 역할만', () => {
+    const path = 'dashboard/supply-flow';
+    for (const role of ['ALL_ADMIN', 'MM_USER', 'SD_ADMIN', 'IM_USER', 'PP_ADMIN'] as const)
+      expect([role, canAccessApi(role, path)]).toEqual([role, true]);
+    for (const role of ['FCM_ADMIN', 'HRM_USER', 'CUSTOMER_ADMIN', 'SUPPLIER_ADMIN'] as const)
+      expect([role, canAccessApi(role, path)]).toEqual([role, false]);
+    expect(canAccessApi('SUPPLIER_ADMIN', 'dashboard/statistics')).toBe(true);
+  });
+
   it('메뉴: 대시보드는 공급사에게 숨긴다(페이지는 열림). 나머지는 페이지 표와 같다', () => {
     expect(menuRoles('/dashboard')).not.toContain('SUPPLIER_ADMIN');
     expect(canAccessPage('SUPPLIER_ADMIN', '/dashboard')).toBe(true);
