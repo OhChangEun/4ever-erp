@@ -1,0 +1,126 @@
+{
+  "stats": {
+    "totalWarehouses": "Total warehouses",
+    "activeWarehouses": "Active warehouses"
+  },
+  "statCount": "{value}",
+  "page": {
+    "backToInventory": "Back to inventory"
+  },
+  "list": {
+    "title": "Warehouses",
+    "add": "Add warehouse",
+    "loading": "Loading warehouses...",
+    "loadError": "Couldn't load warehouses.",
+    "empty": "No warehouses yet.",
+    "detail": "Details",
+    "view3d": "View in 3D",
+    "manage": "Manage",
+    "addModalTitle": "New warehouse",
+    "detailModalTitle": "Warehouse details",
+    "manageModalTitle": "Manage warehouse - {name}",
+    "view3dModalTitle": "Warehouse 3D view - {name}",
+    "viewerLoading": "Preparing 3D viewer..."
+  },
+  "warehouseType": {
+    "MATERIAL": "Raw materials",
+    "ITEM": "Parts",
+    "ETC": "Other"
+  },
+  "statusOption": {
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive"
+  },
+  "form": {
+    "name": "Warehouse name",
+    "namePlaceholder": "Enter a warehouse name",
+    "code": "Warehouse code",
+    "type": "Warehouse type",
+    "status": "Status",
+    "location": "Location",
+    "locationPlaceholder": "Enter the warehouse location",
+    "address": "Address",
+    "manager": "Manager",
+    "managerPlaceholder": "Select a manager",
+    "phone": "Phone",
+    "phonePlaceholder": "Enter a phone number",
+    "email": "Email",
+    "note": "Description",
+    "cancel": "Cancel",
+    "submitAdd": "Add warehouse",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "managerInfo": {
+    "loading": "Loading managers...",
+    "loadError": "Couldn't load managers."
+  },
+  "add": {
+    "success": "Warehouse added.",
+    "error": "Couldn't add the warehouse. {message}"
+  },
+  "manage": {
+    "loading": "Loading warehouse...",
+    "loadError": "Couldn't load the warehouse.",
+    "success": "Warehouse updated.",
+    "error": "Couldn't update the warehouse. {message}"
+  },
+  "detail": {
+    "loading": "Loading warehouse details...",
+    "loadError": "Couldn't load warehouse details.",
+    "basicInfo": "Basic info",
+    "name": "Name:",
+    "code": "Code:",
+    "type": "Type:",
+    "status": "Status:",
+    "locationInfo": "Location",
+    "address": "Address:",
+    "managerInfo": "Manager",
+    "manager": "Manager:",
+    "phone": "Phone:",
+    "email": "Email:",
+    "description": "Description",
+    "manage": "Manage warehouse"
+  },
+  "band": {
+    "short": "Short",
+    "caution": "Caution",
+    "ok": "OK",
+    "high": "High",
+    "none": "No baseline"
+  },
+  "visualizer": {
+    "title": "Warehouse 3D view",
+    "help": "Pick a warehouse to see its shelves, then click a block to see stock details.",
+    "legend": "Stock ratio legend",
+    "loading": "Loading warehouse stock...",
+    "loadError": "Couldn't load warehouse stock.",
+    "freeModeOff": "Exit free camera",
+    "freeModeOn": "Free camera",
+    "backToWarehouses": "Back to warehouses",
+    "overviewHint": "Double-click a warehouse floor or use a summary card to look inside.",
+    "unnamedWarehouse": "Unnamed warehouse",
+    "summaryTitle": "Warehouse summary",
+    "avgFill": "Avg. fill {percent}%",
+    "itemCount": "{count} items",
+    "totalQty": "{qty} EA in stock",
+    "lowStock": "{count} short",
+    "exploringFixed": "Exploring this warehouse's stock in 3D.",
+    "checkStock": "Check this warehouse's stock.",
+    "exploring": "You're in this warehouse.",
+    "enter": "Click to go inside",
+    "noData": "No warehouse data to show. Add stock and it will appear here.",
+    "stockRateTitle": "Stock ratio",
+    "waitForStock": "Shown once stock has loaded."
+  },
+  "stockPanel": {
+    "empty": "No stock in this warehouse.",
+    "summary": "{short} of {total} items short, {caution} low.",
+    "truncated": "Showing {shown} of {total}.",
+    "listLabel": "Items (lowest stock ratio first)",
+    "selectedStock": "On hand {current} {uom}, safety stock {safety} {uom}, ratio {percent} ({band})",
+    "inventoryDetailTitle": "Stock details",
+    "openInventoryDetail": "Open stock details",
+    "pickHint": "Pick an item from the blocks or the list."
+  }
+}

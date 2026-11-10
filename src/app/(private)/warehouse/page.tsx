@@ -7,9 +7,11 @@ import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import { getWarehouseStats } from './warehouse.api';
 import { mapWarehouseStatsToCards } from './warehouse.service';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { warehouseStatsKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 export default function WarehousePage() {
+  const t = useTranslations('warehouse');
   const {
     data: warehouseStats,
     isLoading,
@@ -27,8 +29,18 @@ export default function WarehousePage() {
     );
   }
 
+  // 카드에는 제목 키와 단위 없는 값이 있다. 글자와 단위는 여기서 붙인다
   const warehouseStatsData = warehouseStats
-    ? mapWarehouseStatsToCards(warehouseStats)
+    ? Object.fromEntries(
+        Object.entries(mapWarehouseStatsToCards(warehouseStats)).map(([period, cards]) => [
+          period,
+          cards.map((card) => ({
+            ...card,
+            title: t(`stats.${card.title}`),
+            value: t('statCount', { value: card.value }),
+          })),
+        ]),
+      )
     : EMPTY_STATS;
 
   return (
@@ -42,7 +54,7 @@ export default function WarehousePage() {
             className="px-4 py-2  text-gray-600 hover:text-gray-900 cursor-pointer"
           >
             <i className="ri-arrow-go-back-line mr-2" />
-            재고관리로 돌아가기
+            {t('page.backToInventory')}
           </Link>
         </div>
 

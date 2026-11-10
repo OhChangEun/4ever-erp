@@ -13,15 +13,7 @@ export const stockBand = (current: number, safety: number): StockBand => {
   return 'high';
 };
 
-export const BAND_LABEL: Record<StockBand, string> = {
-  short: '부족',
-  caution: '주의',
-  ok: '적정',
-  high: '많음',
-  none: '기준 없음',
-};
-
-/** 범례와 목록 순서 */
+/** 범례와 목록 순서. 단계 이름은 메시지(warehouse.band.<단계>)에 있고 그릴 때 바꾼다 */
 export const BANDS: readonly StockBand[] = ['short', 'caution', 'ok', 'high', 'none'];
 
 /** 단계마다 토큰. base 는 블록, hover 는 마우스를 올렸을 때 */

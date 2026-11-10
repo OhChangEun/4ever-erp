@@ -17,7 +17,8 @@ export const buildCluster = (
     return [
       {
         key: options?.warehouseId ?? 'no-data',
-        name: options?.warehouseName ?? '미지정 창고',
+        // 이름이 없으면 null. 화면이 "미지정 창고"(warehouse.visualizer.unnamedWarehouse)로 그린다
+        name: options?.warehouseName ?? null,
         origin: [0, 0, 0],
         items: [],
       },
