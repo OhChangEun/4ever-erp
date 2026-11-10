@@ -94,7 +94,7 @@ const SalesChart = () => {
   const customerData = useMemo(() => {
     if (!analyticsData) return [];
     return analyticsData.topCustomers.map((c) => ({
-      id: c.customerCode,
+      id: c.customerNumber,
       name: c.customerName,
       orders: c.orderCount,
       amount: c.sale,

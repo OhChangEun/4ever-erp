@@ -58,6 +58,50 @@ const mockOrders = [
   },
 ];
 
+// 계약 견적 목록 status enum 의 상태마다 한 행. 데모에서 어느 필터를 골라도 표가 비지 않는다
+const mockQuotes = [
+  {
+    quotationId: 'qt-001',
+    quotationNumber: 'QT-2026-001',
+    customerName: '한빛전자',
+    managerName: '김영업',
+    quotationDate: '2026-01-10',
+    dueDate: '2026-02-01',
+    totalAmount: 12500000,
+    statusCode: 'APPROVAL',
+  },
+  {
+    quotationId: 'qt-002',
+    quotationNumber: 'QT-2026-002',
+    customerName: '대성기계',
+    managerName: '이영업',
+    quotationDate: '2026-01-14',
+    dueDate: '2026-02-10',
+    totalAmount: 4300000,
+    statusCode: 'PENDING',
+  },
+  {
+    quotationId: 'qt-003',
+    quotationNumber: 'QT-2026-003',
+    customerName: '서진산업',
+    managerName: '김영업',
+    quotationDate: '2026-01-18',
+    dueDate: '2026-02-15',
+    totalAmount: 7800000,
+    statusCode: 'REVIEW',
+  },
+  {
+    quotationId: 'qt-004',
+    quotationNumber: 'QT-2026-004',
+    customerName: '한빛전자',
+    managerName: '박영업',
+    quotationDate: '2026-01-20',
+    dueDate: '2026-02-20',
+    totalAmount: 2100000,
+    statusCode: 'REJECTED',
+  },
+];
+
 export const salesHandlers = [
   http.get(SALES_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load sales stats', 500);
@@ -72,21 +116,14 @@ export const salesHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          quotationId: 'qt-001',
-          quotationNumber: 'QT-2026-001',
-          customerName: '한빛전자',
-          managerName: '김영업',
-          quotationDate: '2026-01-10',
-          dueDate: '2026-02-01',
-          totalAmount: 12500000,
-          statusCode: 'APPROVED',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    // 게이트웨이 목록 상태 값은 APPROVAL(SdController.java:101, QuotationListItemDto.java:20).
+    // status 가 있으면 같은 상태만 준다. 옛 값 APPROVED 를 받으면 목은 빈 목록이다.
+    // 실서버는 QuotationStatus.from 이 예외를 던질 수 있어 어떻게 답하는지 미확인
+    const status = url.searchParams.get('status');
+    const content = mockQuotes.filter(
+      (quote) => !status || status === 'ALL' || quote.statusCode === status,
+    );
+    return ok({ content, page: makePage(page, size, content.length) });
   }),
   http.get(`${SALES_BASE_PATH}/quotations/:quotationId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load quote detail', 500);
@@ -96,7 +133,7 @@ export const salesHandlers = [
       quotationNumber: 'QT-2026-001',
       quotationDate: '2026-01-10',
       dueDate: '2026-02-01',
-      // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13). 목록 목은 APPROVED 라 두 형식을 다 지난다
+      // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13)
       statusCode: 'APPROVAL',
       customerName: '한빛전자',
       ceoName: '박대표',
@@ -148,9 +185,9 @@ export const salesHandlers = [
         totalAmount: 8600000,
       },
       customer: {
-        customerId: 1,
+        // 게이트웨이 OrderCustomerDto.java:11 모양. customerId 는 문자열, customerCode 는 없다
+        customerId: 'cus-001',
         customerName: '한빛전자',
-        customerCode: 'CUS-001',
         customerBaseAddress: '서울시 강서구 공항대로 10',
         customerDetailAddress: '5층',
         manager: {
@@ -331,9 +368,10 @@ export const salesHandlers = [
       productShare: [
         { productCode: 'P-1001', productName: '모터 A', sale: 5000000, saleShare: 40 },
       ],
+      // 게이트웨이 TopCustomerDto.java:15 이름(customerNumber)
       topCustomers: [
         {
-          customerCode: 'CUS-001',
+          customerNumber: 'CUS-001',
           customerName: '한빛전자',
           orderCount: 5,
           sale: 8000000,

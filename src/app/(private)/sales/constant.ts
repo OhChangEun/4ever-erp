@@ -1,5 +1,5 @@
 import type salesKo from '@/i18n/messages/sales/ko.json';
-import { type QuoteStatus } from '@/app/(private)/sales/types/SalesQuoteListType';
+import { type QuoteStatusFilter } from '@/app/(private)/sales/types/SalesQuoteListType';
 import { type OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
 import { type CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
 
@@ -35,11 +35,12 @@ export const CUSTOMER_SEARCH_KEYWORD_OPTIONS = [
 ] as const satisfies readonly (keyof typeof salesKo.customerList.searchType)[];
 
 // 견적 상태 필터. 글자는 공통 status.<코드>, ALL 은 sales.common.allStatuses
-export const QUOTE_STATUS_OPTIONS: readonly QuoteStatus[] = [
+// 승인은 게이트웨이 값 APPROVAL 로 보낸다(SdController.java:101, QuotationStatus.java:13)
+export const QUOTE_STATUS_OPTIONS: readonly QuoteStatusFilter[] = [
   'ALL',
   'PENDING',
   'REVIEW',
-  'APPROVED',
+  'APPROVAL',
   'REJECTED',
 ];
 

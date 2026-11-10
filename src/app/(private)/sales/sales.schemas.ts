@@ -102,10 +102,10 @@ export const orderDetailSchema: z.ZodMiniType<OrderDetail> = z.looseObject({
     statusCode: z.enum(ORDER_STATUSES),
     totalAmount: z.number(),
   }),
+  // 게이트웨이 OrderCustomerDto.java:11. customerId 는 문자열이고 customerCode 는 없다
   customer: z.looseObject({
-    customerId: z.number(),
+    customerId: z.string(),
     customerName: z.string(),
-    customerCode: z.string(),
     customerBaseAddress: z.string(),
     customerDetailAddress: z.string(),
     manager: managerSchema,
@@ -185,9 +185,10 @@ export const salesAnalysisSchema: z.ZodMiniType<SalesAnalysis> = z.looseObject({
       saleShare: z.number(),
     }),
   ),
+  // 게이트웨이 TopCustomerDto.java:15. 고객 번호 이름은 customerNumber
   topCustomers: z.array(
     z.looseObject({
-      customerCode: z.string(),
+      customerNumber: z.string(),
       customerName: z.string(),
       orderCount: z.number(),
       sale: z.number(),

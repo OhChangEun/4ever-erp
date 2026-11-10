@@ -3496,9 +3496,9 @@ export interface components {
                 totalAmount: number;
             };
             customer: {
-                customerId: number;
+                /** @description 게이트웨이 OrderCustomerDto.java:11 은 문자열(UUID). customerCode 는 DTO 에 없다 */
+                customerId: string;
                 customerName: string;
-                customerCode: string;
                 customerBaseAddress: string;
                 customerDetailAddress: string;
                 manager: {
@@ -3684,8 +3684,9 @@ export interface components {
             sale: number;
             saleShare: number;
         };
+        /** @description 게이트웨이 business/dto/analytics/TopCustomerDto.java:15. 고객 번호는 customerNumber 이고 customerCode 는 없다 */
         TopCustomer: {
-            customerCode: string;
+            customerNumber: string;
             customerName: string;
             orderCount: number;
             sale: number;
@@ -6885,8 +6886,8 @@ export interface operations {
                 startDate?: string;
                 /** @description 종료일(YYYY-MM-DD) */
                 endDate?: string;
-                /** @description PENDING, REVIEW, APPROVAL, REJECTED, ALL */
-                status?: string;
+                /** @description 게이트웨이 SdController.java:101 설명과 QuotationStatus enum. 승인은 APPROVAL 이고 APPROVED 가 아니다 */
+                status?: "ALL" | "PENDING" | "REVIEW" | "APPROVAL" | "REJECTED";
                 /** @description quotationNumber, customerName, managerName */
                 type?: string;
                 keyword?: string;
