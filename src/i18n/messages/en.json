@@ -188,6 +188,19 @@
     "renderError": "Something went wrong while showing this window.",
     "closeWindow": "Close window"
   },
+  "errorBoundary": {
+    "screen": "Something went wrong while showing this screen.",
+    "hint": "Try again or go to another menu.",
+    "errorId": "Error ID {digest}",
+    "retry": "Try again",
+    "title": "An unexpected error occurred",
+    "unknown": "An unknown error occurred.",
+    "home": "Go home",
+    "copy": "Copy",
+    "copyLabel": "Copy error details",
+    "copied": "Copied",
+    "copyFailed": "Copy failed"
+  },
   "toast": {
     "dismiss": "Dismiss"
   },

@@ -213,4 +213,25 @@ describe('모달(포커스와 키보드)', () => {
     expect(screen.getByRole('button', { name: '깨지는 모달 열기' })).toBeInTheDocument();
     spy.mockRestore();
   });
+
+  // 오류 경계 영어 카드: 모달 경계의 대체 화면도 화면 언어를 따른다
+  it('영어 화면에서 모달 안 컴포넌트가 던지면 영어 문구로 바뀌고 닫을 수 있다', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <ModalProvider>
+        <BrokenPage />
+      </ModalProvider>,
+      {
+        wrapper: ({ children }) => <IntlTestProvider locale="en">{children}</IntlTestProvider>,
+      },
+    );
+    await userEvent.click(screen.getByRole('button', { name: '깨지는 모달 열기' }));
+    const dialog = await screen.findByRole('dialog', { name: '깨지는 모달' });
+    const alert = within(dialog).getByRole('alert');
+    expect(alert).toHaveTextContent('Something went wrong while showing this window.');
+    expect(alert).not.toHaveTextContent(/[가-힣]/);
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Close window' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    spy.mockRestore();
+  });
 });

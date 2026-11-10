@@ -188,6 +188,19 @@
     "renderError": "이 창을 그리는 중 오류가 발생했습니다.",
     "closeWindow": "창 닫기"
   },
+  "errorBoundary": {
+    "screen": "화면을 그리는 중 오류가 발생했습니다.",
+    "hint": "다시 시도하거나 다른 메뉴로 이동하세요.",
+    "errorId": "오류 ID {digest}",
+    "retry": "다시 시도",
+    "title": "예기치 않은 오류가 발생했습니다",
+    "unknown": "알 수 없는 오류가 발생했습니다.",
+    "home": "홈으로",
+    "copy": "복사",
+    "copyLabel": "오류 내용 복사",
+    "copied": "복사 완료",
+    "copyFailed": "복사 실패"
+  },
   "toast": {
     "dismiss": "알림 닫기"
   },

@@ -9,3 +9,13 @@ export const LOCALE_COOKIE = 'NEXT_LOCALE';
 
 export const isLocale = (value: unknown): value is Locale =>
   typeof value === 'string' && LOCALES.some((locale) => locale === value);
+
+/** 브라우저 쿠키에서 언어를 읽는다. 없거나 지원하지 않는 값이면 기본 언어. 서버(document 없음)에서 불려도 기본 언어 */
+export const readCookieLocale = (): Locale => {
+  if (typeof document === 'undefined') return DEFAULT_LOCALE;
+  const saved = document.cookie
+    .split('; ')
+    .find((part) => part.startsWith(`${LOCALE_COOKIE}=`))
+    ?.slice(LOCALE_COOKIE.length + 1);
+  return isLocale(saved) ? saved : DEFAULT_LOCALE;
+};
