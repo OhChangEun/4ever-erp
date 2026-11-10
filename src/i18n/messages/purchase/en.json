@@ -150,7 +150,10 @@
   },
   "requestForm": {
     "department": "Department",
-    "departmentValue": "Production",
+    "departmentLoading": "Loading requesting department...",
+    "departmentError": "Could not load the requesting department.",
+    "departmentMissing": "You cannot submit a purchase request because your account has no department.",
+    "retry": "Try again",
     "requestDate": "Requested on",
     "itemsTitle": "Items",
     "addItem": "Add item",

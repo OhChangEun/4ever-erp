@@ -19,6 +19,21 @@ import { errorMessageOf } from '@/lib/AppError';
 import { formatCurrency } from '@/app/utils/number';
 import { toDateKey } from '@/app/utils/date';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
+import { getProfile } from '@/app/(public)/profile/profile.api';
+import { profileKeys } from '@/app/(public)/profile/profile.keys';
+import TableStatusBox from '@/app/components/common/TableStatusBox';
+
+// 게이트웨이가 프로필 응답을 그대로 중계하므로 두 부서명 필드를 허용한다.
+function requestingDepartmentOf(profile: unknown): string {
+  if (typeof profile !== 'object' || profile === null) return '';
+  for (const key of ['department', 'departmentName']) {
+    const value: unknown = Reflect.get(profile, key);
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+  return '';
+}
+
 export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
   const [requestItems, setRequestItems] = useState<PurchaseRequestFormItem[]>([
     {
@@ -36,6 +51,20 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
   const toast = useToast();
   const t = useTranslations('purchase.requestForm');
   const tc = useTranslations('purchase.common');
+  const {
+    data: profile,
+    isFetching: isLoadingDepartment,
+    isSuccess: isDepartmentLoaded,
+    isError: isDepartmentError,
+    error: departmentError,
+    refetch: refetchDepartment,
+  } = useQuery({
+    queryKey: profileKeys.info(),
+    queryFn: getProfile,
+    refetchOnMount: 'always',
+  });
+  const department =
+    isDepartmentLoaded && !isLoadingDepartment ? requestingDepartmentOf(profile) : '';
   // 무효화는 훅이 한다. 여기선 알리고 닫고 폼을 비운다.
   const { mutate: submitPurchaseRequest, isPending } = useCreatePurchaseRequest({
     onSuccess: () => {
@@ -104,6 +133,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
 
   const handleSubmitRequest = (e: React.FormEvent): void => {
     e.preventDefault();
+    if (!department || isPending) return;
 
     // 필수값 검증
     const invalidItems = requestItems.filter(
@@ -123,7 +153,6 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     }
 
     const purchaseRequestData: CreatePurchaseRequestBody = {
-      requesterId: '1234',
       items: requestItems.map((item) => ({
         itemName: item.itemName,
         quantity: item.quantity,
@@ -136,7 +165,6 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       })),
     };
 
-    console.log('구매 요청 데이터:', purchaseRequestData);
     submitPurchaseRequest(purchaseRequestData);
   };
 
@@ -144,7 +172,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     <form onSubmit={handleSubmitRequest} className="p-6 space-y-6">
       {/* 요청 정보 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input label={t('department')} value={t('departmentValue')} readOnly disabled />
+        <Input label={t('department')} value={department} readOnly disabled />
         <Input
           label={t('requestDate')}
           type="text"
@@ -153,6 +181,17 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
           disabled
         />
       </div>
+
+      {isLoadingDepartment ? (
+        <TableStatusBox type="loading" message={t('departmentLoading')} />
+      ) : isDepartmentError ? (
+        <TableStatusBox type="error" message={t('departmentError')} error={departmentError} />
+      ) : !department ? (
+        <TableStatusBox type="error" message={t('departmentMissing')} />
+      ) : null}
+      {!isLoadingDepartment && !department && (
+        <Button label={t('retry')} variant="secondary" onClick={() => void refetchDepartment()} />
+      )}
 
       {/* 구매 품목 목록 */}
       <div>
@@ -300,7 +339,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
         <Button
           label={isPending ? t('submitting') : t('submit')}
           type="submit"
-          disabled={isPending}
+          disabled={isPending || !department}
         />
       </div>
     </form>
