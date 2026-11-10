@@ -12,7 +12,8 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { formatMinutesToHourMin, formatTime } from '@/app/utils/date';
+import { useTranslations } from 'next-intl';
+import { formatTime } from '@/app/utils/date';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { Input } from '@everp/ui';
@@ -24,6 +25,12 @@ import { toDateKey } from '@/app/utils/date';
 import AttendanceHeatmap from '@/app/(private)/hrm/components/heatmap/AttendanceHeatmap';
 
 export default function AttendanceTab() {
+  const t = useTranslations('hrm');
+  // 분 → "8시간 30분"(en: 8h 30m). 예전 글자는 "8시 30분"(시각처럼 읽혀 고침)
+  const duration = (minutes: number | null | undefined) =>
+    minutes == null
+      ? '-'
+      : t('attendance.duration', { hours: Math.floor(minutes / 60), minutes: minutes % 60 });
   // --- 모달 출력 ---
 
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
@@ -85,7 +92,7 @@ export default function AttendanceTab() {
   const columns: TableColumn<AttendanceItem>[] = [
     {
       key: 'employee',
-      label: '직원 정보',
+      label: t('common.employee'),
       render: (_, attend) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
@@ -97,27 +104,27 @@ export default function AttendanceTab() {
     },
     {
       key: 'checkInTime',
-      label: '출근 시간',
+      label: t('attendance.checkIn'),
       render: (_, attend) => formatTime(attend.checkInTime),
     },
     {
       key: 'checkOutTime',
-      label: '퇴근 시간',
+      label: t('attendance.checkOut'),
       render: (_, attend) => formatTime(attend.checkOutTime),
     },
     {
       key: 'totalWorkMinutes',
-      label: '근무 시간',
-      render: (_, attend) => formatMinutesToHourMin(attend.totalWorkMinutes),
+      label: t('attendance.workTime'),
+      render: (_, attend) => duration(attend.totalWorkMinutes),
     },
     {
       key: 'overtimeMinutes',
-      label: '초과 근무',
-      render: (_, attend) => formatMinutesToHourMin(attend.overtimeMinutes),
+      label: t('attendance.overtime'),
+      render: (_, attend) => duration(attend.overtimeMinutes),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('common.status'),
       render: (_, attend) => <StatusLabel statusCode={attend.statusCode} />,
     },
   ];
@@ -135,12 +142,12 @@ export default function AttendanceTab() {
         <CalendarButton
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
-          placeholder="날짜 선택"
+          placeholder={t('attendance.selectDate')}
         />
 
         <div className="flex items-center gap-3">
           <Dropdown
-            placeholder="전체 부서"
+            placeholder={t('common.allDepartments')}
             items={departmentsOptions}
             value={selectedDepartment}
             onChange={(dept: string) => {
@@ -150,7 +157,7 @@ export default function AttendanceTab() {
           />
 
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={t('common.allStatuses')}
             items={statusData ?? []}
             value={selectedPayrollStatus}
             onChange={(status: string) => {
@@ -162,22 +169,22 @@ export default function AttendanceTab() {
             value={keyword}
             onChange={handleKeywordChange}
             icon="ri-search-line"
-            placeholder="직원 이름 검색"
+            placeholder={t('common.searchName')}
           />
         </div>
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="근태 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('attendance.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="근태 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('attendance.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={attendanceList}
           keyExtractor={(row) => row.timerecordId}
-          emptyMessage="근태 기록이 없습니다."
+          emptyMessage={t('attendance.empty')}
           className="flex-1 min-h-0"
         />
       )}

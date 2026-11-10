@@ -9,6 +9,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDetailModal';
 import AddTrainingModal from '@/app/(private)/hrm/components/modals/AddProgramModal';
 import EditProgramModal from '../../../modals/ProgramEditModal';
@@ -17,6 +18,7 @@ import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
 export default function AvailableProgramTab() {
+  const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { openModal } = useModal();
 
@@ -43,20 +45,20 @@ export default function AvailableProgramTab() {
 
   const handleViewProgramDetail = (program: ProgramListData) => {
     openModal(ProgramDetailModal, {
-      title: '프로그램 상세 조회',
+      title: t('programs.detailTitle'),
       programId: program.programId,
     });
   };
 
   const handleViewProgramRegister = () => {
     openModal(AddTrainingModal, {
-      title: '프로그램 추가',
+      title: t('programs.add'),
     });
   };
 
   const handleEditProgram = (program: ProgramListData) => {
     openModal(EditProgramModal, {
-      title: '프로그램 수정',
+      title: t('programs.editTitle'),
       programId: program.programId,
       programName: program.programName,
     });
@@ -64,7 +66,7 @@ export default function AvailableProgramTab() {
   return (
     <div>
       <div className="flex items-center justify-end mb-4">
-        <Button label="프로그램 추가" onClick={handleViewProgramRegister} />
+        <Button label={t('programs.add')} onClick={handleViewProgramRegister} />
       </div>
 
       <div
@@ -85,7 +87,7 @@ export default function AvailableProgramTab() {
             <div className="space-y-3 mb-4">
               <div className="flex items-center text-sm text-gray-600">
                 <i className="ri-time-line mr-2"></i>
-                <span className="pt-1">{program.trainingHour}시간</span>
+                <span className="pt-1">{t('common.hours', { count: program.trainingHour })}</span>
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <i className="ri-computer-line mr-2"></i>
@@ -93,16 +95,16 @@ export default function AvailableProgramTab() {
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <i className="ri-team-line mr-2"></i>
-                <span className="pt-1">{program.capacity}명</span>
+                <span className="pt-1">{t('common.people', { count: program.capacity })}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Button
-                label="상세보기"
+                label={t('common.viewDetail')}
                 variant="secondary"
                 onClick={() => handleViewProgramDetail(program)}
               />
-              <Button label="프로그램 관리" onClick={() => handleEditProgram(program)} />
+              <Button label={t('programs.manage')} onClick={() => handleEditProgram(program)} />
             </div>
           </div>
         ))}

@@ -12,6 +12,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { EmployeeDetailModal } from '@/app/(private)/hrm/components/modals/EmployeeDetailModal';
 import { EmployeeEditModal } from '@/app/(private)/hrm/components/modals/EmployeeEditModal';
 import EmployeeRegisterModal from '@/app/(private)/hrm/components/modals/EmployeeRegisterModal';
@@ -22,6 +23,7 @@ import { Button } from '@everp/ui';
 import { employeeKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 export default function EmployeesTab() {
+  const t = useTranslations('hrm');
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -70,12 +72,12 @@ export default function EmployeesTab() {
   };
 
   const handleEditEmployeeDetail = (emp: EmployeeData) => {
-    openModal(EmployeeEditModal, { title: '직원정보 수정', employee: emp });
+    openModal(EmployeeEditModal, { title: t('employees.editTitle'), employee: emp });
   };
 
   const handleViewEmployeeDetail = (emp: EmployeeData) => {
     openModal(EmployeeDetailModal, {
-      title: '직원 상세보기',
+      title: t('employees.detailTitle'),
       employee: emp,
       onEdit: () => handleEditEmployeeDetail(emp),
     });
@@ -83,14 +85,14 @@ export default function EmployeesTab() {
 
   const handleViewEmployeeRegister = () => {
     openModal(EmployeeRegisterModal, {
-      title: '신규 직원 등록',
+      title: t('employees.register'),
     });
   };
 
   const columns: TableColumn<EmployeeData>[] = [
     {
       key: 'name',
-      label: '직원 정보',
+      label: t('common.employee'),
       render: (_, employee) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{employee.name}</div>
@@ -99,7 +101,7 @@ export default function EmployeesTab() {
     },
     {
       key: 'department',
-      label: '부서/직급',
+      label: t('employees.department'),
       render: (_, employee) => (
         <div>
           <div className="text-sm text-gray-900">{employee.department}</div>
@@ -107,10 +109,10 @@ export default function EmployeesTab() {
         </div>
       ),
     },
-    { key: 'hireDate', label: '입사일' },
+    { key: 'hireDate', label: t('common.hireDate') },
     {
       key: 'phone',
-      label: '연락처',
+      label: t('employees.contact'),
       render: (_, employee) => (
         <div>
           <div className="text-sm text-gray-900">{employee.phone}</div>
@@ -120,11 +122,11 @@ export default function EmployeesTab() {
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('common.actions'),
       align: 'right',
       render: (_, employee) => (
         <Button
-          label="상세보기"
+          label={t('common.viewDetail')}
           size="sm"
           variant="ghost"
           onClick={() => handleViewEmployeeDetail(employee)}
@@ -137,7 +139,7 @@ export default function EmployeesTab() {
     <div className="flex flex-col h-full gap-6">
       <div className="flex justify-end items-center gap-4 p-2 rounded-lg shrink-0">
         <Dropdown
-          placeholder="전체 부서"
+          placeholder={t('common.allDepartments')}
           items={departmentsOptions}
           value={selectedDepartment}
           onChange={(dept: string) => {
@@ -152,26 +154,22 @@ export default function EmployeesTab() {
             handleFilterChange();
           }}
           icon="ri-search-line"
-          placeholder="직원 이름 검색"
+          placeholder={t('common.searchName')}
         />
-        <Button label="신규 직원 등록" onClick={handleViewEmployeeRegister} />
+        <Button label={t('employees.register')} onClick={handleViewEmployeeRegister} />
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="직원 정보를 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('employees.loading')} />
       ) : isError ? (
-        <TableStatusBox
-          type="error"
-          message="직원 정보를 불러오는 중 오류가 발생했습니다."
-          error={error}
-        />
+        <TableStatusBox type="error" message={t('employees.loadError')} error={error} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={employees}
           keyExtractor={(row) => row.employeeId}
-          emptyMessage="등록된 직원이 없습니다."
+          emptyMessage={t('employees.empty')}
           className="flex-1 min-h-0"
         />
       )}

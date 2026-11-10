@@ -4,6 +4,7 @@ import { type CreateProgramRequest } from '../../types/HrmProgramApiType';
 import { fetchTrainingCategoryDropdown } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
 import { type FormEvent, useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
@@ -11,8 +12,13 @@ import { errorMessageOf } from '@/lib/AppError';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { formText, formTexts } from '@/lib/formData';
 import { toKeyValueItems } from '@/lib/api/options';
+import {
+  PROGRAM_TARGET_DEPARTMENTS,
+  PROGRAM_TARGET_POSITIONS,
+} from '@/app/(private)/hrm/programTargets';
 
 export default function AddTrainingModal({ onClose }: ModalProps) {
+  const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const toast = useToast();
@@ -28,9 +34,9 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
   const mutation = useCreateProgram({
     onSuccess: () => {
       onClose();
-      toast.success('교육 프로그램이 추가되었습니다.');
+      toast.success(t('programs.created'));
     },
-    onError: (error) => toast.error(`교육 프로그램 추가에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('programs.createError', { message: errorMessageOf(error) })),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -44,17 +50,17 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
 
     // 필수 체크
     if (!selectedCategory) {
-      toast.warning('카테고리를 선택해주세요.');
+      toast.warning(t('programs.categoryRequired'));
       return;
     }
 
     if (departments.length === 0) {
-      toast.warning('대상 부서를 최소 1개 이상 선택해주세요.');
+      toast.warning(t('programs.departmentRequired'));
       return;
     }
 
     if (positions.length === 0) {
-      toast.warning('대상 직급을 최소 1개 이상 선택해주세요.');
+      toast.warning(t('programs.positionRequired'));
       return;
     }
 
@@ -82,23 +88,25 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
               htmlFor={`${fieldId}-programName`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              교육명
+              {t('programs.name')}
             </label>
             <input
               id={`${fieldId}-programName`}
               type="text"
               name="programName"
               required
-              placeholder="교육 프로그램명을 입력하세요"
+              placeholder={t('programs.programNamePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('programs.category')}
+            </label>
 
             <Dropdown
-              placeholder="카테고리 선택"
+              placeholder={t('programs.selectCategory')}
               items={categoryData ?? []}
               value={selectedCategory}
               onChange={setSelectedCategory}
@@ -112,14 +120,14 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
               htmlFor={`${fieldId}-trainingHour`}
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              교육 시간
+              {t('programs.hours')}
             </label>
             <input
               id={`${fieldId}-trainingHour`}
               type="text"
               name="trainingHour"
               required
-              placeholder="예: 8시간, 2일"
+              placeholder={t('programs.hoursPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -130,7 +138,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
             htmlFor={`${fieldId}-startDate`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            시작일
+            {t('programs.startDate')}
           </label>
           <input
             id={`${fieldId}-startDate`}
@@ -142,58 +150,30 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">대상 부서</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            {t('programs.targetDepartments')}
+          </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="개발팀" className="mr-2" />
-              <span className="text-sm">개발팀</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="마케팅팀" className="mr-2" />
-              <span className="text-sm">마케팅팀</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="영업팀" className="mr-2" />
-              <span className="text-sm">영업팀</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="인사팀" className="mr-2" />
-              <span className="text-sm">인사팀</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="재무팀" className="mr-2" />
-              <span className="text-sm">재무팀</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="departments" value="재고팀" className="mr-2" />
-              <span className="text-sm">재고팀</span>
-            </label>
+            {PROGRAM_TARGET_DEPARTMENTS.map((option) => (
+              <label key={option.key} className="flex items-center">
+                <input type="checkbox" name="departments" value={option.value} className="mr-2" />
+                <span className="text-sm">{t(`programs.departmentOptions.${option.key}`)}</span>
+              </label>
+            ))}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">대상 직급</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            {t('programs.targetPositions')}
+          </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <label className="flex items-center">
-              <input type="checkbox" name="positions" value="사원" className="mr-2" />
-              <span className="text-sm">사원</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="positions" value="대리" className="mr-2" />
-              <span className="text-sm">대리</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="positions" value="과장" className="mr-2" />
-              <span className="text-sm">과장</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="positions" value="차장" className="mr-2" />
-              <span className="text-sm">차장</span>
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" name="positions" value="부장" className="mr-2" />
-              <span className="text-sm">부장</span>
-            </label>
+            {PROGRAM_TARGET_POSITIONS.map((option) => (
+              <label key={option.key} className="flex items-center">
+                <input type="checkbox" name="positions" value={option.value} className="mr-2" />
+                <span className="text-sm">{t(`programs.positionOptions.${option.key}`)}</span>
+              </label>
+            ))}
           </div>
         </div>
 
@@ -202,19 +182,19 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
             htmlFor={`${fieldId}-description`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            교육 설명
+            {t('programs.descriptionLabel')}
           </label>
           <textarea
             id={`${fieldId}-description`}
             name="description"
             rows={4}
-            placeholder="교육 내용과 목표를 입력하세요"
+            placeholder={t('programs.descriptionPlaceholder')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           ></textarea>
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" label="교육 프로그램 추가" loading={mutation.isPending} />
+          <Button type="submit" label={t('programs.submit')} loading={mutation.isPending} />
         </div>
       </form>
     </>

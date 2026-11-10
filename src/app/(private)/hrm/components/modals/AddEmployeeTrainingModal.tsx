@@ -4,6 +4,7 @@ import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import React, { type FormEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { fetchProgramListDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -20,6 +21,7 @@ export default function AddEmployeeTrainingModal({
   employeeId,
   onClose,
 }: AddEmployeeTrainingModalProps) {
+  const t = useTranslations('hrm');
   const [selectedProgram, setSelectedProgram] = useState('');
 
   const toast = useToast();
@@ -36,16 +38,16 @@ export default function AddEmployeeTrainingModal({
   const mutation = useAssignProgramToEmployee({
     onSuccess: () => {
       onClose();
-      toast.info('교육 프로그램이 지정되었습니다.');
+      toast.info(t('training.assigned'));
     },
-    onError: (error) => toast.error(`교육 프로그램 지정에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('training.assignError', { message: errorMessageOf(error) })),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!selectedProgram) {
-      toast.warning('교육 프로그램을 선택해주세요.');
+      toast.warning(t('training.selectProgramWarning'));
     }
 
     mutation.mutate({ employeeId, programId: selectedProgram });
@@ -55,9 +57,11 @@ export default function AddEmployeeTrainingModal({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* 교육 프로그램 선택 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">교육 프로그램 선택</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {t('training.selectProgramLabel')}
+        </label>
         <Dropdown
-          placeholder="프로그램 선택"
+          placeholder={t('training.selectProgram')}
           items={programData ?? []}
           value={selectedProgram}
           onChange={setSelectedProgram}
@@ -65,7 +69,7 @@ export default function AddEmployeeTrainingModal({
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" label="추가" loading={mutation.isPending} />
+        <Button type="submit" label={t('training.submitAdd')} loading={mutation.isPending} />
       </div>
     </form>
   );

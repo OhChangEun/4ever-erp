@@ -27,7 +27,7 @@ export interface HeatCell {
 /**
  * 잔디 칸 배치. 열은 주(월요일 시작), 행은 요일. 응답의 from 이 든 주부터 to 까지 그리고 to 뒤 칸은 만들지 않는다.
  * 기간을 화면이 따로 정하면 요약에는 있는 날이 그림에서 빠진다(시각화 5 리뷰 P2). 응답 기간이 기준이다.
- * 달 이름은 그 열의 월요일이 새 달일 때 붙인다.
+ * 달은 그 열의 월요일이 새 달일 때 붙인다.
  */
 export const heatGrid = (days: AttendanceDay[], from: Date, to: Date) => {
   const end = startOfDay(to);
@@ -52,11 +52,12 @@ export const heatGrid = (days: AttendanceDay[], from: Date, to: Date) => {
     });
   }
 
-  const months: { col: number; label: string }[] = [];
+  // 달은 숫자(1~12)로 둔다. 글자(11월, Nov)는 화면이 바꾼다(i18n 7)
+  const months: { col: number; month: number }[] = [];
   for (const cell of cells) {
     if (cell.row !== 0) continue;
     const month = Number(cell.date.slice(5, 7));
-    if (months.at(-1)?.label !== `${month}월`) months.push({ col: cell.col, label: `${month}월` });
+    if (months.at(-1)?.month !== month) months.push({ col: cell.col, month });
   }
   const weeks = cells.length === 0 ? 0 : (cells[cells.length - 1]?.col ?? 0) + 1;
   return { weeks, cells, months };

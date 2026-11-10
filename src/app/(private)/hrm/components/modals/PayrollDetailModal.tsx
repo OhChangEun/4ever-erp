@@ -9,6 +9,7 @@ import { errorMessageOf } from '@/lib/AppError';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { formatCurrency } from '@/app/utils/number';
+import { useLocale, useTranslations } from 'next-intl';
 interface PayrollDetailModalProps extends ModalProps {
   payrollId: string;
   payStatus: string;
@@ -16,19 +17,22 @@ interface PayrollDetailModalProps extends ModalProps {
 
 export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
   const toast = useToast();
+  const t = useTranslations('hrm');
+  // 한국어는 예전처럼 2026. 11. 10., 영어는 11/10/2026
+  const dateLocale = useLocale() === 'ko' ? 'ko-KR' : 'en-US';
 
   const mutation = useCompletePayroll({
     onSuccess: () => {
       onClose();
-      toast.success('급여 지급 완료 처리되었습니다.');
+      toast.success(t('payroll.completed'));
     },
-    onError: (error) => toast.error(`급여 지급 처리에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('payroll.completeError', { message: errorMessageOf(error) })),
   });
 
   const handlePayrollComplete = () => {
     if (!payrollId) return;
 
-    if (confirm('해당 급여를 지급 완료 처리하시겠습니까?')) {
+    if (confirm(t('payroll.completeConfirm'))) {
       mutation.mutate({ payrollId });
     }
   };
@@ -43,11 +47,11 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
   });
 
   if (isLoading) {
-    return <div className="p-6 text-center">로딩 중...</div>;
+    return <div className="p-6 text-center">{t('payroll.detailLoading')}</div>;
   }
 
   if (isError || !payrollData) {
-    return <div className="p-6 text-center text-red-600">데이터를 불러올 수 없습니다.</div>;
+    return <div className="p-6 text-center text-red-600">{t('common.loadFailed')}</div>;
   }
 
   const { employee, pay, statusCode, expectedDate } = payrollData;
@@ -56,26 +60,26 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
     <div className="space-y-6">
       {/* 직원 정보 */}
       <div className="border-b border-gray-200 pb-4">
-        <h4 className="font-medium text-gray-900 mb-3">직원 정보</h4>
+        <h4 className="font-medium text-gray-900 mb-3">{t('common.employee')}</h4>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <strong>이름:</strong> {employee.employeeName}
+            <strong>{t('common.name')}:</strong> {employee.employeeName}
           </div>
           <div>
-            <strong>부서:</strong> {employee.department}
+            <strong>{t('common.department')}:</strong> {employee.department}
           </div>
           <div>
-            <strong>직급:</strong> {employee.position}
+            <strong>{t('common.position')}:</strong> {employee.position}
           </div>
         </div>
       </div>
 
       {/* 기본급 */}
       <div className="border-b border-gray-200 pb-4">
-        <h4 className="font-medium text-gray-900 mb-3">기본급</h4>
+        <h4 className="font-medium text-gray-900 mb-3">{t('payroll.basePay')}</h4>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="font-medium">합계</span>
+            <span className="font-medium">{t('payroll.total')}</span>
             <span className="text-blue-600 font-semibold">{formatCurrency(pay.basePay)}</span>
           </div>
           {pay.basePayItem.length > 0 && (
@@ -93,10 +97,10 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
 
       {/* 초과근무비 */}
       <div className="border-b border-gray-200 pb-4">
-        <h4 className="font-medium text-gray-900 mb-3">초과근무비</h4>
+        <h4 className="font-medium text-gray-900 mb-3">{t('payroll.overtimePay')}</h4>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="font-medium">합계</span>
+            <span className="font-medium">{t('payroll.total')}</span>
             <span className="text-green-600 font-semibold">{formatCurrency(pay.overtimePay)}</span>
           </div>
           {pay.overtimePayItem.length > 0 && (
@@ -114,10 +118,10 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
 
       {/* 공제액 */}
       <div className="border-b border-gray-200 pb-4">
-        <h4 className="font-medium text-gray-900 mb-3">공제액</h4>
+        <h4 className="font-medium text-gray-900 mb-3">{t('payroll.deduction')}</h4>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="font-medium">합계</span>
+            <span className="font-medium">{t('payroll.total')}</span>
             <span className="text-red-600 font-semibold">{formatCurrency(pay.deduction)}</span>
           </div>
           {pay.deductionItem.length > 0 && (
@@ -136,7 +140,7 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
       {/* 실지급액 */}
       <div className="bg-gray-50 rounded-lg p-4">
         <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-gray-900">실지급액</span>
+          <span className="text-lg font-bold text-gray-900">{t('payroll.netPay')}</span>
           <span className="text-2xl font-bold text-purple-600">{formatCurrency(pay.netPay)}</span>
         </div>
         <div className="mt-2">
@@ -147,17 +151,18 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
       {/* 급여 계산 정보 */}
       <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 space-y-1">
         <div>
-          <strong>지급 예정일:</strong> {new Date(expectedDate).toLocaleDateString('ko-KR')}
+          <strong>{t('payroll.expectedDate')}:</strong>{' '}
+          {new Date(expectedDate).toLocaleDateString(dateLocale)}
         </div>
         <div>
-          <strong>조회일:</strong> {new Date().toLocaleDateString('ko-KR')}
+          <strong>{t('payroll.viewedDate')}:</strong> {new Date().toLocaleDateString(dateLocale)}
         </div>
       </div>
 
       {payStatus === 'PAYROLL_UNPAID' ? (
         <div className="flex justify-end">
           <Button
-            label="지급완료 처리"
+            label={t('payroll.complete')}
             onClick={handlePayrollComplete}
             loading={mutation.isPending}
           />

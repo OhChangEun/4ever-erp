@@ -4,6 +4,7 @@ import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import React, { type FormEvent, useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { fetchProgramStatusDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { type UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import { Dropdown } from '@everp/ui';
@@ -23,6 +24,7 @@ export default function EditProgramModal({
   programName,
   onClose,
 }: EditProgramModalProps) {
+  const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const [selectedProgramStatus, setSelectedProgramStatus] = useState('');
@@ -41,16 +43,16 @@ export default function EditProgramModal({
   const mutation = useUpdateProgram({
     onSuccess: () => {
       onClose();
-      toast.success('교육 정보가 수정되었습니다.');
+      toast.success(t('programs.updated'));
     },
-    onError: (error) => toast.error(`교육 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('programs.updateError', { message: errorMessageOf(error) })),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!programName.trim()) {
-      toast.warning('교육명을 입력해주세요.');
+      toast.warning(t('programs.nameRequired'));
       return;
     }
 
@@ -71,23 +73,23 @@ export default function EditProgramModal({
           htmlFor={`${fieldId}-field0`}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          교육명
+          {t('programs.name')}
         </label>
         <input
           id={`${fieldId}-field0`}
           type="text"
           value={editedName}
           onChange={(e) => setEditedName(e.target.value)}
-          placeholder="교육명을 입력하세요"
+          placeholder={t('programs.namePlaceholder')}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
       {/* 상태 선택 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.status')}</label>
         <Dropdown
-          placeholder="모집 상태 선택"
+          placeholder={t('programs.statusPlaceholder')}
           items={statusData ?? []}
           value={selectedProgramStatus}
           onChange={setSelectedProgramStatus}
@@ -96,7 +98,7 @@ export default function EditProgramModal({
 
       {/* 버튼 */}
       <div className="flex justify-end">
-        <Button type="submit" label="수정" loading={mutation.isPending} />
+        <Button type="submit" label={t('common.edit')} loading={mutation.isPending} />
       </div>
     </form>
   );

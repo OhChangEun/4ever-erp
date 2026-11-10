@@ -12,6 +12,7 @@ import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mutations';
 import { errorMessageOf } from '@/lib/AppError';
@@ -19,6 +20,7 @@ import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
 export default function LeaveTab() {
+  const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
   const toast = useToast();
@@ -65,22 +67,22 @@ export default function LeaveTab() {
 
   // mutation 과 무효화 범위는 hrm.mutations.ts 한 곳.
   const { mutate: approveLeave, isPending: isApproving } = useApproveLeave({
-    onSuccess: () => toast.success('승인이 완료되었습니다.'),
-    onError: (error) => toast.error(`휴가 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('leave.approved')),
+    onError: (error) => toast.error(t('leave.approveError', { message: errorMessageOf(error) })),
   });
   const { mutate: rejectLeave, isPending: isRejecting } = useRejectLeave({
-    onSuccess: () => toast.info('반려되었습니다.'),
-    onError: (error) => toast.error(`휴가 반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.info(t('leave.rejected')),
+    onError: (error) => toast.error(t('leave.rejectError', { message: errorMessageOf(error) })),
   });
 
   const handleApprove = (requestId: string) => {
-    if (confirm('해당 요청을 승인하시겠습니까?')) {
+    if (confirm(t('leave.approveConfirm'))) {
       approveLeave(requestId);
     }
   };
 
   const handleReject = (requestId: string) => {
-    if (confirm('해당 요청을 반려하시겠습니까?')) {
+    if (confirm(t('leave.rejectConfirm'))) {
       rejectLeave(requestId);
     }
   };
@@ -88,7 +90,7 @@ export default function LeaveTab() {
   const columns: TableColumn<LeaveItem>[] = [
     {
       key: 'employee',
-      label: '직원 정보',
+      label: t('common.employee'),
       render: (_, leave) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{leave.employee.employeeName}</div>
@@ -98,37 +100,37 @@ export default function LeaveTab() {
     },
     {
       key: 'leaveType',
-      label: '휴가 유형',
+      label: t('leave.type'),
       render: (_, leave) => <StatusLabel statusCode={leave.leaveType} />,
     },
     {
       key: 'startDate',
-      label: '시작 일자',
+      label: t('leave.startDate'),
       render: (_, leave) => leave.startDate.split('T')[0],
     },
     {
       key: 'endDate',
-      label: '종료 일자',
+      label: t('leave.endDate'),
       render: (_, leave) => leave.endDate.split('T')[0],
     },
     {
       key: 'numberOfLeaveDays',
-      label: '일수',
-      render: (_, leave) => `${leave.numberOfLeaveDays}일`,
+      label: t('leave.days'),
+      render: (_, leave) => t('common.days', { count: leave.numberOfLeaveDays }),
     },
     {
       key: 'remainingLeaveDays',
-      label: '잔여 연차',
-      render: (_, leave) => `${leave.remainingLeaveDays}일`,
+      label: t('leave.remaining'),
+      render: (_, leave) => t('common.days', { count: leave.remainingLeaveDays }),
     },
     {
       key: 'status',
-      label: '작업',
+      label: t('common.actions'),
       render: (_, leave) =>
         leave.status === 'PENDING' ? (
           <div className="flex items-center justify-end gap-0.5 -my-1">
             <Button
-              label="승인"
+              label={t('leave.approve')}
               variant="ghost"
               size="sm"
               className="px-2"
@@ -136,7 +138,7 @@ export default function LeaveTab() {
               loading={isApproving}
             />
             <Button
-              label="반려"
+              label={t('leave.reject')}
               variant="ghost"
               size="sm"
               className="text-red-600 hover:bg-red-50 px-2"
@@ -155,7 +157,7 @@ export default function LeaveTab() {
       <div className="flex items-center justify-end shrink-0">
         <div className="flex items-center gap-3">
           <Dropdown
-            placeholder="전체 부서"
+            placeholder={t('common.allDepartments')}
             items={departmentsOptions}
             value={selectedDepartment}
             onChange={(dept: string) => {
@@ -168,21 +170,21 @@ export default function LeaveTab() {
             value={keyword}
             onChange={handleKeywordChange}
             icon="ri-search-line"
-            placeholder="직원 이름 검색"
+            placeholder={t('common.searchName')}
           />
         </div>
       </div>
       {isLoading ? (
-        <TableStatusBox type="loading" message="휴가 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('leave.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="휴가 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('leave.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={leaveList}
           keyExtractor={(row) => row.leaveRequestId}
-          emptyMessage="휴가 요청이 없습니다."
+          emptyMessage={t('leave.empty')}
           className="flex-1 min-h-0"
         />
       )}

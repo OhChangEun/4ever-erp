@@ -5,6 +5,7 @@ import {
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import { Button } from '@everp/ui';
 import { type FormEvent, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { formatTime } from '@/app/utils/date';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateTimeRecord } from '@/app/(private)/hrm/api/hrm.mutations';
@@ -16,6 +17,7 @@ interface AttendanceEditModalProps extends ModalProps {
 }
 
 export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModalProps) {
+  const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const toast = useToast();
@@ -23,9 +25,10 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
   const mutation = useUpdateTimeRecord({
     onSuccess: () => {
       onClose();
-      toast.success('출결 정보가 수정되었습니다.');
+      toast.success(t('attendance.updated'));
     },
-    onError: (error) => toast.error(`출결 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('attendance.updateError', { message: errorMessageOf(error) })),
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -51,7 +54,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
           htmlFor={`${fieldId}-field0`}
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          직원명
+          {t('attendance.employeeName')}
         </label>
         <input
           id={`${fieldId}-field0`}
@@ -67,7 +70,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
             htmlFor={`${fieldId}-checkInTime`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            출근 시간
+            {t('attendance.checkIn')}
           </label>
           <input
             id={`${fieldId}-checkInTime`}
@@ -83,7 +86,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
             htmlFor={`${fieldId}-checkOutTime`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            퇴근 시간
+            {t('attendance.checkOut')}
           </label>
           <input
             id={`${fieldId}-checkOutTime`}
@@ -96,7 +99,7 @@ export function AttendanceEditModal({ attendance, onClose }: AttendanceEditModal
         </div>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" label="수정" loading={mutation.isPending} />
+        <Button type="submit" label={t('common.edit')} loading={mutation.isPending} />
       </div>
     </form>
   );
