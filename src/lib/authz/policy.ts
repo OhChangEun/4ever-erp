@@ -97,14 +97,13 @@ export const ACCESS_AREAS: readonly AccessArea[] = [
 ];
 
 /**
- * business/hrm 중 본인 셀프서비스(프로필 화면의 출퇴근, 휴가 신청, 본인 정보).
+ * business/hrm 중 본인 셀프서비스(프로필 화면의 출퇴근, 휴가 신청).
  * HRM 역할이 없어도 로그인만 되면 허용한다. 관리자용 PII 경로는 영역 표대로 HRM 역할만.
  */
 export const HRM_SELF_SERVICE: ReadonlySet<string> = new Set([
   'business/hrm/attendance/check-in',
   'business/hrm/attendance/check-out',
   'business/hrm/leave/request',
-  'business/hrm/employees/by-internel-user',
 ]);
 
 const matchesPage = (pathname: string, page: string) =>
