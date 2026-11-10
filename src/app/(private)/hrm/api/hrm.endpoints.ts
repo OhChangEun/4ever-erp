@@ -16,6 +16,7 @@ export const HRM_ENDPOINTS = {
 
   // 근태
   ATTENDANCE: `${HRM_BASE_PATH}/attendance`, // 출퇴근 기록 조회
+  ATTENDANCE_DAILY_SUMMARY: `${HRM_BASE_PATH}/attendance/daily-summary`, // 날짜별 근태 집계(시각화 5, verified=false)
   ATTENDANCE_CHECK_IN: `${HRM_BASE_PATH}/attendance/check-in`, // 출근 상태 변경
   ATTENDANCE_CHECK_OUT: `${HRM_BASE_PATH}/attendance/check-out`, // 퇴근 상태 변경
 

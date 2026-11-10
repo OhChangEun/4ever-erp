@@ -1,3 +1,4 @@
+import type { AttendanceDailySummary } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import type { OptionResponse } from '@/app/types/api';
 import { ApiResponse, ApiResponseNoData } from '@/app/types/api';
 import { HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
@@ -295,6 +296,14 @@ export const fetchProgramListDropdown = async (): Promise<OptionResponse[]> => {
 export const fetchProgramStatusDropdown = async (): Promise<OptionResponse[]> => {
   const res = await axios.get<ApiResponse<OptionResponse[]>>(
     HRM_ENDPOINTS.PROGRAM_COMPLETION_DROPDOWN,
+  );
+  return res.data.data;
+};
+
+// 날짜별 근태 집계(최근 12주, 시각화 5)
+export const fetchAttendanceDailySummary = async (): Promise<AttendanceDailySummary> => {
+  const res = await axios.get<ApiResponse<AttendanceDailySummary>>(
+    HRM_ENDPOINTS.ATTENDANCE_DAILY_SUMMARY,
   );
   return res.data.data;
 };

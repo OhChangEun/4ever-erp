@@ -11,6 +11,7 @@ import { stockHistoryHandlers } from './handlers/stockHistory.handlers';
 import { purchaseHandlers } from './handlers/purchase.handlers';
 import { productionHandlers } from './handlers/production.handlers';
 import { hrmHandlers } from './handlers/hrm.handlers';
+import { attendanceSummaryHandlers } from './handlers/attendanceSummary.handlers';
 
 const domainHandlers: RequestHandler[] = [
   ...authHandlers,
@@ -24,6 +25,7 @@ const domainHandlers: RequestHandler[] = [
   ...purchaseHandlers,
   ...productionHandlers,
   ...hrmHandlers,
+  ...attendanceSummaryHandlers,
 ];
 
 /** `:param` 이나 `*` 가 들어간 경로인가. 구체 경로가 아니면 뒤로 보낸다 */

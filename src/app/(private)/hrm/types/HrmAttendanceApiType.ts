@@ -18,3 +18,7 @@ export interface UpdateTimeRecord {
   checkInTime: string;
   checkOutTime: string;
 }
+
+/** 날짜별 근태 집계(시각화 5) */
+export type AttendanceDailySummary = Schema<'AttendanceDailySummary'>;
+export type AttendanceDay = AttendanceDailySummary['days'][number];

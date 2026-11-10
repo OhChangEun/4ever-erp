@@ -46,8 +46,16 @@ import type { ApiResponse, ApiResponseNoData } from '@/app/types/api';
  */
 export const HRM_MUTATION_EFFECTS = {
   // 휴가는 근태에 반영된다(서버 계약 미확인, 다시 가져오는 비용이 틀린 화면보다 싸다)
-  approveLeave: (): readonly QueryKey[] => [leaveKeys.lists(), attendanceKeys.lists()],
-  rejectLeave: (): readonly QueryKey[] => [leaveKeys.lists(), attendanceKeys.lists()],
+  approveLeave: (): readonly QueryKey[] => [
+    leaveKeys.lists(),
+    attendanceKeys.lists(),
+    attendanceKeys.summary(),
+  ],
+  rejectLeave: (): readonly QueryKey[] => [
+    leaveKeys.lists(),
+    attendanceKeys.lists(),
+    attendanceKeys.summary(),
+  ],
   updateProgram: (programId: string): readonly QueryKey[] => [
     programKeys.lists(),
     programKeys.detail(programId),
@@ -55,7 +63,8 @@ export const HRM_MUTATION_EFFECTS = {
   ],
   createProgram: (): readonly QueryKey[] => [programKeys.lists(), programKeys.dropdown()],
   updateDepartment: (): readonly QueryKey[] => [departmentKeys.lists()],
-  updateTimeRecord: (): readonly QueryKey[] => [attendanceKeys.lists()],
+  // 출퇴근 시각을 고치면 지각 여부가 바뀐다. 잔디(시각화 5)도 같이
+  updateTimeRecord: (): readonly QueryKey[] => [attendanceKeys.lists(), attendanceKeys.summary()],
   assignProgram: (employeeId: string): readonly QueryKey[] => [
     trainingKeys.lists(),
     trainingKeys.detail(employeeId),

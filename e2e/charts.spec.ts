@@ -59,3 +59,21 @@ test('재무 현황에 월별 매출, 매입 차트와 미수금 경과 표가 �
     aging.getByRole('table', { name: '미수금 경과 표' }).locator('tbody tr'),
   ).toHaveCount(5);
 });
+
+/** 시각화 5: 근태 잔디. 가장 많은 날을 누르면 아래 목록이 그날로 바뀐다 */
+test('근태 잔디에서 가장 많은 날을 누르면 그날 출퇴근 기록을 받는다', async ({ page }) => {
+  await page.goto('/hrm');
+  await page.getByRole('button', { name: '근태관리' }).click();
+  const heat = page.getByRole('region', { name: '근태 잔디' });
+  await expect(heat.getByRole('img', { name: '근태 이상 잔디(12주)' })).toBeVisible();
+  await expect(heat).toContainText(/하루 평균 [\d.]+건/);
+  const worst = heat.getByRole('button').first();
+  const date = (await worst.textContent())?.trim() ?? '';
+  expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  const request = page.waitForRequest(
+    (r) => r.url().includes('/time-record') && r.url().includes(`date=${date}`),
+  );
+  await worst.click();
+  await request;
+  await expect(heat.locator(`rect[data-date="${date}"]`)).toHaveAttribute('data-selected', 'true');
+});

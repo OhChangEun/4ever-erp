@@ -27,11 +27,13 @@ export const PROFILE_MUTATION_EFFECTS = {
     profileKeys.todayAttendance(),
     profileKeys.attendanceRecords(),
     attendanceKeys.lists(),
+    attendanceKeys.summary(),
   ],
   checkOut: (): readonly QueryKey[] => [
     profileKeys.todayAttendance(),
     profileKeys.attendanceRecords(),
     attendanceKeys.lists(),
+    attendanceKeys.summary(),
   ],
   registerTraining: (): readonly QueryKey[] => [profileKeys.trainings(), trainingKeys.lists()],
 } as const;

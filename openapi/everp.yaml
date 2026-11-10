@@ -1140,6 +1140,29 @@ paths:
                           $ref: '#/components/schemas/OptionResponse'
         default:
           $ref: '#/components/responses/Error'
+  /business/hrm/attendance/daily-summary:
+    get:
+      operationId: getAttendanceDailySummary
+      tags:
+        - business/hrm
+      summary: 날짜별 근태 집계(최근 12주, 시각화 5)
+      description: 근무일만 온다(주말, 휴일은 빠진다). 오래된 날부터. 서버 지원은 확인 전(verified=false)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AttendanceDailySummary'
+        default:
+          $ref: '#/components/responses/Error'
   /business/hrm/attendance/statuses:
     get:
       operationId: getBusinessHrmAttendanceStatuses
@@ -3933,6 +3956,45 @@ components:
               amount:
                 type: number
               count:
+                type: number
+    AttendanceDailySummary:
+      type: object
+      required:
+        - from
+        - to
+        - days
+      properties:
+        from:
+          type: string
+          description: 현지 날짜 YYYY-MM-DD
+        to:
+          type: string
+        days:
+          type: array
+          items:
+            type: object
+            required:
+              - date
+              - headcount
+              - present
+              - late
+              - absent
+              - onLeave
+            properties:
+              date:
+                type: string
+                description: 현지 날짜 YYYY-MM-DD
+              headcount:
+                type: number
+                description: 그날 재직 인원
+              present:
+                type: number
+                description: 정상 출근
+              late:
+                type: number
+              absent:
+                type: number
+              onLeave:
                 type: number
     StockHistory:
       type: object
