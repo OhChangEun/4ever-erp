@@ -1,4 +1,13 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+// 언어별 메시지(i18n 1 카드). precompile: 메시지를 빌드 때 바꿔 브라우저가 ICU 해석기를 받지 않게 한다(첫 로드 JS)
+const withNextIntl = createNextIntlPlugin({
+  requestConfig: './src/i18n/request.ts',
+  experimental: {
+    messages: { path: './src/i18n/messages', format: 'json', locales: 'infer', precompile: true },
+  },
+});
 
 const nextConfig: NextConfig = {
   reactStrictMode: true, // 리액트 스트릭트 모드 (개발 시 문제 탐지)
@@ -30,4 +39,4 @@ const nextConfig: NextConfig = {
   turbopack: {},
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -4,7 +4,8 @@ import { ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Tab } from '@/app/types/NavigationType';
 import { useRole } from '@/app/hooks/useRole';
-import { getNavLabel } from '@/app/components/sidebar/SidebarNavigation';
+import { useTranslations } from 'next-intl';
+import { getNavLabelKey } from '@/app/components/sidebar/SidebarNavigation';
 
 interface TabNavigationProps {
   tabs: Tab[];
@@ -19,7 +20,9 @@ export default function TabNavigation({ tabs, header }: TabNavigationProps) {
   const role = useRole();
 
   const currentTab = searchParams.get('tab') || tabs[0]?.id;
-  const pageTitle = getNavLabel(pathName, role);
+  const t = useTranslations('nav');
+  const titleKey = getNavLabelKey(pathName, role);
+  const pageTitle = titleKey ? t(titleKey) : undefined;
 
   const handelTabChange = (tabId: string) => {
     const params = new URLSearchParams();
@@ -40,7 +43,10 @@ export default function TabNavigation({ tabs, header }: TabNavigationProps) {
             {pageTitle}
           </h1>
         )}
-        <nav aria-label={`${pageTitle ?? ''} 탭`} className="flex items-stretch gap-1 -mb-px">
+        <nav
+          aria-label={t('tabsLabel', { title: pageTitle ?? '' })}
+          className="flex items-stretch gap-1 -mb-px"
+        >
           {tabs.map((tab) => {
             const isActive = currentTab === tab.id;
             return (

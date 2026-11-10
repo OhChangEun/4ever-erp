@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Noto_Sans_KR } from 'next/font/google';
 import '../styles/globals.css';
+import IntlProvider from '@/i18n/IntlProvider';
 import WebVitalsLazy from './components/WebVitalsLazy';
 
 const geistSans = Geist({
@@ -35,7 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body>
         <WebVitalsLazy />
-        {children}
+        {/* 언어는 브라우저가 쿠키로 고른다. 서버는 한국어로 정적 렌더(i18n 1 카드 결정 2) */}
+        <IntlProvider>{children}</IntlProvider>
       </body>
     </html>
   );

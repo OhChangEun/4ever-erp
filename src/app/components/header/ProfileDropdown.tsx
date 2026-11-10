@@ -75,7 +75,8 @@ export default function ProfileDropdown() {
   }, [isOpen]);
 
   // 세션 쿠키는 httpOnly 라 서버가 지운다. OIDC 면 IdP 로그아웃 화면을 거쳐 /login 으로 돌아온다(src/lib/auth/logout.ts)
-  const handleLogout = () => logout({ clearUserInfo, goToLogin: () => router.replace('/login') });
+  const handleLogout = () =>
+    void logout({ clearUserInfo, goToLogin: () => router.replace('/login') });
 
   const handleProfile = (e: React.MouseEvent) => {
     if (role === 'SUPPLIER_ADMIN' || role === 'CUSTOMER_ADMIN') {
