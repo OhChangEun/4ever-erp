@@ -1,4 +1,4 @@
-import { Page } from '@/app/types/Page';
+import { type Page } from '@/app/types/Page';
 
 interface NotificationPaginationProps {
   page: Page;

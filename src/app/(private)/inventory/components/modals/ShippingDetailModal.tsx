@@ -2,9 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import {
-  OrderItemsType,
-  ShippingDetailModalProps,
-  ShippingDetailResponse,
+  type OrderItemsType,
+  type ShippingDetailModalProps,
+  type ShippingDetailResponse,
 } from '../../types/ShippingDetailModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { getProductionDetail, getReadyToShipDetail } from '../../inventory.api';

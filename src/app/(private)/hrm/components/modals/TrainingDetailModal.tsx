@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { fetchTrainingDetail } from '@/app/(private)/hrm/api/hrm.api';
-import { TrainingDetailResponse } from '@/app/(private)/hrm/types/HrmTrainingApiType';
+import { type TrainingDetailResponse } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 import { formatDateTime } from '@/app/utils/date';
 import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 

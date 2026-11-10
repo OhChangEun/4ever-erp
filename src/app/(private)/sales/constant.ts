@@ -1,7 +1,7 @@
-import { KeyValueItem } from '@/app/types/CommonType';
-import { QuoteStatus } from '@/app/(private)/sales/types/SalesQuoteListType';
-import { OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
-import { CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
+import { type KeyValueItem } from '@/app/types/CommonType';
+import { type QuoteStatus } from '@/app/(private)/sales/types/SalesQuoteListType';
+import { type OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
+import { type CustomerStatus } from '@/app/(private)/sales/types/SalesCustomerListType';
 
 // 견적 검색 키워드 옵션
 export const getQuoteSearchKeywordOptions = (role: string) => {

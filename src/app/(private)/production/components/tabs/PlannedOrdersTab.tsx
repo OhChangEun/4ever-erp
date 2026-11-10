@@ -9,13 +9,13 @@ import {
   fetchMrpPlannedOrderStatusDropdown,
 } from '@/app/(private)/production/api/production.api';
 import {
-  FetchMrpPlannedOrdersListParams,
-  MrpPlannedOrderList,
-  MrpPlannedOrdersListResponse,
+  type FetchMrpPlannedOrdersListParams,
+  type MrpPlannedOrderList,
+  type MrpPlannedOrdersListResponse,
 } from '@/app/(private)/production/types/MrpPlannedOrdersListApiType';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Pagination } from '@everp/ui';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import MrpPurchaseRequestModal from '@/app/(private)/production/components/modals/MrpPurchaseRequestModal';
 import { useDropdown } from '@/app/hooks/useDropdown';

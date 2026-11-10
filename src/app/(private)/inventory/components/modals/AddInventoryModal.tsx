@@ -2,15 +2,15 @@
 
 import { useState, useId } from 'react';
 import {
-  AddInventoryItemsRequest,
-  AddInventoryItemsToggleResponse,
-  WarehouseToggleResponse,
+  type AddInventoryItemsRequest,
+  type AddInventoryItemsToggleResponse,
+  type WarehouseToggleResponse,
 } from '../../types/AddInventoryModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getItemInfo, getWarehouseInfo } from '../../inventory.api';
 import { useAddMaterial } from '../../inventory.mutations';
 import { ModalStatusBox } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { itemInfoKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';

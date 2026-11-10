@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ToastItem, ToastType } from '@/app/components/common/toast/types';
+import { type ToastItem, type ToastType } from '@/app/components/common/toast/types';
 import { useIsClient } from '@/app/hooks/useMediaQuery';
 
 interface ToastContextValue {

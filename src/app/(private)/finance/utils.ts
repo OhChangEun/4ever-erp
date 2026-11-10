@@ -1,5 +1,5 @@
 import { FINANCE_TABS } from '@/app/(private)/finance/finance.tabs';
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 // 전표 유형 텍스트
 export const getInvoiceType = (type: string) => {
   switch (type) {

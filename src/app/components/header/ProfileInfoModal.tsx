@@ -1,6 +1,6 @@
 'use client';
 
-import { ProfileInfo, ProfileInfoModalProps } from './types/CustomerOrSupplierInfoType';
+import { type ProfileInfo, type ProfileInfoModalProps } from './types/CustomerOrSupplierInfoType';
 import { getSupOrCusProfile } from './header.api';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';

@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { PointerLockControls } from '@react-three/drei';
-import { PointerLockControls as PointerLockControlsImpl } from 'three-stdlib';
+import { type PointerLockControls as PointerLockControlsImpl } from 'three-stdlib';
 
 // WASD 만 이동 키다. 다른 글자 키는 무시한다(예전엔 keys 에 q, e 같은 값이 쌓였다)
 const MOVE_KEYS: Partial<Record<string, 'w' | 'a' | 's' | 'd'>> = {

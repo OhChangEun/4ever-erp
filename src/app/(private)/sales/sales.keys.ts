@@ -1,7 +1,7 @@
-import { QuoteQueryParams } from '@/app/(private)/sales/types/SalesQuoteListType';
-import { CustomerQueryParams } from '@/app/(private)/sales/types/SalesCustomerListType';
-import { OrderQueryParams } from '@/app/(private)/sales/types/SalesOrderListType';
-import { AnalyticsQueryParams } from '@/app/(private)/sales/types/SalesChartType';
+import { type QuoteQueryParams } from '@/app/(private)/sales/types/SalesQuoteListType';
+import { type CustomerQueryParams } from '@/app/(private)/sales/types/SalesCustomerListType';
+import { type OrderQueryParams } from '@/app/(private)/sales/types/SalesOrderListType';
+import { type AnalyticsQueryParams } from '@/app/(private)/sales/types/SalesChartType';
 
 export const salesStatsKeys = {
   all: ['sales', 'stats'] as const,

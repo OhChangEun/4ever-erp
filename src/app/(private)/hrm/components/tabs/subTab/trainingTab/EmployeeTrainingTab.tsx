@@ -1,7 +1,7 @@
 'use client';
 
 import { fetchDepartmentsDropdown, fetchTrainingList } from '@/app/(private)/hrm/api/hrm.api';
-import { TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
+import { type TrainingRequestParams } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
@@ -12,7 +12,7 @@ import AddEmployeeTrainingModal from '@/app/(private)/hrm/components/modals/AddE
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { Input } from '@everp/ui';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';

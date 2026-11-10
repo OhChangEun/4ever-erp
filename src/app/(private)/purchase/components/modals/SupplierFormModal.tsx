@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import {
-  CreateSupplierBody,
-  UpdateSupplierBody,
-  SupplierDetail,
-  ManagerInfo,
-  Material,
+  type CreateSupplierBody,
+  type UpdateSupplierBody,
+  type SupplierDetail,
+  type ManagerInfo,
+  type Material,
 } from '@/app/(private)/purchase/types/SupplierType';
 import { Button } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
@@ -19,7 +19,7 @@ import {
   useUpdateSupplier,
 } from '@/app/(private)/purchase/api/purchase.mutations';
 import { errorMessageOf } from '@/lib/AppError';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { LoadingMessage } from '@everp/ui';
 import { Input, InputLabel } from '@everp/ui';

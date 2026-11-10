@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import {
-  FetchMesListParams,
-  MesListResponse,
-  MesSummaryItem,
+  type FetchMesListParams,
+  type MesListResponse,
+  type MesSummaryItem,
 } from '@/app/(private)/production/types/MesListApiType';
 import { Dropdown } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -29,7 +29,7 @@ const VIEWS = [
   { id: 'table', name: '표' },
   { id: 'gantt', name: '간트' },
 ];
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
 

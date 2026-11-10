@@ -1,9 +1,9 @@
 import type { ComponentType, ReactNode } from 'react';
-import { Tab } from '@/app/types/NavigationType';
+import { type Tab } from '@/app/types/NavigationType';
 import QuotationTab from '@/app/(private)/production/components/tabs/QuotationTab';
 import MrpTab from '@/app/(private)/production/components/tabs/MrpTab';
 import BomTab from '@/app/(private)/production/components/tabs/BomTab';
-import { KeyValueItem } from '@/app/types/CommonType';
+import { type KeyValueItem } from '@/app/types/CommonType';
 import MpsTab from '@/app/(private)/production/components/tabs/MpsTab';
 import MesTab from '@/app/(private)/production/components/tabs/MesTab';
 import OrdersTab from '@/app/(private)/production/components/tabs/OrdersTab';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useId } from 'react';
-import { CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
+import { type CustomerDetail } from '@/app/(private)/sales/types/SalesCustomerDetailType';
 import type {
   CustomerEditData,
   CustomerEditModalProps,

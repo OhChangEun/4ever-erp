@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState, useId } from 'react';
-import { InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
+import { type FormEvent, useState, useId } from 'react';
+import { type InventorySafetyStockModalProps } from '../../types/InventorySafetyStockModalType';
 import { useUpdateSafetyStock } from '../../inventory.mutations';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

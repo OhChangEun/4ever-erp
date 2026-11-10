@@ -1,5 +1,5 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
+import { type PageRequest } from '@/app/types/Page';
 
 export type ProgramListData = Schema<'ProgramListData'>;
 

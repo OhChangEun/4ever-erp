@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import {
-  WarehouseDetailModalProps,
-  WarehouseDetailResponse,
+  type WarehouseDetailModalProps,
+  type WarehouseDetailResponse,
 } from '../../types/WarehouseDetailModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { getWarehouseDetail } from '../../warehouse.api';

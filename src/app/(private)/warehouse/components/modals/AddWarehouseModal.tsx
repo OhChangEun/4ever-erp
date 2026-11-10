@@ -1,16 +1,16 @@
 'use client';
 
-import { FormEvent, useState, useId } from 'react';
+import { type FormEvent, useState, useId } from 'react';
 import {
-  AddWarehouseRequest,
-  WarehouseManagerInfoResponse,
+  type AddWarehouseRequest,
+  type WarehouseManagerInfoResponse,
 } from '../../types/AddWarehouseModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getWarehouseManagerInfo } from '../../warehouse.api';
 import { useAddWarehouse } from '../../warehouse.mutations';
 import { ModalStatusBox } from '@everp/ui';
 import { Button } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';

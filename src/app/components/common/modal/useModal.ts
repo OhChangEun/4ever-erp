@@ -1,5 +1,5 @@
 import { useModalContext } from '@/app/components/common/modal/ModalProvider';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import type { ComponentType } from 'react';
 
 // openModal과 closeModal이라는 더 편리한 모달 제어 API를 제공.

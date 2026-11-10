@@ -12,7 +12,7 @@ import {
   fetchPurchaseStats,
   fetchSupplierOrdersPurchaseStats,
 } from '@/app/(private)/purchase/api/purchase.api';
-import { StatCardType } from '@/app/types/StatType';
+import { type StatCardType } from '@/app/types/StatType';
 import { useRole } from '@/app/hooks/useRole';
 import { useQuery } from '@tanstack/react-query';
 import { purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';

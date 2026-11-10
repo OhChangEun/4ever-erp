@@ -1,4 +1,4 @@
-import { InvoiceQueryParams } from '@/app/(private)/finance/types/InvoiceListType';
+import { type InvoiceQueryParams } from '@/app/(private)/finance/types/InvoiceListType';
 
 export type InvoiceTab = 'sales' | 'purchase';
 

@@ -1,6 +1,6 @@
 import {
-  QuoteDetailModalProps,
-  QuoteDetail,
+  type QuoteDetailModalProps,
+  type QuoteDetail,
 } from '@/app/(private)/sales/types/QuoteDetailModalType';
 import { useQuery } from '@tanstack/react-query';
 import { getQuoteDetail } from '../../sales.api';

@@ -1,48 +1,51 @@
 import type { AttendanceDailySummary } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import type { OptionResponse } from '@/app/types/api';
-import { ApiResponse, ApiResponseNoData } from '@/app/types/api';
+import { type ApiResponse, type ApiResponseNoData } from '@/app/types/api';
 import { HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import axios from '@/lib/axiosInstance';
-import { HrmStatResponse } from '@/app/(private)/hrm/types/HrmStatsApiType';
+import { type HrmStatResponse } from '@/app/(private)/hrm/types/HrmStatsApiType';
 import {
-  EmployeeListRequestParams,
-  EmployeeListResponse,
-  EmployeeRegisterRequest,
-  EmployeeUpdateRequest,
+  type EmployeeListRequestParams,
+  type EmployeeListResponse,
+  type EmployeeRegisterRequest,
+  type EmployeeUpdateRequest,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import {
-  PositionDataResponse,
-  PositionDetailResponse,
+  type PositionDataResponse,
+  type PositionDetailResponse,
 } from '@/app/(private)/hrm/types/HrmPositionsApiType';
 import {
-  DepartmentsListResponse,
-  DepartmentsRequestBody,
+  type DepartmentsListResponse,
+  type DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import {
-  PayrollRequestParams,
-  PayRollDetailResponse,
-  PayRollListResponse,
-  PayRollCompleteRequestParams,
+  type PayrollRequestParams,
+  type PayRollDetailResponse,
+  type PayRollListResponse,
+  type PayRollCompleteRequestParams,
 } from '@/app/(private)/hrm/types/HrmPayrollApiType';
 import {
-  TrainingDetailResponse,
-  TrainingListResponse,
-  TrainingRequestParams,
+  type TrainingDetailResponse,
+  type TrainingListResponse,
+  type TrainingRequestParams,
 } from '@/app/(private)/hrm/types/HrmTrainingApiType';
 import {
-  CreateProgramRequest,
-  ProgramDetailResponse,
-  ProgramListResponse,
-  ProgramRequestParams,
-  UpdateProgramRequest,
-  UpdateProgramToEmployeeRequest,
+  type CreateProgramRequest,
+  type ProgramDetailResponse,
+  type ProgramListResponse,
+  type ProgramRequestParams,
+  type UpdateProgramRequest,
+  type UpdateProgramToEmployeeRequest,
 } from '@/app/(private)/hrm/types/HrmProgramApiType';
 import {
-  AttendanceListResponse,
-  AttendanceRequestParams,
-  UpdateTimeRecord,
+  type AttendanceListResponse,
+  type AttendanceRequestParams,
+  type UpdateTimeRecord,
 } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
-import { LeaveListResponse, LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
+import {
+  type LeaveListResponse,
+  type LeaveRequestParams,
+} from '@/app/(private)/hrm/types/HrmLeaveApiType';
 
 // 인적자원관리 지표 조회
 export const fetchHrmStats = async (): Promise<HrmStatResponse> => {

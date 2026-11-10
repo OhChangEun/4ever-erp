@@ -1,5 +1,5 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
+import { type PageRequest } from '@/app/types/Page';
 
 // MES 개별 항목
 export type MesSummaryItem = Schema<'MesSummaryItem'>;

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { QuotationPreviewData } from '@/app/(private)/production/types/QuotationPreviewApiType';
+import { type QuotationPreviewData } from '@/app/(private)/production/types/QuotationPreviewApiType';
 import { Pagination } from '@everp/ui'; // Pagination 경로 맞춰서 import
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { Button } from '@everp/ui';
 
 interface MpsPreviewModalProps extends ModalProps {

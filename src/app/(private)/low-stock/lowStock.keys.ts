@@ -1,4 +1,4 @@
-import { LowStockListQueryParams } from '@/app/(private)/low-stock/types/LowStockListType';
+import { type LowStockListQueryParams } from '@/app/(private)/low-stock/types/LowStockListType';
 
 export const lowStockStatsKeys = {
   all: ['lowStock', 'stats'] as const,

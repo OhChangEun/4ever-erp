@@ -1,8 +1,8 @@
 import axios from '@/lib/axiosInstance';
-import { LowStockStatResponse } from './types/LowStockStatsType';
-import { LowStockListQueryParams, LowStockListResponse } from './types/LowStockListType';
-import { ApiResponse, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
-import { Page } from '@/app/types/Page';
+import { type LowStockStatResponse } from './types/LowStockStatsType';
+import { type LowStockListQueryParams, type LowStockListResponse } from './types/LowStockListType';
+import { type ApiResponse, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
+import { type Page } from '@/app/types/Page';
 
 // ----------------------- 재고 부족 관리 -----------------------
 export const getLowStockStats = async (): Promise<LowStockStatResponse> => {

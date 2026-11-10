@@ -1,8 +1,8 @@
-import { BomListRequestParams } from '@/app/(private)/production/types/BomListApiType';
-import { FetchMesListParams } from '@/app/(private)/production/types/MesListApiType';
-import { FetchMrpOrdersListParams } from '@/app/(private)/production/types/MrpOrdersApiType';
-import { FetchMrpPlannedOrdersListParams } from '@/app/(private)/production/types/MrpPlannedOrdersListApiType';
-import { FetchQuotationParams } from '@/app/(private)/production/types/QuotationApiType';
+import { type BomListRequestParams } from '@/app/(private)/production/types/BomListApiType';
+import { type FetchMesListParams } from '@/app/(private)/production/types/MesListApiType';
+import { type FetchMrpOrdersListParams } from '@/app/(private)/production/types/MrpOrdersApiType';
+import { type FetchMrpPlannedOrdersListParams } from '@/app/(private)/production/types/MrpPlannedOrdersListApiType';
+import { type FetchQuotationParams } from '@/app/(private)/production/types/QuotationApiType';
 
 export const productionStatsKeys = {
   all: ['production', 'stats'] as const,

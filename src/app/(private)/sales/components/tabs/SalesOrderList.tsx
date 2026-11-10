@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import SalesOrderDetailModal from '@/app/(private)/sales/components/modals/SalesOrderDetailModal';
-import { OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
+import { type OrderStatus } from '@/app/(private)/sales/types/SalesOrderListType';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { getOrderList } from '../../sales.api';
@@ -16,7 +16,7 @@ import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { Dropdown } from '@everp/ui';
 import { SearchBar } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';

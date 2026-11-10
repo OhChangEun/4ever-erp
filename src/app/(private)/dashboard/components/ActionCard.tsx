@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getColorClasses } from '../dashboard.utils';
-import { ActionCardProps } from '../types/ActionCardType';
+import { type ActionCardProps } from '../types/ActionCardType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { NewOrderModal } from '@/app/(private)/sales/ui';
 

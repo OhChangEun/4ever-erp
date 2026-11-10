@@ -157,7 +157,7 @@ const noArbitraryColor = {
   },
 };
 
-export default {
+const plugin = {
   meta: { name: 'eslint-plugin-everp' },
   rules: {
     'domain-boundary': domainBoundary,
@@ -165,3 +165,5 @@ export default {
     'no-arbitrary-color': noArbitraryColor,
   },
 };
+
+export default plugin;

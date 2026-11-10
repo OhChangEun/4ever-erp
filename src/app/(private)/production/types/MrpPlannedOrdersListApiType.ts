@@ -1,5 +1,5 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
+import { type PageRequest } from '@/app/types/Page';
 
 // MRP 계획 주문 목록 타입
 export type MrpPlannedOrderList = Schema<'MrpPlannedOrderList'>;

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ReportDownloadModalProps } from '../types/ReportDownloadModalType';
+import { type ReportDownloadModalProps } from '../types/ReportDownloadModalType';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { toDateKey } from '@/app/utils/date';
 

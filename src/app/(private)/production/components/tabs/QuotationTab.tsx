@@ -2,9 +2,9 @@
 import { Dropdown } from '@everp/ui';
 import { useState, useMemo } from 'react'; // useMemo 추가
 import {
-  QuotationData,
-  FetchQuotationParams,
-  QuotationListResponse,
+  type QuotationData,
+  type FetchQuotationParams,
+  type QuotationListResponse,
 } from '@/app/(private)/production/types/QuotationApiType';
 import SimulationResultModal from '@/app/(private)/production/components/modals/SimulationResultModal';
 import {
@@ -21,7 +21,7 @@ import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

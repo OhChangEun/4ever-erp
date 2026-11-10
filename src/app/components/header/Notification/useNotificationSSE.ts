@@ -84,7 +84,7 @@ export function useNotificationSSE({
               case 'alarm':
                 try {
                   const alarm: Alarm = JSON.parse(event.data);
-                  queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
+                  void queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
                   onAlarm?.(alarm);
                 } catch (err) {
                   console.error('[SSE] Failed to parse alarm:', err);
@@ -117,7 +117,7 @@ export function useNotificationSSE({
       }
     };
 
-    connectSSE();
+    void connectSSE();
 
     return () => {
       console.info('[SSE] Closing connection');

@@ -1,27 +1,27 @@
 import type { OptionResponse } from '@/app/types/api';
-import { ApiResponse } from '@/app/types/api';
+import { type ApiResponse } from '@/app/types/api';
 import {
-  PurchaseStatResponse,
-  SupplierPurchaseStatResponse,
+  type PurchaseStatResponse,
+  type SupplierPurchaseStatResponse,
 } from '@/app/(private)/purchase/types/PurchaseStatsType';
 import {
-  PurchaseOrderDetail,
-  PurchaseOrderListResponse,
-  PurchaseOrderListParams,
+  type PurchaseOrderDetail,
+  type PurchaseOrderListResponse,
+  type PurchaseOrderListParams,
 } from '@/app/(private)/purchase/types/PurchaseOrderType';
 import {
-  PurchaseRequestDetail,
-  PurchaseRequestListResponse,
-  PurchaseRequestListParams,
-  CreatePurchaseRequestBody,
-  CreateStockPurchaseRequestBody,
+  type PurchaseRequestDetail,
+  type PurchaseRequestListResponse,
+  type PurchaseRequestListParams,
+  type CreatePurchaseRequestBody,
+  type CreateStockPurchaseRequestBody,
 } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import {
-  CreateSupplierBody,
-  UpdateSupplierBody,
-  SupplierDetail,
-  SupplierListResponse,
-  SupplierListParams,
+  type CreateSupplierBody,
+  type UpdateSupplierBody,
+  type SupplierDetail,
+  type SupplierListResponse,
+  type SupplierListParams,
 } from '@/app/(private)/purchase/types/SupplierType';
 import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
 import axios from '@/lib/axiosInstance';

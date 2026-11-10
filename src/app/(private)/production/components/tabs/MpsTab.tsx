@@ -6,7 +6,7 @@ import { useQueries } from '@tanstack/react-query';
 import { fetchMpsBomDropdown, fetchMpsList } from '@/app/(private)/production/api/production.api';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { Pagination } from '@everp/ui';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mpsKeys } from '@/app/(private)/production/api/production.keys';
 import { toDateKey } from '@/app/utils/date';

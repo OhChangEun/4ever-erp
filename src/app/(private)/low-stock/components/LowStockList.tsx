@@ -9,7 +9,7 @@ import { Pagination } from '@everp/ui';
 import { LOW_STOCK_STATUS_OPTIONS } from '@/app/(private)/inventory';
 import { getLowStockList } from '../lowStock.api';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -62,7 +62,7 @@ export default function LowStockList() {
       selectAllCheckboxRef.current.indeterminate =
         selectedItems.length > 0 && selectedItems.length < lowStocks.length;
     }
-  }, [selectedItems, lowStocks]);
+  }, [selectedItems, lowStocks.length]);
 
   const toggleSelectItem = (itemId: string) => {
     setSelectedItems((prev) =>

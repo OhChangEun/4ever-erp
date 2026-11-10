@@ -2,10 +2,10 @@
 
 import { PURCHASE_ITEM_TABLE_HEADERS } from '@/app/(private)/purchase/constants';
 import { useQuery } from '@tanstack/react-query';
-import { PurchaseRequestDetail } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import { type PurchaseRequestDetail } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import { fetchPurchaseRequestDetail } from '@/app/(private)/purchase/api/purchase.api';
 import { ModalStatusBox } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { formatDateTime } from '@/app/utils/date';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';

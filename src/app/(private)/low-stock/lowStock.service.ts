@@ -1,5 +1,5 @@
-import { StatCardType } from '@/app/types/StatType';
-import { LowStockStatResponse } from './types/LowStockStatsType';
+import { type StatCardType } from '@/app/types/StatType';
+import { type LowStockStatResponse } from './types/LowStockStatsType';
 import { createStatCard } from '@/lib/CreateStatCard';
 
 export const mapLowStockStatsToCards = (

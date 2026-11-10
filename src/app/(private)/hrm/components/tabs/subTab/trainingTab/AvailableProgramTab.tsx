@@ -1,7 +1,10 @@
 'use client';
 
 import { fetchProgramList } from '@/app/(private)/hrm/api/hrm.api';
-import { ProgramListData, ProgramRequestParams } from '@/app/(private)/hrm/types/HrmProgramApiType';
+import {
+  type ProgramListData,
+  type ProgramRequestParams,
+} from '@/app/(private)/hrm/types/HrmProgramApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';

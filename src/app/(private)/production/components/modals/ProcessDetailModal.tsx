@@ -9,7 +9,7 @@ import {
   useStartMes,
   useStartMesOperation,
 } from '@/app/(private)/production/api/production.mutations';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Button } from '@everp/ui';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';

@@ -3,7 +3,7 @@ import { authProvider } from '@/server/auth/config';
 import { startOidcLogin } from '@/server/auth/oidcLogin';
 import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 interface LoginBody {
   loginId: string;

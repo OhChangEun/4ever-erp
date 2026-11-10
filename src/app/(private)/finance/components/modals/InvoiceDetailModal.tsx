@@ -3,8 +3,8 @@
 import { getInvoiceType } from '@/app/(private)/finance/utils';
 import { VOUCHER_DETAIL_TABLE_HEADERS } from '@/app/(private)/finance/constants';
 import {
-  InvoiceDetailModalProps,
-  InvoicetDetailRes,
+  type InvoiceDetailModalProps,
+  type InvoicetDetailRes,
 } from '@/app/(private)/finance/types/InvoiceDetailModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { useQuery } from '@tanstack/react-query';

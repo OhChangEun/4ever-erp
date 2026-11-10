@@ -43,8 +43,9 @@ export default defineConfig([
     },
     rules: {
       // 린트 1차(2026-11-09). `{ a, ...rest }` 로 a 를 빼는 패턴과 `_` 로 시작하는 인자는 허용
+      // 2026-11-10 린트 2차에서 0, error 로
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         { ignoreRestSiblings: true, argsIgnorePattern: '^_' },
       ],
       // R21 타입 안정성 우회 금지
@@ -54,14 +55,14 @@ export default defineConfig([
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }], // 0
       '@typescript-eslint/no-non-null-assertion': 'error', // 0
       // R13, R14 비동기 처리
-      '@typescript-eslint/no-floating-promises': 'warn', // 90
-      '@typescript-eslint/no-misused-promises': 'warn', // 4
+      '@typescript-eslint/no-floating-promises': 'error', // 0 (린트 2차)
+      '@typescript-eslint/no-misused-promises': 'error', // 0 (린트 2차)
       // 상태값 switch 누락 (STATUS_TEXT_MAP 류)
-      '@typescript-eslint/switch-exhaustiveness-check': 'warn', // 3
+      '@typescript-eslint/switch-exhaustiveness-check': 'error', // 0 (린트 2차)
       // 항상 참/거짓인 조건. 가드가 죽었는지 드러낸다
-      '@typescript-eslint/no-unnecessary-condition': 'warn', // 89 (2026-11-10)
-      // 타입 import 분리. --fix 로 한 번에 정리 가능. 린트 1차 브랜치가 머지된 뒤 돌린다
-      '@typescript-eslint/consistent-type-imports': ['warn', { fixStyle: 'inline-type-imports' }], // 376 (2026-11-10)
+      '@typescript-eslint/no-unnecessary-condition': 'warn', // 77 (2026-11-10 린트 2차 뒤). 서버 값 가드가 섞여 있어 하나씩 판단하는 다음 카드
+      // 타입 import 분리. 린트 2차에서 --fix 로 343 → 0, error 로
+      '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
       // 날짜는 현지 기준(toDateKey). toISOString 은 UTC 라 한국 시간 오전 9시 전엔 어제가 된다(성능 2, 3 카드에서 8곳)
       'no-restricted-syntax': [
         'error',

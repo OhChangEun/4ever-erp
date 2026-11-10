@@ -1,12 +1,12 @@
-import { FINANCE_ENDPOINTS, ApiResponse, ApiResponseNoData } from '@/app/types/api';
+import { FINANCE_ENDPOINTS, type ApiResponse, type ApiResponseNoData } from '@/app/types/api';
 import {
-  CustomerSupplierStatResponse,
-  FinanceStatResponse,
+  type CustomerSupplierStatResponse,
+  type FinanceStatResponse,
 } from '@/app/(private)/finance/types/FinanceStatsType';
-import { InvoiceListRes, InvoiceQueryParams } from './types/InvoiceListType';
-import { InvoicetDetailRes } from './types/InvoiceDetailModalType';
+import { type InvoiceListRes, type InvoiceQueryParams } from './types/InvoiceListType';
+import { type InvoicetDetailRes } from './types/InvoiceDetailModalType';
 import type { ArAging, FinanceMonthly } from './types/FinanceAnalyticsType';
-import { Page } from '@/app/types/Page';
+import { type Page } from '@/app/types/Page';
 import axios from '@/lib/axiosInstance';
 
 // ----------------------- 통계 지표 -----------------------

@@ -1,5 +1,5 @@
-import { EmployeeData } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type EmployeeData } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
+import { type ModalProps } from '@/app/components/common/modal/types';
 
 import { Button } from '@everp/ui';
 interface EmployeeDetailModalProps extends ModalProps {

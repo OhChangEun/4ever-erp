@@ -1,6 +1,6 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
-import { KeywordRequest } from '@/app/types/KeywordType';
+import { type PageRequest } from '@/app/types/Page';
+import { type KeywordRequest } from '@/app/types/KeywordType';
 
 // 공급업체 카테고리 코드
 export type SupplierCategory = 'MATERIAL' | 'PARTS' | 'ETC';

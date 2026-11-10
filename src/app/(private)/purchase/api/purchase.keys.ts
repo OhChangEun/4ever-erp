@@ -1,6 +1,6 @@
-import { PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
-import { PurchaseRequestListParams } from '@/app/(private)/purchase/types/PurchaseRequestType';
-import { SupplierListParams } from '@/app/(private)/purchase/types/SupplierType';
+import { type PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
+import { type PurchaseRequestListParams } from '@/app/(private)/purchase/types/PurchaseRequestType';
+import { type SupplierListParams } from '@/app/(private)/purchase/types/SupplierType';
 
 export const purchaseOrderKeys = {
   all: ['purchase', 'orders'] as const,

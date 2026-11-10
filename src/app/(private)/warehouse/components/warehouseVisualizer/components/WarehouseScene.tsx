@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { readBandColors } from '../stockHeat';
-import { SceneProps } from '../WarehouseVisualizerType';
+import { type SceneProps } from '../WarehouseVisualizerType';
 import { useCursor, Text } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';

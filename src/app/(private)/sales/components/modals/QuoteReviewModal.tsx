@@ -4,12 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { INVENTORY_NEED_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import {
-  InventoryCheckRes,
-  QuoteReviewModalProps,
+  type InventoryCheckRes,
+  type QuoteReviewModalProps,
 } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { useQuery } from '@tanstack/react-query';
-import { Inventories, QuoteDetail } from '../../types/QuoteDetailModalType';
+import { type Inventories, type QuoteDetail } from '../../types/QuoteDetailModalType';
 import { getQuoteDetail } from '../../sales.api';
 import { useCheckInventory, useConfirmQuotation, useProcessDelivery } from '../../sales.mutations';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';

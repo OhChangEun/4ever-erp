@@ -1,15 +1,15 @@
 'use client';
 
 import {
-  ComponentType,
+  type ComponentType,
   createContext,
-  ReactNode,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { ModalItem, ModalProps } from '@/app/components/common/modal/types';
+import { type ModalItem, type ModalProps } from '@/app/components/common/modal/types';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 import { useIsClient } from '@/app/hooks/useMediaQuery';

@@ -1,6 +1,6 @@
 import { createStatCard } from '@/lib/CreateStatCard';
-import { StatCardType } from '@/app/types/StatType';
-import { HrmStatResponse } from '../types/HrmStatsApiType';
+import { type StatCardType } from '@/app/types/StatType';
+import { type HrmStatResponse } from '../types/HrmStatsApiType';
 
 // 변환 함수
 export const mapHrmStatsToCards = (data: HrmStatResponse): Record<string, StatCardType[]> => {

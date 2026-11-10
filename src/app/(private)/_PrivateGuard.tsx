@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { readUserResponse } from '@/lib/auth/userInfo';
@@ -15,7 +15,7 @@ export default function PrivateGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       try {
         const res = await fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' });
         if (cancelled) return;

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import IconButton from './IconButton';
 import Button from './Button';
 import InputList from './InputList';
-import { KeyValueItem } from './types';
+import { type KeyValueItem } from './types';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
 import { useCloseOnEscape } from './hooks/useCloseOnEscape';

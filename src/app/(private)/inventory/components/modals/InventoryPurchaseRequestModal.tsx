@@ -3,7 +3,7 @@
 import { useRequestPurchaseForLowStock } from '@/app/(private)/inventory/inventory.mutations';
 import type { CreateStockPurchaseRequestItem } from '@/app/(private)/purchase';
 import { Input } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
@@ -147,7 +147,7 @@ export default function InventoryPurchaseRequestModal({
       </div>
       {/* Footer */}
       <div className="py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
-        <Button label="발주 요청" onClick={handleSubmit} loading={isPending} />
+        <Button label="발주 요청" onClick={() => void handleSubmit()} loading={isPending} />
       </div>
     </>
   );

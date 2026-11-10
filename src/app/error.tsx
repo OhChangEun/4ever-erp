@@ -80,7 +80,7 @@ export default function AppError({
                 label="복사"
                 variant="ghost"
                 size="sm"
-                onClick={handleCopy}
+                onClick={() => void handleCopy()}
                 aria-label="오류 내용 복사"
               />
             </Flex>

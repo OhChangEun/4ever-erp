@@ -1,6 +1,6 @@
 import { readSession } from '@/server/auth/session';
 import { buildMockUser } from '@/lib/auth/simpleLogin';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /** 화면은 숫자 id 를 쓴다(알림 구독 키). IdP 의 sub(UUID)를 32비트 양수로 바꾼다(FNV-1a) */
 const numericIdOf = (sub: string): number => {

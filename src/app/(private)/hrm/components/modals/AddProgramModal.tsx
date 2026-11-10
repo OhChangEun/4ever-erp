@@ -1,9 +1,9 @@
 import { Button } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
-import { CreateProgramRequest } from '../../types/HrmProgramApiType';
+import { type ModalProps } from '@/app/components/common/modal/types';
+import { type CreateProgramRequest } from '../../types/HrmProgramApiType';
 import { fetchTrainingCategoryDropdown } from '../../api/hrm.api';
 import { useQuery } from '@tanstack/react-query';
-import { FormEvent, useState, useId } from 'react';
+import { type FormEvent, useState, useId } from 'react';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';

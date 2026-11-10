@@ -1,12 +1,12 @@
 // tabs/LeaveTab.tsx
 'use client';
 import { fetchDepartmentsDropdown, fetchLeaveList } from '@/app/(private)/hrm/api/hrm.api';
-import { LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
+import { type LeaveRequestParams } from '@/app/(private)/hrm/types/HrmLeaveApiType';
 import { Dropdown } from '@everp/ui';
 import { Input } from '@everp/ui';
 import { Pagination } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';

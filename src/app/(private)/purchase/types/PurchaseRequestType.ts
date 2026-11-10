@@ -1,7 +1,7 @@
 import type { Schema } from '@/lib/api/contract';
-import { PageRequest } from '@/app/types/Page';
-import { KeywordRequest } from '@/app/types/KeywordType';
-import { DateRequest } from '@/app/types/Date';
+import { type PageRequest } from '@/app/types/Page';
+import { type KeywordRequest } from '@/app/types/KeywordType';
+import { type DateRequest } from '@/app/types/Date';
 
 // 구매 요청 목록 조회 파라미터
 export interface PurchaseRequestListParams extends PageRequest, KeywordRequest, DateRequest {

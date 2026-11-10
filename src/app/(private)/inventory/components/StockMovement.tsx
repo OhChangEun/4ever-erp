@@ -1,6 +1,6 @@
 'use client';
 
-import { StockMovementResponse } from '../types/StockMovement';
+import { type StockMovementResponse } from '../types/StockMovement';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentStockMovement } from '../inventory.api';
 import { FormatDate, getMovementColor, getMovementIcon } from '../inventory.utils';

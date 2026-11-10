@@ -1,11 +1,11 @@
 import { Button } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
 import { ModalStatusBox } from '@everp/ui';
 import { mrpItemsInfoKeys } from '../../api/production.keys';
 import { useCreateStockPurchaseRequest } from '../../api/production.mutations';
 import { postItemsInfo } from '../../api/production.api';
-import { MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
+import { type MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiType';
 import type { ItemResponse } from '@/app/(private)/inventory';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';

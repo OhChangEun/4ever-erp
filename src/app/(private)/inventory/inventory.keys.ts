@@ -1,6 +1,6 @@
-import { InventoryQueryParams } from '@/app/(private)/inventory/types/InventoryListType';
-import { WarehouseToggleQueryParams } from '@/app/(private)/inventory/types/AddInventoryModalType';
-import { ManageMentCommonQueryParams } from '@/app/(private)/inventory/types/ShippingManagementListType';
+import { type InventoryQueryParams } from '@/app/(private)/inventory/types/InventoryListType';
+import { type WarehouseToggleQueryParams } from '@/app/(private)/inventory/types/AddInventoryModalType';
+import { type ManageMentCommonQueryParams } from '@/app/(private)/inventory/types/ShippingManagementListType';
 
 export const inventoryStatsKeys = {
   all: ['inventory', 'stats'] as const,

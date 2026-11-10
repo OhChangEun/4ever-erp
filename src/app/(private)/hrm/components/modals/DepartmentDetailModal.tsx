@@ -1,5 +1,5 @@
-import { ModalProps } from '@/app/components/common/modal/types';
-import { DepartmentsData } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
+import { type ModalProps } from '@/app/components/common/modal/types';
+import { type DepartmentsData } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { Button } from '@everp/ui';
 interface DepartmentDetailModalProps extends ModalProps {
   departments: DepartmentsData;

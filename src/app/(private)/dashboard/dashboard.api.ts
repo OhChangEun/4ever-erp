@@ -1,7 +1,7 @@
 import type { SupplyFlow } from './types/SupplyFlowType';
-import { DashboardStatRes } from './types/DashboardStatsType';
-import { ApiResponse, DASHBOARD_ENDPOINTS } from '@/app/types/api';
-import { DashboardWorkflowRes } from './types/DashboardWorkflowType';
+import { type DashboardStatRes } from './types/DashboardStatsType';
+import { type ApiResponse, DASHBOARD_ENDPOINTS } from '@/app/types/api';
+import { type DashboardWorkflowRes } from './types/DashboardWorkflowType';
 import axios from '@/lib/axiosInstance';
 
 // ----------------------- 통계 지표 -----------------------

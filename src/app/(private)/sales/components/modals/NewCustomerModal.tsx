@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useId } from 'react';
-import { CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
+import { type CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
 import { useCreateCustomer } from '@/app/(private)/sales/sales.mutations';
 import { Button } from '@everp/ui';
-import { ModalProps } from '@/app/components/common/modal/types';
+import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 const NewCustomerModal = ({ onClose }: ModalProps) => {

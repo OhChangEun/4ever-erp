@@ -5,11 +5,11 @@ import {
   fetchAttendanceStatusDropdown,
   fetchDepartmentsDropdown,
 } from '@/app/(private)/hrm/api/hrm.api';
-import { AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
+import { type AttendanceRequestParams } from '@/app/(private)/hrm/types/HrmAttendanceApiType';
 import { Dropdown } from '@everp/ui';
 import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
-import { Table, TableColumn } from '@everp/ui';
+import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { formatMinutesToHourMin, formatTime } from '@/app/utils/date';

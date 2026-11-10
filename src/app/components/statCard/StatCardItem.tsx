@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkline } from '@everp/ui';
-import { StatCardType } from '@/app/types/StatType';
+import { type StatCardType } from '@/app/types/StatType';
 
 interface StatCardProps {
   stat: StatCardType;

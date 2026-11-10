@@ -1,13 +1,13 @@
 import axios from '@/lib/axiosInstance';
 import {
-  AttendanceRecordsResponse,
-  EditUserRequest,
-  ProfileInfoResponse,
-  RequestVacation,
-  TodayAttendResponse,
-  TrainingResponse,
+  type AttendanceRecordsResponse,
+  type EditUserRequest,
+  type ProfileInfoResponse,
+  type RequestVacation,
+  type TodayAttendResponse,
+  type TrainingResponse,
 } from './ProfileType';
-import { ApiResponse, ApiResponseNoData, PROFILE_ENDPOINTS } from '@/app/types/api';
+import { type ApiResponse, type ApiResponseNoData, PROFILE_ENDPOINTS } from '@/app/types/api';
 
 export const postVacation = async (items: RequestVacation): Promise<ApiResponseNoData> => {
   const res = await axios.post<ApiResponseNoData>(PROFILE_ENDPOINTS.VACATION, items);
