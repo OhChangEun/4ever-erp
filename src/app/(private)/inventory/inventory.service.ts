@@ -7,12 +7,19 @@ export const mapInventoryStatsToCards = (
 ): Record<string, StatCardType[]> => {
   return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
     const cards: StatCardType[] = [
-      createStatCard('총 재고 가치', stats.total_stock.value, stats.total_stock.delta_rate, '₩'),
+      createStatCard(
+        '총 재고 가치',
+        stats.total_stock.value,
+        stats.total_stock.delta_rate,
+        '₩',
+        stats.total_stock.trend,
+      ),
       createStatCard(
         '입고 완료',
         stats.store_complete.value,
         stats.store_complete.delta_rate,
         '건',
+        stats.store_complete.trend,
       ),
       // createStatCard(
       //   '입고 대기',
@@ -25,6 +32,7 @@ export const mapInventoryStatsToCards = (
         stats.delivery_complete.value,
         stats.delivery_complete.delta_rate,
         '건',
+        stats.delivery_complete.trend,
       ),
       // createStatCard(
       //   '출고 대기',

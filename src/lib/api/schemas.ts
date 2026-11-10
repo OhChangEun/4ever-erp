@@ -19,6 +19,7 @@ export const pageSchema: z.ZodMiniType<Page> = z.looseObject({
 export const statSchema: z.ZodMiniType<Stat> = z.looseObject({
   value: z.number(),
   delta_rate: z.number(),
+  trend: z.optional(z.array(z.number())),
 });
 
 /** 기간별 통계 `{ week, month, quarter, year }`. 네 기간이 다 있어야 한다 */

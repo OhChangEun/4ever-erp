@@ -12,12 +12,14 @@ export const mapWarehouseStatsToCards = (
         stats.total_warehouse.value,
         stats.total_warehouse.delta_rate,
         '개',
+        stats.total_warehouse.trend,
       ),
       createStatCard(
         '운영 중인 창고',
         stats.in_operation_warehouse.value,
         stats.in_operation_warehouse.delta_rate,
         '개',
+        stats.in_operation_warehouse.trend,
       ),
     ];
 

@@ -17,12 +17,14 @@ export const mapPurchaseStatsToCards = (
         stats.purchaseRequestCount.value,
         stats.purchaseRequestCount.delta_rate,
         '건',
+        stats.purchaseRequestCount.trend,
       ),
       createStatCard(
         '발주 금액',
         stats.purchaseOrderAmount.value,
         stats.purchaseOrderAmount.delta_rate,
         '₩',
+        stats.purchaseOrderAmount.trend,
       ),
     ];
 
@@ -37,7 +39,13 @@ export const mapSupplierPurchaseStatsToCards = (
 ): Record<string, StatCardType[]> => {
   return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
     const cards: StatCardType[] = [
-      createStatCard('발주 건수', stats.orderCount.value, stats.orderCount.delta_rate, '건'),
+      createStatCard(
+        '발주 건수',
+        stats.orderCount.value,
+        stats.orderCount.delta_rate,
+        '건',
+        stats.orderCount.trend,
+      ),
     ];
 
     acc[period] = cards;

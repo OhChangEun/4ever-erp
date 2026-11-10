@@ -1,4 +1,5 @@
 import React from 'react';
+import { Sparkline } from '@everp/ui';
 import { StatCardType } from '@/app/types/StatType';
 
 interface StatCardProps {
@@ -8,7 +9,7 @@ interface StatCardProps {
 
 /**
  * 지표 하나. 라벨 → 값 → 증감 순으로 세로 2줄.
- * 가짜 스파크라인은 제거: 실제 추이 데이터가 없는 상태에서 그래프를 그리면 안 된다.
+ * 추이(trend)가 있을 때만 스파크라인을 그린다(시각화 1). 추이 데이터 없이 그래프를 그리지 않는다.
  */
 export default function StatCardItem({ stat, currentPeriodLabel }: StatCardProps) {
   const isUp = stat.changeType === 'increase';
@@ -24,6 +25,7 @@ export default function StatCardItem({ stat, currentPeriodLabel }: StatCardProps
           {isUp ? '▲' : '▼'} {stat.change}
         </span>
         <span className="text-xs text-gray-500">{currentPeriodLabel}</span>
+        {stat.trend && <Sparkline data={stat.trend} label={`${stat.title} 추이`} />}
       </dd>
     </div>
   );

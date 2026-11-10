@@ -13,14 +13,22 @@ export const mapProductionStatsToCards = (
         stats.production_in.value,
         stats.production_in.delta_rate,
         '건',
+        stats.production_in.trend,
       ),
       createStatCard(
         '생산 완료된 품목',
         stats.production_completed.value,
         stats.production_completed.delta_rate,
         '건',
+        stats.production_completed.trend,
       ),
-      createStatCard('Bom 개수', stats.bom_count.value, stats.bom_count.delta_rate, '건'),
+      createStatCard(
+        'Bom 개수',
+        stats.bom_count.value,
+        stats.bom_count.delta_rate,
+        '건',
+        stats.bom_count.trend,
+      ),
     ];
 
     acc[period] = cards;

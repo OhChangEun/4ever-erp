@@ -30,5 +30,6 @@ export { default as InputList } from './InputList';
 export { default as SearchBar } from './SearchBar';
 export { default as DropdownInputModal } from './DropdownInputModal';
 export { default as DropdownInputListModal } from './DropdownInputListModal';
+export { default as Sparkline } from './Sparkline';
 export { useCloseOnEscape } from './hooks/useCloseOnEscape';
 export type { KeyValueItem } from './types';

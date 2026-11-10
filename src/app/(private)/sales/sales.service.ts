@@ -8,12 +8,19 @@ import {
 export const mapSalesStatsToCards = (data: SalesStatResponse): Record<string, StatCardType[]> => {
   return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
     const cards: StatCardType[] = [
-      createStatCard('매출', stats.sales_amount.value, stats.sales_amount.delta_rate, '₩'),
+      createStatCard(
+        '매출',
+        stats.sales_amount.value,
+        stats.sales_amount.delta_rate,
+        '₩',
+        stats.sales_amount.trend,
+      ),
       createStatCard(
         '신규 주문',
         stats.new_orders_count.value,
         stats.new_orders_count.delta_rate,
         '건',
+        stats.new_orders_count.trend,
       ),
     ];
 
@@ -32,6 +39,7 @@ export const mapCustomerSalesStatsToCards = (
         stats.quotation_count.value,
         stats.quotation_count.delta_rate,
         '건',
+        stats.quotation_count.trend,
       ),
     ];
 
