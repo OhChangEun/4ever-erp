@@ -1,6 +1,7 @@
 'use client';
 
 import { useId } from 'react';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { fetchAttendanceDailySummary } from '../../api/hrm.api';
@@ -13,7 +14,8 @@ const GAP = 3;
 const STEP = CELL + GAP;
 const LEFT = 22;
 const TOP = 16;
-const DAY_LABELS = ['월', '', '수', '', '금', '', ''];
+// 요일 글자는 메시지 키(hrm.heatmap.weekdays). 월, 수, 금 줄에만 붙인다
+const DAY_LABELS: ('mon' | 'wed' | 'fri' | null)[] = ['mon', null, 'wed', null, 'fri', null, null];
 
 /** 단계 색. 토큰 4개(시각화 5 결정 2) */
 const LEVEL_FILL = [
@@ -22,12 +24,8 @@ const LEVEL_FILL = [
   'var(--color-blue-400)',
   'var(--color-blue-600)',
 ] as const;
-const LEVEL_TEXT = ['0건', '1~2건', '3~4건', '5건 이상'] as const;
-
-const titleOf = (c: HeatCell) =>
-  c.day
-    ? `${c.date} 지각 ${c.day.late}, 결근 ${c.day.absent}, 휴가 ${c.day.onLeave} / ${c.day.headcount}명`
-    : `${c.date} 기록 없음`;
+/** 단계 범례 글자의 메시지 키(hrm.heatmap.levels) */
+const LEVEL_KEYS: ('l0' | 'l1' | 'l2' | 'l3')[] = ['l0', 'l1', 'l2', 'l3'];
 
 /**
  * 근태 이상(지각 + 결근) 잔디(시각화 5). 라이브러리 없이 SVG 한 장.
@@ -41,17 +39,40 @@ export default function AttendanceHeatmap({
   onSelect: (date: string) => void;
 }) {
   const summaryId = useId();
+  const t = useTranslations('hrm');
+  const locale = useLocale();
+  const format = useFormatter();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: attendanceKeys.summary(),
     queryFn: fetchAttendanceDailySummary,
   });
 
+  // 한국어는 예전처럼 2026-11-10 그대로, 다른 언어는 그 언어의 날짜(Nov 10, 2026). 날짜 키는 달력 날이라 UTC 로 고정해 하루가 밀리지 않게
+  const dateText = (key: string) => {
+    const date = locale === 'ko' ? null : parseDateKey(key);
+    if (!date) return key;
+    return format.dateTime(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()), {
+      dateStyle: 'medium',
+      timeZone: 'UTC',
+    });
+  };
+  const titleOf = (c: HeatCell) =>
+    c.day
+      ? t('heatmap.cell', {
+          date: dateText(c.date),
+          late: c.day.late,
+          absent: c.day.absent,
+          onLeave: c.day.onLeave,
+          headcount: c.day.headcount,
+        })
+      : t('heatmap.cellEmpty', { date: dateText(c.date) });
+
   if (isLoading)
-    return <div className="h-[121px]" role="status" aria-label="근태 잔디 불러오는 중" />;
+    return <div className="h-[121px]" role="status" aria-label={t('heatmap.loading')} />;
   if (isError)
-    return <TableStatusBox type="error" message="근태 잔디를 불러오지 못했습니다." error={error} />;
+    return <TableStatusBox type="error" message={t('heatmap.loadError')} error={error} />;
   if (!data || data.days.length === 0)
-    return <p className="text-sm text-gray-500">최근 12주 근태 기록이 없습니다.</p>;
+    return <p className="text-sm text-gray-500">{t('heatmap.empty')}</p>;
 
   // 응답 기간(from, to)이 그림과 요약의 공통 기준이다(리뷰 P2). 날짜를 못 읽으면 오늘 기준 84일
   const to = parseDateKey(data.to) ?? new Date();
@@ -63,10 +84,10 @@ export default function AttendanceHeatmap({
   const height = TOP + 7 * STEP;
 
   return (
-    <section aria-label="근태 잔디" className="flex items-start gap-8 shrink-0">
+    <section aria-label={t('heatmap.region')} className="flex items-start gap-8 shrink-0">
       <svg
         role="img"
-        aria-label="근태 이상 잔디(12주)"
+        aria-label={t('heatmap.image')}
         aria-describedby={summaryId}
         width={width}
         height={height}
@@ -80,7 +101,7 @@ export default function AttendanceHeatmap({
             fontSize={10}
             fill="var(--color-gray-500)"
           >
-            {m.label}
+            {t('month', { month: String(m.month) })}
           </text>
         ))}
         {DAY_LABELS.map((label, row) =>
@@ -92,7 +113,7 @@ export default function AttendanceHeatmap({
               fontSize={10}
               fill="var(--color-gray-500)"
             >
-              {label}
+              {t(`heatmap.weekdays.${label}`)}
             </text>
           ) : null,
         )}
@@ -123,8 +144,7 @@ export default function AttendanceHeatmap({
       <div className="space-y-2 text-sm">
         {summary && (
           <p id={summaryId} className="text-gray-700">
-            최근 12주 근무일 {summary.days}일, 근태 이상(지각 + 결근) 하루 평균 {summary.average}건.
-            가장 많은 날은{' '}
+            {t('heatmap.summary', { days: summary.days, average: summary.average })}{' '}
             {summary.worst.map((w, i) => (
               <span key={w.date}>
                 {i > 0 && ', '}
@@ -133,9 +153,9 @@ export default function AttendanceHeatmap({
                   onClick={() => onSelect(w.date)}
                   className="text-blue-600 hover:underline cursor-pointer tabular-nums"
                 >
-                  {w.date}
+                  {dateText(w.date)}
                 </button>
-                ({w.issues}건)
+                {t('heatmap.worstCount', { count: w.issues })}
               </span>
             ))}
             .
@@ -147,10 +167,10 @@ export default function AttendanceHeatmap({
               <svg width={CELL} height={CELL}>
                 <rect width={CELL} height={CELL} rx={2} fill={fill} />
               </svg>
-              {LEVEL_TEXT[level]}
+              {t(`heatmap.levels.${LEVEL_KEYS[level]}`)}
             </span>
           ))}
-          <span className="ml-1">칸을 누르면 그날 기록을 아래에 보입니다.</span>
+          <span className="ml-1">{t('heatmap.hint')}</span>
         </div>
       </div>
     </section>

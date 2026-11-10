@@ -7,6 +7,7 @@ import { Input } from '@everp/ui';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import { LoadingMessage } from '@everp/ui';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { type EmployeeRegisterRequest } from '../../types/HrmEmployeesApiType';
@@ -18,6 +19,7 @@ import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
 
 export default function EmployeeRegisterModal({ onClose }: ModalProps) {
+  const t = useTranslations('hrm');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedPosition, setSelectedPosition] = useState('');
   const [formData, setFormData] = useState<EmployeeRegisterRequest>({
@@ -48,7 +50,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
 
   const { mutate: registerEmployee, isPending: isRegistering } = useRegisterEmployee({
     onSuccess: () => {
-      toast.success('회원 등록 성공');
+      toast.success(t('employees.registered'));
       setFormData({
         name: '',
         departmentId: '',
@@ -63,7 +65,8 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
 
       onClose();
     },
-    onError: (error) => toast.error(`회원 등록에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('employees.registerError', { message: errorMessageOf(error) })),
   });
 
   const handleChange = (
@@ -90,7 +93,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <Input
-          label="이메일"
+          label={t('common.email')}
           type="email"
           name="email"
           placeholder="hong@company.com"
@@ -99,10 +102,10 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
           required
         />
         <Input
-          label="이름"
+          label={t('common.name')}
           type="text"
           name="name"
-          placeholder="홍길동"
+          placeholder={t('employees.placeholders.name')}
           value={formData.name}
           onChange={handleChange}
           required
@@ -111,7 +114,9 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">부서</label>
+          <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">
+            {t('common.department')}
+          </label>
           <Dropdown
             items={departmentsOptions}
             value={selectedDepartment}
@@ -119,24 +124,26 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
               setSelectedDepartment(dept);
               setSelectedPosition('');
             }}
-            placeholder="부서 선택"
+            placeholder={t('common.selectDepartment')}
           />
         </div>
         {selectedDepartment && (
           <div className="flex-1 fade-in">
-            <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">직급</label>
+            <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">
+              {t('common.position')}
+            </label>
             <Dropdown
               items={positionData ?? []}
               value={selectedPosition}
               onChange={setSelectedPosition}
-              placeholder="직급 선택"
+              placeholder={t('common.selectPosition')}
             />
           </div>
         )}
       </div>
 
       <Input
-        label="전화번호"
+        label={t('common.phone')}
         type="tel"
         name="phoneNumber"
         placeholder="010-1234-5678"
@@ -147,14 +154,18 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('common.hireDate')}
+          </label>
           <CalendarButton
             selectedDate={formData.hireDate}
             onDateChange={(date) => setFormData((prev) => ({ ...prev, hireDate: date || '' }))}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('common.birthDate')}
+          </label>
           <CalendarButton
             maxDate={new Date()}
             selectedDate={formData.birthDate}
@@ -165,25 +176,25 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
 
       <div className="grid grid-cols-2 gap-3">
         <Input
-          label="주소"
+          label={t('common.address')}
           type="text"
           name="baseAddress"
-          placeholder="서울시 강남구 테헤란로 123"
+          placeholder={t('employees.placeholders.address')}
           value={formData.baseAddress}
           onChange={handleChange}
         />
         <Input
-          label="상세 주소"
+          label={t('employees.detailAddress')}
           type="text"
           name="detailAddress"
-          placeholder="3층 301호 (역삼동, 강남빌딩)"
+          placeholder={t('employees.placeholders.detailAddress')}
           value={formData.detailAddress}
           onChange={handleChange}
         />
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit" label="등록" />
+        <Button type="submit" label={t('employees.submitRegister')} />
       </div>
     </form>
   );

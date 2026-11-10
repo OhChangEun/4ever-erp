@@ -53,7 +53,8 @@ describe('heatGrid', () => {
 
   it('달이 바뀌는 첫 열에 달 이름', () => {
     const grid = heatGrid([], from, to);
-    expect(grid.months.map((m) => m.label)).toEqual(['8월', '9월', '10월', '11월']);
+    // 달 글자('8월')는 화면이 메시지(hrm.month)로 바꾼다. 헬퍼는 숫자만 준다(i18n 7)
+    expect(grid.months.map((m) => m.month)).toEqual([8, 9, 10, 11]);
     expect(grid.months[0].col).toBe(0);
   });
 });

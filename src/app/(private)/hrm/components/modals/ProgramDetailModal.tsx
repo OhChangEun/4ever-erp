@@ -4,12 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { ModalStatusBox } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
+import { useTranslations } from 'next-intl';
 
 interface ProgramDetailModalProps extends ModalProps {
   programId: string;
 }
 
 export default function ProgramDetailModal({ programId }: ProgramDetailModalProps) {
+  const t = useTranslations('hrm');
   const {
     data: program,
     isLoading,
@@ -22,39 +24,43 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
   return (
     <>
       {isLoading ? (
-        <ModalStatusBox type="loading" message="교육 프로그램을 불러오는 중입니다..." />
+        <ModalStatusBox type="loading" message={t('programs.loading')} />
       ) : isError || !program ? (
-        <ModalStatusBox type="error" message="교육 프로그램을 불러오는 중 오류가 발생했습니다." />
+        <ModalStatusBox type="error" message={t('programs.loadError')} />
       ) : (
         <>
           <div className="space-y-6">
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">교육 정보</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('programs.info')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <strong>교육명:</strong> {program.programName}
+                  <strong>{t('programs.name')}:</strong> {program.programName}
                 </div>
                 <div>
-                  <strong>카테고리:</strong> <StatusLabel statusCode={program.category} />
+                  <strong>{t('programs.category')}:</strong>{' '}
+                  <StatusLabel statusCode={program.category} />
                 </div>
                 <div>
-                  <strong>교육 시간:</strong> {program.trainingHour}시간
+                  <strong>{t('programs.hours')}:</strong>{' '}
+                  {t('common.hours', { count: program.trainingHour })}
                 </div>
                 <div>
-                  <strong>교육 방식:</strong> {program.isOnline ? '온라인' : '오프라인'}
+                  <strong>{t('programs.mode')}:</strong>{' '}
+                  {program.isOnline ? t('programs.online') : t('programs.offline')}
                 </div>
                 <div>
-                  <strong>시작일:</strong> {program.startDate}
+                  <strong>{t('programs.startDate')}:</strong> {program.startDate}
                 </div>
                 <div>
-                  <strong>상태:</strong> <StatusLabel statusCode={program.statusCode} />
+                  <strong>{t('common.status')}:</strong>{' '}
+                  <StatusLabel statusCode={program.statusCode} />
                 </div>
               </div>
             </div>
 
             <div className="bg-blue-50 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 mb-3">
-                지정된 직원 목록 ({program.designatedEmployee.length}명)
+                {t('programs.assignedEmployees', { count: program.designatedEmployee.length })}
               </h4>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {program.designatedEmployee.length > 0 ? (
@@ -73,7 +79,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
                           </div>
                           {employee.completedAt && (
                             <div className="text-xs text-gray-500">
-                              완료일: {employee.completedAt}
+                              {t('common.completedAt', { date: employee.completedAt })}
                             </div>
                           )}
                         </div>
@@ -86,7 +92,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
                     </div>
                   ))
                 ) : (
-                  <div className="text-center text-gray-500 py-4">지정된 직원이 없습니다.</div>
+                  <div className="text-center text-gray-500 py-4">{t('programs.noAssigned')}</div>
                 )}
               </div>
             </div>

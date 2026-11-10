@@ -1,4 +1,5 @@
 import { type Tab } from '@/app/types/NavigationType';
+import type hrmKo from '@/i18n/messages/hrm/ko.json';
 import EmployeeManagement from '@/app/(private)/hrm/components/tabs/mainTab/EmployeeManagement';
 import PayrollManagement from '@/app/(private)/hrm/components/tabs/mainTab/PayrollManagement';
 import AttendanceManagement from '@/app/(private)/hrm/components/tabs/mainTab/AttendanceManagement';
@@ -10,77 +11,80 @@ import LeaveTab from '@/app/(private)/hrm/components/tabs/subTab/attendanceTab/L
 import AvailableProgramTab from '@/app/(private)/hrm/components/tabs/subTab/trainingTab/AvailableProgramTab';
 import EmployeeTrainingTab from '@/app/(private)/hrm/components/tabs/subTab/trainingTab/EmployeeTrainingTab';
 
+/** name 은 메시지 키(hrm.tabs.<키>). 글자는 탭을 그리는 컴포넌트가 바꾼다 */
+export type HrmTab = Omit<Tab, 'name'> & { name: keyof typeof hrmKo.tabs };
+
 // main tab - hrm 탭 전환
-export const HRM_TABS: Tab[] = [
+export const HRM_TABS: HrmTab[] = [
   {
     id: 'employee-management',
-    name: '직원관리',
+    name: 'employees',
     icon: 'ri-user-settings-line',
     component: EmployeeManagement,
   },
   {
     id: 'payroll-management',
-    name: '급여관리',
+    name: 'payroll',
     icon: 'ri-money-dollar-circle-line',
     component: PayrollManagement,
   },
   {
     id: 'attendance-management',
-    name: '근태관리',
+    name: 'attendance',
     icon: 'ri-time-line',
     component: AttendanceManagement,
   },
   {
     id: 'training-management',
-    name: '교육관리',
+    name: 'training',
     icon: 'ri-graduation-cap-line',
     component: TrainingManagement,
   },
 ];
 
 // sub tab - 직원관리 탭
-export const HR_TABS: Tab[] = [
+export const HR_TABS: HrmTab[] = [
   {
     id: 'employees',
-    name: '직원정보',
+    name: 'employeeInfo',
     icon: 'ri-user-line',
     component: EmployeesTab,
   },
   {
     id: 'organization',
-    name: '부서관리',
+    name: 'departments',
     icon: 'ri-building-line',
     component: DepartmentsTab,
   },
 ];
 
 // sub tab - 근태관리 탭
-export const ATTENDANCE_TABS: Tab[] = [
+export const ATTENDANCE_TABS: HrmTab[] = [
   {
     id: 'attendance',
-    name: '출퇴근 기록',
+    name: 'attendanceRecords',
     icon: 'ri-time-line',
     component: AttendanceTab,
   },
   {
     id: 'leave',
-    name: '휴가 관리',
+    name: 'leave',
     icon: 'ri-calendar-line',
     component: LeaveTab,
   },
 ];
 
 // sub tab - 교육관리 탭
-export const TRAINING_TABS: Tab[] = [
+export const TRAINING_TABS: HrmTab[] = [
   {
     id: 'attendance',
-    name: '직원별 교육 상태',
+    name: 'employeeTraining',
     icon: 'ri-time-line',
     component: EmployeeTrainingTab,
   },
   {
     id: 'leave',
-    name: '교육 프로그램 목록',
+    name: 'programs',
     icon: 'ri-calendar-line',
     component: AvailableProgramTab,
   },

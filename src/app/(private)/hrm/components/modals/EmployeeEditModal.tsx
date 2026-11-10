@@ -6,6 +6,7 @@ import { type ModalProps } from '@/app/components/common/modal/types';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { fetchDepartmentsDropdown, fetchPositionsDropdown } from '../../api/hrm.api';
 import { Dropdown } from '@everp/ui';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -21,6 +22,7 @@ interface EmployeeEditModalProps extends ModalProps {
 }
 
 export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
+  const t = useTranslations('hrm');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedPosition, setSelectedPosition] = useState('');
 
@@ -45,14 +47,14 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const mutation = useUpdateEmployee({
     onSuccess: () => {
       removeAllModals();
-      toast.success('직원 정보가 수정되었습니다.');
+      toast.success(t('employees.updated'));
     },
-    onError: (error) => toast.error(`직원 정보 수정에 실패했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('employees.updateError', { message: errorMessageOf(error) })),
   });
 
   const handleSave = () => {
     if (!selectedDepartment || !selectedPosition) {
-      toast.warning('부서와 직급을 모두 입력해주세요.');
+      toast.warning(t('employees.selectBoth'));
       return;
     }
 
@@ -71,14 +73,18 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.name')}
+            </label>
             <div className="text-sm text-gray-900">{employee.name}</div>
           </div>
         </div>
 
         <div className="flex gap-3">
           <div>
-            <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">부서</label>
+            <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">
+              {t('common.department')}
+            </label>
             <Dropdown
               items={departmentsOptions}
               value={selectedDepartment}
@@ -86,18 +92,20 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
                 setSelectedDepartment(dept);
                 setSelectedPosition('');
               }}
-              placeholder="부서 선택"
+              placeholder={t('common.selectDepartment')}
             />
           </div>
 
           {selectedDepartment && (
             <div className="fade-in">
-              <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">직급</label>
+              <label className="block pl-1 text-sm font-medium text-gray-700 mb-1">
+                {t('common.position')}
+              </label>
               <Dropdown
                 items={positionData ?? []}
                 value={selectedPosition}
                 onChange={setSelectedPosition}
-                placeholder="직급 선택"
+                placeholder={t('common.selectPosition')}
               />
             </div>
           )}
@@ -105,31 +113,46 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.hireDate')}
+            </label>
             <div className="text-sm text-gray-900">{employee.hireDate}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.birthDate')}
+            </label>
             <div className="text-sm text-gray-900">{employee.birthDate}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.phone')}
+            </label>
             <div className="text-sm text-gray-900">{employee.phone}</div>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('common.email')}
+          </label>
           <div className="text-sm text-gray-900">{employee.email}</div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('common.address')}
+          </label>
           <div className="text-sm text-gray-900">{employee.address}</div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button label="저장" size="sm" onClick={handleSave} loading={mutation.isPending} />
+        <Button
+          label={t('common.save')}
+          size="sm"
+          onClick={handleSave}
+          loading={mutation.isPending}
+        />
       </div>
     </>
   );

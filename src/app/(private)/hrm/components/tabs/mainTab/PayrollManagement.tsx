@@ -1,6 +1,7 @@
 'use client';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   fetchDepartmentsDropdown,
   fetchPayRollList,
@@ -26,6 +27,7 @@ import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { formatCurrency } from '@/app/utils/number';
 export default function PayrollManagement() {
+  const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { openModal } = useModal();
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
@@ -65,18 +67,18 @@ export default function PayrollManagement() {
     const years = [];
     for (let i = 0; i < 5; i++) {
       const year = (currentYear - i).toString();
-      years.push({ key: year, value: `${year}년` });
+      years.push({ key: year, value: t('payroll.year', { year }) });
     }
     return years;
-  }, []);
+  }, [t]);
 
   // 월 옵션
   const monthOptions: KeyValueItem[] = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => {
       const month = String(i + 1);
-      return { key: month, value: `${i + 1}월` };
+      return { key: month, value: t('month', { month }) };
     });
-  }, []);
+  }, [t]);
 
   const payrollQueryParams = useMemo(
     (): PayrollRequestParams => ({
@@ -116,7 +118,7 @@ export default function PayrollManagement() {
 
   const handleViewPayrollDetail = (payroll: PayRollList) => {
     openModal(PayrollDetailModal, {
-      title: '급여 상세정보',
+      title: t('payroll.detailTitle'),
       payrollId: payroll.payrollId,
       payStatus: payroll.pay.statusCode,
       width: '600px',
@@ -127,55 +129,55 @@ export default function PayrollManagement() {
   const columns: TableColumn<PayrollItem>[] = [
     {
       key: 'employeeName',
-      label: '이름',
+      label: t('common.name'),
       render: (_, p) => p.employee.employeeName,
     },
     {
       key: 'department',
-      label: '부서',
+      label: t('common.department'),
       render: (_, p) => p.employee.department,
     },
     {
       key: 'position',
-      label: '직급',
+      label: t('common.position'),
       render: (_, p) => p.employee.position,
     },
     {
       key: 'basePay',
-      label: '기본급',
+      label: t('payroll.basePay'),
       align: 'right',
       render: (_, p) => formatCurrency(p.pay.basePay),
     },
     {
       key: 'overtimePay',
-      label: '초과근무비',
+      label: t('payroll.overtimePay'),
       align: 'right',
       render: (_, p) => formatCurrency(p.pay.overtimePay),
     },
     {
       key: 'deduction',
-      label: '공제액',
+      label: t('payroll.deduction'),
       align: 'right',
       render: (_, p) => formatCurrency(p.pay.deduction),
     },
     {
       key: 'netPay',
-      label: '실지급액',
+      label: t('payroll.netPay'),
       align: 'right',
       render: (_, p) => formatCurrency(p.pay.netPay),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('common.status'),
       render: (_, p) => <StatusLabel statusCode={p.pay.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('common.actions'),
       align: 'right',
       render: (_, p) => (
         <Button
-          label="상세보기"
+          label={t('common.viewDetail')}
           size="sm"
           variant="ghost"
           onClick={() => handleViewPayrollDetail(p)}
@@ -189,13 +191,13 @@ export default function PayrollManagement() {
       <div className="flex justify-between items-center gap-2 shrink-0">
         <div className="flex pl-1 gap-2">
           <Dropdown
-            placeholder="전체 년도"
+            placeholder={t('payroll.allYears')}
             items={yearOptions}
             value={selectedYear}
             onChange={(year: string) => setSelectedYear(year)}
           />
           <Dropdown
-            placeholder="전체 월"
+            placeholder={t('payroll.allMonths')}
             items={monthOptions}
             value={selectedMonth}
             onChange={(month: string) => setSelectedMonth(month)}
@@ -204,7 +206,7 @@ export default function PayrollManagement() {
 
         <div className="flex items-center gap-3">
           <Dropdown
-            placeholder="전체 부서"
+            placeholder={t('common.allDepartments')}
             items={departmentsOptions}
             value={selectedDepartment}
             onChange={(dept: string) => {
@@ -213,7 +215,7 @@ export default function PayrollManagement() {
             }}
           />
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={t('common.allStatuses')}
             items={statusOptions}
             value={selectedPayrollStatus}
             onChange={(status: string) => {
@@ -225,22 +227,22 @@ export default function PayrollManagement() {
             value={keyword}
             onChange={handleKeywordChange}
             icon="ri-search-line"
-            placeholder="직원 이름 검색"
+            placeholder={t('common.searchName')}
           />
         </div>
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="급여 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('payroll.loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="급여 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('payroll.loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={payrollList}
           keyExtractor={(row) => row.payrollId}
-          emptyMessage="급여 데이터가 없습니다."
+          emptyMessage={t('payroll.empty')}
           className="flex-1 min-h-0"
         />
       )}

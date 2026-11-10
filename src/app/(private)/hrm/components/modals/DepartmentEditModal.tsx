@@ -6,6 +6,7 @@ import {
   type DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDeptMemberDropdown } from '@/app/(private)/hrm/api/hrm.api';
@@ -23,6 +24,7 @@ interface DepartmentEditModalProps extends ModalProps {
 }
 
 export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
+  const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const { removeAllModals } = useModal();
@@ -40,10 +42,11 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
 
   const { mutate: updateDepartments, isPending } = useUpdateDepartment({
     onSuccess: () => {
-      toast.success('부서 정보가 수정되었습니다.');
+      toast.success(t('departments.updated'));
       removeAllModals();
     },
-    onError: (error) => toast.error(`수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) =>
+      toast.error(t('departments.updateError', { message: errorMessageOf(error) })),
   });
 
   const handleSave = () => {
@@ -56,7 +59,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   };
 
   if (isPending) {
-    return <LoadingMessage message="부서 정보 수정하는중..." />;
+    return <LoadingMessage message={t('departments.updating')} />;
   }
 
   return (
@@ -67,20 +70,22 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
             htmlFor={`${fieldId}-field0`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            부서명
+            {t('departments.name')}
           </label>
           <input
             id={`${fieldId}-field0`}
             type="text"
             required
-            defaultValue={departments.departmentName + '팀'}
+            defaultValue={departments.departmentName}
             disabled
             className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">부서장</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('departments.manager')}
+          </label>
           <Dropdown
             items={memberOptions ?? []}
             value={selectedManager}
@@ -94,7 +99,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
             htmlFor={`${fieldId}-field1`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            설명
+            {t('common.description')}
           </label>
           <textarea
             id={`${fieldId}-field1`}
@@ -107,7 +112,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
       </div>
 
       <div className="flex justify-end pt-4 mt-6 border-t border-gray-200">
-        <Button label="저장" size="sm" onClick={handleSave} />
+        <Button label={t('common.save')} size="sm" onClick={handleSave} />
       </div>
     </>
   );
