@@ -1,0 +1,111 @@
+{
+  "tabs": {
+    "sales": "매출 전표 관리",
+    "purchase": "매입 전표 관리",
+    "overview": "재무 현황"
+  },
+  "stats": {
+    "totalSales": "총 매출 (AR)",
+    "totalPurchases": "총 매입 (AP)",
+    "netProfit": "순이익",
+    "purchaseAmount": "매입 금액"
+  },
+  "invoiceType": {
+    "AR": "매출 전표",
+    "AP": "매입 전표"
+  },
+  "invoiceList": {
+    "salesTitle": "매출 전표 목록",
+    "purchaseTitle": "매입 전표 목록",
+    "statusFilter": {
+      "ALL": "전체 상태",
+      "UNPAID": "미납",
+      "PENDING": "확인대기",
+      "PAID": "완납"
+    },
+    "requestSettlement": "미수 처리 신청",
+    "completeError": "등록 중 오류가 발생했습니다. {message}",
+    "loading": "전표 목록을 불러오는 중입니다...",
+    "loadError": "전표 목록을 불러오는 중 오류가 발생했습니다.",
+    "empty": "등록된 전표가 없습니다.",
+    "selectRow": "{invoiceNumber} 선택",
+    "detail": "상세",
+    "columns": {
+      "invoiceNumber": "전표번호",
+      "connection": "거래처",
+      "totalAmount": "금액",
+      "issueDate": "발행일",
+      "dueDate": "만기일",
+      "statusCode": "상태",
+      "referenceNumber": "참조번호",
+      "action": "작업"
+    }
+  },
+  "invoiceDetail": {
+    "title": "전표 상세 정보",
+    "loading": "전표 상세 정보를 불러오는 중입니다...",
+    "loadError": "전표 상세 정보를 불러오는 중 오류가 발생했습니다.",
+    "invoiceNumber": "전표번호",
+    "invoiceType": "전표유형",
+    "connection": "거래처",
+    "note": "메모",
+    "referenceNumber": "참조번호",
+    "issueDate": "전표 발생일",
+    "dueDate": "납기일",
+    "status": "상태",
+    "items": "주문 품목",
+    "columns": {
+      "itemName": "품목",
+      "quantity": "수량",
+      "unit": "단위",
+      "unitPrice": "단가",
+      "totalPrice": "금액"
+    },
+    "total": "총 금액",
+    "close": "닫기"
+  },
+  "overview": {
+    "series": {
+      "sales": "매출",
+      "purchases": "매입",
+      "netProfit": "순이익"
+    },
+    "monthly": {
+      "region": "월별 매출과 매입",
+      "title": "월별 매출과 매입(12개월)",
+      "showChart": "차트로 보기",
+      "showTable": "표로 보기",
+      "loading": "월별 매출과 매입 불러오는 중",
+      "loadError": "월별 매출과 매입을 불러오지 못했습니다.",
+      "empty": "표시할 월별 데이터가 없습니다.",
+      "table": "월별 매출과 매입 표",
+      "chart": "월별 매출과 매입 차트",
+      "month": "월",
+      "monthTick": "{month}월",
+      "summary": "{months}개월 매출 {sales}, 매입 {purchases}, 순이익 {netProfit}. 순이익이 가장 큰 달은 {bestMonth}({bestProfit}), 가장 작은 달은 {worstMonth}({worstProfit}).",
+      "lossMonths": "적자 {count}개월.",
+      "noLoss": "적자 달 없음."
+    },
+    "aging": {
+      "title": "미수금 경과",
+      "loading": "미수금 경과 불러오는 중",
+      "loadError": "미수금 경과를 불러오지 못했습니다.",
+      "table": "미수금 경과 표",
+      "summary": "{asOf} 기준 미수금 {total} 중 기한 지난 금액 <strong>{overdue}({rate}%)</strong>.",
+      "columns": {
+        "bucket": "경과",
+        "amount": "금액",
+        "count": "건수",
+        "share": "비율"
+      },
+      "count": "{count}건",
+      "buckets": {
+        "CURRENT": "기한 전",
+        "D1_30": "1~30일",
+        "D31_60": "31~60일",
+        "D61_90": "61~90일",
+        "D90_PLUS": "90일 초과"
+      }
+    }
+  }
+}

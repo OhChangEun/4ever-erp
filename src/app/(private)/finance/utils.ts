@@ -1,17 +1,8 @@
-import { FINANCE_TABS } from '@/app/(private)/finance/finance.tabs';
-import { type Tab } from '@/app/types/NavigationType';
-// 전표 유형 텍스트
-export const getInvoiceType = (type: string) => {
-  switch (type) {
-    case 'AR':
-      return '매출 전표';
-    case 'AP':
-      return '매입 전표';
-    default:
-      return '매출 전표';
-  }
-};
+import { FINANCE_TABS, type FinanceTab } from '@/app/(private)/finance/finance.tabs';
 
-export const getFinanceTabsByRole = (role: string): Tab[] => {
+// 전표 유형의 메시지 키(finance.invoiceType.<키>). 모르는 값은 매출로 본다(예전과 같다)
+export const getInvoiceTypeKey = (type: string): 'AR' | 'AP' => (type === 'AP' ? 'AP' : 'AR');
+
+export const getFinanceTabsByRole = (role: string): FinanceTab[] => {
   return FINANCE_TABS.filter((tab) => !tab.roles || tab.roles.includes(role));
 };
