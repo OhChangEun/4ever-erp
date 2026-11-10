@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
 import { mapRoleToKorean } from '@/app/components/header/ProfileDropdown';
-import { requestLogout } from '@/lib/auth/logout';
+import { logout } from '@/lib/auth/logout';
 
 interface SidebarProfileProps {
   isExpanded: boolean;
@@ -44,14 +44,8 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
     };
   }, [isOpen]);
 
-  const handleLogout = async () => {
-    // 세션 쿠키는 httpOnly라 브라우저 JS가 못 지운다 - 서버가 지운다
-    const idpLogoutUrl = await requestLogout();
-    clearUserInfo();
-    // OIDC 면 IdP 로그아웃 화면을 거쳐 /login 으로 돌아온다(전체 페이지 이동)
-    if (idpLogoutUrl) window.location.assign(idpLogoutUrl);
-    else router.replace('/login');
-  };
+  // 세션 쿠키는 httpOnly 라 서버가 지운다. OIDC 면 IdP 로그아웃 화면을 거쳐 /login 으로 돌아온다(src/lib/auth/logout.ts)
+  const handleLogout = () => logout({ clearUserInfo, goToLogin: () => router.replace('/login') });
 
   const handleProfile = (e: React.MouseEvent) => {
     if (role === 'SUPPLIER_ADMIN' || role === 'CUSTOMER_ADMIN') {
