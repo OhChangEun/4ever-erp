@@ -104,3 +104,23 @@ test('포털이 받지 않는 역할(재무 관리자)은 거절한다', async (
   // role=alert 는 Next 의 라우트 안내 요소에도 있어 문구로 찾는다
   await expect(page.getByText(/이 계정은 포털을 쓸 수 없습니다/)).toBeVisible();
 });
+
+/** 포털 화면 접근성(axe, WCAG 2.1 AA). erp 와 같은 기준: critical, serious 0 */
+test('포털 홈, 주문, 로그아웃 화면에 axe critical, serious 위반이 없다', async ({ page }) => {
+  const { default: AxeBuilder } = await import('@axe-core/playwright');
+  const scan = async () => {
+    const result = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    return result.violations
+      .filter((v) => v.impact === 'critical' || v.impact === 'serious')
+      .map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
+  };
+  await loginErp(page, 'supplier', '/purchase');
+  await openPortal(page, '/');
+  expect(await scan()).toEqual([]);
+  await openPortal(page, '/orders');
+  expect(await scan()).toEqual([]);
+  await page.goto(`${PORTAL}/signed-out`);
+  expect(await scan()).toEqual([]);
+});
