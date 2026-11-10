@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ResponsiveContainer, Sankey, Tooltip } from 'recharts';
 import type { NodeProps, LinkProps } from 'recharts/types/chart/Sankey';
 import { compactWon, formatCurrency } from '@/app/utils/number';
@@ -25,6 +26,7 @@ export default function SupplyFlowChart({
   links: ChartLink[];
   describedBy: string;
 }) {
+  const t = useTranslations('dashboard.supplyFlow');
   const kindOf = (index: number) => nodes[index]?.kind ?? 'flow';
   const maxDepth = Math.max(0, ...longestDepths(nodes.length, links));
 
@@ -63,7 +65,7 @@ export default function SupplyFlowChart({
   };
 
   return (
-    <div role="img" aria-label="자재 흐름 차트" aria-describedby={describedBy} className="h-72">
+    <div role="img" aria-label={t('chart')} aria-describedby={describedBy} className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <Sankey
           data={{ nodes, links }}

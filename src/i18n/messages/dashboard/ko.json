@@ -1,0 +1,157 @@
+{
+  "stats": {
+    "totalSales": "총 매출",
+    "totalPurchases": "총 매입",
+    "netProfit": "순이익",
+    "totalEmployees": "총 직원 수"
+  },
+  "employeeCount": "{value}명",
+  "quickActions": {
+    "title": "빠른 작업",
+    "newQuoteModalTitle": "신규 견적 요청",
+    "items": {
+      "purchaseRequest": {
+        "title": "구매 요청",
+        "description": "새로운 구매 요청을 생성합니다."
+      },
+      "purchaseOrders": {
+        "title": "발주서 확인",
+        "description": "발주서 목록을 조회합니다."
+      },
+      "purchaseInventory": {
+        "title": "재고 확인",
+        "description": "재고 현황을 확인합니다."
+      },
+      "suppliers": {
+        "title": "공급사 확인",
+        "description": "공급업체 정보를 확인합니다."
+      },
+      "salesQuotes": {
+        "title": "견적서 확인",
+        "description": "견적 목록을 조회합니다."
+      },
+      "salesOrders": {
+        "title": "주문서 확인",
+        "description": "주문 목록을 조회합니다."
+      },
+      "customers": {
+        "title": "고객사 확인",
+        "description": "고객 목록을 조회합니다."
+      },
+      "salesAnalytics": {
+        "title": "매출 분석 확인",
+        "description": "매출 통계를 조회합니다."
+      },
+      "inventory": {
+        "title": "재고 확인",
+        "description": "재고 목록을 조회합니다."
+      },
+      "shipping": {
+        "title": "출고 상태 확인",
+        "description": "생산중, 출고 준비 완료 목록을 조회합니다."
+      },
+      "receiving": {
+        "title": "입고 상태 확인",
+        "description": "입고 대기, 입고 완료 목록을 조회합니다."
+      },
+      "warehouses": {
+        "title": "창고 확인",
+        "description": "창고 현황을 조회합니다."
+      },
+      "salesVouchers": {
+        "title": "매출 전표 확인",
+        "description": "매출 전표 확인 목록을 조회합니다."
+      },
+      "purchaseVouchers": {
+        "title": "매입 전표 확인",
+        "description": "매입 전표 목록을 조회합니다."
+      },
+      "employees": {
+        "title": "직원 정보 확인",
+        "description": "직원 목록을 조회합니다."
+      },
+      "payroll": {
+        "title": "급여 확인",
+        "description": "급여 목록을 조회합니다."
+      },
+      "attendance": {
+        "title": "근태 확인",
+        "description": "근태 기록을 조회합니다."
+      },
+      "training": {
+        "title": "교육 정보 확인",
+        "description": "교육 현황을 조회합니다."
+      },
+      "productionQuotes": {
+        "title": "견적 확인",
+        "description": "견적 목록을 조회합니다."
+      },
+      "mps": {
+        "title": "MPS 확인",
+        "description": "주생산계획을 조회합니다."
+      },
+      "mrp": {
+        "title": "MRP 확인",
+        "description": "자재소요계획을 조회합니다."
+      },
+      "mes": {
+        "title": "MES 확인",
+        "description": "제조실행시스템을 조회합니다."
+      },
+      "bom": {
+        "title": "BOM 확인",
+        "description": "BOM 목록을 조회합니다."
+      },
+      "editMaterials": {
+        "title": "자재 목록 수정",
+        "description": "제공 가능한 자재 목록을 수정합니다."
+      },
+      "newQuote": {
+        "title": "신규 견적서 작성",
+        "description": "새로운 견적서를 작성합니다."
+      },
+      "editCompany": {
+        "title": "자사 정보 수정",
+        "description": "자사 정보를 수정합니다."
+      }
+    }
+  },
+  "workflow": {
+    "title": "워크플로우 현황",
+    "empty": "표시할 워크플로우가 없습니다.",
+    "unknownName": "알수없음",
+    "tabs": {
+      "PO": "발주 프로세스",
+      "AP": "매입 프로세스",
+      "AR": "매출 프로세스",
+      "SO": "주문 프로세스",
+      "PR": "구매 프로세스",
+      "ATT": "근태 프로세스",
+      "LV": "휴가 프로세스",
+      "QT": "견적 프로세스",
+      "MES": "생산 프로세스",
+      "unknown": "알 수 없는 프로세스"
+    }
+  },
+  "supplyFlow": {
+    "title": "이번 달 자재 흐름(금액)",
+    "showChart": "차트로 보기",
+    "showTable": "표로 보기",
+    "loading": "자재 흐름 불러오는 중",
+    "loadError": "자재 흐름을 불러오지 못했습니다.",
+    "empty": "이번 달 자재 흐름이 없습니다.",
+    "cyclic": "흐름이 되돌아가는 구간이 있어 차트로 그리지 않았습니다. 표로 보입니다.",
+    "unknownLinks": "알 수 없는 흐름 {count}건은 뺐습니다.",
+    "summary": "단계별 금액: {stages}. 새는 금액{dropNames} <strong>{dropped}{rate}</strong>.",
+    "dropNames": "({names})",
+    "rate": "(시작 금액의 {rate}%)",
+    "rateUnknown": "(시작 금액을 정할 수 없음)",
+    "chart": "자재 흐름 차트",
+    "table": "자재 흐름 표",
+    "columns": {
+      "from": "출발",
+      "to": "도착",
+      "amount": "금액"
+    }
+  }
+}

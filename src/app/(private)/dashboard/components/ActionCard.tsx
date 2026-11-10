@@ -1,18 +1,20 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { getColorClasses } from '../dashboard.utils';
 import { type ActionCardProps } from '../types/ActionCardType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { NewOrderModal } from '@/app/(private)/sales/ui';
 
-export const ActionCard = ({ title, description, icon, color, href }: ActionCardProps) => {
+export const ActionCard = ({ actionKey, icon, color, href }: ActionCardProps) => {
+  const t = useTranslations('dashboard.quickActions');
   const { openModal } = useModal();
 
   const colors = getColorClasses(color);
   const handleClick = (e: React.MouseEvent) => {
-    if (title === '신규 견적서 작성') {
+    if (actionKey === 'newQuote') {
       e.preventDefault(); // 페이지 이동 막기
 
-      openModal(NewOrderModal, { title: '신규 견적 요청', width: '900px' });
+      openModal(NewOrderModal, { title: t('newQuoteModalTitle'), width: '900px' });
     }
   };
   return (
@@ -25,8 +27,10 @@ export const ActionCard = ({ title, description, icon, color, href }: ActionCard
         <i className={`${icon} ${colors.icon} text-lg`}></i>
       </div>
       <div className="flex-1">
-        <h3 className="text-sm font-medium text-gray-900 group-hover:text-gray-800">{title}</h3>
-        <p className="text-xs text-gray-500 mt-1">{description}</p>
+        <h3 className="text-sm font-medium text-gray-900 group-hover:text-gray-800">
+          {t(`items.${actionKey}.title`)}
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">{t(`items.${actionKey}.description`)}</p>
       </div>
       <i className="ri-arrow-right-line text-gray-400 group-hover:text-gray-600 transition-colors duration-200"></i>
     </Link>

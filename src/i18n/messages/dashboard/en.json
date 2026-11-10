@@ -1,0 +1,157 @@
+{
+  "stats": {
+    "totalSales": "Total sales",
+    "totalPurchases": "Total purchases",
+    "netProfit": "Net profit",
+    "totalEmployees": "Total employees"
+  },
+  "employeeCount": "{value}",
+  "quickActions": {
+    "title": "Quick actions",
+    "newQuoteModalTitle": "New quote request",
+    "items": {
+      "purchaseRequest": {
+        "title": "Purchase request",
+        "description": "Create a new purchase request."
+      },
+      "purchaseOrders": {
+        "title": "Purchase orders",
+        "description": "View purchase orders."
+      },
+      "purchaseInventory": {
+        "title": "Inventory",
+        "description": "Check stock levels."
+      },
+      "suppliers": {
+        "title": "Suppliers",
+        "description": "View supplier details."
+      },
+      "salesQuotes": {
+        "title": "Quotes",
+        "description": "View quotes."
+      },
+      "salesOrders": {
+        "title": "Sales orders",
+        "description": "View orders."
+      },
+      "customers": {
+        "title": "Customers",
+        "description": "View customers."
+      },
+      "salesAnalytics": {
+        "title": "Sales analytics",
+        "description": "View sales statistics."
+      },
+      "inventory": {
+        "title": "Inventory",
+        "description": "View inventory."
+      },
+      "shipping": {
+        "title": "Shipping status",
+        "description": "View items in production and ready to ship."
+      },
+      "receiving": {
+        "title": "Receiving status",
+        "description": "View items pending and received."
+      },
+      "warehouses": {
+        "title": "Warehouses",
+        "description": "View warehouse status."
+      },
+      "salesVouchers": {
+        "title": "Sales vouchers",
+        "description": "View sales vouchers."
+      },
+      "purchaseVouchers": {
+        "title": "Purchase vouchers",
+        "description": "View purchase vouchers."
+      },
+      "employees": {
+        "title": "Employees",
+        "description": "View employees."
+      },
+      "payroll": {
+        "title": "Payroll",
+        "description": "View payroll records."
+      },
+      "attendance": {
+        "title": "Attendance",
+        "description": "View attendance records."
+      },
+      "training": {
+        "title": "Training",
+        "description": "View training status."
+      },
+      "productionQuotes": {
+        "title": "Quotes",
+        "description": "View quotes."
+      },
+      "mps": {
+        "title": "MPS",
+        "description": "View the master production schedule."
+      },
+      "mrp": {
+        "title": "MRP",
+        "description": "View material requirements planning."
+      },
+      "mes": {
+        "title": "MES",
+        "description": "View the manufacturing execution system."
+      },
+      "bom": {
+        "title": "BOM",
+        "description": "View bills of materials."
+      },
+      "editMaterials": {
+        "title": "Edit material list",
+        "description": "Edit the materials you can supply."
+      },
+      "newQuote": {
+        "title": "New quote",
+        "description": "Write a new quote."
+      },
+      "editCompany": {
+        "title": "Edit company info",
+        "description": "Edit your company details."
+      }
+    }
+  },
+  "workflow": {
+    "title": "Workflow status",
+    "empty": "No workflows to show.",
+    "unknownName": "Unknown",
+    "tabs": {
+      "PO": "Purchase orders",
+      "AP": "Payables",
+      "AR": "Receivables",
+      "SO": "Sales orders",
+      "PR": "Purchase requests",
+      "ATT": "Attendance",
+      "LV": "Leave",
+      "QT": "Quotes",
+      "MES": "Production",
+      "unknown": "Unknown process"
+    }
+  },
+  "supplyFlow": {
+    "title": "Material flow this month (amount)",
+    "showChart": "Show chart",
+    "showTable": "Show table",
+    "loading": "Loading material flow",
+    "loadError": "Couldn't load material flow.",
+    "empty": "No material flow this month.",
+    "cyclic": "Some flows loop back, so the chart isn't drawn. Showing a table instead.",
+    "unknownLinks": "{count, plural, one {Excluded # unknown flow.} other {Excluded # unknown flows.}}",
+    "summary": "By stage: {stages}. Drop-off{dropNames} <strong>{dropped}{rate}</strong>.",
+    "dropNames": " ({names})",
+    "rate": " ({rate}% of the starting amount)",
+    "rateUnknown": " (starting amount unknown)",
+    "chart": "Material flow chart",
+    "table": "Material flow table",
+    "columns": {
+      "from": "From",
+      "to": "To",
+      "amount": "Amount"
+    }
+  }
+}
