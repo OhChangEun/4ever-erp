@@ -63,10 +63,6 @@
       "available": "신청 가능한 교육이 없습니다.",
       "completed": "수료한 교육이 없습니다."
     },
-    "category": {
-      "BASIC_TRAINING": "기초 교육",
-      "TECHNICAL_TRAINING": "기술 교육"
-    },
     "hours": "{hours}시간",
     "apply": "교육 신청하기",
     "completedOn": "수료일: {date}",

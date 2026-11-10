@@ -1,5 +1,13 @@
 {
   "status": {
+    "ON_TIME": "On time",
+    "출근전": "Before check-in",
+    "정상": "On time",
+    "지각": "Late",
+    "퇴근완료": "Checked out",
+    "SAFETY": "Safety",
+    "QUALITY": "Quality",
+    "SYSTEM": "System",
     "APPROVED": "Approved",
     "APPROVAL": "Approved",
     "PENDING": "Pending",
