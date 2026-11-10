@@ -7,15 +7,6 @@ import { NewOrderModal } from '@/app/(private)/sales/ui';
 export const ActionCard = ({ title, description, icon, color, href }: ActionCardProps) => {
   const { openModal } = useModal();
 
-  // {
-  //   showNewOrderModal && (
-  //     <NewOrderModal
-  //       showNewOrderModal={showNewOrderModal}
-  //       setShowNewOrderModal={setShowNewOrderModal}
-  //     />
-  //   );
-  // }
-
   const colors = getColorClasses(color);
   const handleClick = (e: React.MouseEvent) => {
     if (title === '신규 견적서 작성') {

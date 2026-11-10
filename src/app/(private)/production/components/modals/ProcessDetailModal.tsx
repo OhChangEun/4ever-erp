@@ -60,34 +60,6 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     return minutes > 0 ? `${wholeHours}시간 ${minutes}분` : `${wholeHours}시간`;
   };
 
-  // const getStatusBadge = (statusCode: string) => {
-  //   const statusConfig: Record<string, { label: string; class: string }> = {
-  //     PLANNED: { label: '대기', class: 'bg-yellow-100 text-yellow-800' },
-  //     IN_PROGRESS: { label: '진행중', class: 'bg-blue-100 text-blue-800' },
-  //     COMPLETED: { label: '완료', class: 'bg-green-100 text-green-800' },
-  //     ON_HOLD: { label: '보류', class: 'bg-red-100 text-red-800' },
-  //   };
-  //   const config = statusConfig[statusCode] || {
-  //     label: statusCode,
-  //     class: 'bg-gray-100 text-gray-800',
-  //   };
-  //   return (
-  //     <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.class}`}>
-  //       {config.label}
-  //     </span>
-  //   );
-  // };
-
-  // const getProcessStatusIcon = (statusCode: string) => {
-  //   const icons: Record<string, string> = {
-  //     COMPLETED: 'ri-checkbox-circle-fill text-green-600',
-  //     IN_PROGRESS: 'ri-play-circle-fill text-blue-600',
-  //     PLANNED: 'ri-time-line text-gray-400',
-  //     ON_HOLD: 'ri-pause-circle-fill text-red-500',
-  //   };
-  //   return icons[statusCode] || 'ri-time-line text-gray-400';
-  // };
-
   // 로딩 중
   if (isLoading) {
     return (

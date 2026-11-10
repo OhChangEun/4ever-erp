@@ -2,7 +2,6 @@
 
 import { BomListResponse } from '@/app/(private)/production/types/BomListApiType';
 import BomDetailModal from '@/app/(private)/production/components/modals/BomDetailModal';
-// import BomInputFormModal from '@/app/(private)/production/components/modals/BomInputFormModal';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchBomList } from '../../api/production.api';
 import { useModal } from '@/app/components/common/modal/useModal';

@@ -46,18 +46,6 @@ export default function NotificationDropdown() {
     queryFn: () => fetchNotifications(currentPage, ITEMS_PER_PAGE),
   });
 
-  // // SSE 연결 (실시간 알림)
-  // const { error } = useNotificationSSE({
-  //   enabled: true,
-  //   onAlarm: (alarm) => {
-  //     console.log('New alarm received:', alarm);
-  //     // 토스트 알림 등 추가 처리 가능
-  //   },
-  //   onUnreadCountChange: (count) => {
-  //     setSseUnreadCount(count);
-  //   },
-  // });
-
   // 읽음 처리의 무효화는 notification.mutations.ts 한 곳.
   const { mutate: readAll } = useReadAllNotifications({ onSuccess: () => setCurrentPage(0) });
   const { mutate: readOne } = useReadNotification();
