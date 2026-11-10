@@ -35,7 +35,9 @@
     "checkInSuccess": "출근 처리가 완료되었습니다.",
     "checkInError": "출근 처리 중 오류가 발생했습니다. {message}",
     "checkOutSuccess": "퇴근 처리가 완료되었습니다.",
-    "checkOutError": "퇴근 처리 중 오류가 발생했습니다. {message}"
+    "checkOutError": "퇴근 처리 중 오류가 발생했습니다. {message}",
+    "todayError": "오늘 근태를 불러오지 못했습니다.",
+    "recentError": "최근 근태 기록을 불러오지 못했습니다."
   },
   "leave": {
     "request": "휴가 신청",
