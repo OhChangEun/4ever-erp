@@ -6,6 +6,12 @@ export const STATUS_COLOR_MAP: Partial<Record<string, string>> = {
   PAYROLL_PAID: 'bg-green-100 text-green-700 border-green-300',
   PAYROLL_UNPAID: 'bg-red-100 text-red-700 border-red-300',
 
+  ON_TIME: 'bg-green-100 text-green-700 border-green-300',
+  정상: 'bg-green-100 text-green-700 border-green-300',
+  출근전: 'bg-green-100 text-green-700 border-green-300',
+  지각: 'bg-orange-100 text-orange-700 border-orange-300',
+  퇴근완료: 'bg-gray-100 text-gray-700 border-gray-300',
+
   ANNUAL: 'bg-green-100 text-green-700 border-green-300',
   SICK: 'bg-blue-100 text-blue-700 border-blue-300',
 

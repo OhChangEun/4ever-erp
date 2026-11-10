@@ -13,11 +13,7 @@ import { useCheckIn, useCheckOut, useRequestVacation } from '../profile.mutation
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { profileKeys } from '../profile.keys';
-
-// 서버가 보내는 근태 상태 값(한국어). 비교에만 쓰고 번역하지 않는다
-const BEFORE_CHECK_IN = '출근전';
-const CHECKED_OUT = '퇴근완료';
-const ON_TIME = '정상';
+import StatusLabel from '@/app/components/common/StatusLabel';
 
 export default function AttendanceRecord() {
   const t = useTranslations('myProfile');
@@ -32,8 +28,9 @@ export default function AttendanceRecord() {
   });
 
   const handleCheckInOut = () => {
+    if (!todayAttendanceRes || isCheckedOut) return;
     // 상태는 서버 응답에서 바로 읽는다. 출퇴근 훅은 재조회가 끝날 때까지 pending 이라 두 번 눌리지 않는다
-    if (todayAttendanceRes?.status === BEFORE_CHECK_IN) {
+    if (isBeforeCheckIn) {
       checkIn();
     } else {
       checkOut();
@@ -87,6 +84,14 @@ export default function AttendanceRecord() {
     queryKey: profileKeys.attendanceRecords(),
     queryFn: getAttendaceRecords,
   });
+
+  // 프로필 게이트웨이는 응답을 그대로 전달한다. 상태 코드 대신 시간 기록으로 동작을 정한다.
+  const isCheckedOut = Boolean(
+    (todayAttendanceRes?.checkOutTime && todayAttendanceRes.checkOutTime !== '-') ||
+    todayAttendanceRes?.status === '퇴근완료',
+  );
+  const isBeforeCheckIn =
+    !isCheckedOut && (!todayAttendanceRes?.checkInTime || todayAttendanceRes.checkInTime === '-');
 
   return (
     <>
@@ -143,30 +148,26 @@ export default function AttendanceRecord() {
               </div>
               <div>
                 <span className="text-xs text-gray-500">{t('attendance.status')}</span>
-                <p
-                  className={`text-sm font-medium ${todayAttendanceRes?.status === BEFORE_CHECK_IN ? 'text-green-600' : 'text-blue-600'}`}
-                >
-                  {todayAttendanceRes?.status}
-                </p>
+                <StatusLabel statusCode={todayAttendanceRes?.status} />
               </div>
             </div>
 
             <button
               onClick={handleCheckInOut}
-              disabled={todayAttendanceRes?.status === CHECKED_OUT || isCheckingIn || isCheckingOut}
+              disabled={!todayAttendanceRes || isCheckedOut || isCheckingIn || isCheckingOut}
               className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
     ${
-      todayAttendanceRes?.status === CHECKED_OUT
+      isCheckedOut
         ? 'bg-gray-400 text-white cursor-not-allowed'
-        : todayAttendanceRes?.status === BEFORE_CHECK_IN
+        : isBeforeCheckIn
           ? 'bg-green-600 text-white hover:bg-green-700'
           : 'bg-red-600 text-white hover:bg-red-700'
     }
   `}
             >
-              {todayAttendanceRes?.status === CHECKED_OUT
+              {isCheckedOut
                 ? t('attendance.checkedOut')
-                : todayAttendanceRes?.status === BEFORE_CHECK_IN
+                : isBeforeCheckIn
                   ? t('attendance.checkIn')
                   : t('attendance.checkOut')}
             </button>
@@ -184,15 +185,7 @@ export default function AttendanceRecord() {
                   >
                     <div className="flex items-center space-x-3">
                       <span className="text-sm font-medium text-gray-900">{record.date}</span>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                          record.status === ON_TIME
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {record.status}
-                      </span>
+                      <StatusLabel statusCode={record.status} />
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-gray-500">
