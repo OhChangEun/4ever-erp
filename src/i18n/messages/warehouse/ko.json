@@ -36,6 +36,7 @@
     "namePlaceholder": "창고명을 입력하세요",
     "code": "창고 코드",
     "type": "창고 유형",
+    "typeUnspecified": "미지정",
     "status": "상태",
     "location": "위치",
     "locationPlaceholder": "창고 위치를 입력하세요",

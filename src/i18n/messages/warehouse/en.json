@@ -36,6 +36,7 @@
     "namePlaceholder": "Enter a warehouse name",
     "code": "Warehouse code",
     "type": "Warehouse type",
+    "typeUnspecified": "Unspecified",
     "status": "Status",
     "location": "Location",
     "locationPlaceholder": "Enter the warehouse location",

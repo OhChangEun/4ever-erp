@@ -133,4 +133,31 @@ describe('재고 코드 표시 결함', () => {
     if (row instanceof HTMLElement) expect(within(row).getByText('Transfer')).toBeInTheDocument();
     expect(container.querySelectorAll('.ri-arrow-down-line')).toHaveLength(2);
   });
+
+  // 예전엔 참조 번호 줄(REF | 메모)과 바로 아래 줄에 같은 메모를 두 번 그렸다
+  it('상세 이동 기록은 메모를 한 번만 보이고 참조 번호는 그대로 보인다', async () => {
+    server.use(
+      http.get(INVENTORY_ENDPOINTS.INVENTORY_DETAIL('item-1001'), () =>
+        ok({
+          ...inventory,
+          supplierCompanyName: 'Supplier',
+          warehouseId: 'wh-1',
+          warehouseNumber: 'WH-1',
+          location: 'A-1',
+          lastModified: '2026-11-10',
+          description: '',
+          stockMovement: [
+            { ...movements[0], referenceNumber: 'PO-2026-001', note: '긴급 보충분' },
+            { ...movements[1], referenceNumber: 'SO-2026-002', note: '' },
+          ],
+        }),
+      ),
+    );
+    renderWithProviders(
+      <InventoryDetailModal id="detail" onClose={() => {}} selectedItemId="item-1001" />,
+    );
+    expect(await screen.findAllByText(/긴급 보충분/)).toHaveLength(1);
+    expect(screen.getByText('PO-2026-001')).toBeInTheDocument();
+    expect(screen.getByText('SO-2026-002')).toBeInTheDocument();
+  });
 });

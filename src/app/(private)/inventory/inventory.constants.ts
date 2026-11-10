@@ -23,3 +23,7 @@ export const LOW_STOCK_STATUS_OPTIONS = [
   'CAUTION',
   'URGENT',
 ] as const satisfies readonly (keyof typeof lowStockKo.list.statusFilter)[];
+
+// 원자재 창고 유형의 별칭. 응답 계약이 string 이라 MATERIAL 대신 올 수 있다(목 응답이 RAW).
+// 표시 라벨(inventory.labels.ts)과 창고 수정 폼의 요청 코드 변환(warehouse.constants.ts)이 같이 쓴다
+export const WAREHOUSE_MATERIAL_ALIASES: readonly string[] = ['RAW', 'RAW_MATERIAL'];

@@ -239,12 +239,11 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
                       <div className="text-xs text-gray-500">
                         {FormatDate(movement.movementDate)}| {movement.managerName}
                       </div>
-                      <div className="text-xs text-blue-600">
-                        {movement.referenceNumber} | {movement.note}
-                      </div>
-                      {/* {movement.note && ( */}
-                      <div className="text-xs text-gray-500 mt-1">{movement.note}</div>
-                      {/* )} */}
+                      {/* 메모는 아래 줄 한 곳에만. 예전엔 참조 번호 옆에도 붙여 두 번 보였다 */}
+                      <div className="text-xs text-blue-600">{movement.referenceNumber}</div>
+                      {movement.note && (
+                        <div className="text-xs text-gray-500 mt-1">{movement.note}</div>
+                      )}
                     </div>
                   </div>
                 ))}

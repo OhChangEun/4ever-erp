@@ -16,6 +16,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { DEFAULT_WAREHOUSE_TYPE, WAREHOUSE_TYPE_OPTIONS } from '../../warehouse.constants';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
@@ -25,7 +26,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
   const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
     warehouseName: '',
-    warehouseType: '',
+    warehouseType: DEFAULT_WAREHOUSE_TYPE,
     location: '',
     managerId: '',
     managerPhone: '',
@@ -115,9 +116,11 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
           value={formData.warehouseType}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
         >
-          <option value="MATERIAL">{t('warehouseType.MATERIAL')}</option>
-          <option value="ITEM">{t('warehouseType.ITEM')}</option>
-          <option value="ETC">{t('warehouseType.ETC')}</option>
+          {WAREHOUSE_TYPE_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {t(`warehouseType.${option}`)}
+            </option>
+          ))}
         </select>
       </div>
 

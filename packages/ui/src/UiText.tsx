@@ -40,7 +40,13 @@ export interface UiText {
       values: { start: string; end: string; min: string; max: string },
     ) => string;
   };
-  inputList: { title: string; add: string; remove: string };
+  inputList: {
+    title: string;
+    add: string;
+    remove: string;
+    /** 입력칸 이름. position 은 화면에 보이는 1부터의 순번이다 */
+    item: (position: number) => string;
+  };
   dropdownInputModal: { open: string };
   dropdownInputListModal: { open: string };
 }
@@ -71,7 +77,12 @@ export const defaultUiText: UiText = {
     summary: (label, { start, end, min, max }) =>
       `${label}: 시작 ${start}, 끝 ${end}, 최저 ${min}, 최고 ${max}`,
   },
-  inputList: { title: '공정 순서 입력', add: '공정 추가', remove: '항목 삭제' },
+  inputList: {
+    title: '공정 순서 입력',
+    add: '공정 추가',
+    remove: '항목 삭제',
+    item: (position) => `${position}번 항목`,
+  },
   dropdownInputModal: { open: '입력 창 열기' },
   dropdownInputListModal: { open: '목록 입력 창 열기' },
 };

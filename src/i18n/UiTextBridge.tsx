@@ -51,6 +51,7 @@ export default function UiTextBridge({ children }: { children: ReactNode }) {
         title: t('inputList.title'),
         add: t('inputList.add'),
         remove: t('inputList.remove'),
+        item: (position) => t('inputList.item', { position: String(position) }),
       },
       dropdownInputModal: { open: t('dropdownInputModal.open') },
       dropdownInputListModal: { open: t('dropdownInputListModal.open') },

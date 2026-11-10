@@ -35,4 +35,26 @@ describe('입력 아이콘 버튼의 접근 가능한 이름', () => {
     expect(screen.getByRole('textbox')).toHaveValue('조립');
     expect(screen.getByRole('button', { name: '항목 삭제' })).toBeInTheDocument();
   });
+
+  // 입력칸은 화면에 보이는 순번(키가 아니라 위치)으로 이름을 받는다
+  it('입력칸을 순번 이름으로 찾아 고칠 수 있다', async () => {
+    const onChange = vi.fn();
+    render(
+      <InputList
+        initialItems={[
+          { key: 7, value: '조립' },
+          { key: 9, value: '도장' },
+        ]}
+        onChange={onChange}
+      />,
+    );
+
+    await userEvent.type(screen.getByRole('textbox', { name: '2번 항목' }), '2');
+
+    expect(screen.getByRole('textbox', { name: '1번 항목' })).toHaveValue('조립');
+    expect(onChange).toHaveBeenLastCalledWith([
+      { key: 7, value: '조립' },
+      { key: 9, value: '도장2' },
+    ]);
+  });
 });
