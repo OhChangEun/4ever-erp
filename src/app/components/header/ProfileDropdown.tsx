@@ -67,8 +67,6 @@ export default function ProfileDropdown() {
   const userName = userInfo?.name;
   const userEmail = userInfo?.email;
 
-  console.log(userEmail);
-
   // 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

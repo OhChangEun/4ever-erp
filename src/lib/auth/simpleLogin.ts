@@ -29,9 +29,9 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   },
   {
     loginId: 'mm_admin',
-    displayName: '생산 관리자',
+    displayName: '구매 관리자',
     role: 'MM_ADMIN',
-    department: '생산팀',
+    department: '구매팀',
     icon: 'ri-settings-3-line',
     menus: ['대시보드', '영업', '생산', '구매', '재고'],
   },

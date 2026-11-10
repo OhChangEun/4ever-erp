@@ -95,6 +95,7 @@
   },
   "partnerProfile": {
     "title": "Customer profile",
+    "supplierTitle": "Supplier profile",
     "businessNumber": "Business registration no. {number}",
     "address": "Address",
     "officePhone": "Main phone",
@@ -110,7 +111,7 @@
       "PR": "Purchasing",
       "SD": "Sales",
       "IM": "Inventory",
-      "FCM": "Facilities",
+      "FCM": "Finance",
       "HRM": "HR",
       "PP": "Production",
       "CUS": "Customer",

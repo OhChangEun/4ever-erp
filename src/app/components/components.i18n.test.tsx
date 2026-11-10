@@ -123,7 +123,7 @@ describe('공통 화면 영어(i18n 10)', () => {
     expect(screen.getByRole('button', { name: 'Mark all as read' })).toBeInTheDocument();
     expect(screen.getByText('Purchasing')).toBeInTheDocument();
     expect(screen.getByText('HR')).toBeInTheDocument();
-    expect(screen.getByText('Facilities')).toBeInTheDocument();
+    expect(screen.getByText('Finance')).toBeInTheDocument();
     expect(screen.getAllByText('2026.11.10 09:05')).toHaveLength(3);
     unmount();
 
