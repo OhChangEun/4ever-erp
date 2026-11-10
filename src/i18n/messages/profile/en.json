@@ -1,0 +1,77 @@
+{
+  "page": {
+    "title": "My profile",
+    "subtitle": "Personal details and work status",
+    "edit": "Edit profile",
+    "cancelEdit": "Cancel editing"
+  },
+  "employment": {
+    "department": "Department",
+    "position": "Position",
+    "hireDate": "Hire date",
+    "serviceYears": "Years of service",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "editSuccess": "Your profile has been updated.",
+    "editError": "Couldn't update your profile. {message}"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "subtitle": "Check in, check out, and work status",
+    "today": "Today's attendance",
+    "checkInTime": "Check-in",
+    "checkOutTime": "Check-out",
+    "workHours": "Hours worked",
+    "status": "Status",
+    "checkIn": "Check in",
+    "checkOut": "Check out",
+    "checkedOut": "Checked out",
+    "recent": "Recent attendance",
+    "empty": "No attendance records.",
+    "checkInSuccess": "You're checked in.",
+    "checkInError": "Couldn't check in. {message}",
+    "checkOutSuccess": "You're checked out.",
+    "checkOutError": "Couldn't check out. {message}"
+  },
+  "leave": {
+    "request": "Request leave",
+    "hint": "Enter your leave details and submit the request.",
+    "type": "Leave type",
+    "ANNUAL": "Annual leave",
+    "SICK": "Sick leave",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "success": "Your leave request was received.",
+    "error": "Couldn't submit the leave request. {message}"
+  },
+  "training": {
+    "title": "Training",
+    "subtitle": "Your courses and enrollment",
+    "tab": {
+      "progress": "In progress",
+      "available": "Available",
+      "completed": "Completed"
+    },
+    "empty": {
+      "progress": "No courses in progress.",
+      "available": "No courses available.",
+      "completed": "No completed courses."
+    },
+    "category": {
+      "BASIC_TRAINING": "Basic training",
+      "TECHNICAL_TRAINING": "Technical training"
+    },
+    "hours": "{hours, plural, one {# hour} other {# hours}}",
+    "apply": "Enroll",
+    "completedOn": "Completed on: {date}",
+    "completed": "Completed",
+    "applySuccess": "You're enrolled.",
+    "applyError": "Couldn't enroll in the course. {message}"
+  }
+}

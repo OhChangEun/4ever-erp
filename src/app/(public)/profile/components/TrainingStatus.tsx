@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { type TrainingResponse } from '../ProfileType';
 import { getAvailableTraining, getCompletedTraining, getProgressTraining } from '../profile.api';
 import { useRegisterTraining } from '../profile.mutations';
@@ -11,14 +12,14 @@ import { errorMessageOf } from '@/lib/AppError';
 import { profileKeys } from '../profile.keys';
 
 const TrainingStatus = () => {
+  const t = useTranslations('myProfile.training');
   const toast = useToast();
   const [activeTab, setActiveTab] = useState('progress');
   const getTrainingCategoryText = (status: string) => {
     switch (status) {
       case 'BASIC_TRAINING':
-        return '기초 교육';
       case 'TECHNICAL_TRAINING':
-        return '기술 교육';
+        return t(`category.${status}`);
       default:
         return ''; // 알 수 없는 분류는 비워 둔다 (이전과 같은 표시, noImplicitReturns 대응)
     }
@@ -40,8 +41,8 @@ const TrainingStatus = () => {
   });
 
   const { mutate: registerTraining, isPending: isRegistering } = useRegisterTraining({
-    onSuccess: () => toast.success('교육 신청이 완료되었습니다.'),
-    onError: (error) => toast.error(`교육 신청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('applySuccess')),
+    onError: (error) => toast.error(t('applyError', { message: errorMessageOf(error) })),
   });
 
   const handleApplyTraining = (trainingId: string) => {
@@ -56,8 +57,8 @@ const TrainingStatus = () => {
             <i className="ri-graduation-cap-line text-orange-600 text-lg"></i>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">교육 현황</h2>
-            <p className="text-sm text-gray-500">사내 교육 수강 및 신청 관리</p>
+            <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+            <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
         </div>
       </div>
@@ -73,7 +74,7 @@ const TrainingStatus = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            수강중인 교육
+            {t('tab.progress')}
           </button>
           <button
             onClick={() => setActiveTab('available')}
@@ -83,7 +84,7 @@ const TrainingStatus = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            신청 가능한 교육
+            {t('tab.available')}
           </button>
           <button
             onClick={() => setActiveTab('completed')}
@@ -93,7 +94,7 @@ const TrainingStatus = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            수료한 교육
+            {t('tab.completed')}
           </button>
         </nav>
       </div>
@@ -115,8 +116,8 @@ const TrainingStatus = () => {
                         </div>
                         <p className="text-xs text-gray-500">{training.description}</p>
                         <p className="text-xs text-gray-500">
-                          {getTrainingCategoryText(training.category)} | {training.durationHours}
-                          시간
+                          {getTrainingCategoryText(training.category)} |{' '}
+                          {t('hours', { hours: training.durationHours })}
                         </p>
                       </div>
                       <StatusLabel statusCode={training.trainingStatus} />
@@ -125,7 +126,7 @@ const TrainingStatus = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">수강중인 교육이 없습니다.</p>
+              <p className="text-sm text-gray-500 text-center py-6">{t('empty.progress')}</p>
             )}
           </>
         )}
@@ -146,8 +147,8 @@ const TrainingStatus = () => {
                         </div>
                         <p className="text-xs font-medium text-gray-500">{training.description}</p>
                         <p className="text-xs text-gray-500 mb-2">
-                          {getTrainingCategoryText(training.category)} | {training.durationHours}
-                          시간
+                          {getTrainingCategoryText(training.category)} |{' '}
+                          {t('hours', { hours: training.durationHours })}
                         </p>
                       </div>
                     </div>
@@ -157,13 +158,13 @@ const TrainingStatus = () => {
                       disabled={isRegistering}
                       className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                     >
-                      교육 신청하기
+                      {t('apply')}
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">신청 가능한 교육이 없습니다.</p>
+              <p className="text-sm text-gray-500 text-center py-6">{t('empty.available')}</p>
             )}
           </>
         )}
@@ -180,20 +181,22 @@ const TrainingStatus = () => {
                         <h3 className="text-sm font-medium text-gray-900">
                           {training.trainingName}
                         </h3>
-                        <p className="text-xs text-gray-500">{training.durationHours}시간</p>
                         <p className="text-xs text-gray-500">
-                          수료일: {training.complementationDate}
+                          {t('hours', { hours: training.durationHours })}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {t('completedOn', { date: training.complementationDate })}
                         </p>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs text-gray-500">수료</div>
+                        <div className="text-xs text-gray-500">{t('completed')}</div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-6">수료한 교육이 없습니다.</p>
+              <p className="text-sm text-gray-500 text-center py-6">{t('empty.completed')}</p>
             )}
           </>
         )}

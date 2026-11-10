@@ -182,5 +182,68 @@
   },
   "toast": {
     "dismiss": "Dismiss"
+  },
+  "login": {
+    "oidcTitle": "Sign in to 4Ever",
+    "companyAccount": "Sign in with company account",
+    "oidcError": {
+      "access_denied": "Sign-in was canceled.",
+      "no_role": "This account has no EverP role. Ask your administrator for one.",
+      "invalid_transaction": "The sign-in expired or was started in another window. Please try again.",
+      "state_mismatch": "We couldn't verify the sign-in request. Please try again.",
+      "unknown": "Sign-in failed. Please try again."
+    },
+    "demoTitle": "Quick sign-in",
+    "demoHint": "Pick a role card or type an ID.",
+    "idPlaceholder": "Enter ID",
+    "submit": "Sign in",
+    "error": {
+      "empty": "Please enter an ID.",
+      "unknownId": "Pick an ID from the list or enter a valid one.",
+      "failed": "Sign-in failed.",
+      "badResponse": "The server sent an unexpected response.",
+      "network": "Can't reach the server."
+    },
+    "account": {
+      "admin": "Super admin",
+      "mm_admin": "Purchasing manager",
+      "sd_admin": "Sales manager",
+      "fcm_admin": "Finance manager",
+      "hrm_admin": "HR manager",
+      "im_admin": "Inventory manager",
+      "customer": "Customer admin",
+      "supplier": "Supplier admin"
+    },
+    "menu": {
+      "dashboard": "Dashboard",
+      "sales": "Sales",
+      "production": "Production",
+      "purchase": "Purchasing",
+      "inventory": "Inventory",
+      "finance": "Finance",
+      "hrm": "HR",
+      "purchaseManage": "Purchasing",
+      "salesManage": "Sales"
+    }
+  },
+  "auth": {
+    "callback": {
+      "title": "Taking you to sign-in",
+      "body": "Moving to the quick sign-in screen. Please wait a moment.",
+      "stepsTitle": "In progress",
+      "stepPrepare": "Preparing the quick sign-in screen.",
+      "stepReturnTo": "Checking where you came from.",
+      "stepRedirect": "You'll be taken to sign-in when it's ready.",
+      "stuck": "If this screen stays too long, refresh the page or contact your administrator."
+    },
+    "unauthorized": {
+      "title": "Access required",
+      "body": "You don't have permission to open this page. If you should have access, ask your administrator, or check that you signed in with the right role.",
+      "checkTitle": "Check the following.",
+      "checkAccount": "Make sure your account can access this menu.",
+      "checkRequest": "If you need access, contact your administrator to get a role.",
+      "back": "Go back",
+      "home": "Go to home"
+    }
   }
 }
