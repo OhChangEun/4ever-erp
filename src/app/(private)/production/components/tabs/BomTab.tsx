@@ -14,8 +14,10 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 import { Table, type TableColumn } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 export default function BomTab() {
+  const t = useTranslations('production');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -46,12 +48,12 @@ export default function BomTab() {
   const pageInfo = bomResponse?.page;
 
   const handleCreate = () => {
-    openModal(BomInputFormModal, { title: 'BOM 생성', width: '1200px', height: '800px' });
+    openModal(BomInputFormModal, { title: t('bom.create'), width: '1200px', height: '800px' });
   };
 
   const handleViewDetail = (bomId: string) => {
     openModal(BomDetailModal, {
-      title: 'BOM 상세 정보',
+      title: t('bom.detailTitle'),
       bomId: bomId,
       width: '800px',
       height: '700px',
@@ -63,7 +65,7 @@ export default function BomTab() {
   const columns: TableColumn<BomItem>[] = [
     {
       key: 'productName',
-      label: '제품 정보',
+      label: t('bom.productInfo'),
       render: (_, bom) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{bom.productName}</div>
@@ -71,25 +73,25 @@ export default function BomTab() {
         </div>
       ),
     },
-    { key: 'bomNumber', label: 'BOM 번호' },
-    { key: 'version', label: '버전' },
+    { key: 'bomNumber', label: t('common.bomNumber') },
+    { key: 'version', label: t('common.version') },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('common.status'),
       render: (_, bom) => <StatusLabel statusCode={bom.statusCode} />,
     },
     {
       key: 'lastModifiedAt',
-      label: '최종 수정일',
+      label: t('common.lastModified'),
       render: (_, bom) => formatDateTime(bom.lastModifiedAt),
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('bom.action'),
       align: 'right',
       render: (_, bom) => (
         <Button
-          label="상세보기"
+          label={t('bom.viewDetail')}
           variant="ghost"
           size="sm"
           onClick={() => handleViewDetail(bom.bomId)}
@@ -101,18 +103,18 @@ export default function BomTab() {
   return (
     <div className="flex flex-col h-full gap-6">
       <div className="flex items-center justify-end shrink-0">
-        <Button label="BOM 생성" onClick={handleCreate} />
+        <Button label={t('bom.create')} onClick={handleCreate} />
       </div>
 
       {isLoading ? (
         <div className="text-center py-12">
           <i className="ri-loader-4-line animate-spin text-3xl text-gray-400"></i>
-          <p className="mt-3 text-gray-500">로딩 중...</p>
+          <p className="mt-3 text-gray-500">{t('common.loading')}</p>
         </div>
       ) : isError ? (
         <div className="text-center py-12">
           <i className="ri-error-warning-line text-3xl text-red-400"></i>
-          <p className="mt-3 text-red-500">데이터를 불러오는데 실패했습니다.</p>
+          <p className="mt-3 text-red-500">{t('common.loadFailed')}</p>
         </div>
       ) : (
         <Table
@@ -120,7 +122,7 @@ export default function BomTab() {
           columns={columns}
           data={bomList}
           keyExtractor={(row) => row.bomId}
-          emptyMessage="등록된 BOM이 없습니다."
+          emptyMessage={t('bom.empty')}
           className="flex-1 min-h-0"
         />
       )}

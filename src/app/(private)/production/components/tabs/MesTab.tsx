@@ -18,6 +18,7 @@ import ProcessDetailModal from '../modals/ProcessDetailModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { Pagination, TabButtons } from '@everp/ui';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 
 // 간트는 전환할 때만 받는다(시각화 3, 첫 로드 예산)
 const MesGantt = dynamic(() => import('../MesGantt'), {
@@ -25,15 +26,26 @@ const MesGantt = dynamic(() => import('../MesGantt'), {
   loading: () => <div className="h-64" aria-hidden="true" />,
 });
 
-const VIEWS = [
-  { id: 'table', name: '표' },
-  { id: 'gantt', name: '간트' },
+// name 은 메시지 키(production.mes.views.<키>)
+const VIEWS: { id: string; name: 'table' | 'gantt' }[] = [
+  { id: 'table', name: 'table' },
+  { id: 'gantt', name: 'gantt' },
 ];
+
+// 표에 그리는 MES 상태 점 색. 글자는 메시지(production.mes.status.<코드>)
+const MES_STATUS_STYLE: Partial<
+  Record<string, { key: 'WAITING' | 'IN_PROGRESS' | 'COMPLETED'; dot: string; class: string }>
+> = {
+  WAITING: { key: 'WAITING', dot: 'bg-gray-400', class: 'text-gray-500' },
+  IN_PROGRESS: { key: 'IN_PROGRESS', dot: 'bg-blue-500', class: 'text-blue-600' },
+  COMPLETED: { key: 'COMPLETED', dot: 'bg-green-500', class: 'text-green-600' },
+};
 import { Table, type TableColumn } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function MesTab() {
+  const t = useTranslations('production');
   const [selectedMesQuote, setSelectedMesQuote] = useState('');
   const [selectedMesStatus, setSelectedMesStatus] = useState('');
 
@@ -74,7 +86,7 @@ export default function MesTab() {
   const pageInfo = mesResponse?.page;
 
   const handleShowProcessDetail = (mesId: string) => {
-    openModal(ProcessDetailModal, { title: 'MES 현황', mesId: mesId, height: '800px' });
+    openModal(ProcessDetailModal, { title: t('mes.detailTitle'), mesId: mesId, height: '800px' });
   };
 
   const getStepState = (
@@ -109,18 +121,13 @@ export default function MesTab() {
   const columns: TableColumn<MesSummaryItem>[] = [
     {
       key: 'status',
-      label: '상태',
+      label: t('common.status'),
       render: (_, row) => {
-        const statusConfig: Record<string, { label: string; dot: string; class: string }> = {
-          WAITING: { label: '대기중', dot: 'bg-gray-400', class: 'text-gray-500' },
-          IN_PROGRESS: { label: '진행중', dot: 'bg-blue-500', class: 'text-blue-600' },
-          COMPLETED: { label: '완료', dot: 'bg-green-500', class: 'text-green-600' },
-        };
-        const config = statusConfig[row.status] ?? {
-          label: row.status,
-          dot: 'bg-gray-400',
-          class: 'text-gray-400',
-        };
+        const style = MES_STATUS_STYLE[row.status];
+        // 모르는 상태는 코드 그대로(예전과 같음)
+        const config = style
+          ? { label: t(`mes.status.${style.key}`), dot: style.dot, class: style.class }
+          : { label: row.status, dot: 'bg-gray-400', class: 'text-gray-400' };
         return (
           <span className={`flex items-center justify-center gap-1.5 ${config.class}`}>
             <span className={`w-1 h-1 rounded-full shrink-0 ${config.dot}`} />
@@ -131,16 +138,16 @@ export default function MesTab() {
     },
     {
       key: 'quotationNumber',
-      label: '견적번호',
+      label: t('common.quotationNumber'),
       render: (_, row) => <span className="font-medium text-gray-700">{row.quotationNumber}</span>,
     },
     {
       key: 'productName',
-      label: '제품명',
+      label: t('common.productName'),
     },
     {
       key: 'quantity',
-      label: '수량',
+      label: t('common.quantity'),
       render: (_, row) => (
         <span className="text-gray-600">
           {row.quantity} <span className="text-gray-400">{row.uomName}</span>
@@ -149,17 +156,17 @@ export default function MesTab() {
     },
     {
       key: 'startDate',
-      label: '시작일',
+      label: t('mes.startDate'),
       render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.startDate}</span>,
     },
     {
       key: 'endDate',
-      label: '종료일',
+      label: t('mes.endDate'),
       render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.endDate}</span>,
     },
     {
       key: 'sequence',
-      label: '공정 진행',
+      label: t('mes.sequence'),
       render: (_, row) => {
         const currentOpNum = row.currentOperation || 0;
         return (
@@ -228,7 +235,7 @@ export default function MesTab() {
     },
     {
       key: 'progressRate',
-      label: '진행률',
+      label: t('common.progress'),
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <div className="w-40 bg-gray-100 rounded-full h-1.5 overflow-hidden">
@@ -248,10 +255,14 @@ export default function MesTab() {
       <div className="flex items-center justify-end gap-3 shrink-0">
         {/* 보기 전환(DESIGN_GUIDELINES: 툴바 왼쪽 세그먼트, 아이콘 없음) */}
         <div className="mr-auto">
-          <TabButtons tabs={VIEWS} activeTab={view} onTabChange={setView} />
+          <TabButtons
+            tabs={VIEWS.map(({ id, name }) => ({ id, name: t(`mes.views.${name}`) }))}
+            activeTab={view}
+            onTabChange={setView}
+          />
         </div>
         <Dropdown
-          placeholder="견적 선택"
+          placeholder={t('common.selectQuote')}
           items={mrpQuotationOptions}
           value={selectedMesQuote}
           onChange={(quote: string) => {
@@ -261,7 +272,7 @@ export default function MesTab() {
           autoSelectFirst
         />
         <Dropdown
-          placeholder="전체 상태"
+          placeholder={t('common.allStatuses')}
           items={mesStatusOptions}
           value={selectedMesStatus}
           onChange={(status: string) => {
@@ -272,13 +283,13 @@ export default function MesTab() {
 
       <div className="flex flex-col flex-1 min-h-0 bg-white rounded-xl overflow-hidden">
         {isLoading ? (
-          <TableStatusBox type="loading" message="MES 데이터를 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message={t('mes.loading')} />
         ) : isError ? (
-          <TableStatusBox type="error" message="데이터를 불러오는데 실패했습니다." />
+          <TableStatusBox type="error" message={t('common.loadFailed')} />
         ) : view === 'gantt' ? (
           // 결과가 없으면 빈 눈금 대신 표 보기와 같은 안내(리뷰 P2)
           mesListData.length === 0 ? (
-            <TableStatusBox type="empty" message="선택한 조건에 해당하는 작업지시가 없습니다." />
+            <TableStatusBox type="empty" message={t('mes.empty')} />
           ) : (
             <MesGantt rows={mesListData} onSelect={handleShowProcessDetail} />
           )
@@ -289,7 +300,7 @@ export default function MesTab() {
             data={mesListData}
             keyExtractor={(row) => row.mesId}
             onRowClick={(row) => handleShowProcessDetail(row.mesId)}
-            emptyMessage="선택한 조건에 해당하는 작업지시가 없습니다."
+            emptyMessage={t('mes.empty')}
           />
         )}
       </div>

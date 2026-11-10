@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
+import { renderWithProviders as render } from '@/test/render';
 import userEvent from '@testing-library/user-event';
 import BomCostTree from './BomCostTree';
 import type { BomLevelStructureNode } from '../../types/BomDetailApiType';

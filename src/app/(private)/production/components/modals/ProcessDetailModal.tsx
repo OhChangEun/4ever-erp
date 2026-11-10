@@ -13,13 +13,29 @@ import { type ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Button } from '@everp/ui';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
+import { useTranslations } from 'next-intl';
 
 interface MesDetailProps extends ModalProps {
   mesId: string;
 }
 
+/** 결과 안내 문구 키(production.process.<키>). 글자는 그릴 때 바꾼다(언어를 바꿔도 맞게) */
+type ResultMessageKey =
+  | 'startMesSuccess'
+  | 'startMesError'
+  | 'completeMesSuccess'
+  | 'completeMesError'
+  | 'startOperationSuccess'
+  | 'startOperationError'
+  | 'completeOperationSuccess'
+  | 'completeOperationError';
+
 export default function MesDetail({ mesId }: MesDetailProps) {
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const t = useTranslations('production');
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error';
+    key: ResultMessageKey;
+  } | null>(null);
 
   // MES 상세 정보 조회
   const {
@@ -34,30 +50,32 @@ export default function MesDetail({ mesId }: MesDetailProps) {
 
   // mutation 과 무효화 범위(상세, 목록, 통계)는 production.mutations.ts 한 곳. 여기선 결과 메시지만.
   const startMesMutation = useStartMes({
-    onSuccess: () => setMessage({ type: 'success', text: 'MES 작업이 시작되었습니다.' }),
-    onError: () => setMessage({ type: 'error', text: 'MES 시작 중 오류가 발생했습니다.' }),
+    onSuccess: () => setMessage({ type: 'success', key: 'startMesSuccess' }),
+    onError: () => setMessage({ type: 'error', key: 'startMesError' }),
   });
   const completeMesMutation = useCompleteMes({
-    onSuccess: () => setMessage({ type: 'success', text: 'MES 작업이 완료되었습니다.' }),
-    onError: () => setMessage({ type: 'error', text: 'MES 완료 중 오류가 발생했습니다.' }),
+    onSuccess: () => setMessage({ type: 'success', key: 'completeMesSuccess' }),
+    onError: () => setMessage({ type: 'error', key: 'completeMesError' }),
   });
   const startOperationMutation = useStartMesOperation({
-    onSuccess: () => setMessage({ type: 'success', text: '공정이 시작되었습니다.' }),
-    onError: () => setMessage({ type: 'error', text: '공정 시작 중 오류가 발생했습니다.' }),
+    onSuccess: () => setMessage({ type: 'success', key: 'startOperationSuccess' }),
+    onError: () => setMessage({ type: 'error', key: 'startOperationError' }),
   });
   const completeOperationMutation = useCompleteMesOperation({
-    onSuccess: () => setMessage({ type: 'success', text: '공정이 완료되었습니다.' }),
-    onError: () => setMessage({ type: 'error', text: '공정 완료 중 오류가 발생했습니다.' }),
+    onSuccess: () => setMessage({ type: 'success', key: 'completeOperationSuccess' }),
+    onError: () => setMessage({ type: 'error', key: 'completeOperationError' }),
   });
 
   const formatDuration = (hours: number): string => {
     if (!hours || hours === 0) return '-';
     if (hours < 1) {
-      return `${Math.round(hours * 60)}분`;
+      return t('process.minutes', { minutes: Math.round(hours * 60) });
     }
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
-    return minutes > 0 ? `${wholeHours}시간 ${minutes}분` : `${wholeHours}시간`;
+    return minutes > 0
+      ? t('process.hoursMinutes', { hours: wholeHours, minutes })
+      : t('process.hours', { hours: wholeHours });
   };
 
   // 로딩 중
@@ -65,7 +83,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     return (
       <div className="text-center py-12">
         <i className="ri-loader-4-line animate-spin text-3xl text-gray-400"></i>
-        <p className="mt-3 text-gray-500">로딩 중...</p>
+        <p className="mt-3 text-gray-500">{t('common.loading')}</p>
       </div>
     );
   }
@@ -75,7 +93,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     return (
       <div className="text-center py-12">
         <i className="ri-error-warning-line text-3xl text-red-400"></i>
-        <p className="mt-3 text-red-500">데이터를 불러오는데 실패했습니다.</p>
+        <p className="mt-3 text-red-500">{t('common.loadFailed')}</p>
       </div>
     );
   }
@@ -98,7 +116,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
             <i
               className={`mr-2 ${message.type === 'success' ? 'ri-check-line' : 'ri-close-circle-line'}`}
             ></i>
-            {message.text}
+            {t(`process.${message.key}`)}
           </div>
         )}
 
@@ -106,34 +124,34 @@ export default function MesDetail({ mesId }: MesDetailProps) {
         <div className="bg-white p-5 rounded-xl border border-gray-200 space-y-4">
           <div className="flex justify-between items-start flex-col sm:flex-row sm:items-center">
             <h4 className="text-xl font-bold text-gray-900 mb-2 sm:mb-0">
-              작업지시: {mesDetail.mesNumber}
+              {t('process.workOrder', { number: mesDetail.mesNumber })}
             </h4>
             <StatusLabel statusCode={mesDetail.statusCode} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4">
             <div>
-              <div className="text-xs text-gray-500">제품명</div>
+              <div className="text-xs text-gray-500">{t('common.productName')}</div>
               <div className="text-sm font-medium text-gray-900">{mesDetail.productName}</div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">수량</div>
+              <div className="text-xs text-gray-500">{t('common.quantity')}</div>
               <div className="text-sm font-medium text-gray-900">
                 {mesDetail.quantity} {mesDetail.uomName}
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">진행률</div>
+              <div className="text-xs text-gray-500">{t('common.progress')}</div>
               <div className="text-sm font-bold text-blue-600">{mesDetail.progressPercent}%</div>
             </div>
             <div className="flex justify-end items-center space-x-3">
               <Button
-                label="MES 시작"
+                label={t('process.startMes')}
                 disabled={!mesDetail.canStartMes || isProcessing}
                 onClick={() => startMesMutation.mutate(mesId)}
               />
               <Button
-                label="MES 완료"
+                label={t('process.completeMes')}
                 disabled={!mesDetail.canCompleteMes || isProcessing}
                 onClick={() => completeMesMutation.mutate(mesId)}
               />
@@ -143,7 +161,9 @@ export default function MesDetail({ mesId }: MesDetailProps) {
 
         {/* 공정별 상세 */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">공정별 상세 현황 및 제어</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">
+            {t('process.operationsTitle')}
+          </h4>
           <div className="space-y-4">
             {mesDetail.operations.map((operation) => (
               <div
@@ -159,7 +179,9 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                       <div className="text-md font-bold text-gray-900">
                         {operation.operationName}
                       </div>
-                      <div className="text-xs text-gray-500">공정 순서: {operation.sequence}</div>
+                      <div className="text-xs text-gray-500">
+                        {t('process.sequence', { sequence: operation.sequence })}
+                      </div>
                     </div>
                   </div>
                   <StatusLabel statusCode={operation.statusCode} />
@@ -167,21 +189,21 @@ export default function MesDetail({ mesId }: MesDetailProps) {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
                   <div>
-                    <div className="text-xs text-gray-500">담당자</div>
+                    <div className="text-xs text-gray-500">{t('process.manager')}</div>
                     <div className="text-sm font-medium text-gray-900">
                       {operation.manager.name || '-'}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">시작시간</div>
+                    <div className="text-xs text-gray-500">{t('process.startedAt')}</div>
                     <div className="text-sm text-gray-900">{operation.startedAt || '-'}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">종료시간</div>
+                    <div className="text-xs text-gray-500">{t('process.finishedAt')}</div>
                     <div className="text-sm text-gray-900">{operation.finishedAt || '-'}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500">소요시간</div>
+                    <div className="text-xs text-gray-500">{t('process.duration')}</div>
                     <div className="text-sm text-gray-900">
                       {formatDuration(operation.durationHours)}
                     </div>
@@ -205,7 +227,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                           : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
                       }`}
                   >
-                    <i className="ri-play-line mr-1"></i>공정 시작
+                    <i className="ri-play-line mr-1"></i>
+                    {t('process.startOperation')}
                   </button>
                   <button
                     onClick={() =>
@@ -222,7 +245,8 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                           : 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
                       }`}
                   >
-                    <i className="ri-check-line mr-1"></i>공정 완료
+                    <i className="ri-check-line mr-1"></i>
+                    {t('process.completeOperation')}
                   </button>
                 </div>
               </div>
