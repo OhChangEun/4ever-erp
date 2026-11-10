@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/store/authStore';
+import { isLeavingForLogout } from './logout';
 
 /**
  * 세션이 끝났을 때(API 401) 로그인으로 보낸다. QueryCache 안이라 라우터가 없어 전체 새로고침을 쓴다.
@@ -7,6 +8,8 @@ import { useAuthStore } from '@/store/authStore';
  */
 export const redirectToLogin = (): void => {
   if (typeof window === 'undefined') return;
+  // 로그아웃이 IdP 로그아웃 주소로 떠나는 중이면 그 이동을 끊지 않는다
+  if (isLeavingForLogout()) return;
   useAuthStore.getState().clearUserInfo();
   const returnTo = `${window.location.pathname}${window.location.search}`;
   const login = new URL('/login', window.location.origin);
