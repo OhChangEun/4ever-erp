@@ -24,8 +24,12 @@ import { Table, type TableColumn } from '@everp/ui';
 import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
+
 export default function SupplierListTab() {
   const { openModal } = useModal();
+  const t = useTranslations('purchase.supplierList');
+  const tc = useTranslations('purchase.common');
 
   // 공급업체 카테고리 드롭다운
   const { options: supplierCategoryOptions } = useDropdown(
@@ -73,40 +77,40 @@ export default function SupplierListTab() {
     queryFn: () => fetchSupplierList(queryParams),
   });
 
-  if (isLoading) return <p>불러오는 중...</p>;
-  if (isError || !supplierData) return <p>데이터를 불러오지 못했습니다.</p>;
+  if (isLoading) return <p>{t('loading')}</p>;
+  if (isError || !supplierData) return <p>{t('loadError')}</p>;
 
   const suppliers = supplierData.content;
   const pageInfo = supplierData.page;
   const totalPages = pageInfo.totalPages;
 
   const handleViewAddSupplier = () => {
-    openModal(SupplierFormModal, { title: '공급업체 등록', height: '800px' });
+    openModal(SupplierFormModal, { title: t('formModalTitle'), height: '800px' });
   };
 
   const handleViewDetail = (supplierId: string) => {
-    openModal(SupplierDetailModal, { title: '공급업체 상세', supplierId: supplierId });
+    openModal(SupplierDetailModal, { title: t('detailModalTitle'), supplierId: supplierId });
   };
 
   const columns: TableColumn<SupplierListItem>[] = [
     {
       key: 'supplierNumber',
-      label: '공급업체 코드',
+      label: t('columns.number'),
       render: (_, item) => item.supplierInfo.supplierNumber,
     },
     {
       key: 'supplierName',
-      label: '업체명',
+      label: t('columns.name'),
       render: (_, item) => item.supplierInfo.supplierName,
     },
     {
       key: 'category',
-      label: '카테고리',
+      label: t('columns.category'),
       render: (_, item) => item.supplierInfo.category,
     },
     {
       key: 'contact',
-      label: '연락처',
+      label: t('columns.contact'),
       render: (_, item) => (
         <div className="flex flex-col">
           <span>{item.supplierInfo.supplierEmail}</span>
@@ -116,7 +120,7 @@ export default function SupplierListTab() {
     },
     {
       key: 'address',
-      label: '주소',
+      label: t('columns.address'),
       render: (_, item) => (
         <div className="flex flex-col">
           <span>{item.supplierInfo.supplierBaseAddress}</span>
@@ -126,21 +130,21 @@ export default function SupplierListTab() {
     },
     {
       key: 'deliveryLeadTime',
-      label: '배송 기간',
-      render: (_, item) => `${item.supplierInfo.deliveryLeadTime}일`,
+      label: t('columns.leadTime'),
+      render: (_, item) => tc('days', { days: item.supplierInfo.deliveryLeadTime }),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       render: (_, item) => <StatusLabel statusCode={item.supplierInfo.supplierStatusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, item) => (
         <Button
-          label="상세"
+          label={tc('detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -153,11 +157,11 @@ export default function SupplierListTab() {
   return (
     <div className="flex flex-col h-full gap-6">
       <div className="flex justify-between items-center shrink-0">
-        <h3 className="text-lg font-semibold text-gray-900">공급업체 목록</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
         <div className="flex items-center space-x-4">
           {/* 공급업체 카테고리 드롭다운 */}
           <Dropdown
-            placeholder="전체 카테고리"
+            placeholder={t('allCategories')}
             items={supplierCategoryOptions}
             value={selectedCategory}
             onChange={(category: string): void => {
@@ -166,7 +170,7 @@ export default function SupplierListTab() {
             }}
           />
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={tc('allStatuses')}
             items={supplierStatusOptions}
             value={selectedStatus}
             onChange={(status: string): void => {
@@ -175,7 +179,7 @@ export default function SupplierListTab() {
             }}
           />
           <Dropdown
-            placeholder="검색 타입"
+            placeholder={t('searchType')}
             items={supplierSearchTypeOptions}
             value={selectedSearchType}
             onChange={(type: string): void => {
@@ -183,7 +187,7 @@ export default function SupplierListTab() {
               setCurrentPage(1);
             }}
           />
-          <Button label="공급업체 등록" onClick={handleViewAddSupplier} />
+          <Button label={t('create')} onClick={handleViewAddSupplier} />
         </div>
       </div>
 
@@ -192,7 +196,7 @@ export default function SupplierListTab() {
         columns={columns}
         data={suppliers}
         keyExtractor={(row) => row.supplierInfo.supplierId}
-        emptyMessage="공급업체가 없습니다."
+        emptyMessage={t('empty')}
         className="flex-1 min-h-0"
       />
       {/* 페이지네이션 */}

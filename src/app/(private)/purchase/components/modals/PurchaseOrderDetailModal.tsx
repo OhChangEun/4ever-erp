@@ -11,6 +11,7 @@ import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 export interface PurchaseOrderDetailModalProps extends ModalProps {
   purchaseOrderId: string;
 }
@@ -18,6 +19,7 @@ export interface PurchaseOrderDetailModalProps extends ModalProps {
 export default function PurchaseOrderDetailModal({
   purchaseOrderId,
 }: PurchaseOrderDetailModalProps) {
+  const t = useTranslations('purchase.orderDetail');
   const {
     data: order,
     isLoading,
@@ -30,16 +32,11 @@ export default function PurchaseOrderDetailModal({
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading)
-    return <ModalStatusBox type="loading" message="발주서 상세정보를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('loading')} />;
 
   if (errorDialog.isOpen)
     return (
-      <ModalStatusBox
-        type="error"
-        message="발주서 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => errorDialog.dismiss()}
-      />
+      <ModalStatusBox type="error" message={t('loadError')} onClose={() => errorDialog.dismiss()} />
     );
 
   // 불러오는 중, 실패를 먼저 보인다. 예전엔 이 검사가 위에 있어 로딩과 오류 상자가 뜨지 않고 빈 화면이었다
@@ -51,38 +48,40 @@ export default function PurchaseOrderDetailModal({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">발주번호</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('number')}</label>
             <div className="text-lg font-semibold text-gray-900">{order.purchaseOrderNumber}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">공급업체</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('supplier')}</label>
             <div className="text-gray-900">{order.supplierNumber}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('phone')}</label>
             <div className="text-gray-900">{order.managerPhone}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
             <div className="text-blue-600">{order.managerEmail}</div>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">주문일자</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDate')}</label>
             <div className="text-gray-900">{formatDateTime(order.orderDate)}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">납기일</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('dueDate')}</label>
             <div className="text-gray-900">{formatDateTime(order.dueDate)}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('status')}</label>
             <StatusLabel statusCode={order.statusCode} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">총 금액</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('totalAmount')}
+            </label>
             <div className="text-lg font-semibold text-green-600">{order.totalAmount}</div>
           </div>
         </div>
@@ -90,16 +89,24 @@ export default function PurchaseOrderDetailModal({
 
       {/* 주문 품목 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">주문 품목</label>
+        <label className="block text-sm font-medium text-gray-700 mb-3">{t('items')}</label>
         <div className="overflow-x-auto">
           <table className="w-full border border-gray-300 rounded-lg">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-sm font-medium text-gray-700">품목명</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-700">수량</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-700">단위</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-700">단가</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-700">금액</th>
+                <th className="px-4 py-3 text-sm font-medium text-gray-700">
+                  {t('columns.itemName')}
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-gray-700">
+                  {t('columns.quantity')}
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-gray-700">{t('columns.unit')}</th>
+                <th className="px-4 py-3 text-sm font-medium text-gray-700">
+                  {t('columns.unitPrice')}
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-gray-700">
+                  {t('columns.amount')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -122,7 +129,7 @@ export default function PurchaseOrderDetailModal({
             <tfoot className="bg-gray-50">
               <tr>
                 <td colSpan={5} className="px-4 py-3 text-right font-medium">
-                  <span className="pr-6 text-sm text-gray-900">총 금액</span>
+                  <span className="pr-6 text-sm text-gray-900">{t('totalAmount')}</span>
                   <span className="text-3xl text-green-600">
                     {formatCurrency(order.totalAmount)}
                   </span>
@@ -135,7 +142,7 @@ export default function PurchaseOrderDetailModal({
 
       {/* 메모 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">메모</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t('note')}</label>
         <div className="text-gray-900 bg-gray-50 p-3 rounded-lg">{order.note}</div>
       </div>
     </div>

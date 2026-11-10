@@ -34,10 +34,13 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 
 export default function PurchaseRequestListTab() {
   const { openModal } = useModal();
   const toast = useToast();
+  const t = useTranslations('purchase.requestList');
+  const tc = useTranslations('purchase.common');
 
   // 구매 요청 상태 드롭다운
   const { options: purchaseRequestStatusOptions } = useDropdown(
@@ -89,13 +92,12 @@ export default function PurchaseRequestListTab() {
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳.
   const { mutate: approveRequest, isPending: isApproving } = useApprovePurchaseRequest({
-    onSuccess: () => toast.success('구매 요청 승인 완료되었습니다.'),
-    onError: (error) =>
-      toast.error(`구매 요청 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('approveSuccess')),
+    onError: (error) => toast.error(t('approveError', { message: errorMessageOf(error) })),
   });
   const { mutate: rejectRequest, isPending: isRejecting } = useRejectPurchaseRequest({
-    onSuccess: () => toast.success('반려 처리되었습니다.'),
-    onError: (error) => toast.error(`반려 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('rejectSuccess')),
+    onError: (error) => toast.error(t('rejectError', { message: errorMessageOf(error) })),
   });
 
   const requests = requestData?.content || [];
@@ -105,26 +107,26 @@ export default function PurchaseRequestListTab() {
 
   const handleViewDetail = (request: PurchaseRequestListItem): void => {
     openModal(PurchaseRequestDetailModal, {
-      title: '구매 요청 상세 정보',
+      title: t('detailModalTitle'),
       purchaseRequestId: request.purchaseRequisitionId,
     });
   };
 
   const handleViewRequestModal = () => {
     openModal(PurchaseRequestFormModal, {
-      title: '구매 요청 작성',
+      title: t('formModalTitle'),
       height: '800px',
     });
   };
 
   const handleApprove = (purchaseRequestId: string) => {
-    if (confirm('해당 요청을 승인하시겠습니까?')) {
+    if (confirm(t('confirmApprove'))) {
       approveRequest(purchaseRequestId);
     }
   };
 
   const handleReject = (purchaseRequestId: string) => {
-    if (confirm('해당 요청을 반려하시겠습니까?')) {
+    if (confirm(t('confirmReject'))) {
       rejectRequest({ purchaseRequestId, comment: '' });
     }
   };
@@ -132,38 +134,38 @@ export default function PurchaseRequestListTab() {
   const columns: TableColumn<PurchaseRequestListItem>[] = [
     {
       key: 'purchaseRequisitionNumber',
-      label: '구매요청번호',
+      label: t('columns.number'),
       render: (_, r) => (
         <div className="flex flex-col">
           <span>{r.purchaseRequisitionNumber}</span>
         </div>
       ),
     },
-    { key: 'requesterName', label: '요청자' },
-    { key: 'departmentName', label: '부서' },
+    { key: 'requesterName', label: t('columns.requester') },
+    { key: 'departmentName', label: t('columns.department') },
     {
       key: 'requestDate',
-      label: '요청일',
+      label: t('columns.requestDate'),
       render: (_, r) => formatDateTime(r.requestDate),
     },
     {
       key: 'totalAmount',
-      label: '총금액',
+      label: t('columns.totalAmount'),
       render: (_, r) => formatCurrency(r.totalAmount),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       render: (_, r) => <StatusLabel statusCode={r.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, r) => (
         <div className="flex items-center justify-end gap-0.5 -my-1">
           <Button
-            label="상세"
+            label={tc('detail')}
             variant="ghost"
             size="sm"
             className="text-gray-600 hover:bg-gray-100 px-2"
@@ -172,7 +174,7 @@ export default function PurchaseRequestListTab() {
           {r.statusCode === 'PENDING' && (
             <>
               <Button
-                label="승인"
+                label={tc('approve')}
                 variant="ghost"
                 size="sm"
                 className="px-2"
@@ -180,7 +182,7 @@ export default function PurchaseRequestListTab() {
                 loading={isApproving}
               />
               <Button
-                label="반려"
+                label={tc('reject')}
                 variant="ghost"
                 size="sm"
                 className="text-red-600 hover:bg-red-50 px-2"
@@ -207,7 +209,7 @@ export default function PurchaseRequestListTab() {
         />
         <div className="flex items-center space-x-4">
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={tc('allStatuses')}
             items={purchaseRequestStatusOptions}
             value={selectedStatus}
             onChange={(status: string): void => {
@@ -225,29 +227,25 @@ export default function PurchaseRequestListTab() {
               setKeyword(keyword);
               setCurrentPage(1); // 검색 시 페이지 초기화
             }}
-            placeholder="검색어를 입력하세요"
+            placeholder={tc('searchPlaceholder')}
           />
 
           {/* 구매 요청 작성 버튼 */}
-          <Button label="구매 요청 작성" onClick={handleViewRequestModal} />
+          <Button label={t('create')} onClick={handleViewRequestModal} />
         </div>
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="구매 요청 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox
-          type="error"
-          message="구매 요청 목록을 불러오는 중 오류가 발생했습니다."
-          error={error}
-        />
+        <TableStatusBox type="error" message={t('loadError')} error={error} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={requests}
           keyExtractor={(row) => row.purchaseRequisitionId}
-          emptyMessage="구매 요청 정보가 없습니다."
+          emptyMessage={t('empty')}
           className="flex-1 min-h-0"
         />
       )}

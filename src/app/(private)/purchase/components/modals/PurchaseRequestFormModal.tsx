@@ -18,6 +18,7 @@ import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 import { toDateKey } from '@/app/utils/date';
+import { useTranslations } from 'next-intl';
 export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
   const [requestItems, setRequestItems] = useState<PurchaseRequestFormItem[]>([
     {
@@ -33,10 +34,12 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     },
   ]);
   const toast = useToast();
+  const t = useTranslations('purchase.requestForm');
+  const tc = useTranslations('purchase.common');
   // 무효화는 훅이 한다. 여기선 알리고 닫고 폼을 비운다.
   const { mutate: submitPurchaseRequest, isPending } = useCreatePurchaseRequest({
     onSuccess: () => {
-      toast.success(`총 ${requestItems.length}개 품목의 구매 요청이 성공적으로 제출되었습니다.`);
+      toast.success(t('success', { count: requestItems.length }));
       onClose();
       setRequestItems([
         {
@@ -53,7 +56,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       ]);
     },
     onError: (error) => {
-      toast.error(`구매 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`);
+      toast.error(t('error', { message: errorMessageOf(error) }));
     },
   });
 
@@ -115,7 +118,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     );
 
     if (invalidItems.length > 0) {
-      toast.warning('모든 필수 항목을 입력해주세요.');
+      toast.warning(tc('required'));
       return;
     }
 
@@ -141,18 +144,24 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
     <form onSubmit={handleSubmitRequest} className="p-6 space-y-6">
       {/* 요청 정보 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input label="요청 부서" value="생산팀" readOnly disabled />
-        <Input label="요청일" type="text" value={toDateKey(new Date())} readOnly disabled />
+        <Input label={t('department')} value={t('departmentValue')} readOnly disabled />
+        <Input
+          label={t('requestDate')}
+          type="text"
+          value={toDateKey(new Date())}
+          readOnly
+          disabled
+        />
       </div>
 
       {/* 구매 품목 목록 */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-gray-900">구매 품목 목록</h4>
+          <h4 className="text-lg font-semibold text-gray-900">{t('itemsTitle')}</h4>
           <Button
             type="button"
             variant="secondary"
-            label="품목 추가"
+            label={t('addItem')}
             size="sm"
             onClick={addRequestItem}
           />
@@ -162,12 +171,12 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
           <table className="w-full rounded-lg">
             <thead className="bg-gray-50">
               <tr>
-                {PURCHASE_REQUEST_TABLE_HEADERS.map((label) => (
+                {PURCHASE_REQUEST_TABLE_HEADERS.map((column) => (
                   <th
-                    key={label}
+                    key={column ?? 'remove'}
                     className="px-4 py-3 text-xs font-medium text-gray-500 uppercase text-center whitespace-nowrap"
                   >
-                    {label}
+                    {column ? t(`columns.${column}`) : ''}
                   </th>
                 ))}
               </tr>
@@ -181,7 +190,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       type="text"
                       value={item.itemName}
                       onChange={(e) => updateRequestItem(item.id, 'itemName', e.target.value)}
-                      placeholder="품목명 입력"
+                      placeholder={t('placeholders.itemName')}
                       required
                     />
                   </td>
@@ -192,7 +201,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       onChange={(e) =>
                         updateRequestItem(item.id, 'quantity', Number(e.target.value))
                       }
-                      placeholder="수량"
+                      placeholder={t('placeholders.quantity')}
                       required
                     />
                   </td>
@@ -201,7 +210,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       type="text"
                       value={item.uomName}
                       onChange={(e) => updateRequestItem(item.id, 'uomName', e.target.value)}
-                      placeholder="EA, KG 등"
+                      placeholder={t('placeholders.unit')}
                       required
                     />
                   </td>
@@ -212,7 +221,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       onChange={(e) =>
                         updateRequestItem(item.id, 'expectedUnitPrice', Number(e.target.value))
                       }
-                      placeholder="단가"
+                      placeholder={t('placeholders.unitPrice')}
                       required
                     />
                   </td>
@@ -226,7 +235,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       onChange={(e) =>
                         updateRequestItem(item.id, 'preferredSupplierName', e.target.value)
                       }
-                      placeholder="공급업체 입력"
+                      placeholder={t('placeholders.supplier')}
                       required
                     />
                   </td>
@@ -235,19 +244,19 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
                       minDate={new Date()}
                       selectedDate={item.dueDate || null}
                       onDateChange={(date) => updateRequestItem(item.id, 'dueDate', date || '')}
-                      placeholder="납기일 선택"
+                      placeholder={t('placeholders.dueDate')}
                     />
                   </td>
                   <td className="px-4 py-3">
                     <DropdownInputModal
-                      placeholder="사용 목적"
+                      placeholder={t('placeholders.purpose')}
                       value={item.purpose}
                       onSubmit={(value) => updateRequestItem(item.id, 'purpose', value)}
                     />
                   </td>
                   <td className="px-4 py-3">
                     <DropdownInputModal
-                      placeholder="비고"
+                      placeholder={t('placeholders.note')}
                       value={item.note}
                       onSubmit={(value) => updateRequestItem(item.id, 'note', value)}
                     />
@@ -276,7 +285,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
         <div className="mt-4 flex justify-end">
           <div className="bg-gray-50 rounded-lg p-4 min-w-64">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">총 예상 금액:</span>
+              <span className="text-sm font-medium text-gray-700">{t('grandTotal')}</span>
               <span className="text-lg font-bold text-gray-900">
                 {formatCurrency(calculateGrandTotal())}
               </span>
@@ -287,9 +296,9 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
 
       {/* 버튼 */}
       <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-        <Button label="취소" variant="secondary" onClick={onClose} />
+        <Button label={tc('cancel')} variant="secondary" onClick={onClose} />
         <Button
-          label={isPending ? '제출 중...' : '구매 요청 제출'}
+          label={isPending ? t('submitting') : t('submit')}
           type="submit"
           disabled={isPending}
         />

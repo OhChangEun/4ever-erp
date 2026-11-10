@@ -27,10 +27,13 @@ import { type PurchaseOrderListParams } from '@/app/(private)/purchase/types/Pur
 import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { useTranslations } from 'next-intl';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
   const toast = useToast();
+  const t = useTranslations('purchase.orderList');
+  const tc = useTranslations('purchase.common');
 
   // 발주서 타입 드롭다운
   const { options: purchaseOrderStatusOptions } = useDropdown(
@@ -84,17 +87,16 @@ export default function PurchaseOrderListTab() {
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 결과를 알리기만 한다.
   const { mutate: approveOrder, isPending: isApproving } = useApprovePurchaseOrder({
-    onSuccess: () => toast.success('발주서 승인 완료되었습니다.'),
-    onError: (error) => toast.error(`발주서 승인 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('approveSuccess')),
+    onError: (error) => toast.error(t('approveError', { message: errorMessageOf(error) })),
   });
   const { mutate: rejectOrder, isPending: isRejecting } = useRejectPurchaseOrder({
-    onSuccess: () => toast.success('반려 처리되었습니다.'),
-    onError: (error) => toast.error(`반려 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.success(t('rejectSuccess')),
+    onError: (error) => toast.error(t('rejectError', { message: errorMessageOf(error) })),
   });
   const { mutate: startDelivery, isPending: isStartingDelivery } = useStartPurchaseOrderDelivery({
-    onSuccess: () => toast.info('배송이 시작되었습니다.'),
-    onError: (error) =>
-      toast.error(`배송 시작 처리 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onSuccess: () => toast.info(t('deliverySuccess')),
+    onError: (error) => toast.error(t('deliveryError', { message: errorMessageOf(error) })),
   });
 
   const orders = orderData?.content || []; // optional chaining으로 안전하게 처리
@@ -102,19 +104,19 @@ export default function PurchaseOrderListTab() {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const handleApprove = (purchaseOrderId: string) => {
-    if (confirm('해당 요청을 승인하시겠습니까?')) {
+    if (confirm(t('confirmApprove'))) {
       approveOrder(purchaseOrderId);
     }
   };
 
   const handleReject = (purchaseOrderId: string) => {
-    if (confirm('해당 요청을 반려하시겠습니까?')) {
+    if (confirm(t('confirmReject'))) {
       rejectOrder({ purchaseOrderId, reason: '' });
     }
   };
 
   const handleStartDelivery = (purchaseOrderId: string) => {
-    if (confirm('배송을 시작하시겠습니까?')) {
+    if (confirm(t('confirmStartDelivery'))) {
       startDelivery(purchaseOrderId);
     }
   };
@@ -122,7 +124,7 @@ export default function PurchaseOrderListTab() {
   // 상세 보기 모달 핸들러
   const handleViewDetail = (purchaseOrderId: string): void => {
     openModal(PurchaseOrderDetailModal, {
-      title: '발주서 상세정보',
+      title: t('detailModalTitle'),
       purchaseOrderId,
       width: '800px',
     });
@@ -140,7 +142,7 @@ export default function PurchaseOrderListTab() {
 
         <div className="flex items-center gap-2">
           <Dropdown
-            placeholder="전체 상태"
+            placeholder={tc('allStatuses')}
             items={purchaseOrderStatusOptions}
             value={selectedStatus}
             onChange={(status: string) => {
@@ -157,7 +159,7 @@ export default function PurchaseOrderListTab() {
               setKeyword(keyword);
               setCurrentPage(1);
             }}
-            placeholder="검색어를 입력하세요"
+            placeholder={tc('searchPlaceholder')}
             disabled={isSupplier}
           />
         </div>
@@ -166,13 +168,9 @@ export default function PurchaseOrderListTab() {
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="발주서 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox
-          type="error"
-          message="발주서 목록을 불러오는 중 오류가 발생했습니다."
-          error={error}
-        />
+        <TableStatusBox type="error" message={t('loadError')} error={error} />
       ) : (
         <PurchaseOrderTable
           orders={orders}
