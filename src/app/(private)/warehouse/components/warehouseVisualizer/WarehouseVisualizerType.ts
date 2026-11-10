@@ -1,3 +1,4 @@
+import type { ModalProps } from '@/app/components/common/modal/types';
 import type { InventoryResponse } from '@/app/(private)/inventory';
 import type { StockBand } from './stockHeat';
 
@@ -32,10 +33,9 @@ export interface WarehouseCluster {
   items: VisualizerItem[];
 }
 
-export interface Warehouse3DModalProps {
+export interface Warehouse3DModalProps extends ModalProps {
   warehouseId: string;
   warehouseName: string;
-  onClose: () => void;
 }
 
 export interface SceneProps {

@@ -121,3 +121,16 @@ test('창고 3D 에 재고율 목록이 있고 고른 품목의 재고 상세를
   await page.getByRole('button', { name: '재고 상세 열기' }).click();
   await expect(page.getByRole('dialog', { name: '재고 상세' })).toBeVisible();
 });
+
+/** 창고 3D 모달은 공통 모달이다: 제목이 있는 dialog 이고 Esc 로 닫히며 포커스가 3D 보기 버튼으로 돌아온다 */
+test('창고 3D 모달은 Esc 로 닫히고 포커스가 돌아온다', async ({ page }) => {
+  await page.goto('/warehouse');
+  const open = page.getByRole('button', { name: '3D 보기' }).first();
+  await open.click();
+  const dialog = page.getByRole('dialog', { name: /창고 3D 뷰/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('canvas').first()).toBeVisible({ timeout: 20_000 });
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(open).toBeFocused();
+});

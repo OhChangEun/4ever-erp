@@ -14,12 +14,13 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { warehouseKeys } from '@/app/(private)/warehouse/warehouse.keys';
 
 import { Button } from '@everp/ui';
+// three.js 는 3D 보기를 누를 때만 받는다. 틀은 공통 모달이라 Esc, 포커스 가두기, 포커스 되돌리기가 된다
 const Warehouse3DModal = dynamic(
   () => import('./warehouseVisualizer/components/Warehouse3DModal'),
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/40 text-white">
+      <div role="status" className="flex h-96 items-center justify-center text-sm text-gray-500">
         3D 뷰어를 준비하는 중...
       </div>
     ),
@@ -28,13 +29,9 @@ const Warehouse3DModal = dynamic(
 
 const WarehouseList = () => {
   const { openModal } = useModal();
-  const [show3DModal, setShow3DModal] = useState(false);
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
-  const [selectedWarehouseName, setSelectedWarehouseName] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleWarehouseDetail = (warehouseId: string, warehouseName: string) => {
-    setSelectedWarehouseId(warehouseId);
     openModal(WarehouseDetailModal, {
       width: '900px',
       title: '창고 상세 정보',
@@ -45,7 +42,6 @@ const WarehouseList = () => {
   };
 
   const handleWarehouseManage = (warehouseId: string, warehouseName: string) => {
-    setSelectedWarehouseId(warehouseId);
     openModal(ManageWarehouseModal, {
       width: '600px',
       title: `창고 관리 - ${warehouseName}`,
@@ -54,9 +50,12 @@ const WarehouseList = () => {
   };
 
   const handleWarehouse3D = (warehouseId: string, warehouseName: string) => {
-    setSelectedWarehouseId(warehouseId);
-    setSelectedWarehouseName(warehouseName);
-    setShow3DModal(true);
+    openModal(Warehouse3DModal, {
+      title: `창고 3D 뷰 - ${warehouseName}`,
+      width: '900px',
+      warehouseId,
+      warehouseName,
+    });
   };
 
   const queryParams = useMemo(
@@ -175,14 +174,6 @@ const WarehouseList = () => {
           totalPages={totalPages}
           totalElements={pageInfo?.totalElements}
           onPageChange={(page) => setCurrentPage(page)}
-        />
-      )}
-
-      {show3DModal && (
-        <Warehouse3DModal
-          warehouseId={selectedWarehouseId}
-          warehouseName={selectedWarehouseName}
-          onClose={() => setShow3DModal(false)}
         />
       )}
     </div>
