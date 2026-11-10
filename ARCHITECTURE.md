@@ -78,7 +78,7 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 - 쿠키는 포트로 나뉘지 않는다. 같은 localhost 에서 겹치지 않게 포털은 `portal_session`, `portal_oidc_tx` 를 쓴다(`createOidcLoginFlow` 의 `txCookie`).
 - 역할: ALL_ADMIN, SUPPLIER_ADMIN, CUSTOMER_ADMIN 만. 그 밖은 `/signed-out?error=no_role`. 화면 데이터는 고정 값(verified=false).
 - 포털에 `src/proxy.ts`(지나가기만 함)가 있는 이유: 없으면 Next 16.3.4 Turbopack 이 저장소 루트(erp)의 `src/proxy.ts` 를 집어 빌드가 깨진다.
-- 돌리기: `bash dev/keycloak/start.sh`, 클라이언트를 더했으면 `node dev/keycloak/sync-clients.mjs`(이미 있는 realm 에 반영), `pnpm --filter @everp/portal dev` 또는 `pnpm e2e:oidc`(erp 와 포털을 같이 띄운다, `e2e-oidc/sso.spec.ts` 4개). 값은 `dev/keycloak/.env.portal`(git 에 안 올림).
+- 돌리기: `bash dev/keycloak/start.sh`, 클라이언트를 더했으면 `node dev/keycloak/sync-clients.mjs`(이미 있는 realm 에 반영), `pnpm --filter @everp/portal dev` 또는 `pnpm e2e:oidc`(erp 와 포털을 같이 띄운다, `e2e-oidc/sso.spec.ts` 5개, 포털 세 화면 axe 위반 0 포함). 값은 `dev/keycloak/.env.portal`(git 에 안 올림).
 
 ## 5. 서버 상태 레이어
 
