@@ -62,13 +62,15 @@ describe('BOM 원가 트리(시각화 7)', () => {
     await userEvent.click(screen.getByRole('button', { name: '표로 보기' }));
     const table = screen.getByRole('table', { name: 'BOM 원가 표' });
     const rows = within(table).getAllByRole('row').slice(1);
-    expect(rows.map((r) => r.cells[1]?.textContent?.trim())).toEqual([
+    expect(rows.map((r) => r.querySelectorAll('td')[1].textContent.trim())).toEqual([
       '모터',
       '하우징 조립',
       '알루미늄 판',
       '볼트',
       '샤프트',
     ]);
+    // 단가 없는 자재가 아래에 있는 완제품은 표에서도 "이상"
+    expect(rows[0].querySelectorAll('td')[4].textContent).toBe('₩1,400 이상');
   });
 
   it('데이터가 없으면 안내만', () => {

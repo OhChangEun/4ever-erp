@@ -21,6 +21,7 @@ export function buildBomTree(bomData: readonly BomLevelStructureNode[]): BomTree
       unit: node.unit || undefined,
       level: node.level,
       parentId: node.parentId || undefined,
+      unitCost: node.unitCost,
     }));
     const treeData = transformBomDataToTree(nodes);
     if (!treeData) return { treeData: null, error: 'BOM 데이터를 트리 구조로 변환할 수 없습니다.' };

@@ -3076,6 +3076,8 @@ export interface components {
             unit: null | string;
             level: number;
             parentId: null | string;
+            /** @description 자재 1단위 단가(원). 자재(잎)에만 오고 상위는 화면이 하위 합계로 계산한다. 없으면 null(시각화 7, verified=false) */
+            unitCost?: null | number;
         };
         BomRouting: {
             itemName: string;

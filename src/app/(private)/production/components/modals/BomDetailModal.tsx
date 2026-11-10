@@ -11,7 +11,8 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { ConflictDialog } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 
-const BomTreeContainer = dynamic(() => import('../../BomTreeContainer'), {
+// D3 배치와 원가 롤업은 BOM 상세를 열 때만 받는다(시각화 7)
+const BomCostTree = dynamic(() => import('../bom/BomCostTree'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-96 flex items-center justify-center bg-gray-50 rounded-lg">
@@ -229,8 +230,8 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
 
           {/* 레벨 구조 */}
           <div>
-            <h4 className="text-md font-semibold text-gray-900 mb-4">BOM 트리 구조</h4>
-            <BomTreeContainer bomData={bomDetail.levelStructure} />
+            <h4 className="text-md font-semibold text-gray-900 mb-4">BOM 트리와 자재 원가</h4>
+            <BomCostTree bomData={bomDetail.levelStructure} />
           </div>
 
           {/* 공정 라우팅 정보 */}
