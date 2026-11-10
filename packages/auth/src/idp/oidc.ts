@@ -1,4 +1,3 @@
-import 'server-only';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { z } from 'zod';
 import type { IdTokenClaims, IdentityProvider, LogoutClaims, TokenSet } from './types';

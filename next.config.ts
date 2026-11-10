@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true, // 리액트 스트릭트 모드 (개발 시 문제 탐지)
 
   // 워크스페이스 패키지는 TS 소스를 그대로 내보낸다. Next 가 변환한다(모노레포 2 카드)
-  transpilePackages: ['@everp/ui'],
+  transpilePackages: ['@everp/ui', '@everp/auth'],
 
   compiler: {
     // 프로덕션에서 console.log 제거

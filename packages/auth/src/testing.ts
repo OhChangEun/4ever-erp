@@ -1,10 +1,10 @@
 import { SignJWT, exportJWK, generateKeyPair, type CryptoKey } from 'jose';
 import { http, HttpResponse } from 'msw';
-import { server } from '@/test/msw-server';
+import type { SetupServer } from 'msw/node';
 
 /**
  * 테스트용 OIDC IdP. discovery, JWKS, 토큰 엔드포인트를 MSW 로 흉내 내고 RS256 으로 토큰에 서명한다.
- * 실제 Keycloak 확인은 e2e(OIDC 프로젝트)가 한다.
+ * 실제 Keycloak 확인은 e2e(OIDC 프로젝트)가 한다. MSW 서버는 쓰는 쪽(앱, 이 패키지 테스트)이 넘긴다.
  */
 export const ISSUER = 'http://idp.test/realms/everp';
 export const CLIENT_ID = 'everp-bff';
@@ -30,7 +30,7 @@ interface CryptoKeyPair {
 }
 
 /** MSW 핸들러는 테스트마다 초기화되므로(vitest.setup) 각 테스트의 beforeEach 에서 부른다 */
-export const installFakeIdp = async (): Promise<FakeIdp> => {
+export const installFakeIdp = async (server: SetupServer): Promise<FakeIdp> => {
   keys ??= generateKeyPair('RS256');
   const { privateKey, publicKey } = await keys;
   const jwk = { ...(await exportJWK(publicKey)), kid: 'k1', alg: 'RS256', use: 'sig' };

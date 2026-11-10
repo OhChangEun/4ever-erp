@@ -1,6 +1,5 @@
 import 'server-only';
-import { createOidcIdp } from './idp/oidc';
-import type { IdentityProvider } from './idp/types';
+import { createOidcIdp, type IdentityProvider } from '@everp/auth';
 
 /**
  * 인증 방식. demo 는 Vercel 시연용 데모 계정(결정 11), oidc 는 실제 IdP(로컬 Keycloak, 결정 10).

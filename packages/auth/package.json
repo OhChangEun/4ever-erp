@@ -1,0 +1,30 @@
+{
+  "name": "@everp/auth",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EverP BFF 인증 공통 모듈(OIDC 클라이언트, PKCE, 세션 저장소, 토큰 갱신, 로그인 흐름). erp 와 portal 이 같이 쓴다",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./next": "./src/next.ts",
+    "./testing": "./src/testing.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "jose": "^6.2.10",
+    "zod": "4.5.4"
+  },
+  "peerDependencies": {
+    "next": ">=16"
+  },
+  "devDependencies": {
+    "msw": "^2.6.0",
+    "next": "^16.1.6",
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

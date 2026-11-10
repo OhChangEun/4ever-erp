@@ -1,4 +1,3 @@
-import 'server-only';
 import type { IdentityProvider } from '../idp/types';
 import type { SessionStore, StoredSession } from './store';
 
@@ -13,10 +12,10 @@ export const REFRESH_LEEWAY_MS = 30_000;
  */
 const IN_FLIGHT = Symbol.for('everp.auth.refreshInFlight');
 
-const inFlight = (): Map<string, Promise<StoredSession | null>> => {
+const inFlight = <TRole extends string>(): Map<string, Promise<StoredSession<TRole> | null>> => {
   const existing: unknown = Reflect.get(globalThis, IN_FLIGHT);
   if (existing instanceof Map) return existing;
-  const created = new Map<string, Promise<StoredSession | null>>();
+  const created = new Map<string, Promise<StoredSession<TRole> | null>>();
   Reflect.set(globalThis, IN_FLIGHT, created);
   return created;
 };
@@ -25,17 +24,17 @@ const inFlight = (): Map<string, Promise<StoredSession | null>> => {
  * 업스트림에 보낼 수 있는 세션을 돌려준다. 곧 만료되면 갱신하고 저장소를 고친다.
  * 갱신이 실패하면(refresh token 만료, IdP 에서 세션 끊김) 세션을 지우고 null. 호출하는 쪽은 401 로 답한다.
  */
-export const ensureFreshSession = async (
+export const ensureFreshSession = async <TRole extends string>(
   sid: string,
-  session: StoredSession,
-  store: SessionStore,
+  session: StoredSession<TRole>,
+  store: SessionStore<TRole>,
   idp: IdentityProvider,
   now: number = Date.now(),
-): Promise<StoredSession | null> => {
+): Promise<StoredSession<TRole> | null> => {
   const tokens = session.tokens;
   if (!tokens || tokens.expiresAt - now > REFRESH_LEEWAY_MS) return session;
 
-  const running = inFlight().get(sid);
+  const running = inFlight<TRole>().get(sid);
   if (running) return running;
 
   const refreshing = (async () => {
@@ -62,6 +61,6 @@ export const ensureFreshSession = async (
     }
   })().finally(() => inFlight().delete(sid));
 
-  inFlight().set(sid, refreshing);
+  inFlight<TRole>().set(sid, refreshing);
   return refreshing;
 };

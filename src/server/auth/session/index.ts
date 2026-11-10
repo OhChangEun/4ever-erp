@@ -3,7 +3,7 @@ import type { NextResponse } from 'next/server';
 import { authProvider, getIdp } from '../config';
 import { cookieSessionStore } from './cookieStore';
 import { memorySessionStore } from './memoryStore';
-import { ensureFreshSession } from './refresh';
+import { ensureFreshSession } from '@everp/auth';
 import type { SessionData, SessionStore, StoredSession } from './store';
 
 /**
