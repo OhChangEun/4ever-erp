@@ -1,5 +1,5 @@
 import type { InventoryResponse } from '@/app/(private)/inventory';
-import { InventoryQueryParamForWarehouse } from './useWarehouseClusters';
+import type { StockBand } from './stockHeat';
 
 export type ViewMode = 'overview' | 'warehouse';
 
@@ -17,10 +17,12 @@ export interface WarehouseFilter {
 
 export interface VisualizerItem extends InventoryResponse {
   warehouseKey: string;
-  localPosition: [number, number, number];
   level: number;
+  /** 블록 자리(0부터, 선반 번호 순서). 장면이 랙, 층, 칸을 여기서 계산한다 */
+  slot: number;
   fillRatio: number;
   isLowStock: boolean;
+  band: StockBand;
 }
 
 export interface WarehouseCluster {
@@ -29,15 +31,6 @@ export interface WarehouseCluster {
   origin: [number, number, number];
   items: VisualizerItem[];
 }
-
-export const DEFAULT_QUERY: InventoryQueryParamForWarehouse = {
-  page: 0,
-  size: 80,
-  statusCode: 'ALL',
-  category: '',
-  warehouse: '',
-  itemName: '',
-};
 
 export interface Warehouse3DModalProps {
   warehouseId: string;

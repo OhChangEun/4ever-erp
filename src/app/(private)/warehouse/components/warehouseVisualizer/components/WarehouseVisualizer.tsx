@@ -1,15 +1,12 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { STOCK_COLORS } from '../stockColors';
+import { BAND_LABEL, BAND_TOKEN, BANDS } from '../stockHeat';
+import TableStatusBox from '@/app/components/common/TableStatusBox';
+import WarehouseStockPanel from './WarehouseStockPanel';
 import { Environment, OrbitControls } from '@react-three/drei';
 import { Suspense, useMemo, useState } from 'react';
-import {
-  ViewMode,
-  VisualizerItem,
-  WarehouseFilter,
-  WarehouseVisualizerProps,
-} from '../WarehouseVisualizerType';
+import { ViewMode, WarehouseFilter, WarehouseVisualizerProps } from '../WarehouseVisualizerType';
 import { summarizeClusters } from '../clusters';
 import { useWarehouseClusters } from '../useWarehouseClusters';
 import WarehouseScene from './WarehouseScene';
@@ -25,7 +22,7 @@ const WarehouseVisualizer = ({
     [warehouseId, warehouseName],
   );
 
-  const clusters = useWarehouseClusters(filterOptions);
+  const { clusters, total, isLoading, isError, error } = useWarehouseClusters(filterOptions);
   // 활성 창고: 특정 창고 화면이면 그 창고, 아니면 사용자가 들어간 창고(지금 목록에 있을 때만)
   const [chosenWarehouseKey, setChosenWarehouseKey] = useState<string | null>(null);
   const activeWarehouseKey =
@@ -33,8 +30,8 @@ const WarehouseVisualizer = ({
     (chosenWarehouseKey && clusters.some((cluster) => cluster.key === chosenWarehouseKey)
       ? chosenWarehouseKey
       : null);
-  // 선택 품목: 사용자가 고른 것이 지금 창고에 있으면 그것, 아니면 창고의 첫 품목. 전체 보기면 없음
-  const [pickedItem, setPickedItem] = useState<VisualizerItem | null>(null);
+  // 선택 품목 id. 블록과 옆 목록이 같은 값을 쓴다(시각화 8)
+  const [pickedItemId, setPickedItemId] = useState<string | null>(null);
   const [freeMode, setFreeMode] = useState(false);
 
   const activeCluster = useMemo(
@@ -46,25 +43,23 @@ const WarehouseVisualizer = ({
   const allowWarehouseNavigation = !filterOptions;
   const canvasHeight = 600;
 
-  // 재조회로 품목 객체가 새로 만들어져도 같은 itemId 면 선택을 유지하고 최신 값을 보여준다
-  const selectedItem =
+  // 재조회로 품목이 바뀌어도 같은 itemId 가 지금 창고에 있으면 선택을 유지한다. 없으면 고른 것 없음
+  const selectedItemId =
     viewMode === 'overview'
       ? null
-      : (activeCluster?.items.find((item) => item.itemId === pickedItem?.itemId) ??
-        activeCluster?.items[0] ??
-        null);
+      : (activeCluster?.items.find((item) => item.itemId === pickedItemId)?.itemId ?? null);
 
   const summaries = useMemo(() => summarizeClusters(clusters), [clusters]);
 
   const handleEnterWarehouse = (key: string) => {
     setChosenWarehouseKey(key);
-    setPickedItem(null);
+    setPickedItemId(null);
   };
 
   const handleExitWarehouse = () => {
     if (!allowWarehouseNavigation) return;
     setChosenWarehouseKey(null);
-    setPickedItem(null);
+    setPickedItemId(null);
   };
 
   return (
@@ -80,22 +75,19 @@ const WarehouseVisualizer = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-            <span
-              className="inline-flex h-3 w-3 rounded-full"
-              style={{ backgroundColor: STOCK_COLORS.normal.base }}
-            />
-            정상
-            <span
-              className="inline-flex h-3 w-3 rounded-full"
-              style={{ backgroundColor: STOCK_COLORS.warning.base }}
-            />
-            주의
-            <span
-              className="inline-flex h-3 w-3 rounded-full"
-              style={{ backgroundColor: STOCK_COLORS.low.base }}
-            />
-            부족
+          {/* 재고율 4단계 + 기준 없음(시각화 8). 색은 장면과 같은 토큰 */}
+          <div
+            aria-label="재고율 범례"
+            className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+          >
+            {BANDS.map((band) => (
+              <span key={band} className="flex items-center gap-1">
+                <span
+                  className={`inline-flex h-3 w-3 rounded-full ${BAND_TOKEN[band].className}`}
+                />
+                {BAND_LABEL[band]}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -103,6 +95,23 @@ const WarehouseVisualizer = ({
           className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-blue-100"
           style={{ height: canvasHeight }}
         >
+          {isLoading && (
+            <div
+              role="status"
+              className="absolute inset-0 z-local flex items-center justify-center text-sm text-gray-600"
+            >
+              창고 재고를 불러오는 중...
+            </div>
+          )}
+          {isError && (
+            <div className="absolute inset-x-4 top-16 z-local">
+              <TableStatusBox
+                type="error"
+                message="창고 재고를 불러오지 못했습니다."
+                error={error}
+              />
+            </div>
+          )}
           {viewMode === 'warehouse' && (
             <button
               type="button"
@@ -150,9 +159,9 @@ const WarehouseVisualizer = ({
                 clusters={clusters}
                 viewMode={viewMode}
                 activeWarehouseKey={activeCluster?.key ?? null}
-                selectedItemId={selectedItem?.itemId ?? null}
+                selectedItemId={selectedItemId}
                 onSelectWarehouse={handleEnterWarehouse}
-                onSelectItem={setPickedItem}
+                onSelectItem={(item) => setPickedItemId(item.itemId)}
               />
               <Environment preset="warehouse" />
             </Suspense>
@@ -252,48 +261,21 @@ const WarehouseVisualizer = ({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-base font-semibold text-gray-900">선택한 재고</h3>
-            {selectedItem ? (
-              <div className="space-y-3 text-sm text-gray-700">
-                <div>
-                  <p className="text-lg font-semibold text-gray-900">{selectedItem.itemName}</p>
-                  <p className="text-xs text-gray-500">{selectedItem.itemNumber}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">현재 재고</p>
-                    <p className="text-base font-semibold">
-                      {selectedItem.currentStock.toLocaleString()} {selectedItem.uomName}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">안전 재고</p>
-                    <p className="text-base font-semibold">
-                      {selectedItem.safetyStock.toLocaleString()} {selectedItem.uomName}
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">창고</p>
-                    <p className="text-base font-semibold">{selectedItem.warehouseName}</p>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3">
-                    <p className="text-xs text-gray-500">카테고리</p>
-                    <p className="text-base font-semibold">{selectedItem.category}</p>
-                  </div>
-                </div>
-                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
-                  {selectedItem.currentStock >= selectedItem.safetyStock
-                    ? '안전 재고 이상을 유지하고 있습니다.'
-                    : '안전 재고 미만입니다. 재고 보충을 검토해주세요.'}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-500">
-                창고 내부에서 박스를 클릭하면 상세 정보를 볼 수 있습니다.
-              </div>
-            )}
-          </div>
+          {activeCluster && (
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="mb-3 text-base font-semibold text-gray-900">재고율</h3>
+              {isLoading || isError ? (
+                <p className="text-sm text-gray-500">재고를 받은 뒤에 보입니다.</p>
+              ) : (
+                <WarehouseStockPanel
+                  cluster={activeCluster}
+                  total={total}
+                  selectedItemId={selectedItemId}
+                  onSelect={setPickedItemId}
+                />
+              )}
+            </div>
+          )}
         </aside>
       )}
     </section>

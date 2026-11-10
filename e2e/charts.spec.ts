@@ -105,3 +105,19 @@ test('BOM 원가 트리에 완제품 원가(이상)가 있고 조립품을 키�
   await expect(rotor).toHaveAttribute('aria-expanded', 'false');
   await expect(tree.getByText('하위 3개 접힘', { exact: true })).toBeVisible();
 });
+
+/** 시각화 8: 창고 3D 는 실제 재고를 재고율 색으로 그리고, 목록에서 고른 품목의 재고 상세를 연다 */
+test('창고 3D 에 재고율 목록이 있고 고른 품목의 재고 상세를 연다', async ({ page }) => {
+  await page.goto('/warehouse');
+  await page.getByRole('button', { name: '3D' }).first().click();
+  await expect(page.locator('canvas').first()).toBeVisible({ timeout: 20_000 });
+  const list = page.getByRole('list', { name: '품목(재고율 낮은 순)' });
+  await expect(list.getByRole('button')).toHaveCount(14);
+  await expect(page.getByText(/품목 14개 중 부족 4개/)).toBeVisible();
+  const first = list.getByRole('button').first();
+  await expect(first).toContainText('부족');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: '재고 상세 열기' }).click();
+  await expect(page.getByRole('dialog', { name: '재고 상세' })).toBeVisible();
+});
