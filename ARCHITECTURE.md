@@ -34,19 +34,24 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`, 사용자 타입은 `src/lib/auth/userInfo.ts`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
 - 공격 점검(BFF 문서 Phase 5)은 테스트로 고정했다: 같은 출처 판정 `src/lib/auth/sameOrigin.test.ts`, 프록시 우회와 401, 403 `src/app/api/proxy/[...path]/route.test.ts`, alg none `src/lib/auth/session.test.ts`, 오픈 리다이렉트 `src/lib/auth/returnTo.test.ts`, 콜백 재사용과 state 위조 `src/server/auth/oidcLogin.test.ts`.
-- 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽 `src/server/auth/pkce.ts` 로 옮겼다(3단계 OIDC 클라이언트용).
+- 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽으로 옮겼다(지금은 `packages/auth/src/pkce.ts`).
 
 ## 4. 인증과 인가: OIDC 모드
 
 `AUTH_PROVIDER=oidc` 면 BFF 가 OIDC confidential client 가 된다(2026-11-10 인증 4단계). 기본값 `demo` 는 3절 그대로라 Vercel 데모는 바뀌지 않는다. 세부 배경은 옵시디언 `프론트엔드/4ever-erp_아키텍처와_루프_계획_2026-11-09.md` 8절과 `4ever-erp_BFF_인증_진단과_실습계획.md` Part D.
 
 ```
-src/server/auth/
+packages/auth/ (@everp/auth, erp 와 포털이 같이 쓴다. 2026-11-10 SSO 포털 카드에서 옮김)
+  src/idp/          IdentityProvider 인터페이스, oidc.ts(discovery, PKCE, JWKS 로 ID 토큰과 로그아웃 토큰 검증)
+  src/session/      SessionStore<역할> 경계, memoryStore(sid + 서버 Map, 레지스트리 이름을 앱마다), refresh.ts(single-flight)
+  src/pkce.ts       code_verifier, S256 challenge
+  src/shortLived.ts 로그인 트랜잭션 쿠키 서명(비밀키는 앱이 넘긴다)
+  src/next.ts       로그인 흐름 createOidcLoginFlow: 시작(state, nonce, verifier 를 10분 서명 쿠키에) / 콜백(state, nonce 확인)
+  src/testing.ts    가짜 IdP(MSW 서버를 넘겨받는다)
+src/server/auth/    erp 어댑터
   config.ts         AUTH_PROVIDER 와 OIDC env. IdP 는 쓰는 시점에 만든다
-  idp/              IdentityProvider 인터페이스, oidc.ts(discovery, PKCE, JWKS 로 ID 토큰과 로그아웃 토큰 검증)
-  session/          SessionStore. cookieStore(데모, 서명 JWT) / memoryStore(OIDC, sid 쿠키 + 서버 Map) / refresh.ts(single-flight)
-  oidcLogin.ts      로그인 시작(state, nonce, verifier 를 10분 서명 쿠키에) / 콜백(state, nonce 확인, 역할 고르기)
-  pkce.ts           code_verifier, S256 challenge
+  session/          역할을 Role 로 좁힌 타입, cookieStore(데모, 서명 JWT), memoryStore 인스턴스, 쿠키 이름과 속성(index.ts)
+  oidcLogin.ts      역할 고르기(pickRole)와 로그인 흐름 조립
 src/lib/authz/policy.ts   역할 표(3절)
 src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그아웃 주소 반환), backchannel-logout
 ```
@@ -54,9 +59,9 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 흐름:
 
 1. `/login` 은 버튼 하나다. `/api/auth/login?returnTo=` 가 IdP 로 302 한다. state, nonce, PKCE verifier, returnTo 는 서명한 10분짜리 httpOnly 쿠키(`oidc_tx`, path `/api/auth`)에 있다.
-2. 콜백(`src/server/auth/oidcLogin.ts:76`)이 state 를 비교하고 code 를 토큰으로 바꾼 뒤 ID 토큰을 JWKS 로 검증하고 nonce 를 비교한다. `realm_access.roles` 중 역할 표에 있는 첫 역할로 세션을 연다. 없으면 `/login?error=no_role`.
+2. 콜백(`packages/auth/src/next.ts` 의 `finish`)이 state 를 비교하고 code 를 토큰으로 바꾼 뒤 ID 토큰을 JWKS 로 검증하고 nonce 를 비교한다. `realm_access.roles` 중 역할 표에 있는 첫 역할로 세션을 연다. 없으면 `/login?error=no_role`.
 3. 쿠키에는 추측할 수 없는 sid(43자)만 있다. 토큰은 서버 메모리에 있다. API 프록시가 업스트림에 IdP access token 을 Bearer 로 붙인다.
-4. access token 이 30초 안에 만료되면 API 프록시가 갱신한다 (`src/server/auth/session/index.ts:35`). 같은 sid 의 동시 요청은 갱신 하나를 같이 기다린다 (`src/server/auth/session/refresh.ts:28`). Keycloak 의 refresh token rotation 때문에 두 번 부르면 두 번째가 실패해 세션이 끊긴다. 갱신이 실패하면 세션을 지우고 401.
+4. access token 이 30초 안에 만료되면 API 프록시가 갱신한다 (`src/server/auth/session/index.ts:35`). 같은 sid 의 동시 요청은 갱신 하나를 같이 기다린다 (`packages/auth/src/session/refresh.ts`). Keycloak 의 refresh token rotation 때문에 두 번 부르면 두 번째가 실패해 세션이 끊긴다. 갱신이 실패하면 세션을 지우고 401.
 5. 로그아웃은 앱 세션을 지우고 IdP 로그아웃 주소(id_token_hint)를 돌려준다. 브라우저가 그 주소로 가야 IdP 세션도 끝나 SSO 로 바로 다시 들어오지 않는다.
 6. IdP 에서 세션이 끊기면(관리자 강제 로그아웃 등) IdP 가 `/api/auth/backchannel-logout` 에 서명한 logout_token 을 보낸다. 그 사용자의 앱 세션을 지워 다음 요청이 401 이 된다.
 
