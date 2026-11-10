@@ -245,5 +245,50 @@
       "back": "이전 페이지",
       "home": "메인으로 이동"
     }
+  },
+  "ui": {
+    "close": "닫기",
+    "confirm": "확인",
+    "pagination": {
+      "label": "페이지",
+      "previous": "이전 페이지",
+      "next": "다음 페이지",
+      "total": "총 <num>{count}</num>건"
+    },
+    "simplePagination": {
+      "previous": "이전",
+      "next": "다음"
+    },
+    "table": {
+      "empty": "데이터가 없습니다."
+    },
+    "dropdown": {
+      "empty": "항목 없음"
+    },
+    "searchBar": {
+      "typePlaceholder": "검색 타입",
+      "keywordPlaceholder": "검색어 입력"
+    },
+    "loading": {
+      "message": "로딩 중...",
+      "subMessage": "잠시만 기다려주세요"
+    },
+    "error": {
+      "title": "오류가 발생했습니다",
+      "unknown": "알 수 없는 오류가 발생했습니다."
+    },
+    "conflict": {
+      "title": "수정 충돌이 발생했습니다",
+      "description": "다른 사용자가 이미 이 {subject}을 수정했습니다. 현재 화면의 데이터가 오래되어 수정 요청이 거부됐습니다.",
+      "hint": "최신 데이터를 불러온 후 다시 시도해 주세요.",
+      "reload": "최신 데이터 불러오기"
+    },
+    "sparkline": {
+      "summary": "{label}: 시작 {start}, 끝 {end}, 최저 {min}, 최고 {max}"
+    },
+    "inputList": {
+      "title": "공정 순서 입력",
+      "add": "공정 추가"
+    }
   }
 }

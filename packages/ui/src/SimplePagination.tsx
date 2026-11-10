@@ -1,5 +1,7 @@
 'use client';
 
+import { useUiText } from './UiText';
+
 type SimplePaginationProps = {
   currentPage: number;
   totalPages: number;
@@ -11,6 +13,8 @@ export default function SimplePagination({
   totalPages,
   onPageChange,
 }: SimplePaginationProps) {
+  const text = useUiText().simplePagination;
+
   const handlePrev = () => {
     if (currentPage > 1) onPageChange(currentPage - 1);
   };
@@ -32,7 +36,7 @@ export default function SimplePagination({
         }`}
       >
         <i className="ri-arrow-left-s-line"></i>
-        이전
+        {text.previous}
       </button>
 
       {/* 현재 페이지 표시 */}
@@ -50,7 +54,7 @@ export default function SimplePagination({
             : 'border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer'
         }`}
       >
-        다음
+        {text.next}
         <i className="ri-arrow-right-s-line"></i>
       </button>
     </div>

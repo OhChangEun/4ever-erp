@@ -33,3 +33,5 @@ export { default as DropdownInputListModal } from './DropdownInputListModal';
 export { default as Sparkline } from './Sparkline';
 export { useCloseOnEscape } from './hooks/useCloseOnEscape';
 export type { KeyValueItem } from './types';
+export { UiTextProvider, defaultUiText, useUiText } from './UiText';
+export type { UiText } from './UiText';

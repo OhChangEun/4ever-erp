@@ -3,6 +3,7 @@ import IconButton from './IconButton';
 import Button from './Button';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
+import { useUiText } from './UiText';
 import { useCloseOnEscape } from './hooks/useCloseOnEscape';
 
 // 모달 입력 컴포넌트 props 타입 정의
@@ -19,6 +20,7 @@ export default function DropdownInputModal({
   rows = 5,
   onSubmit,
 }: DropdownModalProps) {
+  const confirmText = useUiText().confirm;
   const [isOpen, setIsOpen] = useState(false); // 모달 열림/닫힘 상태
   useCloseOnEscape(isOpen, setIsOpen);
   const [inputValue, setInputValue] = useState(value); // textarea 값 상태
@@ -90,7 +92,7 @@ export default function DropdownInputModal({
             />
             {/* 확인 버튼 */}
             <div className="flex justify-end">
-              <Button label="확인" size="sm" onClick={handleSubmit} />
+              <Button label={confirmText} size="sm" onClick={handleSubmit} />
             </div>
           </div>
         </PopoverPortal>

@@ -12,6 +12,7 @@ import {
   useTypeahead,
 } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
+import { useUiText } from './UiText';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 
 // size prop 추가
@@ -42,6 +43,7 @@ export default function Dropdown<T extends string = string>({
   size = 'md', // 기본값을 'md'로 설정
   disabled = false,
 }: DropdownProps<T>) {
+  const emptyText = useUiText().dropdown.empty;
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const isOpen = open && !disabled;
@@ -199,7 +201,7 @@ export default function Dropdown<T extends string = string>({
                 aria-disabled="true"
                 className="w-full px-4 py-2 text-sm text-gray-400"
               >
-                항목 없음
+                {emptyText}
               </li>
             )}
           </ul>

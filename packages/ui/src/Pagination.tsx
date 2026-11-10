@@ -1,5 +1,7 @@
 'use client';
 
+import { useUiText } from './UiText';
+
 type PaginationProps = {
   currentPage: number;
   totalPages: number;
@@ -16,6 +18,7 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
     return [1, '...', current - 1, current, current + 1, '...', total];
   };
 
+  const text = useUiText().pagination;
   const pageRange = getPageRange(currentPage, totalPages);
 
   const btnBase =
@@ -25,15 +28,17 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
   const btnDisabled = 'text-gray-300 cursor-not-allowed';
 
   return (
-    <nav aria-label="페이지" className="flex items-center justify-between shrink-0">
+    <nav aria-label={text.label} className="flex items-center justify-between shrink-0">
       <span className="text-[13px] text-gray-500">
-        총 <span className="font-medium text-gray-800 tabular-nums">{totalElements ?? 0}</span>건
+        {text.total(totalElements ?? 0, (chunks) => (
+          <span className="font-medium text-gray-800 tabular-nums">{chunks}</span>
+        ))}
       </span>
 
       <div className="flex items-center gap-0.5">
         <button
           type="button"
-          aria-label="이전 페이지"
+          aria-label={text.previous}
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
           className={`${btnBase} ${currentPage === 1 ? btnDisabled : btnDefault}`}
@@ -64,7 +69,7 @@ const Pagination = ({ currentPage, totalPages, totalElements, onPageChange }: Pa
 
         <button
           type="button"
-          aria-label="다음 페이지"
+          aria-label={text.next}
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
           className={`${btnBase} ${currentPage === totalPages ? btnDisabled : btnDefault}`}

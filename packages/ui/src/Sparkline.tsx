@@ -1,3 +1,7 @@
+'use client';
+
+import { useUiText } from './UiText';
+
 interface SparklineProps {
   /** 시간 순서의 값. 마지막이 지금 값 */
   data: readonly number[];
@@ -15,6 +19,7 @@ const format = (n: number) => n.toLocaleString('ko-KR');
  * 점이 2개 미만이면 그리지 않는다. 추이 없이 그래프를 그리지 않는다.
  */
 export default function Sparkline({ data, label, width = 64, height = 20 }: SparklineProps) {
+  const text = useUiText().sparkline;
   if (data.length < 2) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -25,7 +30,12 @@ export default function Sparkline({ data, label, width = 64, height = 20 }: Spar
     max === min ? height / 2 : pad + ((max - v) * (height - pad * 2)) / range;
   const points = data.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const last = data.length - 1;
-  const summary = `${label}: 시작 ${format(data[0])}, 끝 ${format(data[last])}, 최저 ${format(min)}, 최고 ${format(max)}`;
+  const summary = text.summary(label, {
+    start: format(data[0]),
+    end: format(data[last]),
+    min: format(min),
+    max: format(max),
+  });
 
   return (
     <svg

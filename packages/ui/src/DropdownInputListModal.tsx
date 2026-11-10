@@ -7,6 +7,7 @@ import InputList from './InputList';
 import { type KeyValueItem } from './types';
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import PopoverPortal from './PopoverPortal';
+import { useUiText } from './UiText';
 import { useCloseOnEscape } from './hooks/useCloseOnEscape';
 
 interface DropdownInputListModalProps {
@@ -18,6 +19,7 @@ export default function DropdownInputListModal({
   initialItems = [],
   onSubmit,
 }: DropdownInputListModalProps) {
+  const confirmText = useUiText().confirm;
   const [isOpen, setIsOpen] = useState(false);
   useCloseOnEscape(isOpen, setIsOpen);
   const [items, setItems] = useState<KeyValueItem<number>[]>(initialItems);
@@ -78,7 +80,7 @@ export default function DropdownInputListModal({
             </div>
 
             <div className="flex justify-end mt-3">
-              <Button label="확인" size="sm" onClick={handleSubmit} />
+              <Button label={confirmText} size="sm" onClick={handleSubmit} />
             </div>
           </div>
         </PopoverPortal>

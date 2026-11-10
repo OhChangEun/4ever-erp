@@ -1,4 +1,7 @@
+'use client';
+
 import React, { type ReactNode } from 'react';
+import { useUiText } from './UiText';
 
 export interface TableColumn<T = Record<string, unknown>> {
   key: string;
@@ -41,13 +44,14 @@ export default function Table<T = Record<string, unknown>>({
   data,
   keyExtractor,
   onRowClick,
-  emptyMessage = '데이터가 없습니다.',
+  emptyMessage,
   hoverable = true,
   className = '',
   maxHeight,
   height,
   isStale = false,
 }: TableProps<T>) {
+  const defaultEmpty = useUiText().table.empty;
   const getAlignClass = (align?: string) => {
     switch (align) {
       case 'center':
@@ -103,7 +107,7 @@ export default function Table<T = Record<string, unknown>>({
             {data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-14 text-center text-gray-500">
-                  {emptyMessage}
+                  {emptyMessage ?? defaultEmpty}
                 </td>
               </tr>
             ) : (
