@@ -90,3 +90,18 @@ test('대시보드에 이번 달 자재 흐름 Sankey 와 새는 금액이 있�
     9,
   );
 });
+
+/** 시각화 7: BOM 상세의 원가 트리. 단가 없는 자재는 "이상"으로, 노드는 키보드로 접는다 */
+test('BOM 원가 트리에 완제품 원가(이상)가 있고 조립품을 키보드로 접는다', async ({ page }) => {
+  await page.goto('/production?tab=bom');
+  await page.getByRole('button', { name: '상세' }).first().click();
+  const tree = page.getByRole('group', { name: 'BOM 원가 트리' });
+  await expect(tree).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(/완제품 1개 자재 원가 ₩47,360 이상/)).toBeVisible();
+  await expect(page.getByText(/단가 없는 자재 1개는 0 원으로 세지 않았습니다/)).toBeVisible();
+  const rotor = tree.getByRole('button', { name: /^로터 조립/ });
+  await rotor.focus();
+  await page.keyboard.press('Enter');
+  await expect(rotor).toHaveAttribute('aria-expanded', 'false');
+  await expect(tree.getByText('하위 3개 접힘', { exact: true })).toBeVisible();
+});
