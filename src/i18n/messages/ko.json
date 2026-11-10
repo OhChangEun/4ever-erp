@@ -95,6 +95,7 @@
   },
   "partnerProfile": {
     "title": "고객사 프로필",
+    "supplierTitle": "공급사 프로필",
     "businessNumber": "사업자등록번호 {number}",
     "address": "주소",
     "officePhone": "대표 전화",
@@ -110,7 +111,7 @@
       "PR": "구매",
       "SD": "판매",
       "IM": "재고",
-      "FCM": "시설",
+      "FCM": "재무",
       "HRM": "인사",
       "PP": "생산",
       "CUS": "고객사",

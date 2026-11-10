@@ -33,7 +33,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'with-all',
+    'without-all',
   );
 
   const { data: positionData } = useQuery({

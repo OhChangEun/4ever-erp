@@ -37,7 +37,7 @@ export default function EmployeeRegisterModal({ onClose }: ModalProps) {
   const { options: departmentsOptions } = useDropdown(
     'departmentsDropdown',
     fetchDepartmentsDropdown,
-    'with-all',
+    'without-all',
   );
   const toast = useToast();
 

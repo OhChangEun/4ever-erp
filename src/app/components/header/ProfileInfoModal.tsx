@@ -23,7 +23,10 @@ const ProfileInfoModal = ({ setIsOpen }: ProfileInfoModalProps) => {
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
             <i className="ri-building-2-line text-white text-xl"></i>
-            {t('partnerProfile.title')}
+            {/* 공급사와 고객사가 같은 모달을 쓴다. 예전엔 공급사도 '고객사 프로필'이었다 */}
+            {role === 'SUPPLIER_ADMIN'
+              ? t('partnerProfile.supplierTitle')
+              : t('partnerProfile.title')}
           </h2>
           <button
             onClick={() => setIsOpen(false)}
