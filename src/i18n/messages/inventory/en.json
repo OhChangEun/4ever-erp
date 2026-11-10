@@ -1,4 +1,15 @@
 {
+  "labels": {
+    "CATEGORY_MATERIAL": "Raw material",
+    "CATEGORY_ITEM": "Part",
+    "CATEGORY_ETC": "Other",
+    "CATEGORY_MOTOR": "Motor",
+    "CATEGORY_BEARING": "Bearing",
+    "WAREHOUSE_MATERIAL": "Raw materials warehouse",
+    "WAREHOUSE_ITEM": "Parts warehouse",
+    "WAREHOUSE_PRODUCT": "Finished goods warehouse",
+    "WAREHOUSE_ETC": "Other warehouse"
+  },
   "tabs": {
     "inventory": "Inventory",
     "shipping": "Shipping",

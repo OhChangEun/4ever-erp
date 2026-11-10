@@ -3,6 +3,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useInventoryLabels } from '@/app/(private)/inventory';
 import dynamic from 'next/dynamic';
 import { Pagination } from '@everp/ui';
 import { getWarehouseList } from '../warehouse.api';
@@ -36,6 +37,7 @@ const Warehouse3DModal = dynamic(
 );
 
 const WarehouseList = () => {
+  const { warehouseTypeLabel } = useInventoryLabels();
   const t = useTranslations('warehouse.list');
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
@@ -129,7 +131,7 @@ const WarehouseList = () => {
               <div className="space-y-2 mb-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <i className="ri-building-line mr-2"></i>
-                  {warehouse.warehouseType}
+                  {warehouseTypeLabel(warehouse.warehouseType)}
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <i className="ri-map-pin-line mr-2"></i>

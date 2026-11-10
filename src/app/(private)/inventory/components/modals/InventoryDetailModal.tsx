@@ -16,6 +16,7 @@ import {
   getMovementColor,
   getMovementIcon,
   MOVEMENT_TYPE,
+  getMovementType,
 } from '../../inventory.utils';
 import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 
@@ -24,7 +25,9 @@ import { Button } from '@everp/ui';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import StockTrend from '../StockTrend';
 import { useTranslations } from 'next-intl';
+import { useInventoryLabels } from '../../inventory.labels';
 const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
+  const { categoryLabel } = useInventoryLabels();
   const t = useTranslations('inventory');
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
@@ -116,7 +119,7 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">{t('detail.category')}</span>
                 <span className="text-sm font-medium text-gray-900">
-                  {inventoryDetailRes?.category}
+                  {categoryLabel(inventoryDetailRes?.category ?? '')}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -213,31 +216,31 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <StatusLabel statusCode={movement.type} />
+                        <StatusLabel statusCode={getMovementType(movement.type)} />
                         <span className="text-sm font-medium text-gray-900">
                           {movement.quantity} {movement.uomName}
                         </span>
                       </div>
 
-                      {movement.type === MOVEMENT_TYPE.MOVE && (
+                      {getMovementType(movement.type) === MOVEMENT_TYPE.MOVE && (
                         <div className="text-sm text-gray-600 mb-1">
                           {movement.from} → {movement.to}
                         </div>
                       )}
 
-                      {movement.type === MOVEMENT_TYPE.IN && (
+                      {getMovementType(movement.type) === MOVEMENT_TYPE.IN && (
                         <div className="text-sm text-gray-600 mb-1">→ {movement.to}</div>
                       )}
 
-                      {movement.type === MOVEMENT_TYPE.OUT && (
+                      {getMovementType(movement.type) === MOVEMENT_TYPE.OUT && (
                         <div className="text-sm text-gray-600 mb-1">{movement.from} →</div>
                       )}
 
                       <div className="text-xs text-gray-500">
-                        {FormatDate(movement.movementDate)}· {movement.managerName}
+                        {FormatDate(movement.movementDate)}| {movement.managerName}
                       </div>
                       <div className="text-xs text-blue-600">
-                        {movement.referenceNumber} · {movement.note}
+                        {movement.referenceNumber} | {movement.note}
                       </div>
                       {/* {movement.note && ( */}
                       <div className="text-xs text-gray-500 mt-1">{movement.note}</div>
