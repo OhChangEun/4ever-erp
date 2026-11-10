@@ -14,6 +14,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
 import { profileKeys } from '../profile.keys';
 import StatusLabel from '@/app/components/common/StatusLabel';
+import TableStatusBox from '@/app/components/common/TableStatusBox';
 
 export default function AttendanceRecord() {
   const t = useTranslations('myProfile');
@@ -46,7 +47,11 @@ export default function AttendanceRecord() {
 
   // 무효화(내 근태 + 인사 근태, 휴가 목록)는 profile.mutations.ts 한 곳.
   const { mutate: sendVacation, isPending: isRequestingVacation } = useRequestVacation({
-    onSuccess: () => toast.success(t('leave.success')),
+    onSuccess: () => {
+      toast.success(t('leave.success'));
+      setIsLeaveModalOpen(false);
+      setLeaveForm({ leaveType: 'ANNUAL', startDate: '', endDate: '' });
+    },
     onError: (error) => toast.error(t('leave.error', { message: errorMessageOf(error) })),
   });
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn({
@@ -66,21 +71,24 @@ export default function AttendanceRecord() {
 
   const handleLeaveSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLeaveModalOpen(false);
+    if (isRequestingVacation) return;
     sendVacation(leaveForm);
-    setLeaveForm({
-      leaveType: 'ANNUAL',
-      startDate: '',
-      endDate: '',
-    });
   };
 
-  const { data: todayAttendanceRes } = useQuery<TodayAttendResponse>({
+  const {
+    data: todayAttendanceRes,
+    isError: isTodayError,
+    error: todayError,
+  } = useQuery<TodayAttendResponse>({
     queryKey: profileKeys.todayAttendance(),
     queryFn: getTodayAttendance,
   });
 
-  const { data: AttendanceRecordsRes } = useQuery<AttendanceRecordsResponse[]>({
+  const {
+    data: AttendanceRecordsRes,
+    isError: isRecordsError,
+    error: recordsError,
+  } = useQuery<AttendanceRecordsResponse[]>({
     queryKey: profileKeys.attendanceRecords(),
     queryFn: getAttendaceRecords,
   });
@@ -127,35 +135,43 @@ export default function AttendanceRecord() {
               </span>
             </div>
 
-            <div className="mb-4 grid grid-cols-2 gap-4">
-              <div>
-                <span className="text-xs text-gray-500">{t('attendance.checkInTime')}</span>
-                <p className="text-sm font-medium text-gray-900">
-                  {todayAttendanceRes?.checkInTime || '-'}
-                </p>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500">{t('attendance.checkOutTime')}</span>
-                <p className="text-sm font-medium text-gray-900">
-                  {todayAttendanceRes?.checkOutTime || '-'}
-                </p>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500">{t('attendance.workHours')}</span>
-                <p className="text-sm font-medium text-gray-900">
-                  {todayAttendanceRes?.workHours || '-'}
-                </p>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500">{t('attendance.status')}</span>
-                <StatusLabel statusCode={todayAttendanceRes?.status} />
-              </div>
-            </div>
+            {isTodayError ? (
+              <TableStatusBox
+                type="error"
+                message={t('attendance.todayError')}
+                error={todayError}
+              />
+            ) : (
+              <>
+                <div className="mb-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-xs text-gray-500">{t('attendance.checkInTime')}</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {todayAttendanceRes?.checkInTime || '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-500">{t('attendance.checkOutTime')}</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {todayAttendanceRes?.checkOutTime || '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-500">{t('attendance.workHours')}</span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {todayAttendanceRes?.workHours || '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-500">{t('attendance.status')}</span>
+                    <StatusLabel statusCode={todayAttendanceRes?.status} />
+                  </div>
+                </div>
 
-            <button
-              onClick={handleCheckInOut}
-              disabled={!todayAttendanceRes || isCheckedOut || isCheckingIn || isCheckingOut}
-              className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
+                <button
+                  onClick={handleCheckInOut}
+                  disabled={!todayAttendanceRes || isCheckedOut || isCheckingIn || isCheckingOut}
+                  className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
     ${
       isCheckedOut
         ? 'bg-gray-400 text-white cursor-not-allowed'
@@ -164,20 +180,28 @@ export default function AttendanceRecord() {
           : 'bg-red-600 text-white hover:bg-red-700'
     }
   `}
-            >
-              {isCheckedOut
-                ? t('attendance.checkedOut')
-                : isBeforeCheckIn
-                  ? t('attendance.checkIn')
-                  : t('attendance.checkOut')}
-            </button>
+                >
+                  {isCheckedOut
+                    ? t('attendance.checkedOut')
+                    : isBeforeCheckIn
+                      ? t('attendance.checkIn')
+                      : t('attendance.checkOut')}
+                </button>
+              </>
+            )}
           </div>
 
           {/* 최근 근태 기록 */}
           <div>
             <h3 className="mb-3 text-sm font-medium text-gray-900">{t('attendance.recent')}</h3>
             <div className="space-y-2">
-              {AttendanceRecordsRes && AttendanceRecordsRes.length > 0 ? (
+              {isRecordsError ? (
+                <TableStatusBox
+                  type="error"
+                  message={t('attendance.recentError')}
+                  error={recordsError}
+                />
+              ) : AttendanceRecordsRes && AttendanceRecordsRes.length > 0 ? (
                 AttendanceRecordsRes.map((record, index) => (
                   <div
                     key={index}

@@ -35,7 +35,9 @@
     "checkInSuccess": "You're checked in.",
     "checkInError": "Couldn't check in. {message}",
     "checkOutSuccess": "You're checked out.",
-    "checkOutError": "Couldn't check out. {message}"
+    "checkOutError": "Couldn't check out. {message}",
+    "todayError": "Unable to load today's attendance.",
+    "recentError": "Unable to load recent attendance records."
   },
   "leave": {
     "request": "Request leave",
