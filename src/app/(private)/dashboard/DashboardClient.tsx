@@ -7,8 +7,16 @@ import StatSection, { EMPTY_STATS } from '@/app/components/common/StatSection';
 import { getDashboardStats, getWorkflowStatus } from '@/app/(private)/dashboard/dashboard.api';
 import { mapDashboardStatsToCards } from './dashboard.service';
 import { dashboardKeys } from '@/app/(private)/dashboard/dashboard.keys';
+import SupplyFlow from '@/app/(private)/dashboard/components/supplyFlow/SupplyFlow';
+import { useRole } from '@/app/hooks/useRole';
+import { OPERATIONS } from '@/lib/authz/policy';
+import type { Role } from '@/lib/authz/policy';
 
 export default function DashboardClient() {
+  const role = useRole();
+  // 회사 전체 자재 금액이라 운영 역할만. API 도 같은 표로 막는다(시각화 6)
+  const readonlyOps: readonly Role[] = OPERATIONS;
+  const showSupplyFlow = readonlyOps.some((r) => r === role);
   const {
     data: dashboardStats,
     isLoading: statsLoading,
@@ -51,6 +59,8 @@ export default function DashboardClient() {
             <WorkflowStatus workflowData={workflowData} />
           </div>
         </div>
+
+        {showSupplyFlow && <SupplyFlow />}
       </main>
     </div>
   );

@@ -18,7 +18,8 @@ describe('공급망 흐름(시각화 6)', () => {
     renderWithProviders(<SupplyFlow />);
     const region = await screen.findByRole('region', { name: '이번 달 자재 흐름(금액)' });
     const summary = await within(region).findByText(/새는 금액/);
-    expect(within(region).getByRole('img', { name: '자재 흐름 차트' })).toHaveAttribute(
+    // 차트는 next/dynamic 이라 조금 늦게 붙는다
+    expect(await within(region).findByRole('img', { name: '자재 흐름 차트' })).toHaveAttribute(
       'aria-describedby',
       summary.id,
     );
@@ -38,6 +39,34 @@ describe('공급망 흐름(시각화 6)', () => {
         { source: 'a', target: 'b', value: 100 },
         { source: 'a', target: 'x', value: 5 },
       ],
+    });
+    renderWithProviders(<SupplyFlow />);
+    await screen.findByText('알 수 없는 흐름 1건은 뺐습니다.');
+  });
+
+  it('표도 걸러진 흐름만 보인다', async () => {
+    reply({
+      period: '2026-11',
+      nodes: [
+        { id: 'a', name: '구매요청', kind: 'flow' },
+        { id: 'b', name: '발주', kind: 'flow' },
+      ],
+      links: [
+        { source: 'a', target: 'b', value: 100 },
+        { source: 'a', target: 'x', value: 5 },
+      ],
+    });
+    renderWithProviders(<SupplyFlow />);
+    await userEvent.click(await screen.findByRole('button', { name: '표로 보기' }));
+    const table = screen.getByRole('table', { name: '자재 흐름 표' });
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(1);
+  });
+
+  it('흐름이 전부 잘못되면 빈 달 안내와 함께 경고도 보인다', async () => {
+    reply({
+      period: '2026-11',
+      nodes: [{ id: 'a', name: '구매요청', kind: 'flow' }],
+      links: [{ source: 'a', target: 'x', value: 5 }],
     });
     renderWithProviders(<SupplyFlow />);
     await screen.findByText('알 수 없는 흐름 1건은 뺐습니다.');

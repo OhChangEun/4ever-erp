@@ -92,6 +92,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dashboard/supply-flow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 이번 달 자재 흐름(금액, 시각화 6)
+         * @description 구매요청에서 출하까지 단계 사이의 금액 흐름. 노드와 흐름 목록은 서버가 정한다. 순환이 없어야 한다. 서버 지원은 확인 전(verified=false)
+         */
+        get: operations["getSupplyFlow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dashboard/workflows": {
         parameters: {
             query?: never;
@@ -2312,6 +2332,25 @@ export interface components {
                 onLeave: number;
             }[];
         };
+        SupplyFlow: {
+            /** @description YYYY-MM */
+            period: string;
+            nodes: {
+                id: string;
+                name: string;
+                /**
+                 * @description drop 은 본 흐름에서 새는 곳(반려, 입고 대기 등)
+                 * @enum {string}
+                 */
+                kind: "flow" | "drop";
+            }[];
+            links: {
+                source: string;
+                target: string;
+                /** @description 금액(원) */
+                value: number;
+            }[];
+        };
         StockHistory: {
             itemId: string;
             uomName: string;
@@ -3851,6 +3890,29 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApiEnvelope"] & {
                         data: components["schemas"]["DashboardStatRes"];
+                    };
+                };
+            };
+            default: components["responses"]["Error"];
+        };
+    };
+    getSupplyFlow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["SupplyFlow"];
                     };
                 };
             };

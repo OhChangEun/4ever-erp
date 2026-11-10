@@ -164,6 +164,29 @@ paths:
                         $ref: '#/components/schemas/DashboardStatRes'
         default:
           $ref: '#/components/responses/Error'
+  /dashboard/supply-flow:
+    get:
+      operationId: getSupplyFlow
+      tags:
+        - dashboard
+      summary: 이번 달 자재 흐름(금액, 시각화 6)
+      description: 구매요청에서 출하까지 단계 사이의 금액 흐름. 노드와 흐름 목록은 서버가 정한다. 순환이 없어야 한다. 서버 지원은 확인 전(verified=false)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiEnvelope'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SupplyFlow'
+        default:
+          $ref: '#/components/responses/Error'
   /dashboard/workflows:
     get:
       operationId: getDashboardWorkflows
@@ -3996,6 +4019,51 @@ components:
                 type: number
               onLeave:
                 type: number
+    SupplyFlow:
+      type: object
+      required:
+        - period
+        - nodes
+        - links
+      properties:
+        period:
+          type: string
+          description: YYYY-MM
+        nodes:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - kind
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              kind:
+                type: string
+                enum:
+                  - flow
+                  - drop
+                description: drop 은 본 흐름에서 새는 곳(반려, 입고 대기 등)
+        links:
+          type: array
+          items:
+            type: object
+            required:
+              - source
+              - target
+              - value
+            properties:
+              source:
+                type: string
+              target:
+                type: string
+              value:
+                type: number
+                description: 금액(원)
     StockHistory:
       type: object
       required:

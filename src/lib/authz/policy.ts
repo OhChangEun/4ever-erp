@@ -51,7 +51,13 @@ export const INTERNAL_ROLES = [
 ] as const satisfies readonly Role[];
 
 /** 생산, 구매, 영업, 재고 업무를 같이 보는 사내 운영 역할 */
-const OPERATIONS = ['ALL_ADMIN', ...MM, ...SD, ...IM, ...PP] as const satisfies readonly Role[];
+export const OPERATIONS = [
+  'ALL_ADMIN',
+  ...MM,
+  ...SD,
+  ...IM,
+  ...PP,
+] as const satisfies readonly Role[];
 
 export interface AccessArea {
   /** 페이지 경로(세그먼트 단위로 맞춘다). 없으면 API 만 막는 영역 */
@@ -119,6 +125,8 @@ export const FINANCE_ANALYTICS_ROLES = ['ALL_ADMIN', ...FCM] as const satisfies 
  */
 export const API_RULES: readonly { prefix: string; roles: readonly Role[] }[] = [
   { prefix: 'business/fcm/analytics', roles: FINANCE_ANALYTICS_ROLES },
+  // 이번 달 자재 흐름(시각화 6). 대시보드는 모두에게 열리지만 회사 전체 구매, 재고, 출하 금액은 운영 역할만
+  { prefix: 'dashboard/supply-flow', roles: OPERATIONS },
 ];
 
 /** API 접근. upstreamPath 는 /api/proxy 뒤의 정규화된 경로. 표에 없는 경로는 로그인만 되면 통과 */

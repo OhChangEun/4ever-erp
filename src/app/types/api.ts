@@ -78,6 +78,7 @@ export const FINANCE_ENDPOINTS = {
 export const DASHBOARD_ENDPOINTS = {
   STATS: `${DASHBOARD_BASE_PATH}/statistics`,
   WORKFLOW_STATUS: `${DASHBOARD_BASE_PATH}/workflows`,
+  SUPPLY_FLOW: `${DASHBOARD_BASE_PATH}/supply-flow`, // 시각화 6, verified=false
 } as const;
 
 // ----------------------- INVENTORY -----------------------

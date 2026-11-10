@@ -77,3 +77,16 @@ test('근태 잔디에서 가장 많은 날을 누르면 그날 출퇴근 기록
   await request;
   await expect(heat.locator(`rect[data-date="${date}"]`)).toHaveAttribute('data-selected', 'true');
 });
+
+/** 시각화 6: 대시보드 자재 흐름 Sankey. 운영 역할(관리자)에게 보이고 표로 볼 수 있다 */
+test('대시보드에 이번 달 자재 흐름 Sankey 와 새는 금액이 있다', async ({ page }) => {
+  await page.goto('/dashboard');
+  const flow = page.getByRole('region', { name: '이번 달 자재 흐름(금액)' });
+  await expect(flow.getByRole('img', { name: '자재 흐름 차트' })).toBeVisible();
+  await expect(flow.locator('.recharts-sankey-nodes rect').first()).toBeVisible();
+  await expect(flow).toContainText(/새는 금액\(반려, 입고 대기\) ₩180,000,000\(시작 금액의 15%\)/);
+  await flow.getByRole('button', { name: '표로 보기' }).click();
+  await expect(flow.getByRole('table', { name: '자재 흐름 표' }).locator('tbody tr')).toHaveCount(
+    9,
+  );
+});

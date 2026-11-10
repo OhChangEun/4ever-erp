@@ -11,8 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { formatCurrency } from '@/app/utils/number';
-import { compactWon } from '../../financeAnalytics';
+import { compactWon, formatCurrency } from '@/app/utils/number';
 import type { MonthlyPoint } from '../../types/FinanceAnalyticsType';
 
 const NAME: Partial<Record<string, string>> = {

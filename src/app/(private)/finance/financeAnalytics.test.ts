@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { agingSummary, compactWon, monthlySummary } from './financeAnalytics';
+import { compactWon } from '@/app/utils/number';
+import { agingSummary, monthlySummary } from './financeAnalytics';
 
 const months = [
   { month: '2026-01', sales: 100, purchases: 80, netProfit: 20 },

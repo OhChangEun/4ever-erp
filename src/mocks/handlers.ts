@@ -2,6 +2,7 @@ import { HttpHandler, type RequestHandler } from 'msw';
 import { scenarioHandler } from './scenario';
 import { authHandlers } from './handlers/auth.handlers';
 import { dashboardHandlers } from './handlers/dashboard.handlers';
+import { supplyFlowHandlers } from './handlers/supplyFlow.handlers';
 import { salesHandlers } from './handlers/sales.handlers';
 import { financeHandlers } from './handlers/finance.handlers';
 import { financeAnalyticsHandlers } from './handlers/financeAnalytics.handlers';
@@ -16,6 +17,7 @@ import { attendanceSummaryHandlers } from './handlers/attendanceSummary.handlers
 const domainHandlers: RequestHandler[] = [
   ...authHandlers,
   ...dashboardHandlers,
+  ...supplyFlowHandlers,
   ...salesHandlers,
   ...financeHandlers,
   ...financeAnalyticsHandlers,

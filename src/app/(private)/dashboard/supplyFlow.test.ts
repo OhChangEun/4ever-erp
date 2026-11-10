@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { flowSummary, toSankeyData } from './supplyFlow';
+import { flowSummary, longestDepths, toSankeyData } from './supplyFlow';
 
 const nodes = [
   { id: 'req', name: '구매요청', kind: 'flow' as const },
@@ -57,5 +57,31 @@ describe('flowSummary', () => {
     ]);
     expect(s.dropped).toBe(20);
     expect(s.dropRate).toBe(20);
+  });
+});
+
+describe('flowSummary 순환', () => {
+  it('시작 노드가 없으면 비율은 null(0% 가 아니다)', () => {
+    const s = flowSummary(nodes, [
+      { source: 'req', target: 'po', value: 100 },
+      { source: 'po', target: 'req', value: 5 },
+      { source: 'po', target: 'rej', value: 20 },
+    ]);
+    expect(s.dropped).toBe(20);
+    expect(s.dropRate).toBeNull();
+  });
+});
+
+describe('longestDepths', () => {
+  it('가장 긴 경로 기준. 옆으로 새는 끝 노드는 제 자리 깊이', () => {
+    // 0 → 1 → 2, 0 → 3(새는 끝), 4 → 2
+    expect(
+      longestDepths(5, [
+        { source: 0, target: 1 },
+        { source: 1, target: 2 },
+        { source: 0, target: 3 },
+        { source: 4, target: 2 },
+      ]),
+    ).toEqual([0, 1, 2, 1, 0]);
   });
 });
