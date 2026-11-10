@@ -6,8 +6,10 @@ import { getCurrentStockMovement } from '../inventory.api';
 import { FormatDate, getMovementColor, getMovementIcon } from '../inventory.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { stockMovementKeys } from '@/app/(private)/inventory/inventory.keys';
+import { useTranslations } from 'next-intl';
 
 export default function StockMovement() {
+  const t = useTranslations('inventory');
   const {
     data: stockMovementRes,
     isLoading,
@@ -23,7 +25,7 @@ export default function StockMovement() {
     <div className="bg-white rounded-lg border border border-gray-200">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">최근 재고 이동</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('stockMovement.title')}</h3>
         </div>
       </div>
 
@@ -31,13 +33,13 @@ export default function StockMovement() {
         <div className="space-y-3">
           {isLoading && (
             <div className="flex items-center justify-center py-8 text-sm text-gray-500">
-              재고 이동 내역을 불러오는 중입니다...
+              {t('stockMovement.loading')}
             </div>
           )}
 
           {isError && (
             <div className="rounded-lg bg-red-50 text-red-600 text-sm px-4 py-6">
-              최근 재고 이동 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.
+              {t('stockMovement.loadError')}
             </div>
           )}
 
@@ -47,10 +49,8 @@ export default function StockMovement() {
                 <i className="ri-time-line text-2xl text-gray-400"></i>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">최근 재고 이동 내역이 없습니다.</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  입·출고 작업이 등록되면 여기에서 확인할 수 있어요.
-                </p>
+                <p className="text-sm font-medium text-gray-900">{t('stockMovement.empty')}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('stockMovement.emptyHint')}</p>
               </div>
             </div>
           )}

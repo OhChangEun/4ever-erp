@@ -15,8 +15,10 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import { Table } from '@everp/ui';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
+import { useTranslations } from 'next-intl';
 import { Button } from '@everp/ui';
 const ShippingManagementList = () => {
+  const t = useTranslations('inventory');
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubTab, setSelectedSubTab] = useState('producing');
@@ -59,15 +61,23 @@ const ShippingManagementList = () => {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const shippingStatusTabs = [
-    { id: 'producing', name: '생산중', count: ProductionRes?.pageData.totalElements },
-    { id: 'readyToShip', name: '출고 준비 완료', count: ReadyToShipRes?.pageData.totalElements },
+    {
+      id: 'producing',
+      name: t('shipping.subTabs.producing'),
+      count: ProductionRes?.pageData.totalElements,
+    },
+    {
+      id: 'readyToShip',
+      name: t('shipping.subTabs.readyToShip'),
+      count: ReadyToShipRes?.pageData.totalElements,
+    },
   ];
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="p-6 border-b border-gray-200 shrink-0">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">출고 관리</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('shipping.title')}</h2>
         </div>
       </div>
 
@@ -93,52 +103,52 @@ const ShippingManagementList = () => {
 
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {isProductionLoading || isReadyLoading ? (
-            <TableStatusBox type="loading" message="출고 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message={t('shipping.loading')} />
           ) : isProductionError || isReadyError ? (
-            <TableStatusBox type="error" message="출고 목록을 불러오는 중 오류가 발생했습니다." />
+            <TableStatusBox type="error" message={t('shipping.loadError')} />
           ) : (
             <Table
               isStale={
                 selectedSubTab === 'producing' ? isProductionPlaceholder : isReadyPlaceholder
               }
               columns={[
-                { key: 'salesOrderNumber', label: '주문번호' },
-                { key: 'customerName', label: '고객사' },
+                { key: 'salesOrderNumber', label: t('shipping.columns.salesOrderNumber') },
+                { key: 'customerName', label: t('shipping.columns.customerName') },
                 {
                   key: 'orderDate',
-                  label: '주문일',
+                  label: t('shipping.columns.orderDate'),
                   render: (_, row) => row.orderDate.slice(0, 10),
                 },
                 {
                   key: 'dueDate',
-                  label: '납기일',
+                  label: t('shipping.columns.dueDate'),
                   render: (_, row) => row.dueDate.slice(0, 10),
                 },
                 {
                   key: 'totalAmount',
-                  label: '총금액',
+                  label: t('shipping.columns.totalAmount'),
                   align: 'right',
                   render: (_, row) => formatCurrency(row.totalAmount),
                 },
                 {
                   key: 'statusCode',
-                  label: '상태',
+                  label: t('shipping.columns.statusCode'),
                   render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
                 {
                   key: 'action',
-                  label: '작업',
+                  label: t('shipping.columns.action'),
                   align: 'right',
                   render: (_, row) => (
                     <Button
-                      label="상세"
+                      label={t('common.detail')}
                       variant="ghost"
                       size="sm"
                       className="text-gray-600 hover:bg-gray-100 px-2"
                       onClick={() => {
                         openModal(ShippingDetailModal, {
                           width: '900px',
-                          title: `주문 상세 - ${row.salesOrderNumber}`,
+                          title: t('shipping.detailModalTitle', { number: row.salesOrderNumber }),
                           selectedOrderId: row.salesOrderId,
                           selectedSubTab: selectedSubTab,
                         });
@@ -149,7 +159,7 @@ const ShippingManagementList = () => {
               ]}
               data={currentData}
               keyExtractor={(row) => row.salesOrderId}
-              emptyMessage="등록된 출고 정보가 없습니다."
+              emptyMessage={t('shipping.empty')}
               className="flex-1 min-h-0"
             />
           )}

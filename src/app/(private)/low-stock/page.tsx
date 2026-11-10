@@ -6,9 +6,11 @@ import { Suspense } from 'react';
 import { getLowStockStats } from './lowStock.api';
 import { mapLowStockStatsToCards } from './lowStock.service';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
 
 export default function LowStockPage() {
+  const t = useTranslations('lowStock');
   const {
     data: lowStockStats,
     isLoading,
@@ -26,7 +28,19 @@ export default function LowStockPage() {
     );
   }
 
-  const lowStockStatsData = lowStockStats ? mapLowStockStatsToCards(lowStockStats) : EMPTY_STATS;
+  // 카드에는 제목 키와 단위 없는 건수가 있다. 글자와 단위 '건'은 여기서 붙인다
+  const lowStockStatsData = lowStockStats
+    ? Object.fromEntries(
+        Object.entries(mapLowStockStatsToCards(lowStockStats)).map(([period, cards]) => [
+          period,
+          cards.map((card) => ({
+            ...card,
+            title: t(`stats.${card.title}`),
+            value: t('statCount', { value: card.value }),
+          })),
+        ]),
+      )
+    : EMPTY_STATS;
 
   return (
     <div className="bg-gray-50">

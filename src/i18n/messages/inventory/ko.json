@@ -1,0 +1,220 @@
+{
+  "tabs": {
+    "inventory": "재고 목록",
+    "shipping": "출고 관리",
+    "receiving": "입고 관리"
+  },
+  "stats": {
+    "totalStockValue": "총 재고 가치",
+    "receivingCompleted": "입고 완료",
+    "shippingCompleted": "출고 완료"
+  },
+  "statCount": "{value}건",
+  "common": {
+    "detail": "상세",
+    "cancel": "취소",
+    "allStatuses": "전체 상태"
+  },
+  "list": {
+    "title": "재고 목록",
+    "detailModalTitle": "재고 상세",
+    "searchPlaceholder": "검색어를 입력하세요",
+    "warehouses": "창고 관리",
+    "addMaterial": "원자재 추가",
+    "loading": "재고 목록을 불러오는 중입니다...",
+    "loadError": "재고 목록을 불러오는 중 오류가 발생했습니다.",
+    "empty": "등록된 재고가 없습니다.",
+    "statusFilter": {
+      "ALL": "전체",
+      "NORMAL": "정상",
+      "CAUTION": "주의",
+      "URGENT": "긴급"
+    },
+    "searchType": {
+      "WAREHOUSE_NAME": "창고명",
+      "ITEM_NAME": "품목명"
+    },
+    "columns": {
+      "itemName": "품목",
+      "category": "카테고리",
+      "currentStock": "현재재고",
+      "forShipmentStock": "출고예정",
+      "reservedStock": "예약재고",
+      "safetyStock": "안전재고",
+      "unitPrice": "단가",
+      "totalAmount": "재고가치",
+      "warehouseName": "창고",
+      "statusCode": "상태",
+      "action": "작업"
+    }
+  },
+  "lowStockAlert": {
+    "title": "재고 부족 알림",
+    "count": "{count}건",
+    "viewAll": "전체 보기 →",
+    "loading": "데이터를 불러오는 중입니다...",
+    "loadError": "재고 부족 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "empty": "재고 부족 품목이 없습니다.",
+    "emptyHint": "창고 재고가 안정적으로 유지되고 있어요.",
+    "stockLine": "현재: {current}{unit} / 최소: {safety}{unit}",
+    "urgent": "긴급",
+    "caution": "주의"
+  },
+  "stockMovement": {
+    "title": "최근 재고 이동",
+    "loading": "재고 이동 내역을 불러오는 중입니다...",
+    "loadError": "최근 재고 이동 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "empty": "최근 재고 이동 내역이 없습니다.",
+    "emptyHint": "입·출고 작업이 등록되면 여기에서 확인할 수 있어요."
+  },
+  "shipping": {
+    "title": "출고 관리",
+    "subTabs": {
+      "producing": "생산중",
+      "readyToShip": "출고 준비 완료"
+    },
+    "loading": "출고 목록을 불러오는 중입니다...",
+    "loadError": "출고 목록을 불러오는 중 오류가 발생했습니다.",
+    "empty": "등록된 출고 정보가 없습니다.",
+    "detailModalTitle": "주문 상세 - {number}",
+    "columns": {
+      "salesOrderNumber": "주문번호",
+      "customerName": "고객사",
+      "orderDate": "주문일",
+      "dueDate": "납기일",
+      "totalAmount": "총금액",
+      "statusCode": "상태",
+      "action": "작업"
+    }
+  },
+  "shippingDetail": {
+    "loading": "출고 상세 데이터를 불러오는 중입니다...",
+    "loadError": "출고 상세 데이터를 불러오는 중 오류가 발생했습니다.",
+    "customer": "고객:",
+    "dueDate": "납기일:",
+    "orderItems": "주문 품목",
+    "close": "닫기",
+    "processing": "처리 중...",
+    "startDelivery": "배송 시작",
+    "success": "출고 준비 완료로 상태가 변경되었습니다.",
+    "error": "상태 변경 중 오류가 발생했습니다. {message}"
+  },
+  "receiving": {
+    "title": "입고 관리",
+    "subTabs": {
+      "pending": "입고 대기",
+      "received": "입고 완료"
+    },
+    "loading": "입고 목록을 불러오는 중입니다...",
+    "loadError": "입고 목록을 불러오는 중 오류가 발생했습니다.",
+    "empty": "등록된 입고 정보가 없습니다.",
+    "columns": {
+      "purchaseOrderNumber": "발주서 번호",
+      "supplierCompanyName": "공급업체",
+      "orderDate": "주문일",
+      "dueDate": "납기일",
+      "totalAmount": "총금액",
+      "statusCode": "상태"
+    }
+  },
+  "detail": {
+    "loading": "재고 상세 데이터를 불러오는 중입니다...",
+    "loadError": "재고 상세 데이터를 불러오는 중 오류가 발생했습니다.",
+    "basicInfo": "기본 정보",
+    "itemName": "품목명:",
+    "itemNumber": "품목코드:",
+    "category": "카테고리:",
+    "supplier": "공급업체:",
+    "status": "상태:",
+    "stockInfo": "재고 정보",
+    "currentStock": "현재 재고:",
+    "safetyStock": "안전 재고:",
+    "unitPrice": "단가:",
+    "totalValue": "총 가치:",
+    "locationInfo": "위치 정보",
+    "warehouse": "창고:",
+    "location": "위치:",
+    "lastModified": "최종 수정:",
+    "movementHistory": "재고 이동 기록",
+    "moveStock": "재고 이동",
+    "editSafetyStock": "안전 재고 수정"
+  },
+  "trend": {
+    "title": "재고 추이(30일)",
+    "showChart": "차트로 보기",
+    "showTable": "표로 보기",
+    "loading": "재고 추이 불러오는 중",
+    "loadError": "재고 추이를 불러오지 못했습니다.",
+    "tableLabel": "재고 추이 표",
+    "date": "날짜",
+    "stockColumn": "재고({unit})",
+    "empty": "추이 데이터가 없습니다.",
+    "summary": "30일 동안 {first}에서 {last}{unit}로, 최저 {min}. 안전재고 {safety}.",
+    "alreadyBelow": "이미 안전재고 아래입니다.",
+    "daysUntilBelow": "지금 속도면 약 {days}일 뒤 안전재고 아래로 갑니다.",
+    "chartLabel": "재고 추이 차트",
+    "tooltipStock": "재고",
+    "safetyLine": "안전재고 {value}"
+  },
+  "move": {
+    "title": "재고 이동",
+    "loading": "창고 정보를 불러오는 중입니다...",
+    "loadError": "창고 정보를 불러오는 중 오류가 발생했습니다.",
+    "currentLocation": "현재 위치: {name} ({number})",
+    "currentStock": "현재 재고: {stock} {unit}",
+    "toWarehouse": "이동할 창고",
+    "selectWarehouse": "창고를 선택하세요",
+    "toLocation": "이동할 위치",
+    "locationPlaceholder": "예: A-01-01",
+    "quantity": "이동 수량",
+    "quantityPlaceholder": "이동할 수량을 입력하세요",
+    "reason": "이동 사유",
+    "reasonPlaceholder": "이동 사유를 입력하세요",
+    "submitting": "이동 중...",
+    "submit": "이동",
+    "success": "재고가 이동되었습니다.",
+    "error": "재고 이동 중 오류가 발생했습니다. {message}"
+  },
+  "safetyStock": {
+    "title": "안전 재고 수정",
+    "current": "현재 안전재고: {stock} {unit}",
+    "newLabel": "새 안전재고 수량",
+    "placeholder": "안전재고 수량",
+    "submitting": "수정 중...",
+    "submit": "수정",
+    "success": "안전재고가 수정되었습니다.",
+    "error": "안전재고 수정 중 오류가 발생했습니다. {message}"
+  },
+  "add": {
+    "itemLoading": "자재 정보를 불러오는 중입니다...",
+    "warehouseLoading": "창고 정보를 불러오는 중입니다...",
+    "itemLoadError": "자재 정보를 불러오는 중 오류가 발생했습니다.",
+    "warehouseLoadError": "창고 정보를 불러오는 중 오류가 발생했습니다.",
+    "material": "자재명",
+    "selectMaterial": "자재를 선택하세요",
+    "supplier": "공급사",
+    "unitPrice": "단가",
+    "unit": "단위",
+    "safetyStock": "안전재고",
+    "safetyStockPlaceholder": "최소 보유 수량",
+    "initialStock": "초기재고",
+    "initialStockPlaceholder": "초기 재고 수량",
+    "location": "보관위치 (창고)",
+    "selectWarehouse": "창고를 선택하세요",
+    "submitting": "추가 중...",
+    "submit": "추가",
+    "success": "원자재가 성공적으로 등록되었습니다.",
+    "error": "원자재 등록 중 오류가 발생했습니다. {message}"
+  },
+  "purchaseRequest": {
+    "stockLine": "현재: {current} {unit} / 안전: {safety} {unit}",
+    "shortage": "(부족: {count})",
+    "unitPrice": "단가",
+    "quantity": "발주 수량",
+    "grandTotal": "총 발주 금액",
+    "submit": "발주 요청",
+    "quantityRequired": "발주 수량을 입력해주세요.",
+    "success": "발주 요청이 생성되었습니다.",
+    "error": "발주 요청 중 오류가 발생했습니다. {message}"
+  }
+}

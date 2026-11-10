@@ -5,9 +5,11 @@ import type { LowStockItemResponse } from '@/app/(private)/low-stock';
 import { useQuery } from '@tanstack/react-query';
 import { getLowStockItems } from '../inventory.api';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 import { lowStockItemKeys } from '@/app/(private)/inventory/inventory.keys';
 
 export default function LowStockAlert() {
+  const t = useTranslations('inventory');
   const {
     data: lowStockRes,
     isLoading,
@@ -24,13 +26,13 @@ export default function LowStockAlert() {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-semibold text-gray-900">재고 부족 알림</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('lowStockAlert.title')}</h3>
             <span className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-              {lowStockCount}건
+              {t('lowStockAlert.count', { count: String(lowStockCount) })}
             </span>
           </div>
           <Link href="/low-stock">
-            <Button label="전체 보기 →" size="sm" variant="ghost" />
+            <Button label={t('lowStockAlert.viewAll')} size="sm" variant="ghost" />
           </Link>
         </div>
       </div>
@@ -38,13 +40,13 @@ export default function LowStockAlert() {
       <div className="p-4 space-y-3">
         {isLoading && (
           <div className="flex items-center justify-center py-10 text-sm text-gray-500">
-            데이터를 불러오는 중입니다...
+            {t('lowStockAlert.loading')}
           </div>
         )}
 
         {isError && (
           <div className="rounded-lg bg-red-50 text-red-600 text-sm px-4 py-6">
-            재고 부족 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.
+            {t('lowStockAlert.loadError')}
           </div>
         )}
 
@@ -54,8 +56,8 @@ export default function LowStockAlert() {
               <i className="ri-checkbox-circle-line text-2xl text-green-500"></i>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">재고 부족 품목이 없습니다.</p>
-              <p className="text-xs text-gray-500 mt-1">창고 재고가 안정적으로 유지되고 있어요.</p>
+              <p className="text-sm font-medium text-gray-900">{t('lowStockAlert.empty')}</p>
+              <p className="text-xs text-gray-500 mt-1">{t('lowStockAlert.emptyHint')}</p>
             </div>
           </div>
         )}
@@ -77,9 +79,12 @@ export default function LowStockAlert() {
                   <span className="text-sm font-medium text-gray-900">{item.itemName}</span>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  현재: {item.currentStock}
-                  {item.uomName} / 최소: {item.safetyStock}
-                  {item.uomName}
+                  {t('lowStockAlert.stockLine', {
+                    // 예전처럼 숫자를 그대로 둔다(1000 은 1000). 숫자로 넘기면 언어별로 1,000 처럼 묶일 수 있다
+                    current: String(item.currentStock),
+                    safety: String(item.safetyStock),
+                    unit: item.uomName,
+                  })}
                 </div>
               </div>
               <div className="text-right">
@@ -88,7 +93,9 @@ export default function LowStockAlert() {
                     item.statusCode === 'URGENT' ? 'text-red-600' : 'text-yellow-600'
                   }`}
                 >
-                  {item.statusCode === 'URGENT' ? '긴급' : '주의'}
+                  {item.statusCode === 'URGENT'
+                    ? t('lowStockAlert.urgent')
+                    : t('lowStockAlert.caution')}
                 </div>
               </div>
             </div>

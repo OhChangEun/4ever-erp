@@ -12,7 +12,9 @@ import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { Table } from '@everp/ui';
 import { receivingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
+import { useTranslations } from 'next-intl';
 const ReceivingManagementList = () => {
+  const t = useTranslations('inventory');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,15 +69,23 @@ const ReceivingManagementList = () => {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const receivingStatusTabs = [
-    { id: 'pending', name: '입고 대기', count: PendingRes?.pageData.totalElements },
-    { id: 'received', name: '입고 완료', count: ReceivedRes?.pageData.totalElements },
+    {
+      id: 'pending',
+      name: t('receiving.subTabs.pending'),
+      count: PendingRes?.pageData.totalElements,
+    },
+    {
+      id: 'received',
+      name: t('receiving.subTabs.received'),
+      count: ReceivedRes?.pageData.totalElements,
+    },
   ];
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="p-6 border-b border-gray-200 shrink-0">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">입고 관리</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('receiving.title')}</h2>
 
           {/* 필터링 */}
           {selectedSubTab === 'received' && (
@@ -115,40 +125,40 @@ const ReceivingManagementList = () => {
 
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {isReceivedLoading || isPendingLoading ? (
-            <TableStatusBox type="loading" message="입고 목록을 불러오는 중입니다..." />
+            <TableStatusBox type="loading" message={t('receiving.loading')} />
           ) : isReceivedError || isPendingError ? (
-            <TableStatusBox type="error" message="입고 목록을 불러오는 중 오류가 발생했습니다." />
+            <TableStatusBox type="error" message={t('receiving.loadError')} />
           ) : (
             <Table
               isStale={selectedSubTab === 'pending' ? isPendingPlaceholder : isReceivedPlaceholder}
               columns={[
-                { key: 'purchaseOrderNumber', label: '납품서 번호' },
-                { key: 'supplierCompanyName', label: '공급업체' },
+                { key: 'purchaseOrderNumber', label: t('receiving.columns.purchaseOrderNumber') },
+                { key: 'supplierCompanyName', label: t('receiving.columns.supplierCompanyName') },
                 {
                   key: 'orderDate',
-                  label: '주문일',
+                  label: t('receiving.columns.orderDate'),
                   render: (_, row) => row.orderDate.slice(0, 10),
                 },
                 {
                   key: 'dueDate',
-                  label: '낙기일',
+                  label: t('receiving.columns.dueDate'),
                   render: (_, row) => row.dueDate.slice(0, 10),
                 },
                 {
                   key: 'totalAmount',
-                  label: '총금액',
+                  label: t('receiving.columns.totalAmount'),
                   align: 'right',
                   render: (_, row) => formatCurrency(row.totalAmount),
                 },
                 {
                   key: 'statusCode',
-                  label: '상태',
+                  label: t('receiving.columns.statusCode'),
                   render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
                 },
               ]}
               data={currentData}
               keyExtractor={(row) => row.purchaseOrderId}
-              emptyMessage="등록된 입고 정보가 없습니다."
+              emptyMessage={t('receiving.empty')}
               className="flex-1 min-h-0"
             />
           )}

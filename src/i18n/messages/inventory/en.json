@@ -1,0 +1,220 @@
+{
+  "tabs": {
+    "inventory": "Inventory",
+    "shipping": "Shipping",
+    "receiving": "Receiving"
+  },
+  "stats": {
+    "totalStockValue": "Total stock value",
+    "receivingCompleted": "Received",
+    "shippingCompleted": "Shipped"
+  },
+  "statCount": "{value}",
+  "common": {
+    "detail": "Details",
+    "cancel": "Cancel",
+    "allStatuses": "All statuses"
+  },
+  "list": {
+    "title": "Inventory",
+    "detailModalTitle": "Stock details",
+    "searchPlaceholder": "Search",
+    "warehouses": "Warehouses",
+    "addMaterial": "Add material",
+    "loading": "Loading inventory...",
+    "loadError": "Couldn't load inventory.",
+    "empty": "No inventory yet.",
+    "statusFilter": {
+      "ALL": "All",
+      "NORMAL": "Normal",
+      "CAUTION": "Caution",
+      "URGENT": "Urgent"
+    },
+    "searchType": {
+      "WAREHOUSE_NAME": "Warehouse",
+      "ITEM_NAME": "Item name"
+    },
+    "columns": {
+      "itemName": "Item",
+      "category": "Category",
+      "currentStock": "On hand",
+      "forShipmentStock": "To ship",
+      "reservedStock": "Reserved",
+      "safetyStock": "Safety stock",
+      "unitPrice": "Unit price",
+      "totalAmount": "Stock value",
+      "warehouseName": "Warehouse",
+      "statusCode": "Status",
+      "action": "Action"
+    }
+  },
+  "lowStockAlert": {
+    "title": "Low stock alerts",
+    "count": "{count}",
+    "viewAll": "View all →",
+    "loading": "Loading...",
+    "loadError": "Couldn't load low stock. Please try again later.",
+    "empty": "No low-stock items.",
+    "emptyHint": "Warehouse stock is holding steady.",
+    "stockLine": "On hand: {current}{unit} / Min: {safety}{unit}",
+    "urgent": "Urgent",
+    "caution": "Caution"
+  },
+  "stockMovement": {
+    "title": "Recent stock movements",
+    "loading": "Loading stock movements...",
+    "loadError": "Couldn't load recent stock movements. Please try again later.",
+    "empty": "No recent stock movements.",
+    "emptyHint": "Receipts and shipments will show up here."
+  },
+  "shipping": {
+    "title": "Shipping",
+    "subTabs": {
+      "producing": "In production",
+      "readyToShip": "Ready to ship"
+    },
+    "loading": "Loading shipments...",
+    "loadError": "Couldn't load shipments.",
+    "empty": "No shipments yet.",
+    "detailModalTitle": "Order details - {number}",
+    "columns": {
+      "salesOrderNumber": "Order no.",
+      "customerName": "Customer",
+      "orderDate": "Order date",
+      "dueDate": "Due date",
+      "totalAmount": "Total",
+      "statusCode": "Status",
+      "action": "Action"
+    }
+  },
+  "shippingDetail": {
+    "loading": "Loading shipment details...",
+    "loadError": "Couldn't load shipment details.",
+    "customer": "Customer:",
+    "dueDate": "Due date:",
+    "orderItems": "Order items",
+    "close": "Close",
+    "processing": "Processing...",
+    "startDelivery": "Start delivery",
+    "success": "Status changed to ready to ship.",
+    "error": "Couldn't change the status. {message}"
+  },
+  "receiving": {
+    "title": "Receiving",
+    "subTabs": {
+      "pending": "Pending",
+      "received": "Received"
+    },
+    "loading": "Loading receipts...",
+    "loadError": "Couldn't load receipts.",
+    "empty": "No receipts yet.",
+    "columns": {
+      "purchaseOrderNumber": "PO no.",
+      "supplierCompanyName": "Supplier",
+      "orderDate": "Order date",
+      "dueDate": "Due date",
+      "totalAmount": "Total",
+      "statusCode": "Status"
+    }
+  },
+  "detail": {
+    "loading": "Loading stock details...",
+    "loadError": "Couldn't load stock details.",
+    "basicInfo": "Basic info",
+    "itemName": "Item name:",
+    "itemNumber": "Item code:",
+    "category": "Category:",
+    "supplier": "Supplier:",
+    "status": "Status:",
+    "stockInfo": "Stock",
+    "currentStock": "On hand:",
+    "safetyStock": "Safety stock:",
+    "unitPrice": "Unit price:",
+    "totalValue": "Total value:",
+    "locationInfo": "Location",
+    "warehouse": "Warehouse:",
+    "location": "Location:",
+    "lastModified": "Last updated:",
+    "movementHistory": "Stock movement history",
+    "moveStock": "Move stock",
+    "editSafetyStock": "Edit safety stock"
+  },
+  "trend": {
+    "title": "Stock trend (30 days)",
+    "showChart": "Show chart",
+    "showTable": "Show table",
+    "loading": "Loading stock trend",
+    "loadError": "Couldn't load the stock trend.",
+    "tableLabel": "Stock trend table",
+    "date": "Date",
+    "stockColumn": "Stock ({unit})",
+    "empty": "No trend data.",
+    "summary": "Over 30 days, {first} to {last} {unit}, low {min}. Safety stock {safety}.",
+    "alreadyBelow": "Already below safety stock.",
+    "daysUntilBelow": "At this rate, it drops below safety stock in about {days, plural, one {# day} other {# days}}.",
+    "chartLabel": "Stock trend chart",
+    "tooltipStock": "Stock",
+    "safetyLine": "Safety stock {value}"
+  },
+  "move": {
+    "title": "Move stock",
+    "loading": "Loading warehouses...",
+    "loadError": "Couldn't load warehouses.",
+    "currentLocation": "Current location: {name} ({number})",
+    "currentStock": "On hand: {stock} {unit}",
+    "toWarehouse": "Destination warehouse",
+    "selectWarehouse": "Select a warehouse",
+    "toLocation": "Destination location",
+    "locationPlaceholder": "e.g. A-01-01",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "Enter quantity to move",
+    "reason": "Reason",
+    "reasonPlaceholder": "Enter a reason",
+    "submitting": "Moving...",
+    "submit": "Move",
+    "success": "Stock moved.",
+    "error": "Couldn't move stock. {message}"
+  },
+  "safetyStock": {
+    "title": "Edit safety stock",
+    "current": "Current safety stock: {stock} {unit}",
+    "newLabel": "New safety stock",
+    "placeholder": "Safety stock quantity",
+    "submitting": "Saving...",
+    "submit": "Save",
+    "success": "Safety stock updated.",
+    "error": "Couldn't update safety stock. {message}"
+  },
+  "add": {
+    "itemLoading": "Loading materials...",
+    "warehouseLoading": "Loading warehouses...",
+    "itemLoadError": "Couldn't load materials.",
+    "warehouseLoadError": "Couldn't load warehouses.",
+    "material": "Material",
+    "selectMaterial": "Select a material",
+    "supplier": "Supplier",
+    "unitPrice": "Unit price",
+    "unit": "Unit",
+    "safetyStock": "Safety stock",
+    "safetyStockPlaceholder": "Minimum quantity to keep",
+    "initialStock": "Opening stock",
+    "initialStockPlaceholder": "Opening quantity",
+    "location": "Storage location (warehouse)",
+    "selectWarehouse": "Select a warehouse",
+    "submitting": "Adding...",
+    "submit": "Add",
+    "success": "Material added.",
+    "error": "Couldn't add the material. {message}"
+  },
+  "purchaseRequest": {
+    "stockLine": "On hand: {current} {unit} / Safety: {safety} {unit}",
+    "shortage": "(Short: {count})",
+    "unitPrice": "Unit price",
+    "quantity": "Order quantity",
+    "grandTotal": "Total order amount",
+    "submit": "Request order",
+    "quantityRequired": "Enter an order quantity.",
+    "success": "Order request created.",
+    "error": "Couldn't create the order request. {message}"
+  }
+}

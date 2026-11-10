@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "urgentShortage": "긴급 재고 부족",
+    "cautionShortage": "주의 재고 부족"
+  },
+  "statCount": "{value}건",
+  "list": {
+    "back": "재고관리로 돌아가기",
+    "title": "재고 부족 품목",
+    "allStatuses": "전체 상태",
+    "orderSelected": "선택 품목 발주",
+    "selectAll": "부족 품목 전체 선택",
+    "selectItem": "{name} 선택",
+    "selectRequired": "발주할 품목을 선택해주세요.",
+    "purchaseModalTitle": "발주 요청",
+    "loading": "재고 부족 목록을 불러오는 중입니다...",
+    "loadError": "재고 부족 목록을 불러오는 중 오류가 발생했습니다.",
+    "empty": "부족한 재고가 없습니다.",
+    "statusFilter": {
+      "ALL": "전체",
+      "CAUTION": "주의",
+      "URGENT": "긴급"
+    },
+    "columns": {
+      "itemName": "품목",
+      "category": "카테고리",
+      "currentStock": "현재재고",
+      "safetyStock": "안전재고",
+      "unitPrice": "단가",
+      "totalAmount": "총 가치",
+      "warehouseName": "창고 위치",
+      "statusCode": "상태"
+    }
+  }
+}

@@ -1,61 +1,25 @@
-import { type KeyValueItem } from '@/app/types/CommonType';
+import type inventoryKo from '@/i18n/messages/inventory/ko.json';
+import type lowStockKo from '@/i18n/messages/lowStock/ko.json';
 
-export const SHIPPING_TABLE_HEADERS = [
-  '주문 번호',
-  '고객 정보',
-  '주문일',
-  '납기일',
-  '주문 금액',
-  '상태',
-  '작업',
-] as const;
+// 글자는 메시지에 있다. 여기는 코드와 순서만(i18n 6)
 
-export const RECEIVING_PENDING_TABLE_HEADERS = [
-  '발주서 번호',
-  '공급업체',
-  '주문일',
-  '납기일',
-  '주문 금액',
-  '상태',
-] as const;
+// 재고 목록 검색 기준. 글자는 inventory.list.searchType.<코드>
+export const INVENTORY_SEARCH_KEYWORD_OPTIONS = [
+  'WAREHOUSE_NAME',
+  'ITEM_NAME',
+] as const satisfies readonly (keyof typeof inventoryKo.list.searchType)[];
 
-export const RECEIVING_COMPLETED_TABLE_HEADERS = [
-  '발주서 번호',
-  '공급업체',
-  '주문일',
-  '입고 완료일',
-  '주문 금액',
-  '상태',
-] as const;
+// 재고 목록 상태 필터. 글자는 inventory.list.statusFilter.<코드>
+export const INVENTORY_STATUS_OPTIONS = [
+  'ALL',
+  'NORMAL',
+  'CAUTION',
+  'URGENT',
+] as const satisfies readonly (keyof typeof inventoryKo.list.statusFilter)[];
 
-export const INVENTORY_TABLE_HEADERS = [
-  '품목',
-  '카테고리',
-  '현재재고',
-  '예약',
-  '출고대기',
-  '안전재고',
-  '단가',
-  '총 가치',
-  '창고 위치',
-  '상태',
-  '작업',
-] as const;
-
-export const INVENTORY_SEARCH_KEYWORD_OPTIONS: KeyValueItem<string>[] = [
-  { key: 'WAREHOUSE_NAME', value: '창고명' },
-  { key: 'ITEM_NAME', value: '품목명' },
-] as const;
-
-export const INVENTORY_STATUS_OPTIONS: KeyValueItem<string>[] = [
-  { key: 'ALL', value: '전체' },
-  { key: 'NORMAL', value: '정상' },
-  { key: 'CAUTION', value: '주의' },
-  { key: 'URGENT', value: '긴급' },
-] as const;
-
-export const LOW_STOCK_STATUS_OPTIONS: KeyValueItem<string>[] = [
-  { key: 'ALL', value: '전체' },
-  { key: 'CAUTION', value: '주의' },
-  { key: 'URGENT', value: '긴급' },
-] as const;
+// 부족 재고 상태 필터(안전재고 화면). 글자는 lowStock.list.statusFilter.<코드>
+export const LOW_STOCK_STATUS_OPTIONS = [
+  'ALL',
+  'CAUTION',
+  'URGENT',
+] as const satisfies readonly (keyof typeof lowStockKo.list.statusFilter)[];

@@ -7,6 +7,7 @@ import { type ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { errorMessageOf } from '@/lib/AppError';
+import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
@@ -33,6 +34,7 @@ export default function InventoryPurchaseRequestModal({
   items,
   onClose,
 }: InventoryPurchaseRequestModalProps) {
+  const t = useTranslations('inventory');
   const [quantities, setQuantities] = useState<ItemQuantity[]>(
     items.map((item) => ({
       itemId: item.itemId,
@@ -64,10 +66,10 @@ export default function InventoryPurchaseRequestModal({
   // 무효화(부족 재고 목록, 구매 요청 목록, 구매 통계)는 inventory.mutations.ts 한 곳.
   const { mutate: registerStockPurchaseReq, isPending } = useRequestPurchaseForLowStock({
     onSuccess: () => {
-      toast.success('발주 요청이 생성되었습니다.');
+      toast.success(t('purchaseRequest.success'));
       onClose();
     },
-    onError: (error) => toast.error(`발주 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('purchaseRequest.error', { message: errorMessageOf(error) })),
   });
 
   const handleSubmit = async () => {
@@ -80,7 +82,7 @@ export default function InventoryPurchaseRequestModal({
       }));
 
     if (requestItems.length === 0) {
-      toast.warning('발주 수량을 입력해주세요.');
+      toast.warning(t('purchaseRequest.quantityRequired'));
       return;
     }
 
@@ -104,25 +106,28 @@ export default function InventoryPurchaseRequestModal({
                     <div className="text-sm font-medium text-gray-900">{item.itemName}</div>
                     <div className="text-xs text-gray-500">{item.itemNumber}</div>
                     <div className="text-xs text-gray-500 mt-1">
-                      현재: {item.currentStock.toLocaleString()} {item.uomName} / 안전:{' '}
-                      {item.safetyStock.toLocaleString()} {item.uomName}
+                      {t('purchaseRequest.stockLine', {
+                        current: item.currentStock.toLocaleString(),
+                        safety: item.safetyStock.toLocaleString(),
+                        unit: item.uomName,
+                      })}
                       {shortage > 0 && (
                         <span className="text-red-600 ml-1">
-                          (부족: {shortage.toLocaleString()})
+                          {t('purchaseRequest.shortage', { count: shortage.toLocaleString() })}
                         </span>
                       )}
                     </div>
                   </div>
                   {/* 단가 */}
                   <div className="col-span-2">
-                    <div className="text-xs text-gray-500">단가</div>
+                    <div className="text-xs text-gray-500">{t('purchaseRequest.unitPrice')}</div>
                     <div className="text-sm font-medium text-gray-900">
                       {formatCurrency(item.unitPrice)}
                     </div>
                   </div>
                   {/* 수량 입력 */}
                   <Input
-                    label="발주 수량"
+                    label={t('purchaseRequest.quantity')}
                     type="number"
                     min="0"
                     maxLength={10}
@@ -138,7 +143,9 @@ export default function InventoryPurchaseRequestModal({
         {/* 합계 */}
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-gray-900">총 발주 금액</span>
+            <span className="text-lg font-semibold text-gray-900">
+              {t('purchaseRequest.grandTotal')}
+            </span>
             <span className="text-2xl font-bold text-blue-600">
               {formatCurrency(calculateGrandTotal())}
             </span>
@@ -147,7 +154,11 @@ export default function InventoryPurchaseRequestModal({
       </div>
       {/* Footer */}
       <div className="py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
-        <Button label="발주 요청" onClick={() => void handleSubmit()} loading={isPending} />
+        <Button
+          label={t('purchaseRequest.submit')}
+          onClick={() => void handleSubmit()}
+          loading={isPending}
+        />
       </div>
     </>
   );
