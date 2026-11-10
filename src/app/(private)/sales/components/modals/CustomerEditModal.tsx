@@ -10,8 +10,12 @@ import { CUSTOMER_STATUS_OPTIONS } from '@/app/(private)/sales/constant';
 import { useUpdateCustomer } from '../../sales.mutations';
 import { errorMessageOf } from '@/lib/AppError';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useTranslations } from 'next-intl';
 
 const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModalProps) => {
+  const t = useTranslations('sales.customerEdit');
+  const tc = useTranslations('sales.common');
+  const tStatus = useTranslations('status');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   // 폼 상태는 이 모달이 가진다. 열 때 받은 값으로 한 번 채운다.
@@ -48,10 +52,10 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
   // 무효화(고객 목록, 그 고객 상세)는 sales.mutations.ts 한 곳
   const { mutate: editCustomer, isPending } = useUpdateCustomer({
     onSuccess: () => {
-      toast.success('고객 정보가 성공적으로 수정되었습니다.');
+      toast.success(t('success'));
       onClose();
     },
-    onError: (error) => toast.error(`고객 수정 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('error', { message: errorMessageOf(error) })),
   });
 
   // 필드 업데이트 공통 함수
@@ -96,7 +100,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field0`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                고객번호
+                {t('customerNumber')}
               </label>
               <input
                 id={`${fieldId}-field0`}
@@ -112,7 +116,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field1`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                고객명
+                {t('customerName')}
               </label>
               <input
                 id={`${fieldId}-field1`}
@@ -129,7 +133,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field2`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                대표이사
+                {t('ceo')}
               </label>
               <input
                 id={`${fieldId}-field2`}
@@ -147,20 +151,20 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field3`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                상태
+                {t('status')}
               </label>
               <select
                 id={`${fieldId}-field3`}
                 value={editFormData.statusCode}
                 onChange={(e) => {
                   // 선택지 표에 있는 코드만 받는다(문자열을 상태 유니온으로 단언하지 않는다)
-                  const next = CUSTOMER_STATUS_OPTIONS.find((o) => o.key === e.target.value)?.key;
+                  const next = CUSTOMER_STATUS_OPTIONS.find((code) => code === e.target.value);
                   if (next) updateEditFormData('statusCode', next);
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-8"
               >
-                <option value="ACTIVE">활성</option>
-                <option value="INACTIVE">비활성</option>
+                <option value="ACTIVE">{tStatus('ACTIVE')}</option>
+                <option value="INACTIVE">{tStatus('INACTIVE')}</option>
               </select>
             </div>
 
@@ -169,7 +173,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field4`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                전화번호
+                {t('phone')}
               </label>
               <input
                 id={`${fieldId}-field4`}
@@ -186,7 +190,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field5`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                사업자번호
+                {t('businessNumber')}
               </label>
               <input
                 id={`${fieldId}-field5`}
@@ -203,14 +207,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
 
         {/* 주소 */}
         <div className="border-t border-gray-200 pt-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">주소 정보</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('addressTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor={`${fieldId}-field6`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                기본 주소
+                {t('baseAddress')}
               </label>
               <input
                 id={`${fieldId}-field6`}
@@ -226,7 +230,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field7`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                상세 주소
+                {t('detailAddress')}
               </label>
               <input
                 id={`${fieldId}-field7`}
@@ -241,14 +245,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
 
         {/* 담당자 */}
         <div className="border-t border-gray-200 pt-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">담당자 정보</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('managerTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor={`${fieldId}-field8`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                담당자명
+                {t('managerName')}
               </label>
               <input
                 id={`${fieldId}-field8`}
@@ -264,7 +268,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field9`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                담당자 휴대폰
+                {t('managerMobile')}
               </label>
               <input
                 id={`${fieldId}-field9`}
@@ -282,7 +286,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field10`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                담당자 이메일
+                {t('managerEmail')}
               </label>
               <input
                 id={`${fieldId}-field10`}
@@ -297,14 +301,14 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
 
         {/* 거래 정보 */}
         <div className="border-t border-gray-200 pt-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">거래 정보</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('dealTitle')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor={`${fieldId}-field11`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                총 주문건수
+                {t('totalOrders')}
               </label>
               <input
                 id={`${fieldId}-field11`}
@@ -321,7 +325,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                 htmlFor={`${fieldId}-field12`}
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                총 거래금액
+                {t('totalAmount')}
               </label>
               <input
                 id={`${fieldId}-field12`}
@@ -343,7 +347,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             htmlFor={`${fieldId}-field13`}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            비고
+            {tc('note')}
           </label>
           <textarea
             id={`${fieldId}-field13`}
@@ -363,7 +367,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
             }}
             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer whitespace-nowrap"
           >
-            취소
+            {tc('cancel')}
           </button>
 
           <button
@@ -377,7 +381,7 @@ const CustomerEditModal = ({ onClose, editFormData: initial }: CustomerEditModal
                     }`}
             // className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer whitespace-nowrap"
           >
-            {isPending ? '수정중...' : '저장'}
+            {isPending ? t('saving') : t('save')}
           </button>
         </div>
       </form>

@@ -18,7 +18,11 @@ import { errorMessageOf } from '@/lib/AppError';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 const NewOrderModal = ({ onClose }: ModalProps) => {
+  // 대시보드에서도 열린다. 대시보드 레이아웃이 영업 메시지를 같이 감싼다(i18n 8)
+  const t = useTranslations('sales.newOrder');
+  const tc = useTranslations('sales.common');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const [newOrderItems, setNewOrderItems] = useState<NewOrderRequest>({
@@ -96,7 +100,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addOrder(newOrderItems);
-    toast.success('신규 견적 요청이 등록되었습니다.');
+    toast.success(t('success'));
 
     setNewOrderItems({
       items: [
@@ -135,20 +139,19 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   });
 
   const { mutate: addOrder, isPending: isCreating } = useCreateQuote({
-    onError: (error) => toast.error(`견적 요청 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('createError', { message: errorMessageOf(error) })),
   });
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading)
-    return <ModalStatusBox type="loading" message="자재 정보를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('loading')} />;
 
   if (errorDialog.isOpen)
     return (
       <ModalStatusBox
         type="error"
-        message="자재 정보를 불러오는 중 오류가 발생했습니다."
+        message={t('loadError')}
         onClose={() => {
           errorDialog.dismiss();
         }}
@@ -162,14 +165,14 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
         {/* 주문 품목 */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-gray-900">주문 품목</h4>
+            <h4 className="text-lg font-semibold text-gray-900">{t('itemsTitle')}</h4>
             <button
               type="button"
               onClick={addOrderItem}
               className="mt-4 inline-flex items-center px-4 py-2 bg-white border border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-blue-400 hover:text-blue-600 transition-colors duration-200 cursor-pointer"
             >
               <i className="ri-add-line mr-2 text-base"></i>
-              제품 추가
+              {t('addItem')}
             </button>
           </div>
 
@@ -182,7 +185,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                       htmlFor={`${fieldId}-itemId-${index}`}
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      제품명 *
+                      {t('item')}
                     </label>
                     <select
                       id={`${fieldId}-itemId-${index}`}
@@ -208,7 +211,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
                       required
                     >
-                      <option value="">제품을 선택하세요</option>
+                      <option value="">{t('selectItem')}</option>
                       {ItemInfoRes?.map((item) => (
                         <option key={item.itemId} value={item.itemId}>
                           {item.itemName}
@@ -221,7 +224,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                       htmlFor={`${fieldId}-quantity-${index}`}
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      수량 *
+                      {t('quantity')}
                     </label>
                     <input
                       id={`${fieldId}-quantity-${index}`}
@@ -239,7 +242,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                       htmlFor={`${fieldId}-unitPrice-${index}`}
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      단가
+                      {t('unitPrice')}
                     </label>
                     <input
                       id={`${fieldId}-unitPrice-${index}`}
@@ -269,7 +272,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
                         htmlFor={`${fieldId}-field4-${index}`}
                         className="block text-sm font-medium text-gray-700 mb-2"
                       >
-                        금액
+                        {t('amount')}
                       </label>
                       <input
                         id={`${fieldId}-field4-${index}`}
@@ -296,7 +299,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
 
           <div className="mt-4 p-4 bg-white rounded-lg border-1 border-gray-200">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-gray-900">총 주문 금액</span>
+              <span className="text-lg font-semibold text-gray-900">{t('total')}</span>
               <span className="text-xl font-bold text-gray-600">
                 {formatCurrency(getTotalAmount())}
               </span>
@@ -310,7 +313,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
             htmlFor={`${fieldId}-note`}
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            비고
+            {tc('note')}
           </label>
           <textarea
             id={`${fieldId}-note`}
@@ -319,7 +322,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
             onChange={handleFormChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             rows={3}
-            placeholder="추가 요청사항이나 특이사항을 입력하세요"
+            placeholder={tc('requestNotePlaceholder')}
           ></textarea>
         </div>
 
@@ -330,9 +333,9 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
             onClick={handleClose}
             className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer whitespace-nowrap"
           >
-            취소
+            {tc('cancel')}
           </button>
-          <Button type="submit" label="견적 요청 등록" loading={isCreating} />
+          <Button type="submit" label={t('submit')} loading={isCreating} />
         </div>
       </form>
     </>

@@ -21,8 +21,11 @@ import { useModal } from '@/app/components/common/modal/useModal';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 const SalesQuoteList = () => {
   const { openModal } = useModal();
+  const t = useTranslations('sales.quoteList');
+  const tc = useTranslations('sales.common');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('quotationNumber');
@@ -69,7 +72,7 @@ const SalesQuoteList = () => {
     openModal(QuoteDetailModal, {
       width: '900px',
       height: '600px',
-      title: `견적서 상세보기-${quote.quotationNumber}`,
+      title: t('detailModalTitle', { number: quote.quotationNumber }),
       selectedQuotationId: quote.quotationId,
     });
   };
@@ -80,22 +83,29 @@ const SalesQuoteList = () => {
   const handleViewReview = () => {
     openModal(QuoteReviewModal, {
       width: '900px',
-      title: '견적 검토 요청',
+      title: t('reviewRequest'),
       selectedQuotationId: selectedQuotationId,
     });
   };
 
   const role = useRole();
-  const quoteOptions = getQuoteSearchKeywordOptions(role);
+  const quoteOptions = getQuoteSearchKeywordOptions(role).map((code) => ({
+    key: code,
+    value: t(`searchType.${code}`),
+  }));
+  const statusOptions = QUOTE_STATUS_OPTIONS.map((code) => ({
+    key: code,
+    value: t(`statusFilter.${code}`),
+  }));
 
   const columns: TableColumn<QuoteItem>[] = [
     {
       key: 'quotationId',
-      label: '선택',
+      label: t('columns.select'),
       render: (_, quote) => (
         <input
           type="checkbox"
-          aria-label={`${quote.quotationNumber} 선택`}
+          aria-label={t('selectRow', { number: quote.quotationNumber })}
           checked={selectedQuotationId === quote.quotationId}
           onChange={() => handleCheckboxChange(quote.quotationId)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -104,33 +114,33 @@ const SalesQuoteList = () => {
     },
     {
       key: 'quotationNumber',
-      label: '견적번호',
+      label: t('columns.number'),
       render: (_, q) => (
         <span className="text-sm font-medium text-gray-900">{q.quotationNumber}</span>
       ),
     },
-    { key: 'customerName', label: '고객사' },
-    { key: 'managerName', label: '담당자' },
-    { key: 'quotationDate', label: '견적일' },
-    { key: 'dueDate', label: '납기일' },
+    { key: 'customerName', label: t('columns.customer') },
+    { key: 'managerName', label: t('columns.manager') },
+    { key: 'quotationDate', label: t('columns.quotationDate') },
+    { key: 'dueDate', label: t('columns.dueDate') },
     {
       key: 'totalAmount',
-      label: '총금액',
+      label: t('columns.totalAmount'),
       align: 'right',
       render: (_, q) => formatCurrency(q.totalAmount),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       render: (_, q) => <StatusLabel statusCode={q.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, quote) => (
         <Button
-          label="상세"
+          label={tc('detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -153,8 +163,8 @@ const SalesQuoteList = () => {
           />
           <div className="flex items-center space-x-4">
             <Dropdown
-              placeholder="전체 상태"
-              items={QUOTE_STATUS_OPTIONS}
+              placeholder={tc('allStatuses')}
+              items={statusOptions}
               value={statusFilter}
               onChange={setStatusFilter}
               autoSelectFirst
@@ -166,10 +176,10 @@ const SalesQuoteList = () => {
                 setSearchTerm(keyword);
                 setCurrentPage(1);
               }}
-              placeholder="검색어를 입력하세요"
+              placeholder={tc('searchPlaceholder')}
             />
             <Button
-              label="견적 검토 요청"
+              label={t('reviewRequest')}
               onClick={handleViewReview}
               disabled={selectedQuotationId === ''}
             />
@@ -180,16 +190,16 @@ const SalesQuoteList = () => {
       {/* 견적 목록 */}
       <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {isLoading ? (
-          <TableStatusBox type="loading" message="견적서 목록을 불러오는 중입니다..." />
+          <TableStatusBox type="loading" message={t('loading')} />
         ) : isError ? (
-          <TableStatusBox type="error" message="견적서 목록을 불러오는 중 오류가 발생했습니다." />
+          <TableStatusBox type="error" message={t('loadError')} />
         ) : (
           <Table
             isStale={isPlaceholderData}
             columns={columns}
             data={quotes}
             keyExtractor={(row) => row.quotationId}
-            emptyMessage="등록된 견적서가 없습니다."
+            emptyMessage={t('empty')}
             className="flex-1 min-h-0"
           />
         )}

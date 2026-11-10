@@ -20,8 +20,11 @@ import { Table, type TableColumn } from '@everp/ui';
 
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+import { useTranslations } from 'next-intl';
 const SalesOrderList = () => {
   const { openModal } = useModal();
+  const t = useTranslations('sales.orderList');
+  const tc = useTranslations('sales.common');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('salesOrderNumber');
 
@@ -61,7 +64,7 @@ const SalesOrderList = () => {
   const handleViewOrder = (id: string) => {
     openModal(SalesOrderDetailModal, {
       width: '900px',
-      title: `주문 상세 정보`,
+      title: t('detailModalTitle'),
       selectedSalesOrderId: id,
     });
   };
@@ -69,20 +72,27 @@ const SalesOrderList = () => {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const role = useRole();
-  const orderOptions = getOrderSearchKeywordOptions(role);
+  const orderOptions = getOrderSearchKeywordOptions(role).map((code) => ({
+    key: code,
+    value: t(`searchType.${code}`),
+  }));
+  const statusOptions = ORDER_STATUS_OPTIONS.map((code) => ({
+    key: code,
+    value: t(`statusFilter.${code}`),
+  }));
 
   type OrderItem = (typeof orders)[0];
   const columns: TableColumn<OrderItem>[] = [
     {
       key: 'salesOrderNumber',
-      label: '주문번호',
+      label: t('columns.number'),
       render: (_, order) => (
         <div className="text-sm font-medium text-gray-900">{order.salesOrderNumber}</div>
       ),
     },
     {
       key: 'customerName',
-      label: '고객사',
+      label: t('columns.customer'),
       render: (_, order) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{order.customerName}</div>
@@ -92,26 +102,26 @@ const SalesOrderList = () => {
         </div>
       ),
     },
-    { key: 'orderDate', label: '주문일' },
-    { key: 'dueDate', label: '납기일' },
+    { key: 'orderDate', label: t('columns.orderDate') },
+    { key: 'dueDate', label: t('columns.dueDate') },
     {
       key: 'totalAmount',
-      label: '총금액',
+      label: t('columns.totalAmount'),
       align: 'right',
       render: (_, order) => formatCurrency(order.totalAmount),
     },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.status'),
       render: (_, order) => <StatusLabel statusCode={order.statusCode} />,
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, order) => (
         <Button
-          label="상세"
+          label={tc('detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -134,8 +144,8 @@ const SalesOrderList = () => {
         />
         <div className="flex gap-2">
           <Dropdown
-            placeholder="전체 상태"
-            items={ORDER_STATUS_OPTIONS}
+            placeholder={tc('allStatuses')}
+            items={statusOptions}
             value={statusFilter}
             onChange={setStatusFilter}
             autoSelectFirst
@@ -147,23 +157,23 @@ const SalesOrderList = () => {
               setSearchTerm(keyword);
               setCurrentPage(1);
             }}
-            placeholder="검색어를 입력하세요"
+            placeholder={tc('searchPlaceholder')}
           />
         </div>
       </div>
 
       {/* 테이블 */}
       {isLoading ? (
-        <TableStatusBox type="loading" message="주문 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="주문 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={orders}
           keyExtractor={(row) => row.salesOrderId}
-          emptyMessage="등록된 주문서가 없습니다."
+          emptyMessage={t('empty')}
           className="flex-1 min-h-0"
         />
       )}

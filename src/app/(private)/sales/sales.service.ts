@@ -1,49 +1,49 @@
 import { createStatCard } from '@/lib/CreateStatCard';
-import { type StatCardType } from '@/app/types/StatType';
+import { type Stat, type StatCardType } from '@/app/types/StatType';
 import {
   type CustomerSalesStatResponse,
   type SalesStatResponse,
 } from '@/app/(private)/sales/types/SalesStatsType';
+import type salesKo from '@/i18n/messages/sales/ko.json';
 
-export const mapSalesStatsToCards = (data: SalesStatResponse): Record<string, StatCardType[]> => {
-  return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
-    const cards: StatCardType[] = [
-      createStatCard(
-        '매출',
-        stats.sales_amount.value,
-        stats.sales_amount.delta_rate,
-        '₩',
-        stats.sales_amount.trend,
-      ),
-      createStatCard(
-        '신규 주문',
-        stats.new_orders_count.value,
-        stats.new_orders_count.delta_rate,
-        '건',
-        stats.new_orders_count.trend,
-      ),
+/**
+ * 카드 제목은 메시지 키(sales.stats.<키>). 건수 카드 값은 단위 없이 둔다(단위 '건'은 sales.statCount).
+ * 응답은 캐시에 남으니 글자는 그릴 때 바꾼다(언어를 바꿔도 다시 받지 않게)
+ */
+export type SalesStatTitle = keyof typeof salesKo.stats;
+export interface SalesStatCard extends StatCardType {
+  title: SalesStatTitle;
+  /** count 면 화면이 단위를 붙인다. won 은 '₩' 가 이미 붙어 있다 */
+  unit: 'count' | 'won';
+}
+
+const countCard = (title: SalesStatTitle, stat: Stat): SalesStatCard => ({
+  ...createStatCard(title, stat.value, stat.delta_rate, '', stat.trend),
+  title,
+  unit: 'count',
+});
+
+const wonCard = (title: SalesStatTitle, stat: Stat): SalesStatCard => ({
+  ...createStatCard(title, stat.value, stat.delta_rate, '₩', stat.trend),
+  title,
+  unit: 'won',
+});
+
+export const mapSalesStatsToCards = (data: SalesStatResponse): Record<string, SalesStatCard[]> => {
+  return Object.entries(data).reduce<Record<string, SalesStatCard[]>>((acc, [period, stats]) => {
+    acc[period] = [
+      wonCard('salesAmount', stats.sales_amount),
+      countCard('newOrders', stats.new_orders_count),
     ];
-
-    acc[period] = cards;
     return acc;
   }, {});
 };
 
 export const mapCustomerSalesStatsToCards = (
   data: CustomerSalesStatResponse,
-): Record<string, StatCardType[]> => {
-  return Object.entries(data).reduce<Record<string, StatCardType[]>>((acc, [period, stats]) => {
-    const cards: StatCardType[] = [
-      createStatCard(
-        '견적 건수',
-        stats.quotation_count.value,
-        stats.quotation_count.delta_rate,
-        '건',
-        stats.quotation_count.trend,
-      ),
-    ];
-
-    acc[period] = cards;
+): Record<string, SalesStatCard[]> => {
+  return Object.entries(data).reduce<Record<string, SalesStatCard[]>>((acc, [period, stats]) => {
+    acc[period] = [countCard('quotationCount', stats.quotation_count)];
     return acc;
   }, {});
 };

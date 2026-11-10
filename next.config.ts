@@ -16,6 +16,7 @@ const withNextIntl = createNextIntlPlugin({
         './src/i18n/messages/inventory',
         './src/i18n/messages/lowStock',
         './src/i18n/messages/hrm',
+        './src/i18n/messages/sales',
       ],
       format: 'json',
       locales: 'infer',

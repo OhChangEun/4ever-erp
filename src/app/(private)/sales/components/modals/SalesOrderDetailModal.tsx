@@ -7,12 +7,15 @@ import { useQuery } from '@tanstack/react-query';
 import { getOrderDetail } from '@/app/(private)/sales/sales.api';
 import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import { ModalStatusBox } from '@everp/ui';
-import { ORDER_DETAIL_TABLE_HEADERS } from '@/app/(private)/sales/constant';
+import { ITEM_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) => {
+  const t = useTranslations('sales.orderDetail');
+  const tc = useTranslations('sales.common');
   const {
     data: orderDetailRes,
     isLoading,
@@ -25,15 +28,11 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading) return <ModalStatusBox type="loading" message="주문서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('loading')} />;
 
   if (errorDialog.isOpen)
     return (
-      <ModalStatusBox
-        type="error"
-        message="주문 상세 데이터를 불러오는 중 오류가 발생했습니다."
-        onClose={() => errorDialog.dismiss()}
-      />
+      <ModalStatusBox type="error" message={t('loadError')} onClose={() => errorDialog.dismiss()} />
     );
 
   const order = orderDetailRes?.order;
@@ -41,8 +40,7 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
   const items = orderDetailRes?.items;
 
   // 오류 창을 닫았거나 데이터가 없으면 내용 대신 안내. 예전엔 `!` 로 단언해 여기서 화면이 깨졌다
-  if (!orderDetailRes || !order)
-    return <ModalStatusBox type="error" message="주문 상세 데이터를 불러오지 못했습니다." />;
+  if (!orderDetailRes || !order) return <ModalStatusBox type="error" message={t('notFound')} />;
 
   return (
     <>
@@ -52,48 +50,48 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
           {/* 기본 정보 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">주문 정보</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('orderTitle')}</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">주문번호</label>
+                  <label className="text-sm font-medium text-gray-500">{t('number')}</label>
                   <p className="text-sm text-gray-900">{order.salesOrderNumber}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">주문일</label>
+                  <label className="text-sm font-medium text-gray-500">{t('orderDate')}</label>
                   <p className="text-sm text-gray-900">{order.orderDate}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">납기일</label>
+                  <label className="text-sm font-medium text-gray-500">{t('dueDate')}</label>
                   <p className="text-sm text-gray-900">{order.dueDate}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">상태</label>
+                  <label className="text-sm font-medium text-gray-500">{t('status')}</label>
                   <StatusLabel statusCode={order.statusCode} />
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">고객 정보</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('customerTitle')}</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">회사명</label>
+                  <label className="text-sm font-medium text-gray-500">{t('companyName')}</label>
                   <p className="text-sm text-gray-900">{customer?.customerName}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">담당자</label>
+                  <label className="text-sm font-medium text-gray-500">{t('manager')}</label>
                   <p className="text-sm text-gray-900">{customer?.manager.managerName}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">연락처</label>
+                  <label className="text-sm font-medium text-gray-500">{t('contact')}</label>
                   <p className="text-sm text-gray-900">{customer?.manager.managerPhone}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">이메일</label>
+                  <label className="text-sm font-medium text-gray-500">{t('email')}</label>
                   <p className="text-sm text-gray-900">{customer?.manager.managerEmail}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">주소</label>
+                  <label className="text-sm font-medium text-gray-500">{t('address')}</label>
                   <p className="text-sm text-gray-900">
                     {customer?.customerBaseAddress} {customer?.customerDetailAddress}
                   </p>
@@ -104,17 +102,17 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
 
           {/* 주문 품목 */}
           <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">주문 품목</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('itemsTitle')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg">
                 <thead className="bg-gray-50">
                   <tr>
-                    {ORDER_DETAIL_TABLE_HEADERS.map((header) => (
+                    {ITEM_TABLE_HEADERS.map((header) => (
                       <th
                         key={header}
                         className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase border-b"
                       >
-                        {header}
+                        {tc(`itemColumns.${header}`)}
                       </th>
                     ))}
                   </tr>
@@ -140,7 +138,7 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
                       colSpan={4}
                       className="px-4 py-3 text-sm font-medium text-gray-900 text-right"
                     >
-                      총 주문금액
+                      {t('total')}
                     </td>
                     <td className="px-4 py-3 text-sm font-bold text-gray-900">
                       {formatCurrency(order.totalAmount)}
@@ -154,7 +152,7 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
           {/* 특이사항 */}
           {orderDetailRes.note && (
             <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">특이사항</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('noteTitle')}</h3>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-sm text-gray-700">{orderDetailRes.note}</p>
               </div>

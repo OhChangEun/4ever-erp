@@ -6,12 +6,15 @@ import { useQuery } from '@tanstack/react-query';
 import { getQuoteDetail } from '../../sales.api';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { ModalStatusBox } from '@everp/ui';
-import { QUOTE_DETAIL_TABLE_HEADERS } from '../../constant';
+import { ITEM_TABLE_HEADERS } from '../../constant';
 import StatusLabel from '@/app/components/common/StatusLabel';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useTranslations } from 'next-intl';
 const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
+  const t = useTranslations('sales.quote');
+  const tc = useTranslations('sales.common');
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.detail(selectedQuotationId),
     queryFn: () => getQuoteDetail(selectedQuotationId),
@@ -21,15 +24,11 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
 
-  if (isLoading) return <ModalStatusBox type="loading" message="견적서를 불러오는 중입니다..." />;
+  if (isLoading) return <ModalStatusBox type="loading" message={t('loading')} />;
 
   if (errorDialog.isOpen)
     return (
-      <ModalStatusBox
-        type="error"
-        message="견적서를 불러오는 중 오류가 발생했습니다."
-        onClose={() => errorDialog.dismiss()}
-      />
+      <ModalStatusBox type="error" message={t('loadError')} onClose={() => errorDialog.dismiss()} />
     );
   return (
     <>
@@ -38,35 +37,35 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
         <div className="bg-white rounded-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">견적 정보</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('infoTitle')}</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">견적번호:</span>
+                  <span className="text-gray-600">{t('number')}</span>
                   <span className="font-medium">{data?.quotationNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">견적일자:</span>
+                  <span className="text-gray-600">{t('quotationDate')}</span>
                   <span className="font-medium">{data?.quotationDate}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">납기일:</span>
+                  <span className="text-gray-600">{t('dueDate')}</span>
                   <span className="font-medium">{data?.dueDate}</span>
                 </div>
               </div>
             </div>
             <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">고객 정보</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('customerTitle')}</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">고객명:</span>
+                  <span className="text-gray-600">{t('customerName')}</span>
                   <span className="font-medium">{data?.customerName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">담당자:</span>
+                  <span className="text-gray-600">{t('manager')}</span>
                   <span className="font-medium">{data?.ceoName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">상태:</span>
+                  <span className="text-gray-600">{t('status')}</span>
                   <StatusLabel statusCode={data?.statusCode} />
                 </div>
               </div>
@@ -76,17 +75,17 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
 
         {/* 견적 품목 */}
         <div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">견적 품목</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('itemsTitle')}</h4>
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-300 rounded-lg">
               <thead className="bg-gray-50">
                 <tr>
-                  {QUOTE_DETAIL_TABLE_HEADERS.map((header) => (
+                  {ITEM_TABLE_HEADERS.map((header) => (
                     <th
                       key={header}
                       className="px-4 py-3 text-sm font-medium text-gray-700 border-b text-center"
                     >
-                      {header}
+                      {tc(`itemColumns.${header}`)}
                     </th>
                   ))}
                 </tr>
@@ -113,7 +112,7 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
               <tfoot className="bg-gray-50">
                 <tr>
                   <td colSpan={4} className="px-4 py-3 text-right font-medium text-gray-900">
-                    총 견적금액
+                    {t('total')}
                   </td>
                   <td className="px-4 py-3 text-right font-bold text-lg text-blue-600">
                     {formatCurrency(data?.totalAmount)}
