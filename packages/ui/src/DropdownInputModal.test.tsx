@@ -13,4 +13,15 @@ describe('DropdownInputModal', () => {
     await user.click(screen.getByRole('button'));
     expect(screen.getByPlaceholderText('메모')).toHaveValue('바뀐 값');
   });
+
+  it('열려 있는 동안 부모 값이 바뀌어도 입력 중인 글자를 덮지 않는다', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <DropdownInputModal placeholder="메모" value="처음" onSubmit={() => undefined} />,
+    );
+    await user.click(screen.getByRole('button'));
+    await user.type(screen.getByPlaceholderText('메모'), ' 입력 중');
+    rerender(<DropdownInputModal placeholder="메모" value="바뀐 값" onSubmit={() => undefined} />);
+    expect(screen.getByPlaceholderText('메모')).toHaveValue('처음 입력 중');
+  });
 });

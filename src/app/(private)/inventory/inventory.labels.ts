@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import type ko from '@/i18n/messages/inventory/ko.json';
+import { WAREHOUSE_MATERIAL_ALIASES } from './inventory.constants';
 
 type LabelKey = keyof typeof ko.labels;
 
@@ -17,8 +18,9 @@ const CATEGORY_KEYS: Partial<Record<string, LabelKey>> = {
 };
 const WAREHOUSE_KEYS: Partial<Record<string, LabelKey>> = {
   MATERIAL: 'WAREHOUSE_MATERIAL',
-  RAW: 'WAREHOUSE_MATERIAL',
-  RAW_MATERIAL: 'WAREHOUSE_MATERIAL',
+  ...Object.fromEntries(
+    WAREHOUSE_MATERIAL_ALIASES.map((alias): [string, LabelKey] => [alias, 'WAREHOUSE_MATERIAL']),
+  ),
   ITEM: 'WAREHOUSE_ITEM',
   PRODUCT: 'WAREHOUSE_PRODUCT',
   ETC: 'WAREHOUSE_ETC',

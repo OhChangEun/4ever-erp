@@ -9,6 +9,7 @@ const translations = [
   {
     locale: 'ko',
     remove: '항목 삭제',
+    item: '1번 항목',
     openInput: '입력 창 열기',
     openListInput: '목록 입력 창 열기',
     confirm: '확인',
@@ -16,6 +17,7 @@ const translations = [
   {
     locale: 'en',
     remove: 'Delete item',
+    item: 'Item 1',
     openInput: 'Open input',
     openListInput: 'Open list input',
     confirm: 'OK',
@@ -23,6 +25,7 @@ const translations = [
 ] satisfies {
   locale: Locale;
   remove: string;
+  item: string;
   openInput: string;
   openListInput: string;
   confirm: string;
@@ -66,5 +69,15 @@ describe.each(translations)('$locale 입력 버튼 이름의 앱 번역', (text)
 
     expect(screen.getByRole('button', { name: text.remove })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: text.confirm })).toBeInTheDocument();
+  });
+
+  it('입력칸을 번역된 순번 이름으로 찾는다', () => {
+    render(
+      <IntlTestProvider locale={text.locale}>
+        <InputList initialItems={[{ key: 7, value: '조립' }]} />
+      </IntlTestProvider>,
+    );
+
+    expect(screen.getByRole('textbox', { name: text.item })).toHaveValue('조립');
   });
 });

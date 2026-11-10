@@ -13,6 +13,12 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { type WarehouseManagerInfoResponse } from '../../types/AddWarehouseModalType';
 import { warehouseKeys, warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
+import { useInventoryLabels } from '@/app/(private)/inventory';
+import {
+  WAREHOUSE_TYPE_OPTIONS,
+  isWarehouseTypeOption,
+  toWarehouseRequestType,
+} from '../../warehouse.constants';
 
 interface ManageWarehouseRequest {
   warehouseName: string;
@@ -33,6 +39,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
   const t = useTranslations('warehouse');
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
+  const { warehouseTypeLabel } = useInventoryLabels();
   // 서버 값으로 한 번만 채우는 초안. 채운 뒤의 재조회는 입력을 덮지 않는다(예전엔 effect 가 매번 덮었다)
   const [formData, setFormData] = useState<ManageWarehouseRequest | null>(null);
 
@@ -95,7 +102,8 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     setFormData({
       warehouseName: warehouseInfo.warehouseName,
       warehouseNumber: warehouseInfo.warehouseNumber,
-      warehouseType: warehouseInfo.warehouseType,
+      // RAW 같은 원자재 별칭은 요청 코드 MATERIAL 로 채운다. 그대로 두면 옵션이 없어 화면은 원자재를 보이는데 RAW 를 보냈다
+      warehouseType: toWarehouseRequestType(warehouseInfo.warehouseType),
       statusCode: warehouseInfo.statusCode,
       location: warehouseInfo.location,
       managerId: matched?.managerId ?? managerInfo.managerId,
@@ -108,6 +116,15 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isWarehouseInfoError, isManagerInfoError);
+
+  // 요청 목록(MATERIAL, ITEM, ETC)에 없는 유형은 옵션으로 하나 더 둔다. 없으면 select 가 첫 옵션을 보여
+  // 화면과 보낼 값이 달라진다. 서버 값과 초안 둘 다 남겨 다른 유형을 골랐다가 되돌릴 수 있다
+  const servedType = warehouseInfo
+    ? toWarehouseRequestType(warehouseInfo.warehouseType)
+    : undefined;
+  const keptTypes = [...new Set([servedType, formData?.warehouseType])].filter(
+    (type): type is string => type !== undefined && !isWarehouseTypeOption(type),
+  );
 
   if (isWarehouseInfoLoading)
     return <ModalStatusBox type="loading" message={t('manage.loading')} />;
@@ -191,9 +208,17 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             name="warehouseType"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm pr-8"
           >
-            <option value="MATERIAL">{t('warehouseType.MATERIAL')}</option>
-            <option value="ITEM">{t('warehouseType.ITEM')}</option>
-            <option value="ETC">{t('warehouseType.ETC')}</option>
+            {keptTypes.map((type) => (
+              <option key={type} value={type}>
+                {/* 빈 값은 예전 등록 버그(초기값 빈 문자열)가 남긴 창고다. 이름만 붙이고 값은 그대로 둔다 */}
+                {type === '' ? t('form.typeUnspecified') : warehouseTypeLabel(type)}
+              </option>
+            ))}
+            {WAREHOUSE_TYPE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {t(`warehouseType.${option}`)}
+              </option>
+            ))}
           </select>
         </div>
         <div>

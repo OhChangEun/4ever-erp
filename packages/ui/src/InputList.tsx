@@ -59,6 +59,7 @@ export default function InputList({ initialItems = [], onChange }: InputListProp
           <span className="w-5 flex justify-center">{index + 1}</span>
           <input
             type="text"
+            aria-label={text.item(index + 1)}
             value={item.value}
             onChange={(e) => handleChange(item.key, e.target.value)}
             className="h-8 ml-3 border p-2 rounded"
