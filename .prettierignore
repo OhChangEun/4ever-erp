@@ -10,3 +10,5 @@ public/mockServiceWorker.js
 src/lib/api/openapi.gen.ts
 .next/
 coverage/
+storybook-static/
+.turbo/
