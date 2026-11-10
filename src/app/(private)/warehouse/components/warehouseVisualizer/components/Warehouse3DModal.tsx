@@ -1,33 +1,14 @@
 'use client';
 
 import WarehouseVisualizer from '@/app/(private)/warehouse/components/warehouseVisualizer/components/WarehouseVisualizer';
-import { Warehouse3DModalProps } from '../WarehouseVisualizerType';
+import type { Warehouse3DModalProps } from '../WarehouseVisualizerType';
 
-const Warehouse3DModal = ({ warehouseId, warehouseName, onClose }: Warehouse3DModalProps) => {
-  return (
-    <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 px-4 py-6">
-      <div className="relative w-full max-w-7xl rounded-2xl bg-white shadow-xl p-2">
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 transition hover:text-gray-600 cursor-pointer"
-            aria-label="닫기"
-          >
-            <i className="ri-close-line text-xl"></i>
-          </button>
-        </div>
-
-        <div className="px-6 pb-6">
-          <WarehouseVisualizer
-            warehouseId={warehouseId}
-            warehouseName={warehouseName}
-            height={440}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+/**
+ * 창고 3D 모달 내용. 틀은 공통 모달(ModalProvider, Radix Dialog)이 맡는다.
+ * 예전엔 직접 만든 오버레이라 Esc 로 닫히지 않고 포커스가 뒤 화면으로 빠졌다(시각화 8 에서 발견).
+ */
+const Warehouse3DModal = ({ warehouseId, warehouseName }: Warehouse3DModalProps) => (
+  <WarehouseVisualizer warehouseId={warehouseId} warehouseName={warehouseName} height={440} />
+);
 
 export default Warehouse3DModal;
