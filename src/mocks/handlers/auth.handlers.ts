@@ -71,10 +71,6 @@ export const authHandlers = [
     if (shouldError(request)) return error('Unauthorized', 401);
     return ok(mockUserInfo);
   }),
-  http.get(USER_ENDPOINTS.USER_PROFILE_INFO, ({ request }) => {
-    if (shouldError(request)) return error('Unauthorized', 401);
-    return ok(mockProfileInfo);
-  }),
 
   // ----------------------- Notification -----------------------
   http.get(NOTIFICATION_ENDPOINTS.LIST, ({ request }) => {

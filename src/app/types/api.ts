@@ -128,7 +128,6 @@ export const USER_ENDPOINTS = {
   LOGIN: '/api/login',
   LOGOUT: '/api/logout',
   USER_INFO: '/api/me',
-  USER_PROFILE_INFO: `${HRM_BASE_PATH}/employees/by-internel-user`,
 };
 
 // ----------------------- PROFILE -----------------------

@@ -141,4 +141,20 @@ describe('인가 표 하나', () => {
     expect(menuRoles('/purchase')).toContain('SUPPLIER_ADMIN');
     expect(menuRoles('/hrm')).toEqual(['ALL_ADMIN', 'HRM_USER', 'HRM_ADMIN']);
   });
+
+  it('의도한 변화: by-internel-user 는 본인 업무 허용 목록에서 뺐다(인사 권한만)', () => {
+    // 백엔드는 /by-internel-user/{internelUserId} 의 ID 가 본인인지 보지 않는다.
+    // 허용 목록에 남아 있으면 접두사 검사로 넓히는 순간 누구나 남의 직원 정보를 읽는다
+    for (const path of [
+      'business/hrm/employees/by-internel-user',
+      'business/hrm/employees/by-internel-user/u-2',
+    ]) {
+      expect(canAccessApi('SD_USER', path)).toBe(false);
+      expect(canAccessApi('HRM_USER', path)).toBe(true);
+    }
+    // 허용 목록은 정확히 같은 경로만 본다. 접두사로 넓히면 휴가 승인과 반려가 누구에게나 열린다
+    expect(canAccessApi('SD_USER', 'business/hrm/leave/request')).toBe(true);
+    expect(canAccessApi('SD_USER', 'business/hrm/leave/request/1/release')).toBe(false);
+    expect(canAccessApi('SD_USER', 'business/hrm/leave/request/1/reject')).toBe(false);
+  });
 });
