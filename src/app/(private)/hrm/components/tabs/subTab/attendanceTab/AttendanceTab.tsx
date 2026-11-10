@@ -52,7 +52,7 @@ export default function AttendanceTab() {
 
   // --- 선택된 드롭다운 상태 ---
   const [selectedDepartment, setSelectedDepartment] = useState(''); // 부서
-  const [selectedPayrollStatus, setSelectedPayrollStatus] = useState(''); // 급여 지급 상태
+  const [selectedStatus, setSelectedStatus] = useState(''); // 출결 상태
 
   // --- 페이지 네이션 ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,11 +66,12 @@ export default function AttendanceTab() {
     (): AttendanceRequestParams => ({
       date: selectedDate ?? '',
       department: selectedDepartment || undefined,
+      statusCode: selectedStatus || undefined,
       name: debouncedKeyword,
       page: currentPage - 1,
       size: pageSize,
     }),
-    [selectedDate, selectedDepartment, debouncedKeyword, currentPage],
+    [selectedDate, selectedDepartment, selectedStatus, debouncedKeyword, currentPage],
   );
 
   const {
@@ -159,9 +160,9 @@ export default function AttendanceTab() {
           <Dropdown
             placeholder={t('common.allStatuses')}
             items={statusData ?? []}
-            value={selectedPayrollStatus}
+            value={selectedStatus}
             onChange={(status: string) => {
-              setSelectedPayrollStatus(status);
+              setSelectedStatus(status);
               setCurrentPage(1);
             }}
           />

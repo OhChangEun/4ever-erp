@@ -17,17 +17,20 @@ import { toKeyValueItems } from '@/lib/api/options';
 interface EditProgramModalProps extends ModalProps {
   programId: string;
   programName: string;
+  /** 지금 상태. 서버가 statusCode 를 필수로 받아 안 고르면 이 값을 그대로 보낸다 */
+  statusCode: string;
 }
 
 export default function EditProgramModal({
   programId,
   programName,
+  statusCode,
   onClose,
 }: EditProgramModalProps) {
   const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
-  const [selectedProgramStatus, setSelectedProgramStatus] = useState('');
+  const [selectedProgramStatus, setSelectedProgramStatus] = useState(statusCode);
 
   const { data: statusData } = useQuery({
     queryKey: programKeys.statusDropdown(),
@@ -51,14 +54,14 @@ export default function EditProgramModal({
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!programName.trim()) {
+    if (!editedName.trim()) {
       toast.warning(t('programs.nameRequired'));
       return;
     }
 
     const updateData: UpdateProgramRequest = {
       programId,
-      programName: editedName,
+      programName: editedName.trim(),
       statusCode: selectedProgramStatus,
     };
 

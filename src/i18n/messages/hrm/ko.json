@@ -212,7 +212,7 @@
     "updateError": "교육 정보 수정에 실패했습니다. {message}",
     "programNamePlaceholder": "교육 프로그램명을 입력하세요",
     "selectCategory": "카테고리 선택",
-    "hoursPlaceholder": "예: 8시간, 2일",
+    "hoursPlaceholder": "예: 8",
     "targetDepartments": "대상 부서",
     "targetPositions": "대상 직급",
     "descriptionLabel": "교육 설명",

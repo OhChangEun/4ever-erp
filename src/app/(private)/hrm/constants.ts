@@ -77,13 +77,13 @@ export const ATTENDANCE_TABS: HrmTab[] = [
 // sub tab - 교육관리 탭
 export const TRAINING_TABS: HrmTab[] = [
   {
-    id: 'attendance',
+    id: 'employeeTraining',
     name: 'employeeTraining',
     icon: 'ri-time-line',
     component: EmployeeTrainingTab,
   },
   {
-    id: 'leave',
+    id: 'programs',
     name: 'programs',
     icon: 'ri-calendar-line',
     component: AvailableProgramTab,

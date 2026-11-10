@@ -61,6 +61,7 @@ export default function AvailableProgramTab() {
       title: t('programs.editTitle'),
       programId: program.programId,
       programName: program.programName,
+      statusCode: program.statusCode,
     });
   };
   return (
@@ -91,7 +92,9 @@ export default function AvailableProgramTab() {
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <i className="ri-computer-line mr-2"></i>
-                <span className="pt-1">{program.isOnline}</span>
+                <span className="pt-1">
+                  {program.isOnline ? t('programs.online') : t('programs.offline')}
+                </span>
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <i className="ri-team-line mr-2"></i>
