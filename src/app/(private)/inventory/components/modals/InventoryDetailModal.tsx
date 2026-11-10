@@ -248,7 +248,6 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
               variant="secondary"
               label="재고 이동"
               onClick={() => {
-                //   setShowDetailModal(false);
                 handleStockMove(inventoryDetailRes?.itemId ?? '');
               }}
               className="w-[49%]"
@@ -256,7 +255,6 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
             <Button
               label="안전 재고 수정"
               onClick={() => {
-                // setShowDetailModal(false);
                 handleSafetyStockEdit();
               }}
               className="w-[51%]"

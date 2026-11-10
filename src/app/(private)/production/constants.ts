@@ -65,18 +65,6 @@ export const MRP_TABS: MrpSubTab[] = [
 
 // 가용 재고 상태 필터링
 export type AvailableStockStatus = 'ALL' | 'CHECKED' | 'UNCHECKED';
-// export const AVAILABLE_STOCK_STATUS: KeyValueItem<AvailableStockStatus>[] = [
-//   { key: 'ALL', value: '전체 가용재고' },
-//   { key: 'CHECKED', value: '확인' }, // 재고 충분
-//   { key: 'UNCHECKED', value: '미확인' }, // 재고 상태 확인되지 않음
-// ];
-// export type AvailableStockStatus = 'ALL' | 'SUFFICIENT' | 'INSUFFICIENT' | 'UNKNOWN';
-// export const AVAILABLE_STOCK_STATUS: KeyValueItem<AvailableStockStatus>[] = [
-//   { key: 'ALL', value: '전체 가용재고' },
-//   { key: 'SUFFICIENT', value: '충분' }, // 재고 충분
-//   { key: 'UNKNOWN', value: '미확인' }, // 재고 상태 확인되지 않음
-//   { key: 'INSUFFICIENT', value: '부족' }, // 재고 부족
-// ];
 
 // 제품 목록
 export const PRODUCTS: KeyValueItem[] = [

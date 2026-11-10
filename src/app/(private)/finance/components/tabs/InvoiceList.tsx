@@ -24,8 +24,6 @@ import { formatCurrency } from '@/app/utils/number';
 const InvoiceList = () => {
   const searchParams = useSearchParams();
   const role = useRole();
-  // const role = 'CUSTOMER_ADMIN';
-  // const role = 'SUPPLIER_ADMIN';
   const defaultTab: InvoiceTab =
     role === 'SUPPLIER_ADMIN' ? 'sales' : role === 'CUSTOMER_ADMIN' ? 'purchase' : 'sales';
   const tabParam = searchParams.get('tab');
@@ -54,12 +52,6 @@ const InvoiceList = () => {
     }),
     [currentPage, statusFilter],
   );
-
-  // const queryParams = {
-  //   page: currentPage - 1,
-  //   size: 10,
-  //   status: statusFilter || 'ALL',
-  // };
 
   const queryFn =
     currentTab === 'sales'

@@ -63,33 +63,6 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
     queryClient.invalidateQueries({ queryKey: bomKeys.detail(bomId) });
   };
 
-  // const renderLevelStructure = (levelStructure: BomDetailResponse['levelStructure']) => {
-  //   return (
-  //     <div className="space-y-4">
-  //       {Object.entries(levelStructure).map(([level, items]) => (
-  //         <div
-  //           key={level}
-  //           className="ml-4"
-  //           style={{ marginLeft: `${parseInt(level.replace('Level ', '')) * 20}px` }}
-  //         >
-  //           <div className="text-sm font-medium text-gray-600 mb-2">{level}</div>
-  //           {items.map((item) => (
-  //             <div
-  //               key={item.code}
-  //               className="flex items-center space-x-2 p-2 bg-gray-50 rounded mb-1"
-  //             >
-  //               <i className="ri-arrow-right-s-line text-gray-400"></i>
-  //               <span className="font-medium">{item.code}</span>
-  //               <span>{item.name}</span>
-  //               <span className="text-sm text-gray-500">{item.quantity}</span>
-  //             </div>
-  //           ))}
-  //         </div>
-  //       ))}
-  //     </div>
-  //   );
-  // };
-
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; class: string }> = {
       ACTIVE: { label: '활성', class: 'bg-green-100 text-green-800' },

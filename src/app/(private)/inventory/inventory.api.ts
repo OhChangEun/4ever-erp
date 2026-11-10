@@ -227,14 +227,3 @@ export const postAddMaterial = async (
 
   return res.data;
 };
-
-// 자재 상세 조회
-// export const postItemsInfo = async (body: string[]): Promise<ItemResponse[]> => {
-//   const res = await axios.post<ApiResponse<ItemResponse[]>>(
-//     `${INVENTORY_ENDPOINTS.MATERIALS_LIST}`,
-//     {
-//       itemIds: body,
-//     },
-//   );
-//   return res.data.data;
-// };

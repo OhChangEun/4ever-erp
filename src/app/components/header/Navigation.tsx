@@ -35,14 +35,6 @@ export default function Navigation() {
   const pathname = usePathname();
   const role = useRole();
 
-  // const role = 'ALL_ADMIN';
-  // const role = 'MM_USER';
-  // const role = 'SD_USER';
-  // const role = 'IM_USER';
-  // const role = 'FCM_USER';
-  // const role = 'HRM_USER';
-  // const role = 'PP_USER';
-
   // role에 따라 label 변경
   const accessibleNavItems = NAV_ITEMS.filter((item) => hasRole(item.roles, role)).map((item) => {
     let label = item.label;
