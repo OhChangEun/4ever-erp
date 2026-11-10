@@ -11,6 +11,8 @@ export default defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    'apps/*/.next/**', // SSO 포털 빌드 결과
+    'apps/*/next-env.d.ts',
     'public/mockServiceWorker.js', // msw 가 생성한 파일
     'src/lib/api/openapi.gen.ts', // openapi-typescript 가 계약에서 만든 파일(npm run openapi)
     'coverage/**',

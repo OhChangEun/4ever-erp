@@ -25,6 +25,9 @@
     "check:lib": {
       "dependsOn": ["build"],
       "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "type-check": {
+      "inputs": ["$TURBO_DEFAULT$", "!.next/**"]
     }
   }
 }

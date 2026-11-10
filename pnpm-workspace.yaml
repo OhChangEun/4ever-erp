@@ -1,6 +1,8 @@
-# 앱은 루트에 그대로 둔다(Vercel Root Directory 를 바꾸지 않으려고). 패키지는 packages/* (모노레포 1 카드)
+# erp 앱은 루트에 그대로 둔다(Vercel Root Directory 를 바꾸지 않으려고). 패키지는 packages/* (모노레포 1 카드)
+# apps/portal 은 SSO 포털(로컬 전용, 배포 안 함)
 packages:
   - packages/*
+  - apps/*
 
 # 설치 스크립트를 돌려도 되는 패키지(pnpm 10 은 기본으로 막는다). npm 때 돌던 둘과 Storybook 의 esbuild
 onlyBuiltDependencies:

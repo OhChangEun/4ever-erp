@@ -199,6 +199,40 @@ importers:
         specifier: ^2.9.1
         version: 2.9.1
 
+  apps/portal:
+    dependencies:
+      '@everp/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      next:
+        specifier: ^16.1.6
+        version: 16.3.4(@babel/core@7.29.7)(@playwright/test@1.65.0)(@types/node@24.19.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.5(@types/react@19.2.18)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/node@24.19.2)(@vitest/coverage-v8@5.1.0)(jsdom@31.0.0)(msw@2.15.0(@types/node@24.19.2)(typescript@5.9.3))(vite@8.3.7(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
   packages/auth:
     dependencies:
       jose:

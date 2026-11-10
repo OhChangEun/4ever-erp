@@ -1,0 +1,86 @@
+/* 포털은 화면 두 개라 Tailwind 없이 쓴다. 색은 packages/ui/tokens.css 의 값과 같게 맞췄다 */
+:root {
+  --gray-50: #f7f8fa;
+  --gray-200: #e1e5ea;
+  --gray-500: #646d79;
+  --gray-900: #1a1f27;
+  --blue-500: #2f4a7f;
+  --blue-600: #263e6a;
+  --red-600: #a92f2f;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Apple SD Gothic Neo',
+    sans-serif;
+  color: var(--gray-900);
+  background: var(--gray-50);
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+}
+main {
+  max-width: 880px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+a {
+  color: var(--blue-500);
+}
+.card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 20px;
+}
+.muted {
+  color: var(--gray-500);
+  font-size: 14px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px 6px;
+  border-top: 1px solid var(--gray-200);
+}
+th {
+  color: var(--gray-500);
+  font-weight: 500;
+  border-top: none;
+}
+td.num {
+  text-align: right;
+}
+button {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  color: var(--gray-900);
+  cursor: pointer;
+}
+button.primary {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+  color: #fff;
+}
+.error {
+  color: var(--red-600);
+}

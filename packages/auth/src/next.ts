@@ -21,9 +21,13 @@ export interface OidcLoginFlowOptions<TRole extends string> {
   /** 실패를 알릴 화면. ?error= 를 붙인다 */
   loginPath?: string;
   callbackPath?: string;
+  /**
+   * 로그인 트랜잭션 쿠키 이름. 쿠키는 포트로 나뉘지 않아 한 호스트에 앱이 둘이면(localhost:3100 과 3300)
+   * 이름이 같을 때 서로의 트랜잭션을 덮는다. 앱마다 다르게 준다
+   */
+  txCookie?: string;
 }
 
-const TX_COOKIE = 'oidc_tx';
 const TX_PATH = '/api/auth';
 
 export const createOidcLoginFlow = <TRole extends string>({
@@ -34,6 +38,7 @@ export const createOidcLoginFlow = <TRole extends string>({
   safeReturnTo,
   loginPath = '/login',
   callbackPath = '/api/auth/callback',
+  txCookie: TX_COOKIE = 'oidc_tx',
 }: OidcLoginFlowOptions<TRole>) => {
   const callbackUrl = (req: NextRequest) => new URL(callbackPath, req.url).toString();
 
