@@ -8,11 +8,12 @@ import { getAvailableTraining, getCompletedTraining, getProgressTraining } from 
 import { useRegisterTraining } from '../profile.mutations';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { profileKeys } from '../profile.keys';
 
 const TrainingStatus = () => {
   const t = useTranslations('myProfile.training');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState('progress');
   const { data: trainingRes } = useQuery<TrainingResponse[]>({

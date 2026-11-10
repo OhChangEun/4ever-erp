@@ -10,7 +10,7 @@ import { type UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramA
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
 
@@ -38,6 +38,7 @@ export default function EditProgramModal({
     select: toKeyValueItems,
     staleTime: Infinity,
   });
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   const [editedName, setEditedName] = useState(programName);

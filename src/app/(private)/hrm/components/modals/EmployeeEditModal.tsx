@@ -12,7 +12,7 @@ import { Dropdown } from '@everp/ui';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useUpdateEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { positionKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
@@ -27,6 +27,7 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   const [selectedPosition, setSelectedPosition] = useState('');
 
   const { removeAllModals } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 부서 드롭다운

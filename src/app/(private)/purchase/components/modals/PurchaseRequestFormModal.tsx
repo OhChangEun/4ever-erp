@@ -14,7 +14,7 @@ import {
 import { toISOString } from '@/app/utils/date';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 
 import { formatCurrency } from '@/app/utils/number';
 import { toDateKey } from '@/app/utils/date';
@@ -48,6 +48,7 @@ export default function PurchaseRequestFormModal({ onClose }: ModalProps) {
       note: '',
     },
   ]);
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const t = useTranslations('purchase.requestForm');
   const tc = useTranslations('purchase.common');

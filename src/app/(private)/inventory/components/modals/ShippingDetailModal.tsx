@@ -9,7 +9,7 @@ import {
 import { ModalStatusBox } from '@everp/ui';
 import { getProductionDetail, getReadyToShipDetail } from '../../inventory.api';
 import { useMarkReadyToShip } from '../../inventory.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
@@ -21,6 +21,7 @@ const ShippingDetailModal = ({
   selectedOrderId,
 }: ShippingDetailModalProps) => {
   const t = useTranslations('inventory');
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const getShippingDetailBySubTab = (subTab: string, id: string) => {
     switch (subTab) {

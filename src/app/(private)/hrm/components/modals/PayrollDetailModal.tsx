@@ -5,7 +5,7 @@ import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCompletePayroll } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { formatCurrency } from '@/app/utils/number';
@@ -16,6 +16,7 @@ interface PayrollDetailModalProps extends ModalProps {
 }
 
 export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const t = useTranslations('hrm');
   // 한국어는 예전처럼 2026. 11. 10., 영어는 11/10/2026

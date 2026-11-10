@@ -305,5 +305,18 @@
     "dropdownInputListModal": {
       "open": "Open list input"
     }
+  },
+  "errors": {
+    "network": "Cannot connect to the server. Please check your network.",
+    "timeout": "The server is taking too long to respond. Please try again later.",
+    "unauthorized": "Please log in.",
+    "forbidden": "You do not have permission to view this data.",
+    "notFound": "The requested data could not be found.",
+    "conflict": "Another user has already made changes. Please reload the data.",
+    "badRequest": "The input is invalid. Please check the details.",
+    "server": "A server error occurred. Please try again later.",
+    "invalidShape": "The server response has an unexpected format. Please contact your administrator.",
+    "unknown": "An unknown error occurred.",
+    "requestId": "Request ID {requestId}"
   }
 }

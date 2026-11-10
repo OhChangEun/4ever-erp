@@ -6,7 +6,7 @@ import { Input } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useState } from 'react';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useTranslations } from 'next-intl';
 
 import { formatCurrency } from '@/app/utils/number';
@@ -61,6 +61,7 @@ export default function InventoryPurchaseRequestModal({
     }, 0);
   };
 
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 무효화(부족 재고 목록, 구매 요청 목록, 구매 통계)는 inventory.mutations.ts 한 곳.

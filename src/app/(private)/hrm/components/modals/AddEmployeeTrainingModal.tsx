@@ -9,7 +9,7 @@ import { fetchProgramListDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useAssignProgramToEmployee } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { toKeyValueItems } from '@/lib/api/options';
 
@@ -24,6 +24,7 @@ export default function AddEmployeeTrainingModal({
   const t = useTranslations('hrm');
   const [selectedProgram, setSelectedProgram] = useState('');
 
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
   // 교육 프로그램 드롭다운 조회

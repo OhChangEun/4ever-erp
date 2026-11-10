@@ -1,26 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import {
-  AppError,
-  ERROR_MESSAGE_BY_KIND,
-  errorMessageOf,
-  isAppError,
-  toAppError,
-} from './AppError';
+  AxiosError,
+  AxiosHeaders,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { AppError, isAppError, toAppError } from './AppError';
 
-const config = { headers: {} } as InternalAxiosRequestConfig;
+const config: InternalAxiosRequestConfig = { headers: new AxiosHeaders() };
 
 const httpError = (
   status: number,
   body: unknown = { success: false, message: `서버 메시지 ${status}` },
 ) =>
-  new AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, {}, {
-    status,
-    statusText: '',
-    headers: {},
+  new AxiosError(
+    'Request failed',
+    'ERR_BAD_RESPONSE',
     config,
-    data: body,
-  } as AxiosResponse);
+    {},
+    {
+      status,
+      statusText: '',
+      headers: {},
+      config,
+      data: body,
+    },
+  );
 
 describe('toAppError', () => {
   it('연결 끊김(ERR_NETWORK) → network', () => {
@@ -45,7 +50,7 @@ describe('toAppError', () => {
     [422, 'badRequest'],
     [500, 'server'],
     [503, 'server'],
-  ] as const)('HTTP %i → %s, status 와 서버 message 보존', (status, kind) => {
+  ])('HTTP %i → %s, status 와 서버 message 보존', (status, kind) => {
     const e = toAppError(httpError(status));
     expect(e.kind).toBe(kind);
     expect(e.status).toBe(status);
@@ -70,7 +75,7 @@ describe('toAppError', () => {
   });
 });
 
-describe('isAppError, errorMessageOf', () => {
+describe('isAppError', () => {
   it('AppError 는 Error 의 인스턴스이고 가드를 통과한다', () => {
     const e = new AppError('notFound', '없음', { status: 404 });
     expect(e).toBeInstanceOf(Error);
@@ -78,22 +83,17 @@ describe('isAppError, errorMessageOf', () => {
     expect(isAppError(new Error('x'))).toBe(false);
     expect(isAppError(null)).toBe(false);
   });
-
-  it('kind 별 문구를 돌려주고, AppError 가 아니면 공통 문구', () => {
-    expect(errorMessageOf(new AppError('timeout', 't'))).toBe(ERROR_MESSAGE_BY_KIND.timeout);
-    expect(errorMessageOf(new Error('x'))).toBe('알 수 없는 오류가 발생했습니다.');
-  });
 });
 
 describe('요청 ID(옵저버빌리티 1)', () => {
   it('응답 헤더의 x-request-id 를 담는다', () => {
-    const response = {
+    const response: AxiosResponse = {
       status: 500,
       statusText: 'err',
       headers: { 'x-request-id': 'req-12345678-abcd' },
       config,
       data: { success: false, message: 'boom' },
-    } as AxiosResponse;
+    };
     const error = new AxiosError('fail', 'ERR_BAD_RESPONSE', config, undefined, response);
     expect(toAppError(error).requestId).toBe('req-12345678-abcd');
   });

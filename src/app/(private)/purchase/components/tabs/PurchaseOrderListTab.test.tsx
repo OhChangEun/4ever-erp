@@ -10,7 +10,8 @@ import axios from '@/lib/axiosInstance';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { MOCK_SCENARIOS, scenarioResponse, type MockScenario } from '@/mocks/scenario';
-import { ERROR_MESSAGE_BY_KIND, type ErrorKind } from '@/lib/AppError';
+import type { ErrorKind } from '@/lib/AppError';
+import ko from '@/i18n/messages/ko.json';
 import {
   PURCHASE_BASE_PATH,
   PURCHASE_ENDPOINTS,
@@ -71,7 +72,7 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
         () => {
           const alert = screen.getByRole('alert');
           expect(alert).toHaveTextContent('발주서 목록을 불러오는 중 오류가 발생했습니다.');
-          expect(alert).toHaveTextContent(ERROR_MESSAGE_BY_KIND[KIND_OF[scenario]]);
+          expect(alert).toHaveTextContent(ko.errors[KIND_OF[scenario]]);
         },
         { timeout: 3000 },
       );

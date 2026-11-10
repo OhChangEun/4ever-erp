@@ -19,7 +19,7 @@ import { Button } from '@everp/ui';
 import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 
 import { formatCurrency } from '@/app/utils/number';
 const InvoiceList = () => {
@@ -81,6 +81,7 @@ const InvoiceList = () => {
   type InvoiceItem = (typeof invoices)[0];
 
   const { openModal } = useModal();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   // 어느 API 를 부를지는 역할과 탭이 정한다. 무효화 범위는 finance.mutations.ts 한 곳.
   const invoiceAction: InvoiceAction =

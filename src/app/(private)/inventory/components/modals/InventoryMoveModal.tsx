@@ -11,7 +11,7 @@ import {
 } from '../../types/AddInventoryModalType';
 import { ModalStatusBox } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
@@ -20,6 +20,7 @@ const InventoryMoveModal = ({ setShowMoveModal, selectedStock }: InventoryMoveMo
   const t = useTranslations('inventory');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [formData, setFormData] = useState({
     fromWarehouseId: selectedStock.warehouseId,

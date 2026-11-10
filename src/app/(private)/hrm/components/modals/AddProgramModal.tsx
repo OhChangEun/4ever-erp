@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Dropdown } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useCreateProgram } from '@/app/(private)/hrm/api/hrm.mutations';
-import { errorMessageOf } from '@/lib/AppError';
+import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { formText, formTexts } from '@/lib/formData';
 import { toKeyValueItems } from '@/lib/api/options';
@@ -21,6 +21,7 @@ export default function AddTrainingModal({ onClose }: ModalProps) {
   const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
+  const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [selectedCategory, setSelectedCategory] = useState(''); // 부서
 
