@@ -12,12 +12,14 @@ export const mapLowStockStatsToCards = (
         stats.total_emergency.value,
         stats.total_emergency.delta_rate,
         '건',
+        stats.total_emergency.trend,
       ),
       createStatCard(
         '주의 재고 부족',
         stats.total_warning.value,
         stats.total_warning.delta_rate,
         '건',
+        stats.total_warning.trend,
       ),
     ];
 

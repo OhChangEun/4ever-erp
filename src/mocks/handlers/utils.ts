@@ -7,6 +7,7 @@ import {
   isoNow,
   stat,
   statResponse,
+  trendStat,
   makePage,
 } from '../utils';
 
@@ -142,6 +143,7 @@ export {
   isoNow,
   stat,
   statResponse,
+  trendStat,
   makePage,
   ok,
   okNoData,

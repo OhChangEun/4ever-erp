@@ -2192,6 +2192,8 @@ export interface components {
         Stat: {
             value: number;
             delta_rate: number;
+            /** @description 기간 안의 추이(시각화 1). 주는 일 7개, 월은 주 5개, 분기는 주 13개, 연은 월 12개. 마지막 값이 value 와 같다. 서버 지원은 확인 전(verified=false) */
+            trend?: number[];
         };
         WarehouseStat: {
             total_warehouse: components["schemas"]["Stat"];

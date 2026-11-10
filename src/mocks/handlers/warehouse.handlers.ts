@@ -1,7 +1,7 @@
 import { createOpenApiHttp } from 'openapi-msw';
 import type { paths } from '@/lib/api/openapi.gen';
 import { API_BASE_URL } from '@/app/types/api';
-import { makePage, shouldError, stat, statResponse } from './utils';
+import { makePage, shouldError, stat, trendStat } from './utils';
 
 /**
  * 창고 목. OpenAPI 계약(`openapi/everp.yaml`)에 묶인 `http` 로 쓴다(OpenAPI 계약 1 카드).
@@ -17,9 +17,19 @@ export const warehouseHandlers = [
   http.get('/scm-pp/iv/warehouses/statistic', ({ request, response }) => {
     if (shouldError(request))
       return response('default').json(failure('Failed to load warehouse stats'), { status: 500 });
+    // openapi-msw 가 지표 이름까지 확인하므로 지표를 하나씩 만든다
+    const period = (p: 'week' | 'month' | 'quarter' | 'year') => ({
+      total_warehouse: trendStat(p, 'total_warehouse', stat),
+      in_operation_warehouse: trendStat(p, 'in_operation_warehouse', stat),
+    });
     return response(200).json({
       ...OK,
-      data: statResponse({ total_warehouse: stat, in_operation_warehouse: stat }),
+      data: {
+        week: period('week'),
+        month: period('month'),
+        quarter: period('quarter'),
+        year: period('year'),
+      },
     });
   }),
   http.get('/scm-pp/iv/warehouses', ({ request, query, response }) => {

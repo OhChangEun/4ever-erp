@@ -11,12 +11,14 @@ export const mapHrmStatsToCards = (data: HrmStatResponse): Record<string, StatCa
         stats.totalEmployeeCount.value,
         stats.totalEmployeeCount.delta_rate,
         '명',
+        stats.totalEmployeeCount.trend,
       ),
       createStatCard(
         '신규 입사자 수',
         stats.newEmployeeCount.value,
         stats.newEmployeeCount.delta_rate,
         '명',
+        stats.newEmployeeCount.trend,
       ),
     ];
 

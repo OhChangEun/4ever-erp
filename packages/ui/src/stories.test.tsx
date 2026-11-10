@@ -23,13 +23,14 @@ const EXPECTED = [
   'ModalStatusBox',
   'Pagination',
   'SearchBar',
+  'Sparkline',
   'TabButtons',
   'Table',
   'Tokens',
 ];
 
 describe('스토리', () => {
-  it('공통 컴포넌트 10개와 토큰에 스토리가 있다', () => {
+  it('공통 컴포넌트 11개와 토큰에 스토리가 있다', () => {
     const names = Object.keys(modules)
       .map((path) => path.replace(/^\.\/(.*)\.stories\.tsx$/, '$1'))
       .sort();
