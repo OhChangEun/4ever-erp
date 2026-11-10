@@ -17,6 +17,14 @@
     "build-storybook": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["storybook-static/**"]
+    },
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["dist/**"]
+    },
+    "check:lib": {
+      "dependsOn": ["build"],
+      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }

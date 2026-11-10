@@ -16,6 +16,8 @@ export default defineConfig([
     'coverage/**',
     '**/storybook-static/**', // Storybook 빌드 결과(Storybook 1 카드). 압축 JS 라 린트하면 10분 넘게 걸렸다
     '.turbo/**',
+    'packages/ui/dist/**', // @everp/ui 라이브러리 빌드 결과(vite lib)
+    '.lighthouseci/**',
   ]),
   ...nextVitals,
   ...nextTs,
