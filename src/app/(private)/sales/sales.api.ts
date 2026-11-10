@@ -90,8 +90,8 @@ export const getOrderList = async (
   params?: OrderQueryParams,
 ): Promise<{ data: Order[]; pageData: Page }> => {
   const query = new URLSearchParams({
-    ...(params?.start && { start: params.start }),
-    ...(params?.end && { end: params.end }),
+    ...(params?.startDate && { startDate: params.startDate }),
+    ...(params?.endDate && { endDate: params.endDate }),
     ...(params?.status && { status: params.status }),
     ...(params?.type && { type: params.type }),
     ...(params?.keyword && { keyword: params.keyword }),

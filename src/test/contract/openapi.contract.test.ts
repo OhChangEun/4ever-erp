@@ -2,12 +2,12 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { parse } from 'yaml';
 import * as z from 'zod';
 import openapiTS, { astToString } from 'openapi-typescript';
 import { getResponse } from 'msw';
 import { handlers } from '@/mocks/handlers';
 import { API_BASE_URL, WAREHOUSE_ENDPOINTS } from '@/app/types/api';
+import { loadContract, type Contract } from './loadContract';
 
 /**
  * OpenAPI 계약(`openapi/everp.yaml`)이 원본이다(OpenAPI 계약 1 카드).
@@ -20,16 +20,6 @@ const GENERATED = 'src/lib/api/openapi.gen.ts';
 const ORIGIN = 'http://localhost';
 
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
-
-const loadContract = () => {
-  if (!existsSync(CONTRACT)) throw new Error(`${CONTRACT} 가 없다`);
-  return z
-    .object({
-      paths: z.record(z.string(), z.record(z.string(), z.unknown())),
-      components: z.object({ schemas: z.record(z.string(), z.unknown()) }),
-    })
-    .parse(parse(readFileSync(CONTRACT, 'utf8')));
-};
 
 /** 화면 주소(`/api/proxy/...`)를 계약 경로 템플릿(`/scm-pp/iv/warehouses/{warehouseId}`)에 맞춘다 */
 const findPath = (paths: Record<string, unknown>, url: string) => {
@@ -45,11 +35,7 @@ const jsonSchema = z.custom<z.core.JSONSchema.JSONSchema>(
 );
 
 /** 계약의 200 응답 스키마를 zod 로. `#/components/schemas/X` 참조는 `$defs` 로 옮긴다 */
-const responseSchema = (
-  contract: ReturnType<typeof loadContract>,
-  path: string,
-  method: Method,
-) => {
+const responseSchema = (contract: Contract, path: string, method: Method) => {
   const operation = z
     .object({
       responses: z.object({

@@ -18,6 +18,7 @@ import type { ItemResponse } from './types/NewOrderModalType';
 const QUOTE_STATUSES = [
   'ALL',
   'APPROVED',
+  'APPROVAL',
   'REVIEW',
   'PENDING',
   'REJECTED',

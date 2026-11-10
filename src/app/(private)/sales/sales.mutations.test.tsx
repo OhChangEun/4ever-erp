@@ -15,8 +15,8 @@ const QUOTE_LIST = quoteKeys.list({ page: 0, size: 10 });
 const ORDER_LIST = salesOrderKeys.list({
   page: 0,
   size: 10,
-  start: '',
-  end: '',
+  startDate: '',
+  endDate: '',
   keyword: '',
   type: '',
   status: 'ALL',

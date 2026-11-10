@@ -38,8 +38,8 @@ const SalesOrderList = () => {
 
   const queryParams = useMemo(
     () => ({
-      start: startDate || '',
-      end: endDate || '',
+      startDate: startDate || '',
+      endDate: endDate || '',
       page: currentPage - 1,
       size: 10,
       keyword: debouncedSearchTerm || '',
@@ -139,16 +139,25 @@ const SalesOrderList = () => {
         {/* 날짜 필터 */}
         <DateRangePicker
           startDate={startDate}
-          onStartDateChange={setStartDate}
+          onStartDateChange={(date) => {
+            setStartDate(date);
+            setCurrentPage(1);
+          }}
           endDate={endDate}
-          onEndDateChange={setEndDate}
+          onEndDateChange={(date) => {
+            setEndDate(date);
+            setCurrentPage(1);
+          }}
         />
         <div className="flex gap-2">
           <Dropdown
             placeholder={tc('allStatuses')}
             items={statusOptions}
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={(status) => {
+              setStatusFilter(status);
+              setCurrentPage(1);
+            }}
             autoSelectFirst
           />
           <SearchBar

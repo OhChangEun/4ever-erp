@@ -12,9 +12,11 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
+import { useSalesLabels } from '@/app/(private)/sales/sales.labels';
 const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
   const t = useTranslations('sales.quote');
   const tc = useTranslations('sales.common');
+  const { uomLabel } = useSalesLabels();
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.detail(selectedQuotationId),
     queryFn: () => getQuoteDetail(selectedQuotationId),
@@ -95,7 +97,7 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
                   <tr key={index} className="border-b">
                     <td className="px-4 py-3 text-sm">{item.itemName}</td>
                     <td className="px-4 py-3 text-sm text-center">{item.quantity}</td>
-                    <td className="px-4 py-3 text-sm text-center">{item.uomName}</td>
+                    <td className="px-4 py-3 text-sm text-center">{uomLabel(item.uomName)}</td>
                     <td className="px-4 py-3 text-sm text-right">
                       {formatCurrency(item.unitPrice)}
                     </td>
