@@ -3,6 +3,10 @@ import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NextIntlClientProvider } from 'next-intl';
 import ko from '@/i18n/messages/ko.json';
+import en from '@/i18n/messages/en.json';
+import financeKo from '@/i18n/messages/finance/ko.json';
+import financeEn from '@/i18n/messages/finance/en.json';
+import type { Locale } from '@/i18n/locale';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 
@@ -20,10 +24,19 @@ export const createTestQueryClient = () =>
     },
   });
 
-export const renderWithProviders = (ui: ReactElement, options?: RenderOptions) => {
+// 공통 메시지와 도메인 메시지를 합친다. 앱에서는 도메인 레이아웃(DomainMessages)이 합친다
+const MESSAGES = {
+  ko: { ...ko, finance: financeKo },
+  en: { ...en, finance: financeEn },
+} satisfies Record<Locale, object>;
+
+export const renderWithProviders = (
+  ui: ReactElement,
+  { locale = 'ko', ...options }: RenderOptions & { locale?: Locale } = {},
+) => {
   const queryClient = createTestQueryClient();
   const Wrapper = ({ children }: { children: ReactNode }) => (
-    <NextIntlClientProvider locale="ko" messages={ko}>
+    <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]}>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <ModalProvider>{children}</ModalProvider>

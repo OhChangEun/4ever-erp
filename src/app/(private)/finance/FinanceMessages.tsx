@@ -1,0 +1,17 @@
+'use client';
+
+import type { ReactNode } from 'react';
+import DomainMessages from '@/i18n/DomainMessages';
+import ko from '@/i18n/messages/finance/ko.json';
+
+// 영어는 고를 때만 받는다. 모듈 밖에 둬서 렌더마다 새 함수가 생기지 않게
+const LOAD = { en: () => import('@/i18n/messages/finance/en.json') };
+
+/** 재무 화면 메시지(i18n 2). useTranslations('finance') 로 꺼낸다 */
+export default function FinanceMessages({ children }: { children: ReactNode }) {
+  return (
+    <DomainMessages namespace="finance" ko={ko} load={LOAD}>
+      {children}
+    </DomainMessages>
+  );
+}

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import ko from './messages/ko.json';
 import en from './messages/en.json';
+import financeKo from './messages/finance/ko.json';
+import financeEn from './messages/finance/en.json';
+
+// 공통과 도메인 메시지 쌍. 도메인을 옮길 때마다 여기 더한다
+const PAIRS: [string, object, object][] = [
+  ['common', ko, en],
+  ['finance', financeKo, financeEn],
+];
 
 /** 메시지 키를 모은다(중첩은 점으로) */
 const keysOf = (tree: object, prefix = ''): string[] =>
@@ -10,9 +18,9 @@ const keysOf = (tree: object, prefix = ''): string[] =>
       : [`${prefix}${key}`],
   );
 
-describe('언어별 메시지(i18n 1)', () => {
-  it('ko 와 en 의 키가 같다(한쪽에만 있는 문구가 없다)', () => {
-    expect(keysOf(en).sort()).toEqual(keysOf(ko).sort());
+describe('언어별 메시지(i18n 1, 2)', () => {
+  it.each(PAIRS)('%s: ko 와 en 의 키가 같다(한쪽에만 있는 문구가 없다)', (_, koTree, enTree) => {
+    expect(keysOf(enTree).sort()).toEqual(keysOf(koTree).sort());
   });
 
   it('빈 문구가 없다', () => {
@@ -27,7 +35,9 @@ describe('언어별 메시지(i18n 1)', () => {
           );
         return typeof value !== 'string' || value.trim() === '';
       });
-    expect(empty(ko)).toEqual([]);
-    expect(empty(en)).toEqual([]);
+    for (const [, koTree, enTree] of PAIRS) {
+      expect(empty(koTree)).toEqual([]);
+      expect(empty(enTree)).toEqual([]);
+    }
   });
 });

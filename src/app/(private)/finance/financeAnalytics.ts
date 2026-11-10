@@ -1,13 +1,4 @@
-import type { AgingBucket, AgingBucketKey, MonthlyPoint } from './types/FinanceAnalyticsType';
-
-/** 미수금 경과 구간 이름. 계약의 enum 순서와 같다 */
-export const AGING_LABEL: Record<AgingBucketKey, string> = {
-  CURRENT: '기한 전',
-  D1_30: '1~30일',
-  D31_60: '31~60일',
-  D61_90: '61~90일',
-  D90_PLUS: '90일 초과',
-};
+import type { AgingBucket, MonthlyPoint } from './types/FinanceAnalyticsType';
 
 export interface MonthlySummary {
   sales: number;
@@ -60,7 +51,6 @@ export const agingSummary = (buckets: AgingBucket[]) => {
     overdueRate: percent(overdue, total),
     rows: buckets.map((b) => ({
       ...b,
-      label: AGING_LABEL[b.bucket],
       share: percent(b.amount, total),
     })),
   };

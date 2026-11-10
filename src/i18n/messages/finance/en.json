@@ -1,0 +1,111 @@
+{
+  "tabs": {
+    "sales": "Sales invoices",
+    "purchase": "Purchase invoices",
+    "overview": "Overview"
+  },
+  "stats": {
+    "totalSales": "Total sales (AR)",
+    "totalPurchases": "Total purchases (AP)",
+    "netProfit": "Net profit",
+    "purchaseAmount": "Purchase amount"
+  },
+  "invoiceType": {
+    "AR": "Sales invoice",
+    "AP": "Purchase invoice"
+  },
+  "invoiceList": {
+    "salesTitle": "Sales invoices",
+    "purchaseTitle": "Purchase invoices",
+    "statusFilter": {
+      "ALL": "All statuses",
+      "UNPAID": "Unpaid",
+      "PENDING": "Awaiting confirmation",
+      "PAID": "Paid"
+    },
+    "requestSettlement": "Request settlement",
+    "completeError": "Failed to submit the request. {message}",
+    "loading": "Loading invoices...",
+    "loadError": "Failed to load invoices.",
+    "empty": "No invoices yet.",
+    "selectRow": "Select {invoiceNumber}",
+    "detail": "Details",
+    "columns": {
+      "invoiceNumber": "Invoice no.",
+      "connection": "Partner",
+      "totalAmount": "Amount",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "statusCode": "Status",
+      "referenceNumber": "Reference no.",
+      "action": "Actions"
+    }
+  },
+  "invoiceDetail": {
+    "title": "Invoice details",
+    "loading": "Loading invoice details...",
+    "loadError": "Failed to load invoice details.",
+    "invoiceNumber": "Invoice no.",
+    "invoiceType": "Invoice type",
+    "connection": "Partner",
+    "note": "Memo",
+    "referenceNumber": "Reference no.",
+    "issueDate": "Issue date",
+    "dueDate": "Due date",
+    "status": "Status",
+    "items": "Order items",
+    "columns": {
+      "itemName": "Item",
+      "quantity": "Qty",
+      "unit": "Unit",
+      "unitPrice": "Unit price",
+      "totalPrice": "Amount"
+    },
+    "total": "Total",
+    "close": "Close"
+  },
+  "overview": {
+    "series": {
+      "sales": "Sales",
+      "purchases": "Purchases",
+      "netProfit": "Net profit"
+    },
+    "monthly": {
+      "region": "Monthly sales and purchases",
+      "title": "Monthly sales and purchases (12 months)",
+      "showChart": "View as chart",
+      "showTable": "View as table",
+      "loading": "Loading monthly sales and purchases",
+      "loadError": "Failed to load monthly sales and purchases.",
+      "empty": "No monthly data to show.",
+      "table": "Monthly sales and purchases table",
+      "chart": "Monthly sales and purchases chart",
+      "month": "Month",
+      "monthTick": "{month, select, 1 {Jan} 2 {Feb} 3 {Mar} 4 {Apr} 5 {May} 6 {Jun} 7 {Jul} 8 {Aug} 9 {Sep} 10 {Oct} 11 {Nov} 12 {Dec} other {{month}}}",
+      "summary": "{months}-month sales {sales}, purchases {purchases}, net profit {netProfit}. Highest net profit in {bestMonth} ({bestProfit}), lowest in {worstMonth} ({worstProfit}).",
+      "lossMonths": "{count, plural, one {# loss month.} other {# loss months.}}",
+      "noLoss": "No loss months."
+    },
+    "aging": {
+      "title": "Receivables aging",
+      "loading": "Loading receivables aging",
+      "loadError": "Failed to load receivables aging.",
+      "table": "Receivables aging table",
+      "summary": "Receivables as of {asOf}: {total}, of which overdue <strong>{overdue} ({rate}%)</strong>.",
+      "columns": {
+        "bucket": "Age",
+        "amount": "Amount",
+        "count": "Count",
+        "share": "Share"
+      },
+      "count": "{count}",
+      "buckets": {
+        "CURRENT": "Not yet due",
+        "D1_30": "1-30 days",
+        "D31_60": "31-60 days",
+        "D61_90": "61-90 days",
+        "D90_PLUS": "Over 90 days"
+      }
+    }
+  }
+}

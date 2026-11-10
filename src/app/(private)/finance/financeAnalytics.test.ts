@@ -37,12 +37,13 @@ describe('agingSummary', () => {
     expect(s.total).toBe(1000);
     expect(s.overdue).toBe(400);
     expect(s.overdueRate).toBe(40);
-    expect(s.rows.map((r) => r.label)).toEqual([
-      '기한 전',
-      '1~30일',
-      '31~60일',
-      '61~90일',
-      '90일 초과',
+    // 구간 이름은 화면이 키로 번역한다(i18n 2). 계산은 키와 순서만 지킨다
+    expect(s.rows.map((r) => r.bucket)).toEqual([
+      'CURRENT',
+      'D1_30',
+      'D31_60',
+      'D61_90',
+      'D90_PLUS',
     ]);
     expect(s.rows.map((r) => r.share)).toEqual([60, 20, 10, 0, 10]);
   });

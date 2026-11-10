@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { formatCurrency } from '@/app/utils/number';
 import { getArAging, getFinanceMonthly } from '../../finance.api';
@@ -30,6 +31,7 @@ export default function FinanceOverview() {
 }
 
 function Monthly() {
+  const t = useTranslations('finance.overview.monthly');
   const summaryId = useId();
   const [showTable, setShowTable] = useState(false);
   const { data, isLoading, isError, error } = useQuery({
@@ -39,9 +41,9 @@ function Monthly() {
   const months = data?.months ?? [];
 
   return (
-    <section aria-label="월별 매출과 매입" className="col-span-2 space-y-3">
+    <section aria-label={t('region')} className="col-span-2 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">월별 매출과 매입(12개월)</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
         {months.length > 0 && (
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <Key />
@@ -51,25 +53,15 @@ function Monthly() {
               aria-expanded={showTable}
               className="text-blue-600 hover:underline cursor-pointer"
             >
-              {showTable ? '차트로 보기' : '표로 보기'}
+              {showTable ? t('showChart') : t('showTable')}
             </button>
           </div>
         )}
       </div>
 
-      {isLoading && (
-        <div className="h-64" role="status" aria-label="월별 매출과 매입 불러오는 중" />
-      )}
-      {isError && (
-        <TableStatusBox
-          type="error"
-          message="월별 매출과 매입을 불러오지 못했습니다."
-          error={error}
-        />
-      )}
-      {data && months.length === 0 && (
-        <TableStatusBox type="empty" message="표시할 월별 데이터가 없습니다." />
-      )}
+      {isLoading && <div className="h-64" role="status" aria-label={t('loading')} />}
+      {isError && <TableStatusBox type="error" message={t('loadError')} error={error} />}
+      {data && months.length === 0 && <TableStatusBox type="empty" message={t('empty')} />}
 
       {months.length > 0 && (
         <>
@@ -87,33 +79,35 @@ function Monthly() {
 
 /** 범례 대신 제목 줄의 글자 표시. 색은 MonthlyChart 와 같다 */
 function Key() {
+  const t = useTranslations('finance.overview.series');
   return (
     <span aria-hidden="true" className="flex items-center gap-3">
       <span className="flex items-center gap-1">
         <span className="inline-block size-2.5 rounded-sm bg-blue-500" />
-        매출
+        {t('sales')}
       </span>
       <span className="flex items-center gap-1">
         <span className="inline-block size-2.5 rounded-sm bg-gray-300" />
-        매입
+        {t('purchases')}
       </span>
       <span className="flex items-center gap-1">
         <span className="inline-block h-0.5 w-3 bg-gray-900" />
-        순이익
+        {t('netProfit')}
       </span>
     </span>
   );
 }
 
 function MonthlyTable({ months }: { months: MonthlyPoint[] }) {
+  const t = useTranslations('finance.overview');
   return (
-    <table aria-label="월별 매출과 매입 표" className="w-full text-sm tabular-nums">
+    <table aria-label={t('monthly.table')} className="w-full text-sm tabular-nums">
       <thead>
         <tr className="text-left text-gray-500">
-          <th className="py-1 font-medium">월</th>
-          <th className="py-1 text-right font-medium">매출</th>
-          <th className="py-1 text-right font-medium">매입</th>
-          <th className="py-1 text-right font-medium">순이익</th>
+          <th className="py-1 font-medium">{t('monthly.month')}</th>
+          <th className="py-1 text-right font-medium">{t('series.sales')}</th>
+          <th className="py-1 text-right font-medium">{t('series.purchases')}</th>
+          <th className="py-1 text-right font-medium">{t('series.netProfit')}</th>
         </tr>
       </thead>
       <tbody>
@@ -133,36 +127,42 @@ function MonthlyTable({ months }: { months: MonthlyPoint[] }) {
 }
 
 function MonthlySummaryText({ id, months }: { id: string; months: MonthlyPoint[] }) {
+  const t = useTranslations('finance.overview.monthly');
   const s = monthlySummary(months);
   if (!s) return null;
   return (
     <p id={id} className="text-sm text-gray-700">
-      {months.length}개월 매출 {formatCurrency(s.sales)}, 매입 {formatCurrency(s.purchases)}, 순이익{' '}
-      {formatCurrency(s.netProfit)}. 순이익이 가장 큰 달은 {s.best.month}(
-      {formatCurrency(s.best.netProfit)}), 가장 작은 달은 {s.worst.month}(
-      {formatCurrency(s.worst.netProfit)}).{' '}
+      {t('summary', {
+        months: months.length,
+        sales: formatCurrency(s.sales),
+        purchases: formatCurrency(s.purchases),
+        netProfit: formatCurrency(s.netProfit),
+        bestMonth: s.best.month,
+        bestProfit: formatCurrency(s.best.netProfit),
+        worstMonth: s.worst.month,
+        worstProfit: formatCurrency(s.worst.netProfit),
+      })}{' '}
       {s.lossMonths > 0 ? (
-        <strong className="text-red-600">적자 {s.lossMonths}개월.</strong>
+        <strong className="text-red-600">{t('lossMonths', { count: s.lossMonths })}</strong>
       ) : (
-        '적자 달 없음.'
+        t('noLoss')
       )}
     </p>
   );
 }
 
 function Aging() {
+  const t = useTranslations('finance.overview.aging');
   const { data, isLoading, isError, error } = useQuery({
     queryKey: financeAnalyticsKeys.aging(),
     queryFn: getArAging,
   });
 
   return (
-    <section aria-label="미수금 경과" className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-900">미수금 경과</h3>
-      {isLoading && <div className="h-64" role="status" aria-label="미수금 경과 불러오는 중" />}
-      {isError && (
-        <TableStatusBox type="error" message="미수금 경과를 불러오지 못했습니다." error={error} />
-      )}
+    <section aria-label={t('title')} className="space-y-3">
+      <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
+      {isLoading && <div className="h-64" role="status" aria-label={t('loading')} />}
+      {isError && <TableStatusBox type="error" message={t('loadError')} error={error} />}
       {data && <AgingTable asOf={data.asOf} buckets={data.buckets} />}
     </section>
   );
@@ -173,31 +173,34 @@ function Aging() {
  * 막대 색은 하나. 위험도는 구간 이름이 이미 말한다(허용 차트 3번).
  */
 function AgingTable({ asOf, buckets }: { asOf: string; buckets: AgingBucket[] }) {
+  const t = useTranslations('finance.overview.aging');
   const s = agingSummary(buckets);
   return (
     <>
       <p className="text-sm text-gray-700">
-        {asOf} 기준 미수금 {formatCurrency(s.total)} 중 기한 지난 금액{' '}
-        <strong className="text-gray-900">
-          {formatCurrency(s.overdue)}({s.overdueRate}%)
-        </strong>
-        .
+        {t.rich('summary', {
+          asOf,
+          total: formatCurrency(s.total),
+          overdue: formatCurrency(s.overdue),
+          rate: s.overdueRate,
+          strong: (chunks) => <strong className="text-gray-900">{chunks}</strong>,
+        })}
       </p>
-      <table aria-label="미수금 경과 표" className="w-full text-sm tabular-nums">
+      <table aria-label={t('table')} className="w-full text-sm tabular-nums">
         <thead>
           <tr className="text-left text-gray-500">
-            <th className="py-1 font-medium">경과</th>
-            <th className="py-1 text-right font-medium">금액</th>
-            <th className="py-1 text-right font-medium">건수</th>
-            <th className="py-1 pl-3 font-medium">비율</th>
+            <th className="py-1 font-medium">{t('columns.bucket')}</th>
+            <th className="py-1 text-right font-medium">{t('columns.amount')}</th>
+            <th className="py-1 text-right font-medium">{t('columns.count')}</th>
+            <th className="py-1 pl-3 font-medium">{t('columns.share')}</th>
           </tr>
         </thead>
         <tbody>
           {s.rows.map((r) => (
             <tr key={r.bucket} className="border-t border-gray-100">
-              <td className="py-1.5">{r.label}</td>
+              <td className="py-1.5">{t(`buckets.${r.bucket}`)}</td>
               <td className="py-1.5 text-right">{formatCurrency(r.amount)}</td>
-              <td className="py-1.5 text-right">{r.count}건</td>
+              <td className="py-1.5 text-right">{t('count', { count: r.count })}</td>
               <td className="py-1.5 pl-3">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-20 rounded-sm bg-gray-100" aria-hidden="true">

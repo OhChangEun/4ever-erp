@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { VOUCHER_STATUS_OPTIONS } from '@/app/(private)/finance/constants';
 import { type InvoiceStatus } from '@/app/(private)/finance/types/InvoiceListType';
 import { useQuery } from '@tanstack/react-query';
@@ -24,6 +25,8 @@ import { formatCurrency } from '@/app/utils/number';
 const InvoiceList = () => {
   const searchParams = useSearchParams();
   const role = useRole();
+  const t = useTranslations('finance.invoiceList');
+  const tDetail = useTranslations('finance.invoiceDetail');
   const defaultTab: InvoiceTab =
     role === 'SUPPLIER_ADMIN' ? 'sales' : role === 'CUSTOMER_ADMIN' ? 'purchase' : 'sales';
   const tabParam = searchParams.get('tab');
@@ -84,14 +87,14 @@ const InvoiceList = () => {
     role === 'SUPPLIER_ADMIN' ? 'supplierAp' : currentTab === 'sales' ? 'ar' : 'ap';
   const { mutate: sendReq, isPending: isCompleting } = useCompleteInvoice({
     onSuccess: (data) => toast.success(data.message),
-    onError: (error) => toast.error(`등록 중 오류가 발생했습니다. ${errorMessageOf(error)}`),
+    onError: (error) => toast.error(t('completeError', { message: errorMessageOf(error) })),
   });
 
   // ----------------------------------------------------------
   const handleViewDetail = (id: string) => {
     setSelectedInvoiceId(id);
     openModal(InvoiceDetailModal, {
-      title: '전표 상세 정보',
+      title: tDetail('title'),
       width: '900px',
       selectedInvoiceId: id,
     });
@@ -119,7 +122,7 @@ const InvoiceList = () => {
       render: (_, invoice) => (
         <input
           type="checkbox"
-          aria-label={`${invoice.invoiceNumber} 선택`}
+          aria-label={t('selectRow', { invoiceNumber: invoice.invoiceNumber })}
           checked={selectedInvoiceId === invoice.invoiceId}
           disabled={
             currentTab === 'sales'
@@ -133,28 +136,28 @@ const InvoiceList = () => {
         />
       ),
     },
-    { key: 'invoiceNumber', label: '전표번호' },
+    { key: 'invoiceNumber', label: t('columns.invoiceNumber') },
     {
       key: 'connection',
-      label: '거래처',
+      label: t('columns.connection'),
       render: (_, invoice) => invoice.connection.connectionName,
     },
     {
       key: 'totalAmount',
-      label: '금액',
+      label: t('columns.totalAmount'),
       align: 'right',
       render: (_, invoice) => formatCurrency(invoice.totalAmount),
     },
-    { key: 'issueDate', label: '발행일' },
-    { key: 'dueDate', label: '만기일' },
+    { key: 'issueDate', label: t('columns.issueDate') },
+    { key: 'dueDate', label: t('columns.dueDate') },
     {
       key: 'statusCode',
-      label: '상태',
+      label: t('columns.statusCode'),
       render: (_, invoice) => <StatusLabel statusCode={invoice.statusCode} />,
     },
     {
       key: 'referenceNumber',
-      label: '참조번호',
+      label: t('columns.referenceNumber'),
       render: (_, invoice) => (
         <span className="text-blue-600 hover:text-blue-500 cursor-pointer">
           {invoice.referenceNumber}
@@ -163,11 +166,11 @@ const InvoiceList = () => {
     },
     {
       key: 'action',
-      label: '작업',
+      label: t('columns.action'),
       align: 'right',
       render: (_, invoice) => (
         <Button
-          label="상세"
+          label={t('detail')}
           variant="ghost"
           size="sm"
           className="text-gray-600 hover:bg-gray-100 px-2"
@@ -183,21 +186,24 @@ const InvoiceList = () => {
         <div className="flex items-center space-x-2">
           <i className="ri-shopping-cart-line text-blue-600 text-lg"></i>
           <h2 className="text-lg font-semibold text-gray-900">
-            {currentTab === 'sales' ? '매출 전표 목록' : '매입 전표 목록'}
+            {currentTab === 'sales' ? t('salesTitle') : t('purchaseTitle')}
           </h2>
         </div>
 
         <div className="flex items-center space-x-4">
           <Dropdown
-            placeholder="전체 상태"
-            items={VOUCHER_STATUS_OPTIONS}
+            placeholder={t('statusFilter.ALL')}
+            items={VOUCHER_STATUS_OPTIONS.map((status) => ({
+              key: status,
+              value: t(`statusFilter.${status}`),
+            }))}
             value={statusFilter}
             onChange={setStatusFilter}
             autoSelectFirst
           />
 
           <Button
-            label="미수 처리 신청"
+            label={t('requestSettlement')}
             onClick={handleReceivableComplete}
             loading={isCompleting}
             disabled={selectedInvoiceId ? false : true}
@@ -206,16 +212,16 @@ const InvoiceList = () => {
       </div>
 
       {isLoading ? (
-        <TableStatusBox type="loading" message="전표 목록을 불러오는 중입니다..." />
+        <TableStatusBox type="loading" message={t('loading')} />
       ) : isError ? (
-        <TableStatusBox type="error" message="전표 목록을 불러오는 중 오류가 발생했습니다." />
+        <TableStatusBox type="error" message={t('loadError')} />
       ) : (
         <Table
           isStale={isPlaceholderData}
           columns={columns}
           data={invoices}
           keyExtractor={(row) => row.invoiceId}
-          emptyMessage="등록된 전표가 없습니다."
+          emptyMessage={t('empty')}
           className="flex-1 min-h-0"
         />
       )}
