@@ -47,7 +47,9 @@ describe('ganttLayout(시각화 3)', () => {
     expect(layout.ticks[0]?.label).toMatch(/^\d{2}-\d{2}$/);
   });
 
-  it('막대 이름은 번호, 품목, 기간, 진행률, 지연', () => {
-    expect(layout.bars[0].label).toBe('MES-1 모터 A, 2026-11-01~2026-11-08, 진행 60%, 지연');
+  it('막대 이름에 쓸 진행률과 지연', () => {
+    // 이름 글자('MES-1 모터 A, 2026-11-01~2026-11-08, 진행 60%, 지연')는 화면이 메시지(production.gantt)로 만든다.
+    // 헬퍼는 진행률과 지연만 준다(i18n 9). 글자는 production.i18n.test 가 본다
+    expect(layout.bars[0]).toMatchObject({ id: 'mes-1', progress: 60, delayed: true });
   });
 });

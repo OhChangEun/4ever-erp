@@ -17,7 +17,8 @@ export interface GanttRow {
 
 export interface GanttBar {
   id: string;
-  label: string;
+  /** 0~100 으로 자른 진행률. 막대 이름(번호, 품목, 기간, 진행률, 지연)은 화면이 메시지로 만든다(i18n 9) */
+  progress: number;
   x: number;
   y: number;
   width: number;
@@ -57,9 +58,7 @@ export const ganttLayout = (
     const delayed = !DONE.has(r.status) && dayOf(r.endDate) < timeDay.floor(today);
     return {
       id: r.mesId,
-      label: `${r.mesNumber} ${r.productName}, ${r.startDate}~${r.endDate}, 진행 ${progress}%${
-        delayed ? ', 지연' : ''
-      }`,
+      progress,
       x: left,
       y: i * rowHeight,
       width: barWidth,
