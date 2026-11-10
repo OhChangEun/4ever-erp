@@ -61,7 +61,7 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
                   <span className="font-medium">{data?.customerName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{t('manager')}</span>
+                  <span className="text-gray-600">{t('ceo')}</span>
                   <span className="font-medium">{data?.ceoName}</span>
                 </div>
                 <div className="flex justify-between">

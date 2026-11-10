@@ -96,7 +96,7 @@
     "statusFilter": {
       "ALL": "전체",
       "ACTIVE": "활성",
-      "DEACTIVE": "비활성"
+      "INACTIVE": "비활성"
     },
     "columns": {
       "customer": "고객사",
@@ -153,7 +153,7 @@
     "amount": "견적금액:",
     "customerTitle": "고객 정보",
     "customerName": "고객명:",
-    "manager": "담당자:",
+    "ceo": "대표이사:",
     "status": "상태:",
     "itemsTitle": "견적 품목",
     "total": "총 견적금액"

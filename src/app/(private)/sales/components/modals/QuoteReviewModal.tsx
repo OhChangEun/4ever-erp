@@ -99,7 +99,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
               <span className="font-medium">{quote.customerName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">{tq('manager')}</span>
+              <span className="text-gray-600">{tq('ceo')}</span>
               <span className="font-medium">{quote.ceoName}</span>
             </div>
             <div className="flex justify-between">
@@ -209,14 +209,12 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                       <td className="px-4 py-3 text-center">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            isAllInventoryFulfilled(inventoryCheckResult)
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
+                            item.productionRequired
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-green-100 text-green-800'
                           }`}
                         >
-                          {isAllInventoryFulfilled(inventoryCheckResult)
-                            ? t('rowFulfilled')
-                            : t('rowShort')}
+                          {item.productionRequired ? t('rowShort') : t('rowFulfilled')}
                         </span>
                       </td>
                     </tr>

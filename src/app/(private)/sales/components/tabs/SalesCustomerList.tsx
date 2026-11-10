@@ -60,7 +60,6 @@ const CustomerList = () => {
 
   const customers = customerRes?.data ?? [];
   const pageInfo = customerRes?.pageData;
-  console.log(pageInfo);
 
   const handleViewClick = (id: string) => {
     openModal(CustomerDetailModal, {

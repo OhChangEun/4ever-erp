@@ -1,5 +1,5 @@
 import type { Schema } from '@/lib/api/contract';
-export type CustomerStatus = 'ALL' | 'ACTIVE' | 'DEACTIVE';
+export type CustomerStatus = 'ALL' | 'ACTIVE' | 'INACTIVE';
 export type SalesCustomer = Schema<'SalesCustomer'>;
 
 export interface CustomerQueryParams {

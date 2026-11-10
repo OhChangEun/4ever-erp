@@ -57,7 +57,7 @@ export const ORDER_STATUS_OPTIONS = [
 export const CUSTOMER_STATUS_OPTIONS = [
   'ALL',
   'ACTIVE',
-  'DEACTIVE',
+  'INACTIVE',
 ] as const satisfies readonly (CustomerStatus & keyof typeof salesKo.customerList.statusFilter)[];
 
 // 견적서 신규 등록용 제품 표 머리. 글자는 sales.newQuote.columns.<키>
