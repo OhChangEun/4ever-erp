@@ -30,7 +30,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 
 - 로그인은 데모 계정 선택이다. `/api/auth/login` 이 `DEMO_ACCOUNTS` 에 있는 아이디면 통과시키고 (`src/app/api/auth/login/route.ts:35`) 세션을 연다 (`:47`). 세션 처리는 한 모듈이다 (`src/server/auth/session/index.ts:21`). 데모 저장소는 HS256 으로 서명한 JWT 를 httpOnly 쿠키 `session`(운영은 `__Host-session`, 서브도메인의 쿠키 바꿔치기 방지)에 심는다 (서명 `src/lib/auth/session.ts:40`, 검증 `:50`, 만료 1일 `:45`). OIDC 카드에서 sid 쿠키 + 서버 저장소 구현이 같은 경계(`SessionStore`)에 붙는다.
 - 페이지 접근은 `src/proxy.ts` 가 막는다. 세션 확인 (`src/proxy.ts:12`) 뒤 역할 표로 판정 (`:24`). matcher 는 공개 경로만 빼는 denylist (`:34`). Next 16 부터 파일 이름이 `middleware.ts` 에서 `proxy.ts` 로 바뀌었고 Node 런타임이 기본이다.
-- 권한 규칙은 표 하나다 (`src/lib/authz/policy.ts:66`). 페이지 프록시, API 프록시, 메뉴 2곳이 같이 읽는다. 역할은 `Role` 유니온 15개이고 목록 밖 역할이 든 세션은 무효다.
+- 권한 규칙은 표 하나다 (`src/lib/authz/policy.ts:72`). 페이지 프록시, API 프록시, 메뉴 2곳이 같이 읽는다. 역할은 `Role` 유니온 15개이고 목록 밖 역할이 든 세션은 무효다.
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`, 사용자 타입은 `src/lib/auth/userInfo.ts`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
 - 구매 요청 부서는 인증 사용자의 `/business/profile` 을 기존 프로필 API와 쿼리 키로 조회한다 (`src/app/(private)/purchase/components/modals/PurchaseRequestFormModal.tsx:54`). 열 때 다시 확인하고 조회 중, 실패, 부서 없음은 입력을 유지하며 제출을 막는다. 프로필은 게이트웨이의 원형 중계라 `department` 와 `departmentName` 문자열을 허용한다 (`:28`). 생성 본문은 `items` 만 보내고 요청자 ID는 게이트웨이가 인증 principal에서 결정한다 (`openapi/everp.yaml:6835`, 팀 백엔드 `MmController.createPurchaseRequisition` 기준).
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
