@@ -1,7 +1,7 @@
 import type { Schema } from '@/lib/api/contract';
 import type { OptionResponse } from '@/app/types/api';
 import { type ProductionStatResponse } from '@/app/(private)/production/types/ProductionStatsType';
-import { type ApiResponse, type ApiResponseNoData, INVENTORY_ENDPOINTS } from '@/app/types/api';
+import { type ApiResponse, INVENTORY_ENDPOINTS } from '@/app/types/api';
 import { PRODUCTION_ENDPOINTS } from '@/app/(private)/production/api/production.endpoints';
 import {
   type FetchQuotationSimulationParams,
@@ -20,7 +20,6 @@ import {
   type FetchMrpPlannedOrdersListParams,
   type MrpPlannedOrdersListResponse,
 } from '../types/MrpPlannedOrdersListApiType';
-import { type MrpPlannedOrdersDetailResponse } from '../types/MrpPlannedOrdersDetailApiType';
 import { type BomRequestBody, type MaterialResponse } from '../types/BomType';
 import { type PageRequest } from '@/app/types/Page';
 import { type MrpOrdersConvertReqeustBody } from '../types/MrpOrdersConvertApiType';
@@ -40,7 +39,6 @@ import {
   mesListSchema,
   mpsListSchema,
   mrpOrdersListSchema,
-  mrpPlannedOrdersDetailSchema,
   productionStatsSchema,
   quotationListSchema,
   quotationSimulationSchema,
@@ -132,12 +130,6 @@ export const postBomItem = async (body: BomRequestBody) => {
   return res.data;
 };
 
-// BOM 삭제
-export const deletBomItem = async (bomId: string): Promise<ApiResponseNoData> => {
-  const res = await axios.delete<ApiResponseNoData>(`${PRODUCTION_ENDPOINTS.BOM_DETAIL(bomId)}`);
-  return res.data;
-};
-
 // BOM 상태 수정 (낙관적 락)
 // version 필드를 함께 전송해서 서버에서 충돌 여부를 검증
 export type PatchBomStatusRequest = Schema<'PatchBomStatusRequest'>;
@@ -182,16 +174,6 @@ export const fetchMrpPlannedOrdersList = async (
   return getParsed(mrpPlannedOrdersListSchema, `${PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST}`, {
     params,
   });
-};
-
-// MRP 계획 주문 상세 조회
-export const fetchMrpPlannedOrdersDetail = async (
-  mrpId: string,
-): Promise<MrpPlannedOrdersDetailResponse> => {
-  return getParsed(
-    mrpPlannedOrdersDetailSchema,
-    `${PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDER_DETAIL(mrpId)}`,
-  );
 };
 
 // 자재 상세 조회

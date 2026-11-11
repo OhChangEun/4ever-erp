@@ -7,7 +7,7 @@ import { fetchBomList } from '../../api/production.api';
 import { useModal } from '@/app/components/common/modal/useModal';
 import BomInputFormModal from '../modals/BomInputFormModal';
 import { Pagination } from '@everp/ui';
-import { useMemo, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { type PageRequest } from '@/app/types/Page';
 import { Button } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
@@ -15,6 +15,7 @@ import { formatDateTime } from '@/app/utils/date';
 import { Table, type TableColumn } from '@everp/ui';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { BomStatusActionsContext } from '@/app/(private)/production/components/bom/BomStatusActionsContext';
 
 export default function BomTab() {
   const t = useTranslations('production');
@@ -22,6 +23,8 @@ export default function BomTab() {
   const pageSize = 10;
 
   const { openModal } = useModal();
+  // 모달은 ModalProvider 밑이라 컨텍스트가 안 닿는다. 여기서 읽어 prop 으로 준다
+  const showStatusActions = use(BomStatusActionsContext);
 
   const bomQueryParams = useMemo(
     (): PageRequest => ({
@@ -55,6 +58,7 @@ export default function BomTab() {
     openModal(BomDetailModal, {
       title: t('bom.detailTitle'),
       bomId: bomId,
+      showStatusActions,
       width: '800px',
       height: '700px',
     });

@@ -43,9 +43,11 @@ const STATUS_BADGE: Partial<
 
 interface BomDetailModalProps extends ModalProps {
   bomId: string;
+  /** 상태 토글과 충돌 재현 버튼. 실백엔드면 false(BomStatusActionsContext) */
+  showStatusActions: boolean;
 }
 
-export default function BomDetailModal({ bomId }: BomDetailModalProps) {
+export default function BomDetailModal({ bomId, showStatusActions }: BomDetailModalProps) {
   const t = useTranslations('production');
   const queryClient = useQueryClient();
   const errorMessageOf = useErrorMessage();
@@ -124,39 +126,41 @@ export default function BomDetailModal({ bomId }: BomDetailModalProps) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-md font-semibold text-gray-900">{t('bomDetail.basicInfo')}</h4>
-              <div className="flex gap-2">
-                {/* [테스트 전용] 다른 사용자가 수정한 상황 시뮬레이션 버튼 */}
-                <button
-                  onClick={() => triggerConflict(bomId)}
-                  disabled={isTriggering}
-                  title={t('bomDetail.simulateConflictHint')}
-                  className="px-3 py-1.5 text-xs rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-50 disabled:opacity-50 cursor-pointer"
-                >
-                  <i className="ri-test-tube-line mr-1"></i>
-                  {t('bomDetail.simulateConflict')}
-                </button>
-                {/* 상태 변경 버튼 — version을 함께 전송해 낙관적 락 검증 */}
-                <button
-                  onClick={() => {
-                    updateStatus({
-                      bomId,
-                      statusCode: bomDetail.statusCode === '활성' ? '비활성' : '활성',
-                      version: bomDetail.version,
-                    });
-                  }}
-                  disabled={isUpdating}
-                  className="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
-                >
-                  {isUpdating ? (
-                    <i className="ri-loader-4-line animate-spin mr-1"></i>
-                  ) : (
-                    <i className="ri-toggle-line mr-1"></i>
-                  )}
-                  {bomDetail.statusCode === '활성'
-                    ? t('bomDetail.deactivate')
-                    : t('bomDetail.activate')}
-                </button>
-              </div>
+              {showStatusActions && (
+                <div className="flex gap-2">
+                  {/* [테스트 전용] 다른 사용자가 수정한 상황 시뮬레이션 버튼 */}
+                  <button
+                    onClick={() => triggerConflict(bomId)}
+                    disabled={isTriggering}
+                    title={t('bomDetail.simulateConflictHint')}
+                    className="px-3 py-1.5 text-xs rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-50 disabled:opacity-50 cursor-pointer"
+                  >
+                    <i className="ri-test-tube-line mr-1"></i>
+                    {t('bomDetail.simulateConflict')}
+                  </button>
+                  {/* 상태 변경 버튼 — version을 함께 전송해 낙관적 락 검증 */}
+                  <button
+                    onClick={() => {
+                      updateStatus({
+                        bomId,
+                        statusCode: bomDetail.statusCode === '활성' ? '비활성' : '활성',
+                        version: bomDetail.version,
+                      });
+                    }}
+                    disabled={isUpdating}
+                    className="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isUpdating ? (
+                      <i className="ri-loader-4-line animate-spin mr-1"></i>
+                    ) : (
+                      <i className="ri-toggle-line mr-1"></i>
+                    )}
+                    {bomDetail.statusCode === '활성'
+                      ? t('bomDetail.deactivate')
+                      : t('bomDetail.activate')}
+                  </button>
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

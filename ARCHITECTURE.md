@@ -186,15 +186,15 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 ## 7. 환경 변수
 
-| 이름                                                  | 어디서   | 뜻                                                                                             |
-| ----------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `SESSION_SECRET`                                      | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:9`) |
-| `BACKEND_API_URL`                                     | 서버     | 업스트림. 없으면 `/api/[...slug]` 목                                                           |
-| `NEXT_PUBLIC_API_BASE_URL`                            | 브라우저 | 기본 `/api/proxy`                                                                              |
-| `NEXT_PUBLIC_API_MOCKING`                             | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                        |
-| `AUTH_PROVIDER`                                       | 서버     | `demo`(기본) 또는 `oidc`. 4절                                                                  |
-| `NEXT_PUBLIC_AUTH_PROVIDER`                           | 브라우저 | `oidc` 면 로그인 화면이 IdP 버튼 하나                                                          |
-| `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | 서버     | OIDC 모드에서만. 없으면 로그인 시작 때 throw                                                   |
+| 이름                                                  | 어디서   | 뜻                                                                                                                                 |
+| ----------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `SESSION_SECRET`                                      | 서버     | 세션 JWT 서명 키. 없으면 로그인과 검증 호출 때 throw. 빌드는 통과(`src/lib/auth/session.ts:9`)                                     |
+| `BACKEND_API_URL`                                     | 서버     | 업스트림. 없으면 `/api/[...slug]` 목. `/production` 은 build 때 읽음(BOM 상태 버튼 숨김), 프록시는 요청마다 읽어 BOM PATCH 를 막음 |
+| `NEXT_PUBLIC_API_BASE_URL`                            | 브라우저 | 기본 `/api/proxy`                                                                                                                  |
+| `NEXT_PUBLIC_API_MOCKING`                             | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                                                            |
+| `AUTH_PROVIDER`                                       | 서버     | `demo`(기본) 또는 `oidc`. 4절                                                                                                      |
+| `NEXT_PUBLIC_AUTH_PROVIDER`                           | 브라우저 | `oidc` 면 로그인 화면이 IdP 버튼 하나                                                                                              |
+| `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | 서버     | OIDC 모드에서만. 없으면 로그인 시작 때 throw                                                                                       |
 
 CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.yml`). 배포 값은 Vercel 프로젝트 env. Production 과 Preview 환경 둘 다에 있어야 로그인이 된다. 2026-11-09 PR #1 머지 뒤 배포 7건이 Vercel 에 env 가 하나도 없어 `session.ts` import 시점 throw 로 실패했다. 같은 날 비밀키 읽기를 호출 시점으로 옮겨 빌드는 env 없이도 통과하게 했고, `vercel env add SESSION_SECRET production|preview` 로 환경마다 다른 값을 넣었다(`openssl rand -base64 32`). 교체는 `vercel env rm` 뒤 다시 add.
 

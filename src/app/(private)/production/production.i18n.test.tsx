@@ -11,6 +11,7 @@ import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 import ProductionClient from './ProductionClient';
 import ProductionLayout from './layout';
 import BomTab from './components/tabs/BomTab';
+import { BomStatusActionsContext } from './components/bom/BomStatusActionsContext';
 import MesTab from './components/tabs/MesTab';
 import QuotationTab from './components/tabs/QuotationTab';
 import MesGantt from './components/MesGantt';
@@ -78,7 +79,7 @@ const bomData = [
 
 describe('생산 화면 영어(i18n 9)', () => {
   it('탭 이름과 통계 카드 제목이 영어, 건수에 단위 "건"이 붙지 않는다', async () => {
-    renderWithProviders(<ProductionClient />, { locale: 'en' });
+    renderWithProviders(<ProductionClient realBackend={false} />, { locale: 'en' });
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(await within(metrics).findByText('Items in production')).toBeInTheDocument();
     expect(within(metrics).getByText('BOMs')).toBeInTheDocument();
@@ -88,7 +89,7 @@ describe('생산 화면 영어(i18n 9)', () => {
   });
 
   it('한국어 탭과 통계 카드는 예전과 같다(1,200건)', async () => {
-    renderWithProviders(<ProductionClient />);
+    renderWithProviders(<ProductionClient realBackend={false} />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('생산 중인 품목')).toBeInTheDocument();
     expect(within(metrics).getByText('BOM 개수')).toBeInTheDocument();
@@ -97,7 +98,13 @@ describe('생산 화면 영어(i18n 9)', () => {
   });
 
   it('BOM 목록과 상세 모달(원가 트리 포함)이 영어', async () => {
-    renderWithProviders(<BomTab />, { locale: 'en' });
+    // 실화면은 ProductionClient 가 값을 준다(기본값은 숨김). 서버 목과 같게 준다
+    renderWithProviders(
+      <BomStatusActionsContext value>
+        <BomTab />
+      </BomStatusActionsContext>,
+      { locale: 'en' },
+    );
     expect(await screen.findByRole('columnheader', { name: 'BOM no.' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'View details' }));
     const dialog = await screen.findByRole('dialog', { name: 'BOM details' });

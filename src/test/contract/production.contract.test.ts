@@ -48,9 +48,9 @@ describe.each(SOURCES)('생산 계약 (%s 목)', (source) => {
       MRP순소요: () =>
         api.fetchMrpOrdersList({ quotationId: '', availableStatusCode: 'ALL', page: 0, size: 10 }),
       MRP계획주문: async () => {
-        const { content } = await api.fetchMrpPlannedOrdersList({ page: 0, size: 10 });
-        expect(content.length).toBeGreaterThan(0);
-        return api.fetchMrpPlannedOrdersDetail(content[0].mrpRunId);
+        const list = await api.fetchMrpPlannedOrdersList({ page: 0, size: 10 });
+        expect(list.content.length).toBeGreaterThan(0);
+        return list;
       },
       MES: async () => {
         const { content } = await api.fetchMesList({ page: 0, size: 10 });

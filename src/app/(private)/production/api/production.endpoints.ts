@@ -5,7 +5,7 @@ export const PRODUCTION_BASE_PATH = `${API_BASE_URL}/scm-pp/pp`;
 export const PRODUCTION_ENDPOINTS = {
   // BOM 관련
   BOMS: `${PRODUCTION_BASE_PATH}/boms`, // BOM 목록 조회, 생성
-  BOM_DETAIL: (bomId: string) => `${PRODUCTION_BASE_PATH}/boms/${bomId}`, // BOM 상세 조회, 수정, 삭제
+  BOM_DETAIL: (bomId: string) => `${PRODUCTION_BASE_PATH}/boms/${bomId}`, // BOM 상세 조회, 수정
   PRODUCTS_DETAIL: (productId: string) => `${PRODUCTION_BASE_PATH}/products/${productId}`, // 자재 상세 정보(입력 모달 출력용)
 
   // MES 작업 목록
@@ -20,10 +20,7 @@ export const PRODUCTION_ENDPOINTS = {
 
   // MRP 순소요 목록
   MRP_ORDERS: `${PRODUCTION_BASE_PATH}/quotations/mrp`, // MRP 순소요 목록 조회
-  MRP_PLANNED_ORDER_DETAIL: (mrpId: string) =>
-    `${PRODUCTION_BASE_PATH}/mrp/planned-orders/detail/${mrpId}`, // MRP 계획 주문 상세 조회
   MRP_PLANNED_ORDERS_LIST: `${PRODUCTION_BASE_PATH}/mrp/runs`, // MRP 계획 주문 목록 조회
-  MRP_REQUEST_SUMMARY: `${PRODUCTION_BASE_PATH}/mrp/request-summary`, // MRP 자재 구매 요청 리스트
   MRP_CONVERT: `${PRODUCTION_BASE_PATH}/mrp/convert`, // MRP 순소요 목록 조회
 
   // MPS 계획

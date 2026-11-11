@@ -1,12 +1,12 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { NextRequest } from 'next/server';
 import { server } from '@/test/msw-server';
 import { signSession } from '@/lib/auth/session';
 import { SESSION_COOKIE } from '@/server/auth/session';
 import type { Role } from '@/lib/authz/policy';
-import { GET, POST } from './route';
+import { GET, PATCH, POST } from './route';
 
 const APP = 'http://localhost:3100';
 
@@ -130,5 +130,58 @@ describe('요청 ID(옵저버빌리티 1)', () => {
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ status: 502, success: false });
     expect(res.headers.get('x-request-id')).toMatch(ID);
+  });
+});
+
+// 게이트웨이 PATCH /scm-pp/pp/boms/{bomId} 는 BomCreateRequestDto 를 받아 {statusCode, version} 을 버린다.
+// 실백엔드로 가면 빈 수정이 BOM 을 덮을 수 있어 프록시가 요청마다 막는다(카드 BOM 상태 변경 요청)
+describe('BOM 상태 PATCH 차단', () => {
+  const BACKEND = 'http://backend.test/api';
+  const BOM = ['scm-pp', 'pp', 'boms', 'bom-001'];
+
+  /** 실백엔드 자리. 받은 요청을 기록한다 */
+  const recordBackend = () => {
+    const seen: Request[] = [];
+    server.use(
+      http.all(`${BACKEND}/*`, ({ request }) => {
+        seen.push(request.clone());
+        return HttpResponse.json({ status: 200, success: true, message: 'OK', data: {} });
+      }),
+    );
+    return seen;
+  };
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('실백엔드가 붙으면 BOM PATCH 는 업스트림에 가지 않고 501', async () => {
+    vi.stubEnv('BACKEND_API_URL', BACKEND);
+    const seen = recordBackend();
+    const res = await call(PATCH, BOM, { role: 'PP_ADMIN', method: 'PATCH' });
+    expect(res.status).toBe(501);
+    expect(await res.json()).toMatchObject({ status: 501, success: false });
+    expect(seen).toHaveLength(0);
+  });
+
+  it('실백엔드여도 BOM 상세 GET 과 다른 BOM 경로 PATCH 는 그대로 간다', async () => {
+    vi.stubEnv('BACKEND_API_URL', BACKEND);
+    const seen = recordBackend();
+    expect((await call(GET, BOM, { role: 'PP_ADMIN' })).status).toBe(200);
+    expect(
+      (await call(PATCH, [...BOM, 'items'], { role: 'PP_ADMIN', method: 'PATCH' })).status,
+    ).toBe(200);
+    expect(seen.map((r) => `${r.method} ${new URL(r.url).pathname}`)).toEqual([
+      'GET /api/scm-pp/pp/boms/bom-001',
+      'PATCH /api/scm-pp/pp/boms/bom-001/items',
+    ]);
+  });
+
+  it('서버 목(실백엔드 없음)이면 BOM PATCH 는 지금처럼 통과', async () => {
+    vi.stubEnv('BACKEND_API_URL', '');
+    const seen = recordUpstream();
+    const res = await call(PATCH, BOM, { role: 'PP_ADMIN', method: 'PATCH' });
+    expect(res.status).toBe(200);
+    expect(seen).toHaveLength(1);
   });
 });

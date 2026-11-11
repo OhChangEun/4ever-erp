@@ -9,8 +9,9 @@ import { fetchProductionStats } from '@/app/(private)/production/api/production.
 import { mapProductionStatsToCards } from '@/app/(private)/production/services/production.service';
 import { useQuery } from '@tanstack/react-query';
 import { productionStatsKeys } from '@/app/(private)/production/api/production.keys';
+import { BomStatusActionsContext } from '@/app/(private)/production/components/bom/BomStatusActionsContext';
 
-export default function ProductionClient() {
+export default function ProductionClient({ realBackend }: { realBackend: boolean }) {
   const t = useTranslations('production');
   const { data, error } = useQuery({
     queryKey: productionStatsKeys.all,
@@ -38,10 +39,12 @@ export default function ProductionClient() {
     <div className="bg-gray-50 h-full flex flex-col">
       <main className="flex-1 flex flex-col overflow-hidden px-6 pt-6">
         <Suspense fallback={<div>Loading..</div>}>
-          <TabNavigation
-            tabs={tabs}
-            header={<StatSection statsData={productionStatsData} error={error} />}
-          />
+          <BomStatusActionsContext value={!realBackend}>
+            <TabNavigation
+              tabs={tabs}
+              header={<StatSection statsData={productionStatsData} error={error} />}
+            />
+          </BomStatusActionsContext>
         </Suspense>
       </main>
     </div>
