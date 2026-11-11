@@ -232,6 +232,7 @@
       "fcm_admin": "Finance manager",
       "hrm_admin": "HR manager",
       "im_admin": "Inventory manager",
+      "pp_admin": "Production manager",
       "customer": "Customer admin",
       "supplier": "Supplier admin"
     },

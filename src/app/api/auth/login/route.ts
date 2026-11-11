@@ -1,7 +1,7 @@
 import { startSession } from '@/server/auth/session';
 import { authProvider } from '@/server/auth/config';
 import { startOidcLogin } from '@/server/auth/oidcLogin';
-import { buildMockUser, DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
+import { buildMockUser, findDemoAccount } from '@/lib/auth/simpleLogin';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -42,10 +42,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: '잘못된 요청' }, { status: 400 });
   }
 
-  // 2.1 계정이 존재하는지 체크
-  const loginId = body.loginId.trim().toLowerCase();
-  const isExists = DEMO_ACCOUNTS.some((a) => a.loginId === loginId);
-  if (!isExists) {
+  // 2.1 계정이 존재하는지 체크. 화면과 같은 함수로 판정한다(대소문자, 앞뒤 공백 무시)
+  const loginId = findDemoAccount(body.loginId)?.loginId;
+  if (!loginId) {
     return NextResponse.json({ message: '없는 아이디입니다.' }, { status: 401 });
   }
 

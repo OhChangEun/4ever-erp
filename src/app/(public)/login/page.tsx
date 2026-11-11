@@ -4,14 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/store/authStore';
-import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
+import { DEMO_ACCOUNTS, findDemoAccount } from '@/lib/auth/simpleLogin';
 import { readErrorMessage, readUserResponse } from '@/lib/auth/userInfo';
 import { safeReturnTo } from '@/lib/auth/returnTo';
 import { Button } from '@everp/ui';
 import { Flex } from '@everp/ui';
 import LogoMark from '@/app/components/header/LogoMark';
-
-const VALID_IDS = new Set(DEMO_ACCOUNTS.map((a) => a.loginId.toUpperCase()));
 
 // middleware가 붙여준 returnTo - 같은 사이트 안의 경로만 허용
 function readReturnTo(): string {
@@ -89,7 +87,8 @@ function DemoLogin() {
       return;
     }
 
-    if (!VALID_IDS.has(trimmed)) {
+    // 서버와 같은 함수로 판정한다(대소문자, 앞뒤 공백 무시)
+    if (!findDemoAccount(trimmed)) {
       setError({ key: 'unknownId' });
       return;
     }
