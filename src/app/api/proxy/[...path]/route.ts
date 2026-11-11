@@ -17,6 +17,9 @@ const DROP_REQUEST_HEADERS = ['cookie', 'host', 'content-length', 'connection'];
 // 업스트림 응답에서 그대로 돌려줄 헤더 - 인코딩·전송 관련 헤더는 Node fetch가 이미 풀어놓았으므로 제외
 const KEEP_RESPONSE_HEADERS = ['content-type', 'cache-control'];
 
+// 실백엔드로 보내지 않는 BOM 상태 변경(아래 2.6)
+const BOM_STATUS_PATCH = /^scm-pp\/pp\/boms\/[^/]+$/;
+
 // 도메인별 인가 규칙은 페이지와 같은 표(src/lib/authz/policy.ts)에서 읽는다.
 // 표에 없는 공유 경로(dashboard, business/profile, scm-pp/product, alarm)는 로그인만 되면 통과.
 
@@ -93,6 +96,16 @@ async function handle(req: NextRequest, ctx: RouteContext) {
 
   if (!canAccessApi(session.role, upstreamPath)) {
     return fail(403, '접근 권한이 없습니다.', requestId);
+  }
+
+  // 2.6 게이트웨이 PATCH /scm-pp/pp/boms/{bomId} 는 BomCreateRequestDto 를 받는다(PpController.java:108).
+  // 화면이 보내는 {statusCode, version} 은 버려지고 빈 수정이 가 BOM 을 덮을 수 있다. 서버 목만 통과
+  if (
+    process.env.BACKEND_API_URL &&
+    req.method === 'PATCH' &&
+    BOM_STATUS_PATCH.test(upstreamPath)
+  ) {
+    return fail(501, 'BOM 상태 변경은 아직 서버와 맞춰지지 않았습니다.', requestId);
   }
 
   // 3. 헤더 교환 - 쿠키를 떼고 Authorization: Bearer 를 붙인다

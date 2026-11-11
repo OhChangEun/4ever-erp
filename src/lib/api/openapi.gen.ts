@@ -1291,9 +1291,10 @@ export interface paths {
         get: operations["getScmPpPpBomsByBomId"];
         put?: never;
         post?: never;
-        delete: operations["deleteScmPpPpBomsByBomId"];
+        delete?: never;
         options?: never;
         head?: never;
+        /** @description 서버 목 전용. 게이트웨이는 BomCreateRequestDto(PpController.java:108) */
         patch: operations["patchScmPpPpBomsByBomId"];
         trace?: never;
     };
@@ -1308,6 +1309,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description 서버 목 전용. 게이트웨이는 BomCreateRequestDto(PpController.java:108) */
         post: operations["postScmPpPpBomsSimulateConflictByBomId"];
         delete?: never;
         options?: never;
@@ -1355,24 +1357,6 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getScmPpPpMrpRuns"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/scm-pp/pp/mrp/planned-orders/detail/{mrpId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                mrpId: string;
-            };
-            cookie?: never;
-        };
-        get: operations["getScmPpPpMrpPlannedOrdersDetailByMrpId"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3148,26 +3132,6 @@ export interface components {
             status: string;
             procurementStartDate: string;
             expectedArrivalDate: string;
-        };
-        MrpPlannedOrdersDetailResponse: {
-            mrpId: string;
-            quotationId: string;
-            quotationCode: string;
-            requesterId: string;
-            requesterName: string;
-            departmentName: string;
-            requestDate: string;
-            desiredDueDate: string;
-            status: string;
-            orderItems: components["schemas"]["OrderItemData"][];
-            totalAmount: number;
-        };
-        OrderItemData: {
-            itemId: string;
-            itemName: string;
-            quantity: number;
-            uomName: string;
-            unitPrice: number;
         };
         ItemResponse: {
             itemId: string;
@@ -5714,21 +5678,6 @@ export interface operations {
             default: components["responses"]["Error"];
         };
     };
-    deleteScmPpPpBomsByBomId: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                bomId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: components["responses"]["NoData"];
-            default: components["responses"]["Error"];
-        };
-    };
     patchScmPpPpBomsByBomId: {
         parameters: {
             query?: never;
@@ -5820,31 +5769,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApiEnvelope"] & {
                         data: components["schemas"]["MrpPlannedOrdersListResponse"];
-                    };
-                };
-            };
-            default: components["responses"]["Error"];
-        };
-    };
-    getScmPpPpMrpPlannedOrdersDetailByMrpId: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                mrpId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiEnvelope"] & {
-                        data: components["schemas"]["MrpPlannedOrdersDetailResponse"];
                     };
                 };
             };

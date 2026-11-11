@@ -415,10 +415,6 @@ export const productionHandlers = [
     if (shouldError(request)) return error('Failed to create BOM', 500);
     return okNoData();
   }),
-  http.delete(`${PRODUCTION_BASE_PATH}/boms/:bomId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to delete BOM', 500);
-    return okNoData();
-  }),
   http.get(PRODUCTION_ENDPOINTS.MRP_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP orders', 500);
     const url = new URL(request.url);
@@ -542,30 +538,6 @@ export const productionHandlers = [
     const total = filtered.length;
     const start = page * size;
     return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
-  }),
-  http.get(`${PRODUCTION_BASE_PATH}/mrp/planned-orders/detail/:mrpId`, ({ request, params }) => {
-    if (shouldError(request)) return error('Failed to load MRP planned order detail', 500);
-    return ok({
-      mrpId: params.mrpId,
-      quotationId: 'qt-001',
-      quotationCode: 'QT-2026-001',
-      requesterId: 'emp-001',
-      requesterName: '홍길동',
-      departmentName: '구매팀',
-      requestDate: '2026-01-10',
-      desiredDueDate: '2026-02-01',
-      status: 'PLANNED',
-      orderItems: [
-        {
-          itemId: 'item-1001',
-          itemName: '베어링 B',
-          quantity: 100,
-          uomName: 'EA',
-          unitPrice: 8000,
-        },
-      ],
-      totalAmount: 800000,
-    });
   }),
   http.get(PRODUCTION_ENDPOINTS.MES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MES list', 500);

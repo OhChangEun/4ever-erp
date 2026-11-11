@@ -10,7 +10,6 @@ import type { BomDetailResponse } from './types/BomDetailApiType';
 import type { MaterialResponse } from './types/BomType';
 import type { MrpOrdersListResponse } from './types/MrpOrdersApiType';
 import type { MrpPlannedOrdersListResponse } from './types/MrpPlannedOrdersListApiType';
-import type { MrpPlannedOrdersDetailResponse } from './types/MrpPlannedOrdersDetailApiType';
 import type { MesListResponse } from './types/MesListApiType';
 import type { MesDetailResponse } from './types/MesDetailApiType';
 
@@ -208,29 +207,6 @@ export const mrpPlannedOrdersListSchema: z.ZodMiniType<MrpPlannedOrdersListRespo
         expectedArrivalDate: z.string(),
       }),
     ),
-  });
-
-export const mrpPlannedOrdersDetailSchema: z.ZodMiniType<MrpPlannedOrdersDetailResponse> =
-  z.looseObject({
-    mrpId: z.string(),
-    quotationId: z.string(),
-    quotationCode: z.string(),
-    requesterId: z.string(),
-    requesterName: z.string(),
-    departmentName: z.string(),
-    requestDate: z.string(),
-    desiredDueDate: z.string(),
-    status: z.string(),
-    orderItems: z.array(
-      z.looseObject({
-        itemId: z.string(),
-        itemName: z.string(),
-        quantity: z.number(),
-        uomName: z.string(),
-        unitPrice: z.number(),
-      }),
-    ),
-    totalAmount: z.number(),
   });
 
 export const mesListSchema: z.ZodMiniType<MesListResponse> = z.looseObject({

@@ -2150,18 +2150,9 @@ paths:
                         $ref: '#/components/schemas/BomDetailResponse'
         default:
           $ref: '#/components/responses/Error'
-    delete:
-      operationId: deleteScmPpPpBomsByBomId
-      tags:
-        - scm-pp/pp
-      x-source: src/app/(private)/production/api/production.api.ts
-      responses:
-        '200':
-          $ref: '#/components/responses/NoData'
-        default:
-          $ref: '#/components/responses/Error'
     patch:
       operationId: patchScmPpPpBomsByBomId
+      description: 서버 목 전용. 게이트웨이는 BomCreateRequestDto(PpController.java:108)
       tags:
         - scm-pp/pp
       x-source: src/app/(private)/production/api/production.api.ts
@@ -2185,6 +2176,7 @@ paths:
           type: string
     post:
       operationId: postScmPpPpBomsSimulateConflictByBomId
+      description: 서버 목 전용. 게이트웨이는 BomCreateRequestDto(PpController.java:108)
       tags:
         - scm-pp/pp
       x-source: src/app/(private)/production/api/production.api.ts
@@ -2252,34 +2244,6 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/MrpPlannedOrdersListResponse'
-        default:
-          $ref: '#/components/responses/Error'
-  /scm-pp/pp/mrp/planned-orders/detail/{mrpId}:
-    parameters:
-      - name: mrpId
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      operationId: getScmPpPpMrpPlannedOrdersDetailByMrpId
-      tags:
-        - scm-pp/pp
-      x-source: src/app/(private)/production/api/production.api.ts
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ApiEnvelope'
-                  - type: object
-                    required:
-                      - data
-                    properties:
-                      data:
-                        $ref: '#/components/schemas/MrpPlannedOrdersDetailResponse'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/iv/items/info:
@@ -6396,64 +6360,6 @@ components:
         - status
         - procurementStartDate
         - expectedArrivalDate
-    MrpPlannedOrdersDetailResponse:
-      type: object
-      properties:
-        mrpId:
-          type: string
-        quotationId:
-          type: string
-        quotationCode:
-          type: string
-        requesterId:
-          type: string
-        requesterName:
-          type: string
-        departmentName:
-          type: string
-        requestDate:
-          type: string
-        desiredDueDate:
-          type: string
-        status:
-          type: string
-        orderItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItemData'
-        totalAmount:
-          type: number
-      required:
-        - mrpId
-        - quotationId
-        - quotationCode
-        - requesterId
-        - requesterName
-        - departmentName
-        - requestDate
-        - desiredDueDate
-        - status
-        - orderItems
-        - totalAmount
-    OrderItemData:
-      type: object
-      properties:
-        itemId:
-          type: string
-        itemName:
-          type: string
-        quantity:
-          type: number
-        uomName:
-          type: string
-        unitPrice:
-          type: number
-      required:
-        - itemId
-        - itemName
-        - quantity
-        - uomName
-        - unitPrice
     ItemResponse:
       type: object
       properties:
