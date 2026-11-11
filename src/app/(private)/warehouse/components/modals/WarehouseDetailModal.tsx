@@ -52,7 +52,7 @@ const WarehouseDetailModal = ({
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">{t('name')}</span>
                 <span className="text-sm font-medium text-gray-900">
-                  {warehouseInfo?.warehouseName}
+                  {warehouseInfo?.warehouseName ?? '-'}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -79,7 +79,7 @@ const WarehouseDetailModal = ({
             <div className="space-y-3">
               <div>
                 <span className="text-sm text-gray-600 block mb-1">{t('address')}</span>
-                <span className="text-sm text-gray-900">{warehouseInfo?.location}</span>
+                <span className="text-sm text-gray-900">{warehouseInfo?.location ?? '-'}</span>
               </div>
             </div>
           </div>
@@ -89,24 +89,28 @@ const WarehouseDetailModal = ({
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">{t('manager')}</span>
-              <span className="text-sm font-medium text-gray-900">{managerInfo?.managerName}</span>
+              <span className="text-sm font-medium text-gray-900">
+                {managerInfo?.managerName ?? '-'}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">{t('phone')}</span>
               <span className="text-sm font-medium text-blue-600">
-                {managerInfo?.managerPhoneNumber}
+                {managerInfo?.managerPhoneNumber ?? '-'}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">{t('email')}</span>
-              <span className="text-sm font-medium text-blue-600">{managerInfo?.managerEmail}</span>
+              <span className="text-sm font-medium text-blue-600">
+                {managerInfo?.managerEmail ?? '-'}
+              </span>
             </div>
           </div>
         </div>
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h4 className="text-lg font-semibold text-gray-900 mb-3">{t('description')}</h4>
-            <p className="text-sm text-gray-700">{warehouseInfo?.description}</p>
+            <p className="text-sm text-gray-700">{warehouseInfo?.description ?? '-'}</p>
           </div>
         </div>
       </div>

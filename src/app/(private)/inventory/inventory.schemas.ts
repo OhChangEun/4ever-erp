@@ -21,7 +21,7 @@ const inventorySchema: z.ZodMiniType<InventoryResponse> = z.looseObject({
   uomName: z.string(),
   unitPrice: z.number(),
   totalAmount: z.number(),
-  warehouseName: z.string(),
+  warehouseName: z.nullish(z.string()),
   warehouseType: z.string(),
   statusCode: z.string(),
   shelfNumber: z.optional(z.number()),
@@ -49,7 +49,7 @@ export const inventoryDetailSchema: z.ZodMiniType<InventoryDetailResponse> = z.l
   warehouseName: z.string(),
   warehouseNumber: z.string(),
   location: z.string(),
-  lastModified: z.string(),
+  lastModified: z.nullish(z.string()),
   description: z.string(),
   stockMovement: z.array(
     z.looseObject({

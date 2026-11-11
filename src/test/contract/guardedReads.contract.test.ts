@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getResponse, http, HttpResponse } from 'msw';
-import { handlers } from '@/mocks/handlers';
+import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw-server';
 import { isAppError } from '@/lib/AppError';
 import {
@@ -17,13 +16,14 @@ import * as inventory from '@/app/(private)/inventory/inventory.api';
 import * as warehouse from '@/app/(private)/warehouse/warehouse.api';
 import { useMockSource, type MockSource } from './serverMock';
 import { collectFailures } from './collect';
+import { mockData, nullAt, type Path } from './mockData';
 
 /**
  * 타입 4차 카드. 대시보드, 재무, 인사, 재고, 창고에서 화면이 null 가드를 두던 GET 읽기만 스키마로 확인한다.
  * 가드를 지운 자리는 이 검증이 대신 막는다. 가드가 지키던 필드가 비면 형식 오류로 올라와야 한다.
+ * 응답 null 허용 카드에서 null 을 받기로 한 글자 필드(교육 현황 최근 교육일, 재고 상세 수정일, 재고 목록
+ * 창고명, 창고 상세 설명)는 같은 읽기의 ID 나 상태로 바꿔 확인한다. null 허용은 nullableFields 계약 테스트.
  */
-
-type Path = (string | number)[];
 
 interface GuardedRead {
   url: string;
@@ -83,7 +83,7 @@ const READS: Record<string, GuardedRead> = {
   '교육 현황 목록': {
     url: HRM_ENDPOINTS.TRAINING_STATUS,
     read: () => hrm.fetchTrainingList({ page: 0, size: 10 }),
-    guarded: ['items', 0, 'lastTrainingDate'],
+    guarded: ['items', 0, 'employeeId'],
   },
   '재고 추가 품목': {
     url: INVENTORY_ENDPOINTS.ITEM_TOGGLE,
@@ -93,52 +93,23 @@ const READS: Record<string, GuardedRead> = {
   '재고 상세': {
     url: INVENTORY_ENDPOINTS.INVENTORY_DETAIL(ID),
     read: () => inventory.getInventoryDetail(ID),
-    guarded: ['lastModified'],
+    guarded: ['itemId'],
   },
   '재고 목록': {
     url: INVENTORY_ENDPOINTS.INVENTORY_LIST,
     read: () => inventory.getInventoryList({ page: 0, size: 10 }),
-    guarded: ['content', 0, 'warehouseName'],
+    guarded: ['content', 0, 'itemId'],
   },
   '창고 상세': {
     url: WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL(ID),
     read: () => warehouse.getWarehouseDetail(ID),
-    guarded: ['warehouseInfo', 'description'],
+    guarded: ['warehouseInfo', 'statusCode'],
   },
   '창고 담당자 목록': {
     url: WAREHOUSE_ENDPOINTS.WAREHOUSE_MANAGER_INFO,
     read: () => warehouse.getWarehouseManagerInfo(),
     guarded: [0, 'managerId'],
   },
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-/** MSW 핸들러가 주는 응답 data 를 그대로 꺼낸다 */
-const mockData = async (url: string): Promise<unknown> => {
-  const origin = 'http://localhost';
-  const response = await getResponse(handlers, new Request(new URL(url, origin)), {
-    baseUrl: origin,
-  });
-  if (!response) throw new Error(`목 핸들러 없음: ${url}`);
-  const body: unknown = await response.json();
-  if (!isRecord(body)) throw new Error(`응답 래퍼가 아님: ${url}`);
-  return body.data;
-};
-
-/** path 위치의 값을 null 로 바꾼다. 경로가 목에 없으면 테스트가 잘못된 것이라 바로 실패시킨다 */
-const nullAt = (root: unknown, path: Path): void => {
-  let node = root;
-  for (const key of path.slice(0, -1)) {
-    if (!isRecord(node)) throw new Error(`목에 ${path.join('.')} 경로가 없다`);
-    node = node[String(key)];
-  }
-  const last = path.at(-1);
-  if (!isRecord(node) || last === undefined || !(String(last) in node)) {
-    throw new Error(`목에 ${path.join('.')} 경로가 없다`);
-  }
-  node[String(last)] = null;
 };
 
 const SOURCES: MockSource[] = ['msw', 'server'];

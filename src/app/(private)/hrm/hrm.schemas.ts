@@ -27,13 +27,13 @@ export const departmentsListSchema: z.ZodMiniType<DepartmentsListResponse> = z.l
       departmentId: z.string(),
       departmentNumber: z.string(),
       departmentName: z.string(),
-      description: z.string(),
-      managerName: z.string(),
+      description: z.nullish(z.string()),
+      managerName: z.nullish(z.string()),
       managerId: z.string(),
-      location: z.string(),
+      location: z.nullish(z.string()),
       statusCode: z.string(),
       employeeCount: z.number(),
-      establishedDate: z.string(),
+      establishedDate: z.nullish(z.string()),
       employees: z.array(
         z.looseObject({
           employeeId: z.string(),
@@ -97,7 +97,12 @@ export const attendanceListSchema: z.ZodMiniType<AttendanceListResponse> = z.loo
   content: z.array(
     z.looseObject({
       timerecordId: z.string(),
-      employee: employeeSummarySchema,
+      // 출퇴근 목록의 직원은 이름과 직급이 비어 올 수 있다(급여 상세 직원은 그대로 엄격)
+      employee: z.looseObject({
+        ...employeeSummarySchema.def.shape,
+        employeeName: z.nullish(z.string()),
+        position: z.nullish(z.string()),
+      }),
       workDate: z.string(),
       checkInTime: z.string(),
       checkOutTime: z.string(),
@@ -119,7 +124,7 @@ export const trainingListSchema: z.ZodMiniType<TrainingListResponse> = z.looseOb
       completedCount: z.number(),
       inProgressCount: z.number(),
       requiredMissingCount: z.number(),
-      lastTrainingDate: z.string(),
+      lastTrainingDate: z.nullish(z.string()),
     }),
   ),
   page: pageSchema,

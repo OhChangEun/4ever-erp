@@ -191,7 +191,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
                   <div>
                     <div className="text-xs text-gray-500">{t('process.manager')}</div>
                     <div className="text-sm font-medium text-gray-900">
-                      {operation.manager.name || '-'}
+                      {operation.manager?.name || '-'}
                     </div>
                   </div>
                   <div>

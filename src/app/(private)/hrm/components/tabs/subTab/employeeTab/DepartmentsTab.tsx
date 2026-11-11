@@ -64,7 +64,7 @@ export default function DepartmentsTab() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">{t('departments.manager')}</span>
-                <span className="text-sm font-medium text-gray-700">{dept.managerName}</span>
+                <span className="text-sm font-medium text-gray-700">{dept.managerName ?? '-'}</span>
               </div>
             </div>
           </div>

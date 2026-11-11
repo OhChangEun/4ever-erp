@@ -120,7 +120,7 @@ export const orderDetailSchema: z.ZodMiniType<OrderDetail> = z.looseObject({
       amount: z.number(),
     }),
   ),
-  note: z.string(),
+  note: z.nullish(z.string()),
 });
 
 const salesCustomerSchema: z.ZodMiniType<SalesCustomer> = z.looseObject({

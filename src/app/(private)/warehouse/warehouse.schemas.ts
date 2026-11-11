@@ -9,18 +9,18 @@ import type { WarehouseManagerInfoResponse } from './types/AddWarehouseModalType
 
 export const warehouseDetailSchema: z.ZodMiniType<WarehouseDetailResponse> = z.looseObject({
   warehouseInfo: z.looseObject({
-    warehouseName: z.string(),
+    warehouseName: z.nullish(z.string()),
     warehouseNumber: z.string(),
     warehouseType: z.string(),
     statusCode: z.string(),
-    location: z.string(),
-    description: z.string(),
+    location: z.nullish(z.string()),
+    description: z.nullish(z.string()),
   }),
   manager: z.looseObject({
     managerId: z.string(),
-    managerName: z.string(),
-    managerPhoneNumber: z.string(),
-    managerEmail: z.string(),
+    managerName: z.nullish(z.string()),
+    managerPhoneNumber: z.nullish(z.string()),
+    managerEmail: z.nullish(z.string()),
   }),
 });
 

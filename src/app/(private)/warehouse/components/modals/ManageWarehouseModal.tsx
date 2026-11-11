@@ -100,17 +100,17 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
       ManagerInfoRes.find((m) => m.managerId === managerInfo.managerId) ??
       ManagerInfoRes.find((m) => m.managerName === managerInfo.managerName);
     setFormData({
-      warehouseName: warehouseInfo.warehouseName,
+      warehouseName: warehouseInfo.warehouseName ?? '',
       warehouseNumber: warehouseInfo.warehouseNumber,
       // RAW 같은 원자재 별칭은 요청 코드 MATERIAL 로 채운다. 그대로 두면 옵션이 없어 화면은 원자재를 보이는데 RAW 를 보냈다
       warehouseType: toWarehouseRequestType(warehouseInfo.warehouseType),
       statusCode: warehouseInfo.statusCode,
-      location: warehouseInfo.location,
+      location: warehouseInfo.location ?? '',
       managerId: matched?.managerId ?? managerInfo.managerId,
-      managerName: managerInfo.managerName,
-      managerPhoneNumber: managerInfo.managerPhoneNumber,
-      managerEmail: managerInfo.managerEmail,
-      description: warehouseInfo.description,
+      managerName: managerInfo.managerName ?? '',
+      managerPhoneNumber: managerInfo.managerPhoneNumber ?? '',
+      managerEmail: managerInfo.managerEmail ?? '',
+      description: warehouseInfo.description ?? '',
     });
   }
 

@@ -2377,18 +2377,24 @@ export interface components {
         };
         WarehouseDetail: {
             warehouseInfo: {
-                warehouseName: string;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                warehouseName?: string | null;
                 warehouseNumber: string;
                 warehouseType: string;
                 statusCode: string;
-                location: string;
-                description: string;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                location?: string | null;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                description?: string | null;
             };
             manager: {
                 managerId: string;
-                managerName: string;
-                managerPhoneNumber: string;
-                managerEmail: string;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                managerName?: string | null;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                managerPhoneNumber?: string | null;
+                /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+                managerEmail?: string | null;
             };
         };
         WarehouseManager: {
@@ -2551,13 +2557,17 @@ export interface components {
             departmentId: string;
             departmentNumber: string;
             departmentName: string;
-            description: string;
-            managerName: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            description?: string | null;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            managerName?: string | null;
             managerId: string;
-            location: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            location?: string | null;
             statusCode: string;
             employeeCount: number;
-            establishedDate: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            establishedDate?: string | null;
             employees: components["schemas"]["HrmEmployeeData"][];
         };
         HrmEmployeeData: {
@@ -2625,7 +2635,8 @@ export interface components {
             completedCount: number;
             inProgressCount: number;
             requiredMissingCount: number;
-            lastTrainingDate: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            lastTrainingDate?: string | null;
         };
         TrainingDetailResponse: {
             employeeId: string;
@@ -2696,11 +2707,13 @@ export interface components {
         };
         EmployeeInfo: {
             employeeId: string;
-            employeeName: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            employeeName?: string | null;
             departmentId: string;
             department: string;
             positionId: string;
-            position: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            position?: string | null;
         };
         LeaveListResponse: {
             content: components["schemas"]["LeaveListData"][];
@@ -2781,7 +2794,8 @@ export interface components {
             uomName: string;
             unitPrice: number;
             totalAmount: number;
-            warehouseName: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            warehouseName?: string | null;
             warehouseType: string;
             statusCode: string;
             shelfNumber?: number;
@@ -2802,7 +2816,8 @@ export interface components {
             warehouseName: string;
             warehouseNumber: string;
             location: string;
-            lastModified: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            lastModified?: string | null;
             description: string;
             stockMovement: components["schemas"]["StockMovement"][];
         };
@@ -2960,7 +2975,8 @@ export interface components {
             customerName: string;
             productName: string;
             requestDate: string;
-            dueDate: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            dueDate?: string | null;
             /** @enum {string} */
             availableStatus: "ALL" | "CHECKED" | "UNCHECKED";
             items?: components["schemas"]["itemsData"][];
@@ -3106,8 +3122,10 @@ export interface components {
             shortageQuantity: number;
             consumptionQuantity: number;
             itemType: string;
-            procurementStartDate: string;
-            expectedArrivalDate: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            procurementStartDate?: string | null;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            expectedArrivalDate?: string | null;
             supplierCompanyName: string;
             convertStatus: string;
         };
@@ -3185,16 +3203,20 @@ export interface components {
             operationName: string;
             sequence: number;
             statusCode: string;
-            startedAt: string;
-            finishedAt: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            startedAt?: string | null;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            finishedAt?: string | null;
             durationHours: number;
-            manager: components["schemas"]["MesOperationManagerData"];
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            manager?: components["schemas"]["MesOperationManagerData"] | null;
             canStart: boolean;
             canComplete: boolean;
         };
         MesOperationManagerData: {
             id: number;
-            name: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            name?: string | null;
         };
         PurchaseStatResponse: {
             week: components["schemas"]["PurchaseStat"];
@@ -3479,7 +3501,8 @@ export interface components {
                 unitPrice: number;
                 amount: number;
             }[];
-            note: string;
+            /** @description null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음) */
+            note?: string | null;
         };
         InventoryCheckRes: {
             itemId: string;

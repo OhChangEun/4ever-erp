@@ -95,7 +95,7 @@ export default function EmployeeTrainingTab() {
     {
       key: 'lastTrainingDate',
       label: t('training.lastDate'),
-      render: (_, row) => row.lastTrainingDate.split('T')[0],
+      render: (_, row) => row.lastTrainingDate?.split('T')[0] ?? '-',
     },
     {
       key: 'action',

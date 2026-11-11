@@ -33,7 +33,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
 
   // 선택된 부서장 상태
   const [selectedManager, setSelectedManager] = useState<string>(departments.managerId);
-  const [description, setDescription] = useState<string>(departments.description);
+  const [description, setDescription] = useState<string>(departments.description ?? '');
 
   const { data: memberOptions } = useQuery({
     queryKey: departmentKeys.memberDropdown(departments.departmentId),
@@ -91,7 +91,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
             items={memberOptions ?? []}
             value={selectedManager}
             onChange={(value) => setSelectedManager(value)}
-            placeholder={departments.managerName}
+            placeholder={departments.managerName ?? ''}
           />
         </div>
 

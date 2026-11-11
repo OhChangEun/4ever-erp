@@ -143,7 +143,7 @@ const InventoryList = () => {
       label: t('list.columns.warehouseName'),
       render: (_, inv) => (
         <div>
-          <div className="text-sm text-gray-900">{inv.warehouseName}</div>
+          <div className="text-sm text-gray-900">{inv.warehouseName ?? '-'}</div>
           <div className="text-sm text-gray-500">{warehouseTypeLabel(inv.warehouseType)}</div>
         </div>
       ),

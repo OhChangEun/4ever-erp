@@ -4225,15 +4225,15 @@ components:
         warehouseInfo:
           type: object
           required:
-            - warehouseName
             - warehouseNumber
             - warehouseType
             - statusCode
-            - location
-            - description
           properties:
             warehouseName:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
             warehouseNumber:
               type: string
             warehouseType:
@@ -4241,25 +4241,37 @@ components:
             statusCode:
               type: string
             location:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
             description:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
         manager:
           type: object
           required:
             - managerId
-            - managerName
-            - managerPhoneNumber
-            - managerEmail
           properties:
             managerId:
               type: string
             managerName:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
             managerPhoneNumber:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
             managerEmail:
-              type: string
+              description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+              anyOf:
+                - type: string
+                - type: 'null'
     WarehouseManager:
       type: object
       required:
@@ -4705,19 +4717,31 @@ components:
         departmentName:
           type: string
         description:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         managerName:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         managerId:
           type: string
         location:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         statusCode:
           type: string
         employeeCount:
           type: number
         establishedDate:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         employees:
           type: array
           items:
@@ -4726,13 +4750,9 @@ components:
         - departmentId
         - departmentNumber
         - departmentName
-        - description
-        - managerName
         - managerId
-        - location
         - statusCode
         - employeeCount
-        - establishedDate
         - employees
     HrmEmployeeData:
       type: object
@@ -4914,7 +4934,10 @@ components:
         requiredMissingCount:
           type: number
         lastTrainingDate:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
       required:
         - employeeId
         - name
@@ -4923,7 +4946,6 @@ components:
         - completedCount
         - inProgressCount
         - requiredMissingCount
-        - lastTrainingDate
     TrainingDetailResponse:
       type: object
       properties:
@@ -5124,7 +5146,10 @@ components:
         employeeId:
           type: string
         employeeName:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         departmentId:
           type: string
         department:
@@ -5132,14 +5157,15 @@ components:
         positionId:
           type: string
         position:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
       required:
         - employeeId
-        - employeeName
         - departmentId
         - department
         - positionId
-        - position
     LeaveListResponse:
       type: object
       properties:
@@ -5353,7 +5379,10 @@ components:
         totalAmount:
           type: number
         warehouseName:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         warehouseType:
           type: string
         statusCode:
@@ -5372,7 +5401,6 @@ components:
         - uomName
         - unitPrice
         - totalAmount
-        - warehouseName
         - warehouseType
         - statusCode
     InventoryDetailResponse:
@@ -5409,7 +5437,10 @@ components:
         location:
           type: string
         lastModified:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         description:
           type: string
         stockMovement:
@@ -5432,7 +5463,6 @@ components:
         - warehouseName
         - warehouseNumber
         - location
-        - lastModified
         - description
         - stockMovement
     StockMovement:
@@ -5857,7 +5887,10 @@ components:
         requestDate:
           type: string
         dueDate:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         availableStatus:
           type: string
           enum:
@@ -5874,7 +5907,6 @@ components:
         - customerName
         - productName
         - requestDate
-        - dueDate
         - availableStatus
     itemsData:
       type: object
@@ -6273,9 +6305,15 @@ components:
         itemType:
           type: string
         procurementStartDate:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         expectedArrivalDate:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         supplierCompanyName:
           type: string
         convertStatus:
@@ -6294,8 +6332,6 @@ components:
         - shortageQuantity
         - consumptionQuantity
         - itemType
-        - procurementStartDate
-        - expectedArrivalDate
         - supplierCompanyName
         - convertStatus
     MrpOrdersConvertReqeustBody:
@@ -6508,13 +6544,22 @@ components:
         statusCode:
           type: string
         startedAt:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         finishedAt:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
         durationHours:
           type: number
         manager:
-          $ref: '#/components/schemas/MesOperationManagerData'
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - $ref: '#/components/schemas/MesOperationManagerData'
+            - type: 'null'
         canStart:
           type: boolean
         canComplete:
@@ -6525,10 +6570,7 @@ components:
         - operationName
         - sequence
         - statusCode
-        - startedAt
-        - finishedAt
         - durationHours
-        - manager
         - canStart
         - canComplete
     MesOperationManagerData:
@@ -6537,10 +6579,12 @@ components:
         id:
           type: number
         name:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
       required:
         - id
-        - name
     PurchaseStatResponse:
       type: object
       properties:
@@ -7340,12 +7384,14 @@ components:
               - unitPrice
               - amount
         note:
-          type: string
+          description: null 이거나 없으면 화면은 - (응답 null 허용 카드. zod 전 화면 가드가 있던 필드, 실서버 근거 없음)
+          anyOf:
+            - type: string
+            - type: 'null'
       required:
         - order
         - customer
         - items
-        - note
     InventoryCheckRes:
       type: object
       properties:

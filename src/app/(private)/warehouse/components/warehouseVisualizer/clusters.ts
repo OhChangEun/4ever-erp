@@ -25,8 +25,8 @@ export const buildCluster = (
     ];
   }
 
-  const displayName = options?.warehouseName ?? source[0].warehouseName;
-  const clusterKey = options?.warehouseId ?? displayName;
+  const displayName = options?.warehouseName ?? source[0].warehouseName ?? null;
+  const clusterKey = options?.warehouseId ?? displayName ?? 'no-name';
 
   // 블록 자리는 선반 번호 순서로 0번부터 채운다. 서버 선반 번호가 겹쳐도 블록이 겹치지 않는다
   const ordered = [...source]
