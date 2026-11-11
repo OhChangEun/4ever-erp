@@ -16,7 +16,7 @@ export default function NotificationHeader({
     <div className="pl-5 pr-2.5 py-3 border-b border-gray-200">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <i className="text-lg pt-1 ri-notification-3-fill text-blue-500"></i>
+          <i aria-hidden="true" className="text-lg pt-1 ri-notification-3-fill text-blue-500"></i>
           <h3 className="text-[17px] font-semibold text-gray-700">{t('title')}</h3>
         </div>
         {notificationCount > 0 && (

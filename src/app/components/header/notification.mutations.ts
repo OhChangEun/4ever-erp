@@ -6,10 +6,10 @@ import {
 import { readAllNotifications, readNotification } from '@/lib/api/notification.api';
 import { notificationKeys } from './header.keys';
 
-/** 알림 mutation → 다시 가져올 쿼리 키. 읽음 처리는 목록만 바꾼다(개수 API 는 호출처 없음). */
+/** 알림 mutation → 다시 가져올 쿼리 키. 읽음 처리는 목록과 사이드바 뱃지(안 읽은 수)를 같이 바꾼다. */
 export const NOTIFICATION_MUTATION_EFFECTS = {
-  readAll: (): readonly QueryKey[] => [notificationKeys.lists()],
-  readOne: (): readonly QueryKey[] => [notificationKeys.lists()],
+  readAll: (): readonly QueryKey[] => [notificationKeys.lists(), notificationKeys.unreadCount()],
+  readOne: (): readonly QueryKey[] => [notificationKeys.lists(), notificationKeys.unreadCount()],
 } as const;
 
 export type NotificationMutationName = keyof typeof NOTIFICATION_MUTATION_EFFECTS;

@@ -1,7 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { USER_ENDPOINTS, PROFILE_BASE_PATH, PROFILE_ENDPOINTS } from '@/app/types/api';
-import { NOTIFICATION_BASE_PATH, NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
-import { ok, okNoData, error, shouldError, isoNow, makePage } from './utils';
+import { ok, okNoData, error, shouldError } from './utils';
 
 const mockUserInfo = {
   id: 1,
@@ -28,32 +27,6 @@ const mockProfileInfo = {
   customerName: '홍길동',
 };
 
-const mockNotificationList = {
-  content: [
-    {
-      notificationId: 'ntf-001',
-      notificationTitle: '발주 승인 요청',
-      notificationMessage: 'PO-2026-001 승인 요청이 도착했습니다.',
-      linkType: 'PURCHASE_ORDER',
-      linkId: 'po-001',
-      source: 'PR',
-      createdAt: isoNow,
-      isRead: false,
-    },
-    {
-      notificationId: 'ntf-002',
-      notificationTitle: '재고 부족 경고',
-      notificationMessage: 'ITEM-1002의 재고가 안전재고 이하입니다.',
-      linkType: 'INVENTORY',
-      linkId: 'item-1002',
-      source: 'IM',
-      createdAt: isoNow,
-      isRead: true,
-    },
-  ],
-  page: makePage(0, 10, 2),
-};
-
 export const authHandlers = [
   // ----------------------- Auth -----------------------
   http.post(USER_ENDPOINTS.LOGIN, async ({ request }) => {
@@ -70,64 +43,6 @@ export const authHandlers = [
   http.get(USER_ENDPOINTS.USER_INFO, ({ request }) => {
     if (shouldError(request)) return error('Unauthorized', 401);
     return ok(mockUserInfo);
-  }),
-
-  // ----------------------- Notification -----------------------
-  http.get(NOTIFICATION_ENDPOINTS.LIST, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load notifications', 500);
-    return ok(mockNotificationList);
-  }),
-  http.get(NOTIFICATION_ENDPOINTS.COUNT, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load notification count', 500);
-    return ok({ count: 2 });
-  }),
-  http.patch(`${NOTIFICATION_BASE_PATH}/:notificationId/read`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to mark as read', 500);
-    return okNoData();
-  }),
-  http.patch(NOTIFICATION_ENDPOINTS.READ_ALL, ({ request }) => {
-    if (shouldError(request)) return error('Failed to mark all as read', 500);
-    return okNoData();
-  }),
-  http.get(NOTIFICATION_ENDPOINTS.SUBSCRIBE, ({ request }) => {
-    if (shouldError(request)) return error('Unauthorized', 401);
-
-    const stream = new ReadableStream({
-      start(controller) {
-        const encoder = new TextEncoder();
-        const send = (event: string, data: string) => {
-          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${data}\n\n`));
-        };
-
-        send('keepalive', 'connected');
-        send('unreadCount', '2');
-
-        setTimeout(() => {
-          send(
-            'alarm',
-            JSON.stringify({
-              alarmId: 'alarm-001',
-              alarmType: 'INFO',
-              targetId: 'po-001',
-              title: '발주 승인 요청',
-              message: 'PO-2026-001 승인 요청이 도착했습니다.',
-              linkId: 'po-001',
-              linkType: 'PURCHASE_ORDER',
-            }),
-          );
-        }, 500);
-
-        setTimeout(() => controller.close(), 1500);
-      },
-    });
-
-    return new HttpResponse(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        Connection: 'keep-alive',
-        'Cache-Control': 'no-cache',
-      },
-    });
   }),
 
   // ----------------------- Profile -----------------------
