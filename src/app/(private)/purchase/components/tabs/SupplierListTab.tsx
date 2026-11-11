@@ -27,6 +27,7 @@ import { Button } from '@everp/ui';
 import { useTranslations } from 'next-intl';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
+import { useSupplierCategoryLabels } from '@/app/(private)/purchase/supplierCategory';
 
 export default function SupplierListTab() {
   const { openModal } = useModal();
@@ -34,6 +35,7 @@ export default function SupplierListTab() {
   const tc = useTranslations('purchase.common');
   // 공급업체 등록은 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
   const canCreate = hasRole(MM_GATEWAY_ROLES, useRole());
+  const { categoryLabel, categoryOptions } = useSupplierCategoryLabels();
 
   // 공급업체 카테고리 드롭다운
   const { options: supplierCategoryOptions } = useDropdown(
@@ -110,7 +112,7 @@ export default function SupplierListTab() {
     {
       key: 'category',
       label: t('columns.category'),
-      render: (_, item) => item.supplierInfo.category,
+      render: (_, item) => categoryLabel(item.supplierInfo.category),
     },
     {
       key: 'contact',
@@ -166,7 +168,7 @@ export default function SupplierListTab() {
           {/* 공급업체 카테고리 드롭다운 */}
           <Dropdown
             placeholder={t('allCategories')}
-            items={supplierCategoryOptions}
+            items={categoryOptions(supplierCategoryOptions)}
             value={selectedCategory}
             onChange={(category: string): void => {
               setSelectedCategory(category);

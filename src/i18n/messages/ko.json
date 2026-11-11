@@ -312,7 +312,7 @@
     "inputList": {
       "title": "공정 순서 입력",
       "add": "공정 추가",
-      "remove": "항목 삭제",
+      "remove": "항목 {position} 삭제",
       "item": "{position}번 항목"
     },
     "dropdownInputModal": {

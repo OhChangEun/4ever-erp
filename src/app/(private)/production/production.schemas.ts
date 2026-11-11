@@ -88,10 +88,11 @@ export const mpsListSchema: z.ZodMiniType<MpsListResponse> = z.looseObject({
   content: z.array(
     z.looseObject({
       week: z.string(),
-      demand: z.number(),
-      requiredInventory: z.number(),
-      productionNeeded: z.number(),
-      plannedProduction: z.number(),
+      // 수량이지만 zod 전 화면이 네 칸 모두 `?? '-'` 로 막았다. 주가 비어도 탭 전체를 막지 않는다(남은 표시 결함 3)
+      demand: z.nullish(z.number()),
+      requiredInventory: z.nullish(z.number()),
+      productionNeeded: z.nullish(z.number()),
+      plannedProduction: z.nullish(z.number()),
     }),
   ),
   page: pageSchema,

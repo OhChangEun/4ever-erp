@@ -93,8 +93,9 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
                 </tr>
               </thead>
               <tbody>
+                {/* 같은 품목이 두 줄일 수 있어 순번을 붙인다. 정렬과 삭제가 없는 읽기 표다 */}
                 {data?.items.map((item, index) => (
-                  <tr key={index} className="border-b">
+                  <tr key={`${item.itemId}-${index}`} className="border-b">
                     <td className="px-4 py-3 text-sm">{item.itemName}</td>
                     <td className="px-4 py-3 text-sm text-center">{item.quantity}</td>
                     <td className="px-4 py-3 text-sm text-center">{uomLabel(item.uomName)}</td>

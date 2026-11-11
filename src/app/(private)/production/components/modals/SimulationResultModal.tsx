@@ -42,6 +42,9 @@ export default function SimulationResultModal({
 }: SimulationResultModalProps) {
   const t = useTranslations('production');
   const locale = useLocale();
+  // 응답에 단위 필드가 없다(계약 QuotationSimulationData). 제품 수량이라 EA 로 보고 글자는 메시지에서
+  const quantityText = (quantity: number) =>
+    t('simulation.quantity', { quantity: formatNumber(quantity) });
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
     simulationResults[0]?.quotationId || null,
   );
@@ -172,7 +175,7 @@ export default function SimulationResultModal({
                   <Flex direction="col" gap={1} className="bg-gray-50 rounded-lg px-3 py-2">
                     <span className="text-xs text-gray-400">{t('simulation.requestQuantity')}</span>
                     <span className="font-medium text-sm text-gray-700">
-                      {formatNumber(selectedResult.requestQuantity)} EA
+                      {quantityText(selectedResult.requestQuantity)}
                     </span>
                   </Flex>
                   <p className="text-center text-gray-300 text-xs select-none">−</p>
@@ -181,7 +184,7 @@ export default function SimulationResultModal({
                       {t('simulation.availableQuantity')}
                     </span>
                     <span className="font-medium text-sm text-gray-700">
-                      {formatNumber(availableQuantity)} EA
+                      {quantityText(availableQuantity)}
                     </span>
                   </Flex>
                   <p className="text-center text-gray-300 text-xs select-none">=</p>
@@ -190,7 +193,7 @@ export default function SimulationResultModal({
                       {t('simulation.productionNeeded')}
                     </span>
                     <span className={`font-semibold text-sm ${textColor}`}>
-                      {formatNumber(shortageQuantity)} EA
+                      {quantityText(shortageQuantity)}
                     </span>
                     <span className={`text-xs ${subColor}`}>
                       {t(`simulation.result.${resultKey}`)}

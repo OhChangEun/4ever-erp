@@ -43,8 +43,9 @@ export interface UiText {
   inputList: {
     title: string;
     add: string;
-    remove: string;
-    /** 입력칸 이름. position 은 화면에 보이는 1부터의 순번이다 */
+    /** 삭제 버튼 이름. 줄마다 달라야 낭독기가 구분한다. position 은 화면에 보이는 1부터의 순번이다 */
+    remove: (position: number) => string;
+    /** 입력칸 이름. position 은 remove 와 같다 */
     item: (position: number) => string;
   };
   dropdownInputModal: { open: string };
@@ -80,7 +81,7 @@ export const defaultUiText: UiText = {
   inputList: {
     title: '공정 순서 입력',
     add: '공정 추가',
-    remove: '항목 삭제',
+    remove: (position) => `항목 ${position} 삭제`,
     item: (position) => `${position}번 항목`,
   },
   dropdownInputModal: { open: '입력 창 열기' },

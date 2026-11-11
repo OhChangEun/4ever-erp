@@ -1,47 +1,31 @@
-import { getResponse } from 'msw';
 import { NextResponse, type NextRequest } from 'next/server';
-import { handlers } from '@/mocks/handlers';
-import { API_BASE_URL } from '@/app/types/api';
+import { MOCK_PROOF_HEADER, verifyMockProof } from '@/server/auth/mockProof';
+import { serveMock } from '@/server/serverMock';
 
 /**
  * 서버 목. `BACKEND_API_URL` 이 없으면 프록시(`/api/proxy/*`)가 여기로 넘긴다(Vercel 데모, e2e).
- * 응답은 단위 테스트와 같은 MSW 핸들러(`src/mocks/handlers`)가 만든다(목 한 벌 카드).
- * 예전엔 if 문 160개(1,902줄)를 따로 손으로 써서 GET 103개 중 8개가 MSW 와 달랐다.
- * 실패 시나리오(`x-mock-scenario` 헤더, `?mockScenario=`)도 같은 핸들러가 받는다.
+ * 응답은 단위 테스트와 같은 MSW 핸들러가 만든다(`src/server/serverMock.ts`).
+ *
+ * 프록시가 넘긴 호출만 받는다. 이 라우트는 페이지 프록시(`src/proxy.ts` matcher 가 api 를 뺀다)와
+ * API 인가 표(`canAccessApi`, `/api/proxy/*` 에만 걸린다) 밖이라, 예전엔 로그인 없이 `/api/<경로>` 를 직접 부르면
+ * 목 응답을 받고 `x-session-role` 을 지어내 아무 역할의 응답이나 받았다(남은 표시 결함 3 리뷰 P2).
+ * 프록시가 SESSION_SECRET 으로 서명한 증명(`x-mock-proof`)을 확인하고, 역할은 헤더가 아니라 증명에서 읽는다.
  */
 async function handler(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
+  const role = await verifyMockProof(request.headers.get(MOCK_PROOF_HEADER));
+  if (!role) {
+    // 모양은 프록시가 만드는 실패 응답과 같다
+    return NextResponse.json(
+      { status: 401, success: false, message: '로그인이 필요합니다.' },
+      { status: 401 },
+    );
+  }
+  const headers = new Headers(request.headers);
+  headers.delete(MOCK_PROOF_HEADER);
+  headers.set('x-session-role', role);
+
   const { slug } = await params;
-  const path = slug.join('/');
-  const { origin, search } = request.nextUrl;
-  const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
-  const body = hasBody ? await request.arrayBuffer() : undefined;
-  const respond = (url: URL) =>
-    getResponse(
-      handlers,
-      new Request(url, { method: request.method, headers: request.headers, body }),
-      { baseUrl: origin },
-    );
-
-  // 대부분의 핸들러는 화면이 부르는 프록시 주소(`${API_BASE_URL}/...`)로 등록돼 있다.
-  // `/api/me` 처럼 이 주소 그대로 등록된 것(USER_ENDPOINTS)이 있어 원래 주소를 먼저 본다(리뷰 P2)
-  const response =
-    (await respond(new URL(`/api/${path}${search}`, origin))) ??
-    (await respond(new URL(`${API_BASE_URL}/${path}${search}`, origin)));
-
-  if (!response) {
-    return NextResponse.json(
-      { status: 404, success: false, message: `Not Found: ${path}` },
-      { status: 404 },
-    );
-  }
-  // network 시나리오(HttpResponse.error)는 서버에서 연결을 끊을 수 없다. 502 로 알린다
-  if (response.type === 'error') {
-    return NextResponse.json(
-      { status: 502, success: false, message: 'Mock network error' },
-      { status: 502 },
-    );
-  }
-  return response;
+  return serveMock(request, slug, headers);
 }
 
 export const GET = handler;

@@ -3019,10 +3019,14 @@ export interface components {
         };
         WeekData: {
             week: string;
-            demand: number;
-            requiredInventory: number;
-            productionNeeded: number;
-            plannedProduction: number;
+            /** @description null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음) */
+            demand?: number | null;
+            /** @description null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음) */
+            requiredInventory?: number | null;
+            /** @description null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음) */
+            productionNeeded?: number | null;
+            /** @description null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음) */
+            plannedProduction?: number | null;
         };
         BomListResponse: {
             page: components["schemas"]["Page"];

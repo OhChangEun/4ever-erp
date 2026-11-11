@@ -21,7 +21,12 @@
     "allStatuses": "전체 상태",
     "searchPlaceholder": "검색어를 입력하세요",
     "required": "모든 필수 항목을 입력해주세요.",
-    "days": "{days}일"
+    "days": "{days}일",
+    "supplierCategory": {
+      "MATERIAL": "원자재",
+      "PARTS": "부품",
+      "ETC": "기타"
+    }
   },
   "requestList": {
     "create": "구매 요청 작성",

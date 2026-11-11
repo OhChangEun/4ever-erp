@@ -6,6 +6,8 @@ import { server } from '@/test/msw-server';
 import { signSession } from '@/lib/auth/session';
 import { SESSION_COOKIE } from '@/server/auth/session';
 import type { Role } from '@/lib/authz/policy';
+import { MOCK_PROOF_HEADER, verifyMockProof } from '@/server/auth/mockProof';
+import { GET as serverMockGet } from '@/app/api/[...slug]/route';
 import { GET, PATCH, POST } from './route';
 
 const APP = 'http://localhost:3100';
@@ -52,6 +54,36 @@ describe('BFF 프록시 보안 점검(BFF 문서 Phase 5)', () => {
     expect(seen[0].headers.get('cookie')).toBeNull();
     expect(seen[0].headers.get('authorization')).toMatch(/^Bearer ey/);
     expect(seen[0].headers.get('x-session-role')).toBe('IM_ADMIN');
+  });
+
+  // 남은 표시 결함 3 리뷰 P2: 서버 목은 프록시가 넘긴 호출만 받는다. 증명과 역할은 프록시가 세션에서 만든다
+  it('서버 목으로 넘길 때 내부 호출 증명을 붙인다. 브라우저가 지어낸 역할과 증명은 덮어쓴다', async () => {
+    const seen = recordUpstream();
+    const res = await call(GET, ['dashboard', 'workflows'], {
+      role: 'IM_ADMIN',
+      headers: { 'x-session-role': 'ALL_ADMIN', [MOCK_PROOF_HEADER]: 'forged-by-browser' },
+    });
+    expect(res.status).toBe(200);
+    expect(seen[0].headers.get('x-session-role')).toBe('IM_ADMIN');
+    expect(seen[0].headers.get(MOCK_PROOF_HEADER)).not.toBe('forged-by-browser');
+    expect(await verifyMockProof(seen[0].headers.get(MOCK_PROOF_HEADER))).toBe('IM_ADMIN');
+  });
+
+  it('프록시를 거치면 서버 목 라우트가 200 을 주고, 지어낸 역할 헤더가 아니라 세션 역할의 응답을 준다', async () => {
+    // 업스트림 자리에 실제 서버 목 라우트를 둔다
+    server.use(
+      http.get(`${APP}/api/*`, ({ request }) => {
+        const slug = new URL(request.url).pathname.replace(/^\/api\//, '').split('/');
+        return serverMockGet(new NextRequest(request), { params: Promise.resolve({ slug }) });
+      }),
+    );
+    const res = await call(GET, ['dashboard', 'workflows'], {
+      role: 'IM_ADMIN',
+      headers: { 'x-session-role': 'HRM_ADMIN' },
+    });
+    expect(res.status).toBe(200);
+    const body: { data: { tabs: { tabCode: string }[] } } = await res.json();
+    expect(body.data.tabs.map((tab) => tab.tabCode)).toEqual(['IN', 'OUT']);
   });
 
   it('역할 표에 없는 역할은 403(재무 관리자의 인사 API)', async () => {
@@ -175,6 +207,17 @@ describe('BOM 상태 PATCH 차단', () => {
       'GET /api/scm-pp/pp/boms/bom-001',
       'PATCH /api/scm-pp/pp/boms/bom-001/items',
     ]);
+  });
+
+  it('실백엔드로 나갈 때는 서버 목용 증명을 붙이지 않고, 브라우저가 넣은 것도 지운다', async () => {
+    vi.stubEnv('BACKEND_API_URL', BACKEND);
+    const seen = recordBackend();
+    const res = await call(GET, BOM, {
+      role: 'PP_ADMIN',
+      headers: { [MOCK_PROOF_HEADER]: 'forged-by-browser' },
+    });
+    expect(res.status).toBe(200);
+    expect(seen[0].headers.has(MOCK_PROOF_HEADER)).toBe(false);
   });
 
   it('서버 목(실백엔드 없음)이면 BOM PATCH 는 지금처럼 통과', async () => {

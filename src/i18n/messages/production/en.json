@@ -71,6 +71,7 @@
     "requestQuantity": "Requested qty",
     "availableQuantity": "Available qty",
     "productionNeeded": "Production needed",
+    "quantity": "{quantity} pcs",
     "result": {
       "STOCK_SUFFICIENT": "Covered by stock",
       "PASS": "Can produce",

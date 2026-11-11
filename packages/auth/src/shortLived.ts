@@ -20,7 +20,11 @@ export const createShortLivedSigner = (getSecret: () => Uint8Array): ShortLivedS
   async verify(token) {
     const secret = getSecret();
     try {
-      const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
+      // exp 가 없는 값은 받지 않는다. sign 은 늘 넣지만, 같은 키로 서명한 다른 값이 만료 없이 통과하지 않게
+      const { payload } = await jwtVerify(token, secret, {
+        algorithms: ['HS256'],
+        requiredClaims: ['exp'],
+      });
       return payload;
     } catch {
       return null;

@@ -8,7 +8,8 @@ import type { Locale } from './locale';
 const translations = [
   {
     locale: 'ko',
-    remove: '항목 삭제',
+    remove: '항목 1 삭제',
+    removeSecond: '항목 2 삭제',
     item: '1번 항목',
     openInput: '입력 창 열기',
     openListInput: '목록 입력 창 열기',
@@ -16,7 +17,8 @@ const translations = [
   },
   {
     locale: 'en',
-    remove: 'Delete item',
+    remove: 'Remove item 1',
+    removeSecond: 'Remove item 2',
     item: 'Item 1',
     openInput: 'Open input',
     openListInput: 'Open list input',
@@ -25,6 +27,7 @@ const translations = [
 ] satisfies {
   locale: Locale;
   remove: string;
+  removeSecond: string;
   item: string;
   openInput: string;
   openListInput: string;
@@ -79,5 +82,25 @@ describe.each(translations)('$locale 입력 버튼 이름의 앱 번역', (text)
     );
 
     expect(screen.getByRole('textbox', { name: text.item })).toHaveValue('조립');
+  });
+
+  it('삭제 버튼 이름에 줄 순번이 들어가 줄마다 다르다', async () => {
+    const onChange = vi.fn();
+    render(
+      <IntlTestProvider locale={text.locale}>
+        <InputList
+          initialItems={[
+            { key: 7, value: '조립' },
+            { key: 9, value: '도장' },
+          ]}
+          onChange={onChange}
+        />
+      </IntlTestProvider>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: text.removeSecond }));
+
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ key: 7, value: '조립' }]);
+    expect(screen.getByRole('button', { name: text.remove })).toBeInTheDocument();
   });
 });

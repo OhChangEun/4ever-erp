@@ -31,7 +31,7 @@ const PURCHASE_ORDER_STATUSES = [
   'DELIVERED',
 ] as const satisfies readonly PurchaseOrderStatus[];
 const SUPPLIER_STATUSES = ['ACTIVE', 'INACTIVE'] as const satisfies readonly SupplierStatus[];
-const SUPPLIER_CATEGORIES = [
+export const SUPPLIER_CATEGORIES = [
   'MATERIAL',
   'PARTS',
   'ETC',
