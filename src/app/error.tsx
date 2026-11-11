@@ -5,17 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { IconButton } from '@everp/ui';
 import { Flex } from '@everp/ui';
-
-/**
- * 개발 모드에서 보일 원인 문구와 stack. V8(Chrome, Node)은 stack 첫 줄이 "Error: message" 라 stack 하나면 된다.
- * Safari, Firefox 의 stack 에는 message 가 없어 앞에 붙인다.
- */
-const devDetail = (error: Error): string => {
-  const stack = error.stack ?? '';
-  const firstLine = stack.split('\n')[0] ?? '';
-  if (stack && firstLine.includes(error.message)) return stack;
-  return [error.message, stack].filter(Boolean).join('\n');
-};
+import { devErrorDetail } from '@/lib/devErrorDetail';
 
 /**
  * 앱 층 오류 경계. (private) 밖(로그인 등)에서 깨지면 여기로 온다. 운영에서는 stack 대신 digest(옵저버빌리티 1).
@@ -46,7 +36,7 @@ export default function AppError({
 
   // 개발 모드만 원인 문구와 stack 을 보이고 복사한다. 개발자 자기 화면이라 원인을 바로 봐야 해서다
   const errorId = t('errorId', { digest: error.digest ?? '-' });
-  const detail = isDev ? devDetail(error) : errorId;
+  const detail = isDev ? devErrorDetail(error) : errorId;
 
   const handleCopy = async () => {
     try {
