@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { http } from 'msw';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
+import { useAuthStore } from '@/store/authStore';
 import { mockBrowserLocale } from '@/test/browserLocale';
 import { ok } from '@/mocks/utils';
 import { INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
@@ -38,7 +39,10 @@ const stock = {
 
 /** 화면 언어가 아니라 브라우저 언어(de-DE)가 숫자 자리 구분을 바꾸면 안 된다(1.200 이 아니라 1,200) */
 describe('브라우저 언어가 de-DE 여도 재고 수량은 쉼표로 묶는다', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    useAuthStore.getState().clearUserInfo();
+  });
 
   it('재고 목록 표', async () => {
     mockBrowserLocale('de-DE');
@@ -53,6 +57,10 @@ describe('브라우저 언어가 de-DE 여도 재고 수량은 쉼표로 묶는�
   });
 
   it('안전재고 목록과 발주 요청 모달', async () => {
+    // 버튼은 게이트웨이가 받는 역할에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'MM_USER' });
     mockBrowserLocale('de-DE');
     server.use(http.get(LOWSTOCK_ENDPOINTS.LOW_STOCK_LIST, () => ok({ content: [stock], page })));
     renderWithProviders(<LowStockList />);

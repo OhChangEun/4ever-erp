@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ReactNode } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/i18n/messages/en.json';
 import { createTestQueryClient, renderWithProviders } from '@/test/render';
+import { useAuthStore } from '@/store/authStore';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 import InventoryClient from './InventoryClient';
@@ -118,6 +119,10 @@ describe('재고 화면 영어(i18n 6)', () => {
 });
 
 describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
+  afterEach(() => {
+    useAuthStore.getState().clearUserInfo();
+  });
+
   it('창고 레이아웃은 창고와 재고 메시지를 둘 다 준다. 3D 패널에서 연 재고 상세가 영어', async () => {
     const cluster = buildCluster([item('item-1001', '볼트', 20, 50)], {
       warehouseId: 'wh-1',
@@ -144,6 +149,10 @@ describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
   });
 
   it('안전재고 레이아웃은 재고 메시지도 준다. 발주 요청 모달과 통계가 영어', async () => {
+    // 버튼은 게이트웨이가 받는 역할에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'MM_USER' });
     renderUnderRoot(
       <LowStockLayout>
         <LowStockPage />
@@ -163,6 +172,10 @@ describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
   });
 
   it('한국어 안전재고 화면 문구는 예전과 같다', async () => {
+    // 버튼은 게이트웨이가 받는 역할에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'MM_USER' });
     renderWithProviders(<LowStockPage />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('긴급 재고 부족')).toBeInTheDocument();

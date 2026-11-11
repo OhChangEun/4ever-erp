@@ -27,6 +27,8 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, PP_PLANNING_ROLES } from '@/lib/authz/policy';
 
 import { Button } from '@everp/ui';
 export default function QuotationTab() {
@@ -34,6 +36,8 @@ export default function QuotationTab() {
   const { openModal, removeAllModals } = useModal();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
+  // 시뮬레이션과 납기 확정은 게이트웨이가 PP 와 ALL_ADMIN 만 받는다. 확정은 시뮬레이션 결과 모달에서만 열린다
+  const canSimulate = hasRole(PP_PLANNING_ROLES, useRole());
 
   // 가용 재고 상태 드롭다운
   const { options: availableStatusOptions } = useDropdown(
@@ -236,12 +240,14 @@ export default function QuotationTab() {
               setCurrentPage(1); // 필터 변경 시 첫 페이지로
             }}
           />
-          <Button
-            label={t('quotation.simulate')}
-            loading={simulationPending}
-            onClick={handleSimulation}
-            disabled={selectedQuotes.length === 0 || simulationPending}
-          />
+          {canSimulate && (
+            <Button
+              label={t('quotation.simulate')}
+              loading={simulationPending}
+              onClick={handleSimulation}
+              disabled={selectedQuotes.length === 0 || simulationPending}
+            />
+          )}
         </div>
       </div>
       {isQuotationListLoading ? (

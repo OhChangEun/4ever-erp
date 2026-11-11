@@ -10,6 +10,8 @@ import { getWarehouseList } from '../warehouse.api';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import AddWarehouseModal from './modals/AddWarehouseModal';
 import WarehouseDetailModal from './modals/WarehouseDetailModal';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, IM_GATEWAY_ROLES } from '@/lib/authz/policy';
 import ManageWarehouseModal from './modals/ManageWarehouseModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -40,6 +42,8 @@ const WarehouseList = () => {
   const { warehouseTypeLabel } = useInventoryLabels();
   const t = useTranslations('warehouse.list');
   const { openModal } = useModal();
+  // 창고 추가는 게이트웨이가 IM 과 ALL_ADMIN 만 받는다
+  const canAdd = hasRole(IM_GATEWAY_ROLES, useRole());
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleWarehouseDetail = (warehouseId: string, warehouseName: string) => {
@@ -96,12 +100,14 @@ const WarehouseList = () => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
-          <Button
-            label={t('add')}
-            onClick={() => {
-              openModal(AddWarehouseModal, { width: '700px', title: t('addModalTitle') });
-            }}
-          />
+          {canAdd && (
+            <Button
+              label={t('add')}
+              onClick={() => {
+                openModal(AddWarehouseModal, { width: '700px', title: t('addModalTitle') });
+              }}
+            />
+          )}
         </div>
       </div>
       {isLoading ? (

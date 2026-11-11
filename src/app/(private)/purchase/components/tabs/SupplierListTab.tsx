@@ -25,11 +25,15 @@ import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { Button } from '@everp/ui';
 import { useTranslations } from 'next-intl';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
 
 export default function SupplierListTab() {
   const { openModal } = useModal();
   const t = useTranslations('purchase.supplierList');
   const tc = useTranslations('purchase.common');
+  // 공급업체 등록은 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
+  const canCreate = hasRole(MM_GATEWAY_ROLES, useRole());
 
   // 공급업체 카테고리 드롭다운
   const { options: supplierCategoryOptions } = useDropdown(
@@ -187,7 +191,7 @@ export default function SupplierListTab() {
               setCurrentPage(1);
             }}
           />
-          <Button label={t('create')} onClick={handleViewAddSupplier} />
+          {canCreate && <Button label={t('create')} onClick={handleViewAddSupplier} />}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { type ReactNode } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -16,6 +16,7 @@ import MesTab from './components/tabs/MesTab';
 import QuotationTab from './components/tabs/QuotationTab';
 import MesGantt from './components/MesGantt';
 import BomCostTree from './components/bom/BomCostTree';
+import { useAuthStore } from '@/store/authStore';
 import type { BomLevelStructureNode } from './types/BomDetailApiType';
 
 vi.mock('next/navigation', () => ({
@@ -190,7 +191,15 @@ describe('MES 간트와 BOM 원가 트리 영어(i18n 9)', () => {
 });
 
 describe('생산 레이아웃(i18n 9)', () => {
+  afterEach(() => {
+    useAuthStore.getState().clearUserInfo();
+  });
+
   it('생산 레이아웃이 생산 메시지를 준다. 시뮬레이션 결과 모달 안 문구도 영어', async () => {
+    // 시뮬레이션 버튼은 PP 와 ALL_ADMIN 에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'PP_USER' });
     render(
       <NextIntlClientProvider locale="en" messages={en} timeZone="Asia/Seoul">
         <ProductionLayout>

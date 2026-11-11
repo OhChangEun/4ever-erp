@@ -25,6 +25,8 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 import { formatNumber } from '@/app/utils/number';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, PP_PLANNING_ROLES } from '@/lib/authz/policy';
 
 interface OrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -39,6 +41,8 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   );
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
+  // 계획 주문 전환은 게이트웨이가 PP 와 ALL_ADMIN 만 받는다
+  const canConvert = hasRole(PP_PLANNING_ROLES, useRole());
   // mrp 순소요 - 가용 재고 상태 드롭다운
   const { options: mrpAvailableStatusOptions } = useDropdown(
     'mrpAvailableStatusDropdown',
@@ -241,12 +245,14 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
               setCurrentPage(1);
             }}
           />
-          <Button
-            label={t('requirements.convert')}
-            onClick={handleConvertToPlannedOrder}
-            loading={isConverting}
-            disabled={selectedRequirements.length === 0}
-          />
+          {canConvert && (
+            <Button
+              label={t('requirements.convert')}
+              onClick={handleConvertToPlannedOrder}
+              loading={isConverting}
+              disabled={selectedRequirements.length === 0}
+            />
+          )}
         </div>
       </div>
 

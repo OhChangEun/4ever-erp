@@ -35,6 +35,8 @@ import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys'
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
 import { useTranslations } from 'next-intl';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
 
 export default function PurchaseRequestListTab() {
   const { openModal } = useModal();
@@ -42,6 +44,8 @@ export default function PurchaseRequestListTab() {
   const toast = useToast();
   const t = useTranslations('purchase.requestList');
   const tc = useTranslations('purchase.common');
+  // 승인과 반려는 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
+  const canDecide = hasRole(MM_GATEWAY_ROLES, useRole());
 
   // 구매 요청 상태 드롭다운
   const { options: purchaseRequestStatusOptions } = useDropdown(
@@ -172,7 +176,7 @@ export default function PurchaseRequestListTab() {
             className="text-gray-600 hover:bg-gray-100 px-2"
             onClick={() => handleViewDetail(r)}
           />
-          {r.statusCode === 'PENDING' && (
+          {canDecide && r.statusCode === 'PENDING' && (
             <>
               <Button
                 label={tc('approve')}

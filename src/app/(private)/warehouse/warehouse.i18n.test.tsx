@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
+import { useAuthStore } from '@/store/authStore';
 import WarehouseList from './components/WarehouseList';
 import WarehouseStockPanel from './components/warehouseVisualizer/components/WarehouseStockPanel';
 import { buildCluster } from './components/warehouseVisualizer/clusters';
@@ -26,7 +27,15 @@ const item = (id: string, name: string, current: number, safety: number): Invent
 });
 
 describe('창고 화면 영어(i18n 3)', () => {
+  afterEach(() => {
+    useAuthStore.getState().clearUserInfo();
+  });
+
   it('창고 목록 제목, 버튼, 카드 버튼이 영어', async () => {
+    // 버튼은 게이트웨이가 받는 역할에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'IM_USER' });
     renderWithProviders(<WarehouseList />, { locale: 'en' });
     expect(screen.getByRole('heading', { name: 'Warehouses' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add warehouse' })).toBeInTheDocument();
@@ -35,6 +44,10 @@ describe('창고 화면 영어(i18n 3)', () => {
   });
 
   it('창고 추가 모달의 라벨과 유형이 영어', async () => {
+    // 버튼은 게이트웨이가 받는 역할에게만 보인다(생산 버튼 권한 카드)
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'IM_USER' });
     renderWithProviders(<WarehouseList />, { locale: 'en' });
     await userEvent.click(screen.getByRole('button', { name: 'Add warehouse' }));
     const dialog = await screen.findByRole('dialog', { name: 'New warehouse' });
