@@ -117,7 +117,9 @@
     "productEmpty": "제품별 매출 데이터가 없습니다.",
     "topCustomersTitle": "주요 고객별 매출",
     "customerTooltip": "{money} ({count}건)",
-    "customerEmpty": "고객 매출 데이터가 없습니다."
+    "customerEmpty": "고객 매출 데이터가 없습니다.",
+    "loading": "매출 분석 데이터를 불러오는 중입니다...",
+    "loadError": "매출 분석 데이터를 불러오는 중 오류가 발생했습니다."
   },
   "newOrder": {
     "itemsTitle": "주문 품목",
@@ -265,7 +267,8 @@
     "submitting": "등록 중...",
     "submit": "고객 등록",
     "success": "고객이 성공적으로 등록되었습니다.",
-    "error": "고객 등록 중 오류가 발생했습니다. {message}"
+    "error": "고객 등록 중 오류가 발생했습니다. {message}",
+    "accountError": "고객사는 이미 등록됐을 수 있습니다. 고객 목록을 확인한 뒤 담당자 계정을 확인해 주세요."
   },
   "newQuote": {
     "title": "견적서 작성",

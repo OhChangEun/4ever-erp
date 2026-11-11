@@ -3722,11 +3722,11 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ApiEnvelope'
                   - type: object
-                    required:
-                      - data
+                    description: >-
+                      data 는 필수가 아니다. 업스트림 data 가 null 이면 게이트웨이 ApiResponse 의 NON_NULL 때문에 키가 빠진다
                     properties:
                       data:
-                        $ref: '#/components/schemas/ServerResponse'
+                        $ref: '#/components/schemas/CreateCustomerResponse'
         default:
           $ref: '#/components/responses/Error'
   /business/sd/customers/{id}:
@@ -7577,88 +7577,37 @@ components:
         - totalOrders
         - totalTransactionAmount
         - note
-    ServerResponse:
+    CreateCustomerResponse:
+      description: >-
+        게이트웨이 SdController.java:210 의 ApiResponse<CreateAuthUserResultDto> data
+        (business/dto/hrm/CreateAuthUserResultDto.java:8-12). 고객사 등록 뒤 담당자 계정 생성 결과다.
+        게이트웨이 ObjectMapper 는 null 을 빼지 않아 문자열 필드는 null 로 올 수 있다.
       type: object
       properties:
-        status:
-          type: number
+        eventId:
+          anyOf:
+            - type: 'null'
+            - type: string
+        transactionId:
+          anyOf:
+            - type: 'null'
+            - type: string
         success:
           type: boolean
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/CreateCustomerResponse'
+        userId:
+          anyOf:
+            - type: 'null'
+            - type: string
+        failureReason:
+          anyOf:
+            - type: 'null'
+            - type: string
       required:
-        - status
+        - eventId
+        - transactionId
         - success
-        - message
-        - data
-    CreateCustomerResponse:
-      type: object
-      properties:
-        customerId:
-          type: number
-        customerCode:
-          type: string
-        companyName:
-          type: string
-        ceoName:
-          type: string
-        businessNumber:
-          type: string
-        statusCode:
-          type: string
-        statusLabel:
-          type: string
-        contactPhone:
-          type: string
-        contactEmail:
-          type: string
-        address:
-          type: string
-        manager:
-          type: object
-          properties:
-            name:
-              type: string
-            mobile:
-              type: string
-            email:
-              type: string
-          required:
-            - name
-            - mobile
-            - email
-        totalOrders:
-          type: number
-        totalTransactionAmount:
-          type: number
-        currency:
-          type: string
-        note:
-          type: string
-        createdAt:
-          type: string
-        updatedAt:
-          type: string
-      required:
-        - customerId
-        - customerCode
-        - companyName
-        - ceoName
-        - businessNumber
-        - statusCode
-        - statusLabel
-        - contactPhone
-        - contactEmail
-        - address
-        - manager
-        - totalOrders
-        - totalTransactionAmount
-        - currency
-        - note
-        - createdAt
-        - updatedAt
+        - userId
+        - failureReason
     CustomerData:
       type: object
       properties:

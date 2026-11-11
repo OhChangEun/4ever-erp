@@ -15,7 +15,8 @@ import {
 } from '@/app/(private)/sales/types/SalesCustomerListType';
 import {
   type CustomerData,
-  type ServerResponse,
+  type CreateCustomerEnvelope,
+  type CreateCustomerResponse,
 } from '@/app/(private)/sales/types/NewCustomerModalType';
 import {
   type AnalyticsQueryParams,
@@ -28,6 +29,7 @@ import { type CustomerEditData, type CustomerResponse } from './types/CustomerEd
 import { type Page } from '@/app/types/Page';
 import { type ItemResponse, type NewOrderRequest } from './types/NewOrderModalType';
 import axios from '@/lib/axiosInstance';
+import { AppError } from '@/lib/AppError';
 import { getParsed } from '@/lib/api/parse';
 import {
   customerDetailSchema,
@@ -157,12 +159,32 @@ export const getCustomerDetail = async (customerId: string): Promise<CustomerDet
   return getParsed(customerDetailSchema, SALES_ENDPOINTS.CUSTOMER_DETAIL(customerId));
 };
 
-export const postCustomer = async (customer: CustomerData): Promise<ServerResponse> => {
-  const res = await axios.post<ApiResponse<ServerResponse>>(
-    SALES_ENDPOINTS.CUSTOMERS_LIST,
-    customer,
-  );
-  return res.data.data;
+/**
+ * 고객 등록의 안쪽 실패. 바깥 봉투는 성공인데 담당자 계정 생성 결과(CreateAuthUserResultDto)의 success 가 false.
+ * 고객사 행은 이미 저장됐을 수 있어 useCreateCustomer 가 이 오류일 때만 고객 목록을 다시 받는다(verified=false).
+ */
+export class CustomerAccountError extends AppError {}
+
+/**
+ * 고객 등록. 게이트웨이는 바깥 success 만 보고(SdServiceImpl.java:54) 담당자 계정 생성 결과를 data 로 넘긴다.
+ * 화면은 그중 안쪽 success 하나만 읽는다. false 면 CustomerAccountError 로 던져 성공 토스트가 돌지 않게 한다.
+ * failureReason 은 개발자용 message 에만 둔다(화면은 오류 종류 문구만 보인다).
+ */
+export const postCustomer = async (
+  customer: CustomerData,
+): Promise<CreateCustomerResponse | undefined> => {
+  const res = await axios.post<CreateCustomerEnvelope>(SALES_ENDPOINTS.CUSTOMERS_LIST, customer);
+  // 바깥이 성공인데 data 가 빠지면(게이트웨이 NON_NULL) 성공으로 둔다
+  const created = res.data.data;
+  if (created?.success === false) {
+    const header: unknown = res.headers['x-request-id'];
+    throw new CustomerAccountError(
+      'server',
+      created.failureReason ?? '고객사 등록 결과 success 가 false',
+      { status: res.status, requestId: typeof header === 'string' ? header : undefined },
+    );
+  }
+  return created;
 };
 
 export const patchCustomer = async (

@@ -117,7 +117,9 @@
     "productEmpty": "No product sales data.",
     "topCustomersTitle": "Sales by top customer",
     "customerTooltip": "{money} ({count, plural, one {# order} other {# orders}})",
-    "customerEmpty": "No customer sales data."
+    "customerEmpty": "No customer sales data.",
+    "loading": "Loading sales analytics...",
+    "loadError": "Couldn't load sales analytics."
   },
   "newOrder": {
     "itemsTitle": "Order items",
@@ -265,7 +267,8 @@
     "submitting": "Adding...",
     "submit": "Add customer",
     "success": "Customer added.",
-    "error": "Couldn't add the customer. {message}"
+    "error": "Couldn't add the customer. {message}",
+    "accountError": "The customer may already be registered. Check the customer list, then check the contact's account."
   },
   "newQuote": {
     "title": "New quote",
