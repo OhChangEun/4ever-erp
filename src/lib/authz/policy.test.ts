@@ -160,6 +160,26 @@ describe('인가 표 하나', () => {
     expect(canAccessApi('SUPPLIER_ADMIN', 'scm-pp/mm/purchase-orders')).toBe(true);
   });
 
+  // 데모 계정 pp_admin 의 역할(카드 로그인 아이디와 생산 데모 계정). 표는 안 바꿨고 지금 판정을 고정한다
+  it('PP_ADMIN 은 운영 화면 일곱 곳에 들어가고 재무와 인사는 막힌다', () => {
+    const pages = [
+      '/dashboard',
+      '/sales',
+      '/production',
+      '/purchase',
+      '/inventory',
+      '/warehouse',
+      '/low-stock',
+      '/finance',
+      '/hrm',
+    ];
+    expect(pages.filter((page) => canAccessPage('PP_ADMIN', page))).toEqual(pages.slice(0, 7));
+    expect(canAccessApi('PP_ADMIN', 'scm-pp/pp/mrp/convert')).toBe(true);
+    expect(canAccessApi('PP_ADMIN', 'scm-pp/mm/stock-purchase-requisitions')).toBe(false);
+    expect(canAccessApi('PP_ADMIN', 'business/fcm/invoice/ar')).toBe(false);
+    expect(canAccessApi('PP_ADMIN', 'business/hrm/employee')).toBe(false);
+  });
+
   it('메뉴: 대시보드는 공급사에게 숨긴다(페이지는 열림). 나머지는 페이지 표와 같다', () => {
     expect(menuRoles('/dashboard')).not.toContain('SUPPLIER_ADMIN');
     expect(canAccessPage('SUPPLIER_ADMIN', '/dashboard')).toBe(true);

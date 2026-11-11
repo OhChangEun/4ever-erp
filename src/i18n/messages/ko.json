@@ -232,6 +232,7 @@
       "fcm_admin": "재무 관리자",
       "hrm_admin": "인사 관리자",
       "im_admin": "재고 관리자",
+      "pp_admin": "생산 관리자",
       "customer": "고객사 관리자",
       "supplier": "공급사 관리자"
     },

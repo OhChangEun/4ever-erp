@@ -83,6 +83,15 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     menus: ['dashboard', 'sales', 'production', 'purchase', 'inventory'],
   },
   {
+    loginId: 'pp_admin',
+    displayName: '생산 관리자',
+    displayNameKey: 'pp_admin',
+    role: 'PP_ADMIN',
+    department: '생산팀',
+    icon: 'ri-cpu-line',
+    menus: ['dashboard', 'sales', 'production', 'purchase', 'inventory'],
+  },
+  {
     loginId: 'customer',
     displayName: '고객사 관리자',
     displayNameKey: 'customer',
@@ -102,14 +111,17 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   },
 ];
 
-// 없는 아이디면 undefined 라 Partial
-const ACCOUNT_MAP: Partial<Record<string, DemoAccount>> = Object.fromEntries(
-  DEMO_ACCOUNTS.map((a) => [a.loginId, a]),
-);
+/**
+ * 아이디 판정 한 곳. 로그인 화면, 로그인 라우트, buildMockUser 가 같이 쓴다.
+ * 앞뒤 공백과 대소문자를 가리지 않는다. 없는 아이디면 undefined
+ */
+export const findDemoAccount = (loginId: string): DemoAccount | undefined => {
+  const key = loginId.trim().toLowerCase();
+  return DEMO_ACCOUNTS.find((account) => account.loginId === key);
+};
 
 export function buildMockUser(loginId?: string): DemoUser {
-  const key = (loginId ?? '').trim().toLowerCase() || 'admin';
-  const account = ACCOUNT_MAP[key];
+  const account = findDemoAccount((loginId ?? '').trim() || 'admin');
 
   if (account) {
     return {

@@ -28,7 +28,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 
 ## 3. 인증과 인가 (지금)
 
-- 로그인은 데모 계정 선택이다. `/api/auth/login` 이 `DEMO_ACCOUNTS` 에 있는 아이디면 통과시키고 (`src/app/api/auth/login/route.ts:35`) 세션을 연다 (`:47`). 세션 처리는 한 모듈이다 (`src/server/auth/session/index.ts:21`). 데모 저장소는 HS256 으로 서명한 JWT 를 httpOnly 쿠키 `session`(운영은 `__Host-session`, 서브도메인의 쿠키 바꿔치기 방지)에 심는다 (서명 `src/lib/auth/session.ts:40`, 검증 `:50`, 만료 1일 `:45`). OIDC 카드에서 sid 쿠키 + 서버 저장소 구현이 같은 경계(`SessionStore`)에 붙는다.
+- 로그인은 데모 계정 선택이다. 계정은 아홉이다(`DEMO_ACCOUNTS`, `src/lib/auth/simpleLogin.ts:30`: admin, mm_admin, sd_admin, fcm_admin, hrm_admin, im_admin, pp_admin, customer, supplier). 아이디 판정은 `findDemoAccount` 하나다(`:118`, 대소문자와 앞뒤 공백을 가리지 않는다). 로그인 화면(`src/app/(public)/login/page.tsx:91`)과 `/api/auth/login`(`src/app/api/auth/login/route.ts:46`)이 같이 쓰고, 통과하면 세션을 연다 (`:58`). 세션 처리는 한 모듈이다 (`src/server/auth/session/index.ts:21`). 데모 저장소는 HS256 으로 서명한 JWT 를 httpOnly 쿠키 `session`(운영은 `__Host-session`, 서브도메인의 쿠키 바꿔치기 방지)에 심는다 (서명 `src/lib/auth/session.ts:40`, 검증 `:50`, 만료 1일 `:45`). OIDC 카드에서 sid 쿠키 + 서버 저장소 구현이 같은 경계(`SessionStore`)에 붙는다.
 - 페이지 접근은 `src/proxy.ts` 가 막는다. 세션 확인 (`src/proxy.ts:12`) 뒤 역할 표로 판정 (`:24`). matcher 는 공개 경로만 빼는 denylist (`:34`). Next 16 부터 파일 이름이 `middleware.ts` 에서 `proxy.ts` 로 바뀌었고 Node 런타임이 기본이다.
 - 권한 규칙은 표 하나다 (`src/lib/authz/policy.ts:72`). 페이지 프록시, API 프록시, 메뉴 2곳이 같이 읽는다. 역할은 `Role` 유니온 15개이고 목록 밖 역할이 든 세션은 무효다.
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`, 사용자 타입은 `src/lib/auth/userInfo.ts`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
