@@ -3673,12 +3673,21 @@ export interface components {
             notificationId: string;
             notificationTitle: string;
             notificationMessage: string;
-            linkType: string;
-            linkId: string;
-            /** @enum {string} */
-            source: "PR" | "SD" | "IM" | "FCM" | "HRM" | "PP" | "CUS" | "SUP";
+            linkType?: string | null;
+            linkId?: string | null;
+            /** @description 알려진 값은 PR, SD, IM, FCM, HRM, PP, CUS, SUP(NotificationSource). 새 값이 와도 목록을 막지 않으려고 enum 으로 묶지 않는다. 화면은 모르는 값을 "알 수 없음"으로 보인다 */
+            source: string;
+            /** @description yyyy-MM-dd'T'HH:mm:ss(시간대 없음) */
             createdAt: string;
             isRead: boolean;
+        };
+        /**
+         * @description 목록 요청의 source 파라미터 값. 게이트웨이가 이 8개만 받는다(AlarmController.java:67-71)
+         * @enum {string}
+         */
+        NotificationSource: "PR" | "SD" | "IM" | "FCM" | "HRM" | "PP" | "CUS" | "SUP";
+        NotificationReadResponse: {
+            processedCount: number;
         };
         NotificationCountResponse: {
             count: number;
@@ -7199,7 +7208,16 @@ export interface operations {
     };
     getAlarmNotificationsList: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 0부터 시작하는 페이지 번호 */
+                page?: components["parameters"]["Page"];
+                /** @description 한 쪽 크기. 서버 기본 20 */
+                size?: number;
+                sortBy?: "createdAt";
+                /** @description 서버 기본 desc */
+                order?: "asc" | "desc";
+                source?: components["schemas"]["NotificationSource"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -7222,7 +7240,10 @@ export interface operations {
     };
     getAlarmNotificationsCount: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 게이트웨이 AlarmController.java:107-110. 없으면 알림 서버가 UNREAD 로 센다 */
+                status?: "READ" | "UNREAD";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -7254,7 +7275,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["NoData"];
+            /** @description 처리한 알림 수. 알림 서버 NotificationReadResponseDto 기준(verified=false) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["NotificationReadResponse"];
+                    };
+                };
+            };
             default: components["responses"]["Error"];
         };
     };
@@ -7267,7 +7298,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["NoData"];
+            /** @description 처리한 알림 수. 알림 서버 NotificationReadResponseDto 기준(verified=false) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiEnvelope"] & {
+                        data: components["schemas"]["NotificationReadResponse"];
+                    };
+                };
+            };
             default: components["responses"]["Error"];
         };
     };

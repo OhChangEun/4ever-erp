@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import SidebarNavigation from './SidebarNavigation';
 import SidebarProfile from './SidebarProfile';
 import Logo from '@/app/components/header/Logo';
+import NotificationBell from '@/app/components/header/Notification/NotificationBell';
 import { useSidebarStore } from '@/store/sidebarStore';
 
 export default function Sidebar() {
@@ -78,6 +79,9 @@ export default function Sidebar() {
         <nav className="flex-1 py-2 overflow-y-auto">
           <SidebarNavigation isExpanded={isExpanded} />
         </nav>
+
+        {/* 알림 버튼. 프로필 줄 바로 위 */}
+        <NotificationBell isExpanded={isExpanded} />
 
         {/* 프로필 영역 */}
         <SidebarProfile isExpanded={isExpanded} />

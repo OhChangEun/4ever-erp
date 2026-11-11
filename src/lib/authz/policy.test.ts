@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { ROLES, canAccessApi, canAccessPage, isRole, menuRoles, type Role } from './policy';
+import {
+  API_RULES,
+  ROLES,
+  canAccessApi,
+  canAccessPage,
+  isRole,
+  menuRoles,
+  type Role,
+} from './policy';
 
 /**
  * 예전 두 표(src/proxy.ts 의 ACCESS_RULES, 프록시 라우트의 PROXY_ACCESS_RULES)를 그대로 옮겨 두고
@@ -178,6 +186,19 @@ describe('인가 표 하나', () => {
     expect(canAccessApi('PP_ADMIN', 'scm-pp/mm/stock-purchase-requisitions')).toBe(false);
     expect(canAccessApi('PP_ADMIN', 'business/fcm/invoice/ar')).toBe(false);
     expect(canAccessApi('PP_ADMIN', 'business/hrm/employee')).toBe(false);
+  });
+
+  it('알림 API 는 로그인한 모든 역할에게 열려 있고 표에 적혀 있다', () => {
+    // 게이트웨이 AlarmController.java 에 @PreAuthorize 가 없다(SecurityConfig.java:50 로그인만 확인)
+    expect(API_RULES.find((rule) => rule.prefix === 'alarm/notifications')?.roles).toEqual(ROLES);
+    for (const path of [
+      'alarm/notifications/list',
+      'alarm/notifications/count',
+      'alarm/notifications/subscribe',
+      'alarm/notifications/all/read',
+      'alarm/notifications/ntf-001/read',
+    ])
+      expect([path, ROLES.filter((role) => canAccessApi(role, path))]).toEqual([path, [...ROLES]]);
   });
 
   it('메뉴: 대시보드는 공급사에게 숨긴다(페이지는 열림). 나머지는 페이지 표와 같다', () => {

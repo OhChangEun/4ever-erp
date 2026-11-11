@@ -1,16 +1,21 @@
 import { useTranslations } from 'next-intl';
-import { type NotificationData } from '../types/NotificatioApiType';
+import { type NotificationData } from '../types/NotificationApiType';
 
 interface NotificationListProps {
   notifications: NotificationData[];
   onNotificationClick: (notificationId: string) => void;
+  /** 읽음 요청이 가는 중. 안 읽은 알림을 흐리게 하고 누름을 받지 않는다 */
+  disabled?: boolean;
 }
+
+/** 화면이 아는 출처. 이름은 메시지 notification.source 에 있다 */
+type KnownSource = 'PR' | 'SD' | 'IM' | 'FCM' | 'HRM' | 'PP' | 'CUS' | 'SUP';
 
 interface SourceConfig {
   color: string;
   icon: string;
   /** 메시지 notification.source 의 키 */
-  labelKey: NotificationData['source'] | 'unknown';
+  labelKey: KnownSource | 'unknown';
 }
 
 const UNKNOWN_CONFIG: SourceConfig = {
@@ -20,7 +25,7 @@ const UNKNOWN_CONFIG: SourceConfig = {
 };
 
 /** 알림 출처 표시. 서버가 모르는 출처를 보내면 undefined 라 Partial 로 두고 기본값을 쓴다 */
-const getSourceConfig = (source: NotificationData['source']): SourceConfig => {
+const getSourceConfig = (source: string): SourceConfig => {
   const configs: Partial<Record<string, SourceConfig>> = {
     PR: { color: 'bg-blue-500', icon: 'ri-file-list-3-line', labelKey: 'PR' },
     SD: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', labelKey: 'SD' },
@@ -44,9 +49,12 @@ const formatDateTime = (dateString: string) => {
   return `${year}.${month}.${day} ${hours}:${minutes}`;
 };
 
+const ROW = 'w-full flex items-center gap-3 px-5 py-3 text-left';
+
 export default function NotificationList({
   notifications,
   onNotificationClick,
+  disabled = false,
 }: NotificationListProps) {
   const t = useTranslations('notification');
   // 알람 없을 때
@@ -54,72 +62,75 @@ export default function NotificationList({
     return (
       <div className="p-12 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-4">
-          <i className="ri-notification-off-line text-3xl text-gray-400"></i>
+          <i aria-hidden="true" className="ri-notification-off-line text-3xl text-gray-400"></i>
         </div>
         <p className="text-sm font-medium text-gray-500">{t('empty')}</p>
-        <p className="text-xs text-gray-400 mt-1">{t('emptyHint')}</p>
+        <p className="text-xs text-gray-500 mt-1">{t('emptyHint')}</p>
       </div>
     );
   }
 
-  // 알람 있을 때
+  // 알람 있을 때. Tailwind 가 목록 표시를 지워 Safari 가 list 로 안 읽으므로 role 을 적는다
   return (
-    <div className="max-h-96 overflow-y-auto">
-      {notifications.map((notfication) => {
-        const config = getSourceConfig(notfication.source);
+    <ul role="list" className="max-h-96 overflow-y-auto divide-y divide-gray-100">
+      {notifications.map((notification) => {
+        const config = getSourceConfig(notification.source);
+        const unread = !notification.isRead;
+        // 버튼 안에도 들어가므로 span 만 쓴다
+        const body = (
+          <>
+            <span
+              aria-hidden="true"
+              className={`${config.color} w-9 h-9 rounded-md flex items-center justify-center shrink-0`}
+            >
+              <i className={`${config.icon} text-white text-base`}></i>
+            </span>
+            <span className="flex-1 min-w-0">
+              <span
+                className={`block text-sm truncate ${
+                  unread ? 'font-semibold text-gray-900' : 'text-gray-700'
+                }`}
+              >
+                {unread && <span className="sr-only">{t('unread')} </span>}
+                {notification.notificationTitle}
+              </span>
+              <span className="block text-xs text-gray-600 truncate">
+                {notification.notificationMessage}
+              </span>
+              {/* 출처는 회색 글자. 색 배경 흰 글자는 노랑, 청록, 주황에서 대비가 모자랐다 */}
+              <span className="flex items-center justify-between gap-2 mt-1 text-xs text-gray-500">
+                <span>{formatDateTime(notification.createdAt)}</span>
+                <span>{t(`source.${config.labelKey}`)}</span>
+              </span>
+            </span>
+            {unread && (
+              <span aria-hidden="true" className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+            )}
+          </>
+        );
 
         return (
-          <div
-            key={notfication.notificationId}
-            onClick={() => onNotificationClick(notfication.notificationId)}
-            className={`min-h-20 overflow-hidden py-3 px-5 border-b border-gray-100 cursor-pointer transition-all duration-200 group flex items-center justify-between ${
-              !notfication.isRead ? 'bg-white hover:bg-blue-50' : 'bg-white hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex items-center space-x-3 w-full">
-              {/* 아이콘 */}
-              <div
-                className={`${config.color} w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}
+          <li key={notification.notificationId}>
+            {unread ? (
+              // 안 읽은 알림만 누를 수 있다(읽음 처리). disabled 속성은 포커스를 잃게 해서 aria-disabled 로 막는다
+              <button
+                type="button"
+                aria-disabled={disabled}
+                onClick={() => {
+                  if (!disabled) onNotificationClick(notification.notificationId);
+                }}
+                className={`${ROW} cursor-pointer hover:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 ${
+                  disabled ? 'opacity-60' : ''
+                }`}
               >
-                <i className={`${config.icon} text-white text-lg`}></i>
-              </div>
-
-              {/* 알람 내용 & 시간 */}
-              <div className="flex-1 min-w-0 flex flex-col pl-0.5 pt-2 pb-1">
-                {/* 제목 */}
-                <h4
-                  className={`text-sm truncate pr-2 ${
-                    !notfication.isRead ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'
-                  }`}
-                >
-                  {notfication.notificationTitle}
-                </h4>
-
-                <p
-                  className={`text-xs truncate max-w-58 ${
-                    !notfication.isRead ? 'text-gray-700 font-medium' : 'text-gray-600'
-                  }`}
-                >
-                  {notfication.notificationMessage}
-                </p>
-
-                {/* 시간 */}
-                <div className="flex items-center text-xs text-gray-400 mt-1">
-                  <i className="ri-time-line mr-1"></i>
-                  {formatDateTime(notfication.createdAt)}
-                </div>
-              </div>
-
-              {/* 라벨 (오른쪽 끝에 배치) */}
-              <div
-                className={`${config.color} text-white text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0`} // self-start로 상단 정렬 및 flex-shrink-0으로 공간 확보
-              >
-                {t(`source.${config.labelKey}`)}
-              </div>
-            </div>
-          </div>
+                {body}
+              </button>
+            ) : (
+              <div className={ROW}>{body}</div>
+            )}
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

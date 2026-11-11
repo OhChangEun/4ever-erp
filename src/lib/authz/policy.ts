@@ -156,6 +156,9 @@ export const API_RULES: readonly { prefix: string; roles: readonly Role[] }[] = 
   { prefix: 'scm-pp/pp/quotations/confirm', roles: PP_PLANNING_ROLES },
   { prefix: 'scm-pp/iv/items/info', roles: IM_GATEWAY_ROLES },
   { prefix: 'scm-pp/mm/stock-purchase-requisitions', roles: MM_GATEWAY_ROLES },
+  // 알림(목록, 안 읽은 수, 읽음 처리, SSE 구독). 사이드바가 모든 화면에서 부른다.
+  // 게이트웨이 alarm/controller/AlarmController.java 에 @PreAuthorize 가 없어 로그인한 모든 역할
+  { prefix: 'alarm/notifications', roles: ROLES },
 ];
 
 /** API 접근. upstreamPath 는 /api/proxy 뒤의 정규화된 경로. 표에 없는 경로는 로그인만 되면 통과 */

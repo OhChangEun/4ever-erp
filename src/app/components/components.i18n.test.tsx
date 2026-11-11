@@ -11,7 +11,7 @@ import { createTestQueryClient, renderWithProviders } from '@/test/render';
 import { useAuthStore } from '@/store/authStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import type { StatCardType } from '@/app/types/StatType';
-import type { NotificationData } from './header/types/NotificatioApiType';
+import type { NotificationData } from './header/types/NotificationApiType';
 import Sidebar from './sidebar/Sidebar';
 import Navigation from './header/Navigation';
 import NotificationHeader from './header/Notification/NotificationHeader';

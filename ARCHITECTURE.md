@@ -35,7 +35,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 - 구매 요청 부서는 인증 사용자의 `/business/profile` 을 기존 프로필 API와 쿼리 키로 조회한다 (`src/app/(private)/purchase/components/modals/PurchaseRequestFormModal.tsx:54`). 열 때 다시 확인하고 조회 중, 실패, 부서 없음은 입력을 유지하며 제출을 막는다. 프로필은 게이트웨이의 원형 중계라 `department` 와 `departmentName` 문자열을 허용한다 (`:28`). 생성 본문은 `items` 만 보내고 요청자 ID는 게이트웨이가 인증 principal에서 결정한다 (`openapi/everp.yaml:6835`, 팀 백엔드 `MmController.createPurchaseRequisition` 기준).
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
 - 공격 점검(BFF 문서 Phase 5)은 테스트로 고정했다: 같은 출처 판정 `src/lib/auth/sameOrigin.test.ts`, 프록시 우회와 401, 403 `src/app/api/proxy/[...path]/route.test.ts`, alg none `src/lib/auth/session.test.ts`, 오픈 리다이렉트 `src/lib/auth/returnTo.test.ts`, 콜백 재사용과 state 위조 `src/server/auth/oidcLogin.test.ts`.
-- 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:61`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽으로 옮겼다(지금은 `packages/auth/src/pkce.ts`).
+- 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:41`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽으로 옮겼다(지금은 `packages/auth/src/pkce.ts`).
 
 ## 4. 인증과 인가: OIDC 모드
 
@@ -139,7 +139,16 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
   | 프로필: 휴가 신청                   | `profileKeys.attendanceRecords()` + 인사 `leaveKeys.lists()`(교차)                                |
   | 프로필: 출근, 퇴근                  | `profileKeys.todayAttendance()`, `.attendanceRecords()` + 인사 `attendanceKeys.lists()`(교차)     |
   | 프로필: 교육 신청                   | `profileKeys.trainings()` + 인사 `trainingKeys.lists()`(교차)                                     |
-  | 알림: 전체 읽음, 하나 읽음          | `notificationKeys.lists()`                                                                        |
+  | 알림: 전체 읽음, 하나 읽음          | `notificationKeys.lists()`, `notificationKeys.unreadCount()`(사이드바 뱃지)                       |
+
+  알림(사이드바, 2026-11-12 알림 UI 연결 카드):
+
+  1. 알림 버튼은 사이드바의 프로필 줄 위에 있다(`src/app/components/header/Notification/NotificationBell.tsx:28`). 사이드바는 도메인 레이아웃의 Provider 밖이라 `(private)/layout.tsx:22` 가 사이드바만 감싸는 QueryClient 를 하나 더 만든다(같은 `createQueryClient`). 화면을 옮겨도 남는다. 알림 키는 사이드바만 쓴다. `/profile` 은 레이아웃이 달라 그 화면의 클라이언트를 쓴다.
+  2. 키는 `notificationKeys`(`src/app/components/header/header.keys.ts:2`). 목록 `list(page)` 와 안 읽은 수 `unreadCount()` 가 `['notifications']` 아래에 있다. 안 읽은 수는 `count?status=UNREAD` 로 받는다. 읽음 처리는 둘을 같이 무효화한다.
+  3. 새 알림: `NEXT_PUBLIC_SSE_ENABLED=true` 면 SSE 로 붙고(`useNotificationSSE.ts:27`) `alarm` 이벤트와 (다시) 연결될 때마다 `notificationKeys.all` 만 무효화한다. 꺼져 있거나 끊겨 있으면 뱃지와 열린 목록이 60초마다 다시 받는다(`NotificationBell.tsx:39`). 끊기면 60초 뒤 다시 붙고 401 은 다시 붙지 않는다. 실패는 화면에 알리지 않는다.
+  4. 안 읽은 수가 늘면 버튼 옆 `role=status` 가 한 번 알린다(SSE 든 폴링이든 같은 경로).
+  5. 팝오버 내용(`NotificationDropdown.tsx`)은 버튼을 누를 때 받는 청크다(`React.lazy`, `NotificationBell.tsx:14`). 틀(dialog)과 닫기(Esc, 바깥 누름, 포커스 복귀)는 `NotificationBell` 에 있어 청크를 받는 중이거나 못 받아도 닫힌다. 못 받으면 틀 안에 실패 문구가 보인다. 응답은 `src/lib/api/notification.schemas.ts` 로 확인한다(`getParsedLazy`). 출처(`source`)는 문자열이면 받고 화면이 모르는 값은 "알 수 없음"으로 보인다.
+  6. 목은 `src/mocks/handlers/alarm.handlers.ts`. 목록, 안 읽은 수, 읽음 처리가 같은 상태를 보고, 상태는 요청의 `Authorization` 값(로그인)별이다(`:78`). 브라우저 MSW 는 헤더가 없어 로그인을 바꿔도 상태가 하나다(개발용, 안 고침).
 
 ## 5-1. API 계약 (OpenAPI)
 
@@ -184,6 +193,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 3. 모달 안에 팝업이나 충돌 안내(`role="alertdialog"`)가 떠 있으면 모달은 Esc 를 넘긴다. 팝업은 스스로 Esc 를 받아 닫아야 한다(`src/app/hooks/useCloseOnEscape.ts`).
 4. `Dropdown` 은 APG 의 select-only combobox(2026-11-10 접근성 3). 버튼이 combobox, 목록이 listbox, 포커스는 버튼에 남고 가리킨 항목은 `aria-activedescendant`. 키보드와 aria 는 floating-ui interaction 훅(`src/app/components/common/Dropdown.tsx:71`). Esc 는 `useDismiss` 가 받는다. Radix Select 를 안 쓴 이유는 `ai/decisions.md` 접근성 3 행.
 5. 확인 창은 `ConfirmModal`(`src/app/components/common/modal/ConfirmModal.tsx:25`) 하나다. 브라우저 `confirm()` 은 쓰지 않는다(2026-11-12, 화면 코드 0건). `openModal(ConfirmModal, { title: 질문 문장, onConfirm })` 로 열고, `onConfirm` 에는 도메인 훅의 `mutateAsync` 를 넘긴다. Promise 가 끝날 때까지 버튼을 잠그고 성공하면 닫고 실패하면 열어 둔다. 실패 문구는 훅의 `onError` 토스트가 보인다. 중복 제출은 세 겹으로 막는다: 확인 버튼 잠금, 같은 버튼에서 같은 모달을 또 열면 무시(`ModalProvider.tsx:106`, 모달 틀 청크가 오기 전 Enter 두 번), 진행 중인 `mutateAsync` 재호출 거절(`src/lib/query/useInvalidatingMutation.ts:200`). `reason` 을 주면 필수 사유 칸이 생긴다(구매 요청 반려 `comment`, 발주서 반려 `reason`. 휴가 반려는 게이트웨이가 본문을 받지 않아 없다).
+6. 사이드바 알림 팝오버는 예외로 portal 을 쓰지 않는다. 알림 버튼 바로 뒤 DOM 에 그리고 CSS 로 사이드바 오른쪽에 붙인다(`src/app/components/header/Notification/NotificationBell.tsx:125`). Tab 순서가 버튼, 목록, 프로필로 그대로 이어진다. floating-ui 의 `FloatingFocusManager` 를 쓰면 드롭다운이 있는 화면 7곳의 첫 로드가 2.9KB 늘었다. 폭은 `max-w` 로 화면 안에 묶는다(화면 폭에서 사이드바 224, 간격 12, 여백 8 을 뺀 값). 모달이 열려 있으면 사이드바 전체가 눌리지 않아 모달 안 팝업 문제(2번)는 생기지 않는다.
 
 ## 7. 환경 변수
 
@@ -193,6 +203,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 | `BACKEND_API_URL`                                     | 서버     | 업스트림. 없으면 `/api/[...slug]` 목. `/production` 은 build 때 읽음(BOM 상태 버튼 숨김), 프록시는 요청마다 읽어 BOM PATCH 를 막음 |
 | `NEXT_PUBLIC_API_BASE_URL`                            | 브라우저 | 기본 `/api/proxy`                                                                                                                  |
 | `NEXT_PUBLIC_API_MOCKING`                             | 브라우저 | `enabled` 면 MSW 워커 시작 (`src/app/providers.tsx:22`)                                                                            |
+| `NEXT_PUBLIC_SSE_ENABLED`                             | 브라우저 | `true` 면 알림 SSE 로 붙는다. 없으면 60초 폴링(5절 알림). build 때 굳는 값                                                         |
 | `AUTH_PROVIDER`                                       | 서버     | `demo`(기본) 또는 `oidc`. 4절                                                                                                      |
 | `NEXT_PUBLIC_AUTH_PROVIDER`                           | 브라우저 | `oidc` 면 로그인 화면이 IdP 버튼 하나                                                                                              |
 | `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | 서버     | OIDC 모드에서만. 없으면 로그인 시작 때 throw                                                                                       |
@@ -319,6 +330,8 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 | 서버 재고 목록이 `type=WAREHOUSE_NAME` 으로 창고 이름을 걸러 준다                                            | 2026-11-10 시각화 8. 화면의 검색 옵션(창고명)과 목만 봄                                                                                  | 서버 생기면 창고 3D                   |
 | 포털 화면 데이터(받은 발주, 내 주문)를 서버가 준다                                                           | 2026-11-10 SSO 2. 고정 값                                                                                                                | 서버 생기면                           |
 | 영어 사용자가 로그인 화면에서 한국어를 잠깐 보지 않는다                                                      | 2026-11-10 i18n 1 결정 2. 서버는 한국어로 정적 렌더하고 브라우저가 바꾼다. 비공개 화면은 PrivateGuard 가 먼저 아무것도 안 그려 괜찮다    | 영어로 바꾼 뒤 느린 3G 로 /login      |
+| 알림 목록, 개수, 읽음 응답 본문(`content`, `isRead`, `count`, `processedCount`, null 인 `linkId`)            | 2026-11-12 알림 UI 연결. 게이트웨이가 Object 로 넘긴다(`AlarmHttpServiceImpl.java:48-63`). 알림 서버 사본의 DTO 만 봄                    | 실서버 응답 샘플                      |
+| 프록시를 거친 알림 SSE 가 끊기지 않고 온다. `alarm` 뒤 개수 API 가 바로 늘어 있다                            | 같은 카드. SSE 는 기본 꺼짐이라 가짜 `fetchEventSource` 와 목 스트림만 확인                                                              | SSE 를 켜고 알림 하나 받기            |
 
 ### 10-1. 확인해서 지운 것
 
@@ -327,3 +340,4 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 | Vercel 함수에서 서버 목(msw getResponse)이 응답한다 | 2026-11-10 | 운영(4ever-fe.vercel.app)에 데모 관리자로 로그인해 `/api/proxy/scm-pp/iv/warehouses` 200, `x-request-id` 있음. 새 경로 `dashboard/supply-flow`, `business/fcm/analytics/monthly` 도 200, 대시보드에 자재 흐름 카드가 뜬다 |
 | Vercel 이 pnpm 10 으로 설치, 빌드한다               | 2026-11-10 | 운영 배포 로그: "Detected pnpm-lock.yaml version 9 generated by pnpm@10.x", "Done in 2.4s using pnpm v10.34.8"                                                                                                            |
 | Keycloak 25 가 Java 17 에서 뜬다                    | 2026-11-10 | 대신 Keycloak 26.8.1 + Java 21 로 띄워 OIDC e2e 5개 통과(인증 4단계). 25 와 17 조합은 쓰지 않는다                                                                                                                         |
+| 알림 팝오버 청크를 못 받아도 문구가 보이고 닫힌다   | 2026-11-12 | 단위 테스트 `NotificationBell.chunk.test.tsx`(내용 모듈 import 실패). 브라우저를 오프라인으로 바꿔 보지는 않았다                                                                                                          |

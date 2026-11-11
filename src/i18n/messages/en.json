@@ -116,6 +116,13 @@
     "readAll": "Mark all as read",
     "empty": "No notifications",
     "emptyHint": "New notifications will show up here",
+    "bellLabel": "Notifications, {count} unread",
+    "loading": "Loading notifications...",
+    "loadFailed": "Couldn't load notifications.",
+    "retry": "Try again",
+    "readFailed": "Couldn't mark as read.",
+    "newArrived": "New notification. {count} unread",
+    "unread": "Unread",
     "source": {
       "PR": "Purchasing",
       "SD": "Sales",
@@ -126,13 +133,6 @@
       "CUS": "Customer",
       "SUP": "Supplier",
       "unknown": "Unknown"
-    },
-    "sseError": {
-      "unauthorized": "Your session has expired. Please log in again.",
-      "connectFailed": "Couldn't connect to the notification server.",
-      "parseAlarm": "Something went wrong while reading a notification.",
-      "parseUnreadCount": "Couldn't load the unread notification count.",
-      "connection": "Lost connection to the notification server."
     }
   },
   "calendar": {
