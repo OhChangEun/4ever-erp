@@ -29,6 +29,8 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
     null,
   );
+  // 결과를 받은 시각. 서버 inventoryCheckTime 이 없거나 잘못된 값일 때 쓴다(게이트웨이가 Object 로 넘겨 필드 유무 확인 불가)
+  const [receivedAt, setReceivedAt] = useState<Date | null>(null);
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
@@ -63,7 +65,10 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
   });
 
   const { mutate: inventoryCheckReq, isPending } = useCheckInventory({
-    onSuccess: (data) => setInventoryCheckResult(data),
+    onSuccess: (data) => {
+      setInventoryCheckResult(data);
+      setReceivedAt(new Date());
+    },
     onError: (error) => toast.error(t('checkError', { message: errorMessageOf(error) })),
   });
 
@@ -227,9 +232,8 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
 
             {/* 확인 일시 */}
             <div className="text-sm text-gray-500 text-right">
-              {t('checkedAt', {
-                time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
-              })}
+              {/* 서버가 확인한 시각, 없으면 결과를 받은 시각. 렌더 때의 지금 시각을 쓰면 다시 그릴 때마다 바뀐다 */}
+              {t('checkedAt', { time: checkedTimeLabel(inventoryCheckResult, receivedAt, locale) })}
             </div>
           </div>
         )}
@@ -295,3 +299,13 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
 };
 
 export default QuoteReviewModal;
+
+const checkedTimeLabel = (
+  result: InventoryCheckRes[],
+  receivedAt: Date | null,
+  locale: string,
+): string => {
+  const server = result.length > 0 ? new Date(result[0].inventoryCheckTime) : null;
+  const time = server && !Number.isNaN(server.getTime()) ? server : receivedAt;
+  return time ? time.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) : '-';
+};
