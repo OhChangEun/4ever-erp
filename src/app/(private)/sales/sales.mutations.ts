@@ -1,9 +1,11 @@
-import type { QueryKey } from '@tanstack/react-query';
+import { useQueryClient, type QueryKey } from '@tanstack/react-query';
 import {
+  invalidateAll,
   useInvalidatingMutation,
   type MutationCallbacks,
 } from '@/lib/query/useInvalidatingMutation';
 import {
+  CustomerAccountError,
   patchCustomer,
   postCustomer,
   postDeliveryProcess,
@@ -21,7 +23,7 @@ import type { Inventories } from '@/app/(private)/sales/types/QuoteDetailModalTy
 import type { InventoryCheckRes } from '@/app/(private)/sales/types/QuoteReviewModalType';
 import type {
   CustomerData,
-  ServerResponse,
+  CreateCustomerResponse,
 } from '@/app/(private)/sales/types/NewCustomerModalType';
 import type { ApiResponseNoData } from '@/app/types/api';
 
@@ -81,14 +83,31 @@ export const useProcessDelivery = (callbacks?: MutationCallbacks<ApiResponseNoDa
     callbacks,
   });
 
-/** 고객 등록. 생성이라 낙관적 업데이트를 하지 않는다(결정 7) */
-export const useCreateCustomer = (callbacks?: MutationCallbacks<ServerResponse, CustomerData>) =>
-  useInvalidatingMutation<ServerResponse, CustomerData>({
+/**
+ * 고객 등록. 생성이라 낙관적 업데이트를 하지 않는다(결정 7).
+ * 무효화: 성공이면 customerKeys.lists(). 안쪽 실패(CustomerAccountError)여도 같은 키를 무효화한다.
+ * 고객사 행은 저장됐을 수 있어(계정 생성만 실패) 목록에 보여야 같은 고객을 또 등록하지 않는다(verified=false).
+ * 다른 실패(4xx, 5xx, 네트워크)는 서버가 안 바뀐 것이라 무효화하지 않는다
+ */
+export const useCreateCustomer = (
+  callbacks?: MutationCallbacks<CreateCustomerResponse | undefined, CustomerData>,
+) => {
+  const queryClient = useQueryClient();
+  return useInvalidatingMutation<CreateCustomerResponse | undefined, CustomerData>({
     mutationKey: salesMutationKey('createCustomer'),
     mutationFn: (body) => postCustomer(body),
     effects: () => SALES_MUTATION_EFFECTS.createCustomer(),
-    callbacks,
+    callbacks: {
+      onSuccess: callbacks?.onSuccess,
+      onError: (error, variables) => {
+        if (error instanceof CustomerAccountError) {
+          void invalidateAll(queryClient, SALES_MUTATION_EFFECTS.createCustomer());
+        }
+        callbacks?.onError?.(error, variables);
+      },
+    },
   });
+};
 
 /** 견적 검토의 재고 확인. 캐시할 이유가 없는 한 번짜리 계산이라 mutation 으로 둔다 */
 export const useCheckInventory = (

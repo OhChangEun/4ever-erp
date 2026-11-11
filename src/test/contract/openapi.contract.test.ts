@@ -202,3 +202,86 @@ describe('OpenAPI 계약: 통계 추이(시각화 1)', () => {
     }
   });
 });
+
+/**
+ * 영업 매출 분석 실패 카드(2026-11-11)의 고객 등록 응답. 게이트웨이 SdController.java:210 은
+ * `ApiResponse<CreateAuthUserResultDto>` 를 돌려준다(봉투 한 겹). data 는 CreateAuthUserResultDto.java:8-12 의
+ * eventId, transactionId, success, userId, failureReason 이다. 예전 계약은 봉투 안에 봉투를 또 두고
+ * 숫자 customerId, customerCode 를 요구했다.
+ */
+describe('OpenAPI 계약: 영업 고객 등록 응답', () => {
+  const CUSTOMER_CREATE = '/business/sd/customers';
+
+  it('POST 200 의 data 가 게이트웨이 CreateAuthUserResultDto 필드만 선언한다', () => {
+    const contract = loadContract();
+    const response = responseSchema(contract, CUSTOMER_CREATE, 'post');
+    const gateway = {
+      status: 200,
+      success: true,
+      message: '고객사 등록이 완료되었습니다.',
+      data: {
+        eventId: 'evt-1',
+        transactionId: 'tx-1',
+        success: true,
+        userId: 'user-1',
+        failureReason: null,
+      },
+    };
+    expect(response.safeParse(gateway).success).toBe(true);
+    const dataSchema = z
+      .object({ properties: z.record(z.string(), z.unknown()) })
+      .parse(contract.components.schemas.CreateCustomerResponse);
+    expect(Object.keys(dataSchema.properties).sort()).toEqual([
+      'eventId',
+      'failureReason',
+      'success',
+      'transactionId',
+      'userId',
+    ]);
+  });
+
+  it('고객 등록 POST 응답(MSW)이 계약의 응답 스키마를 만족한다', async () => {
+    const contract = loadContract();
+    const url = `${API_BASE_URL}${CUSTOMER_CREATE}`;
+    const response = await getResponse(
+      handlers,
+      new Request(new URL(url, ORIGIN), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyName: '신규상사' }),
+      }),
+      { baseUrl: ORIGIN },
+    );
+    if (!response) throw new Error(`목 핸들러 없음: POST ${url}`);
+    const result = responseSchema(contract, CUSTOMER_CREATE, 'post').safeParse(
+      await response.json(),
+    );
+    expect(result.success ? [] : [z.prettifyError(result.error)]).toEqual([]);
+  });
+});
+
+/**
+ * 같은 카드. 고객 수정 요청의 담당자 키는 등록 요청과 같은 name, mobile, email 이다(FE 커밋 2e17263 실서버 테스트).
+ * 게이트웨이 수정 컨트롤러는 Map 으로 받아 그대로 넘긴다(SdController.java:311). 등록 요청은
+ * CustomerCreateRequestDto.java:18 의 ManagerDto(name, mobile, email)다.
+ */
+describe('OpenAPI 계약: 영업 고객 담당자 요청 키', () => {
+  const managerKeys = (schemaName: string) =>
+    Object.keys(
+      z
+        .object({
+          properties: z.object({
+            manager: z.object({ properties: z.record(z.string(), z.unknown()) }),
+          }),
+        })
+        .parse(loadContract().components.schemas[schemaName]).properties.manager.properties,
+    ).sort();
+
+  it('수정 요청 manager 는 name, mobile, email', () => {
+    expect(managerKeys('CustomerEditData')).toEqual(['email', 'mobile', 'name']);
+  });
+
+  it('등록 요청 manager 는 name, mobile, email', () => {
+    expect(managerKeys('CustomerData')).toEqual(['email', 'mobile', 'name']);
+  });
+});

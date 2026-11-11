@@ -1,22 +1,5 @@
 import { http, type PathParams } from 'msw';
 
-interface ManagerBody {
-  name: string;
-  mobile: string;
-  email: string;
-}
-
-interface NewCustomerBody {
-  companyName: string;
-  ceoName: string;
-  businessNumber: string;
-  contactPhone: string;
-  contactEmail: string;
-  address: string;
-  manager: ManagerBody;
-  note: string;
-}
-
 interface CustomerPatchBody {
   customerName: string;
   ceoName: string;
@@ -26,7 +9,7 @@ interface CustomerPatchBody {
   customerEmail: string;
   baseAddress: string;
   detailAddress: string;
-  manager: Partial<ManagerBody>;
+  manager: Partial<{ name: string; mobile: string; email: string }>;
   note: string;
 }
 import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
@@ -284,42 +267,17 @@ export const salesHandlers = [
       note: '중요 고객',
     });
   }),
-  // 목은 받은 값을 그대로 돌려준다. 빠진 필드는 기본값. 본문 모양은 화면이 보내는 요청 타입의 부분집합
-  http.post<PathParams, Partial<NewCustomerBody>>(
-    SALES_ENDPOINTS.CUSTOMERS_LIST,
-    async ({ request }) => {
-      if (shouldError(request)) return error('Failed to create customer', 500);
-      const body = await request.json();
-      return ok({
-        status: 200,
-        success: true,
-        message: 'created',
-        data: {
-          customerId: 100,
-          customerCode: 'CUS-100',
-          companyName: body.companyName ?? '신규 고객사',
-          ceoName: body.ceoName ?? '대표',
-          businessNumber: body.businessNumber ?? '123-45-67890',
-          statusCode: 'ACTIVE',
-          statusLabel: '활성',
-          contactPhone: body.contactPhone ?? '010-0000-0000',
-          contactEmail: body.contactEmail ?? 'new@company.com',
-          address: body.address ?? '서울특별시',
-          manager: body.manager ?? {
-            name: '담당자',
-            mobile: '010-0000-0000',
-            email: 'manager@company.com',
-          },
-          totalOrders: 0,
-          totalTransactionAmount: 0,
-          currency: 'KRW',
-          note: body.note ?? '',
-          createdAt: isoNow,
-          updatedAt: isoNow,
-        },
-      });
-    },
-  ),
+  // 게이트웨이 SdController.java:210 모양. 봉투 한 겹, data 는 CreateAuthUserResultDto(담당자 계정 생성 결과)
+  http.post(SALES_ENDPOINTS.CUSTOMERS_LIST, ({ request }) => {
+    if (shouldError(request)) return error('Failed to create customer', 500);
+    return ok({
+      eventId: 'evt-customer-100',
+      transactionId: 'tx-customer-100',
+      success: true,
+      userId: 'user-customer-100',
+      failureReason: null,
+    });
+  }),
   http.patch<{ customerId: string }, Partial<CustomerPatchBody>>(
     `${SALES_BASE_PATH}/customers/:customerId`,
     async ({ request, params }) => {

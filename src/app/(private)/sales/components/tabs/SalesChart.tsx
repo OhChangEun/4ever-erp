@@ -21,6 +21,7 @@ import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
 import { type SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
 import { toShortWon } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
+import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { toDateKey } from '@/app/utils/date';
 import { useTranslations } from 'next-intl';
 
@@ -31,38 +32,17 @@ const EmptyState = ({ message }: { message: string }) => (
   </div>
 );
 
-const SalesChart = () => {
+/** 차트 세 칸. 조회가 성공한 응답만 받는다. 로딩과 실패는 SalesChart 가 대신 보인다 */
+const SalesChartPanels = ({ analyticsData }: { analyticsData: SalesAnalysis }) => {
   const t = useTranslations('sales.chart');
   const tc = useTranslations('sales.common');
   // 축과 툴팁의 짧은 금액(₩1.2억 / ₩120M)
   const shortWon = (value: number) => t('money', toShortWon(value));
-  const today = new Date();
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(today.getMonth() - 5);
-
-  // 현지 날짜로. 예전 지역 함수는 toISOString(UTC)이라 한국 시간 오전 9시 전엔 기본 기간이 하루 앞당겨졌다
-  const [startDate, setStartDate] = useState(toDateKey(sixMonthsAgo));
-  const [endDate, setEndDate] = useState(toDateKey(today));
-
-  const queryParams = useMemo(
-    () => ({
-      startDate: startDate || '',
-      endDate: endDate || '',
-    }),
-    [startDate, endDate],
-  );
-
-  const { data: analyticsData } = useQuery<SalesAnalysis>({
-    queryKey: analyticsKeys.byParams(queryParams),
-    queryFn: () => getAnalytics(queryParams),
-  });
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280'];
 
   // trend 주차별 매출 추이 데이터
   const weeklyData = useMemo(() => {
-    if (!analyticsData) return [];
-
     const monthWeekMap: Record<number, number> = {};
 
     return analyticsData.trend.map((point) => {
@@ -82,7 +62,6 @@ const SalesChart = () => {
 
   // productShare 제품별 매출 비중
   const productData = useMemo(() => {
-    if (!analyticsData) return [];
     return analyticsData.productShare.map((p) => ({
       name: p.productName,
       value: p.saleShare,
@@ -92,7 +71,6 @@ const SalesChart = () => {
 
   // topCustomers 주요 고객별 매출
   const customerData = useMemo(() => {
-    if (!analyticsData) return [];
     return analyticsData.topCustomers.map((c) => ({
       id: c.customerNumber,
       name: c.customerName,
@@ -103,15 +81,7 @@ const SalesChart = () => {
   }, [analyticsData]);
 
   return (
-    <div className="space-y-6 mt-6">
-      <div className="flex items-center space-x-4">
-        <DateRangePicker
-          startDate={startDate}
-          onStartDateChange={setStartDate}
-          endDate={endDate}
-          onEndDateChange={setEndDate}
-        />
-      </div>
+    <>
       {/* 월별 매출 추이 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className=" flex items-center justify-between mb-6">
@@ -269,6 +239,57 @@ const SalesChart = () => {
           </div>
         </div>
       </div>
+    </>
+  );
+};
+
+const SalesChart = () => {
+  const t = useTranslations('sales.chart');
+  const today = new Date();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(today.getMonth() - 5);
+
+  // 현지 날짜로. 예전 지역 함수는 toISOString(UTC)이라 한국 시간 오전 9시 전엔 기본 기간이 하루 앞당겨졌다
+  const [startDate, setStartDate] = useState(toDateKey(sixMonthsAgo));
+  const [endDate, setEndDate] = useState(toDateKey(today));
+
+  const queryParams = useMemo(
+    () => ({
+      startDate: startDate || '',
+      endDate: endDate || '',
+    }),
+    [startDate, endDate],
+  );
+
+  const {
+    data: analyticsData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<SalesAnalysis>({
+    queryKey: analyticsKeys.byParams(queryParams),
+    queryFn: () => getAnalytics(queryParams),
+  });
+
+  return (
+    <div className="space-y-6 mt-6">
+      <div className="flex items-center space-x-4">
+        <DateRangePicker
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          endDate={endDate}
+          onEndDateChange={setEndDate}
+        />
+      </div>
+      {/* 로딩과 실패를 빈 상태로 보이지 않는다(우선순위 2). 기간을 바꾸면 다시 조회한다.
+          데이터가 있는 상태에서 다시 받기가 실패해도 오류 상자로 바꾼다(옛 값을 말없이 두지 않는다) */}
+      {isLoading ? (
+        <TableStatusBox type="loading" message={t('loading')} />
+      ) : isError ? (
+        <TableStatusBox type="error" message={t('loadError')} error={error} />
+      ) : (
+        analyticsData && <SalesChartPanels analyticsData={analyticsData} />
+      )}
     </div>
   );
 };

@@ -3566,34 +3566,13 @@ export interface components {
             totalTransactionAmount: number;
             note: string;
         };
-        ServerResponse: {
-            status: number;
-            success: boolean;
-            message: string;
-            data: components["schemas"]["CreateCustomerResponse"];
-        };
+        /** @description 게이트웨이 SdController.java:210 의 ApiResponse<CreateAuthUserResultDto> data (business/dto/hrm/CreateAuthUserResultDto.java:8-12). 고객사 등록 뒤 담당자 계정 생성 결과다. 게이트웨이 ObjectMapper 는 null 을 빼지 않아 문자열 필드는 null 로 올 수 있다. */
         CreateCustomerResponse: {
-            customerId: number;
-            customerCode: string;
-            companyName: string;
-            ceoName: string;
-            businessNumber: string;
-            statusCode: string;
-            statusLabel: string;
-            contactPhone: string;
-            contactEmail: string;
-            address: string;
-            manager: {
-                name: string;
-                mobile: string;
-                email: string;
-            };
-            totalOrders: number;
-            totalTransactionAmount: number;
-            currency: string;
-            note: string;
-            createdAt: string;
-            updatedAt: string;
+            eventId: null | string;
+            transactionId: null | string;
+            success: boolean;
+            userId: null | string;
+            failureReason: null | string;
         };
         CustomerData: {
             companyName: string;
@@ -7155,7 +7134,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiEnvelope"] & {
-                        data: components["schemas"]["ServerResponse"];
+                        data?: components["schemas"]["CreateCustomerResponse"];
                     };
                 };
             };

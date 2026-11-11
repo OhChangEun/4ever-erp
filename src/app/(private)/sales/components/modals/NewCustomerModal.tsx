@@ -3,6 +3,7 @@
 import { useState, useId } from 'react';
 import { type CustomerData } from '@/app/(private)/sales/types/NewCustomerModalType';
 import { useCreateCustomer } from '@/app/(private)/sales/sales.mutations';
+import { CustomerAccountError } from '@/app/(private)/sales/sales.api';
 import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useToast } from '@/app/components/common/toast/useToast';
@@ -80,7 +81,13 @@ const NewCustomerModal = ({ onClose }: ModalProps) => {
       toast.success(t('success'));
       onClose();
     },
-    onError: (error) => toast.error(t('error', { message: errorMessageOf(error) })),
+    onError: (error) =>
+      // 고객사는 저장됐을 수 있다(담당자 계정 생성만 실패). 다시 시도를 권하면 중복 등록이 된다
+      toast.error(
+        error instanceof CustomerAccountError
+          ? t('accountError')
+          : t('error', { message: errorMessageOf(error) }),
+      ),
   });
 
   return (
