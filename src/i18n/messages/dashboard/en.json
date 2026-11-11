@@ -130,6 +130,8 @@
       "LV": "Leave",
       "QT": "Quotes",
       "MES": "Production",
+      "IN": "Receiving",
+      "OUT": "Shipping",
       "unknown": "Unknown process"
     }
   },

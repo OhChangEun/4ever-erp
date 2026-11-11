@@ -105,10 +105,22 @@ export const purchaseHandlers = [
     if (shouldError(request)) return error('Failed to approve purchase order', 500);
     return ok(null);
   }),
-  http.post(new RegExp(`${PURCHASE_BASE_PATH}/purchase-orders/[^/]+/reject$`), ({ request }) => {
-    if (shouldError(request)) return error('Failed to reject purchase order', 500);
-    return ok(null);
-  }),
+  http.post(
+    new RegExp(`${PURCHASE_BASE_PATH}/purchase-orders/[^/]+/reject$`),
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to reject purchase order', 500);
+      // 게이트웨이 DTO 는 reason 만 받는다. 다른 이름으로 오면 사유가 비므로 목에서 막는다
+      const body: unknown = await request.json();
+      if (
+        typeof body !== 'object' ||
+        body === null ||
+        !('reason' in body) ||
+        typeof body.reason !== 'string'
+      )
+        return error('reason is required', 400);
+      return ok(null);
+    },
+  ),
   http.post(new RegExp(`${PURCHASE_BASE_PATH}/[^/]+/start-delivery`), ({ request }) => {
     if (shouldError(request)) return error('Failed to start delivery', 500);
     return ok(null);

@@ -202,3 +202,34 @@ describe('발주 반려 URL', () => {
     expect(seen).toMatch(/\/purchase-orders\/po-001\/reject$/);
   });
 });
+
+describe('발주 반려 본문', () => {
+  // 게이트웨이 PurchaseOrderRejectRequestDto 의 필드는 reason 하나다. body 로 보내면 사유가 null 로 들어간다
+  it('반려 사유를 reason 으로 보낸다', async () => {
+    let sent: unknown;
+    server.use(
+      http.post(
+        new RegExp(`${PURCHASE_BASE_PATH}/purchase-orders/po-001/reject$`),
+        async ({ request }) => {
+          sent = await request.json();
+          return ok(null);
+        },
+      ),
+    );
+    const queryClient = createTestQueryClient();
+    await runHook(queryClient, useRejectPurchaseOrder, {
+      purchaseOrderId: 'po-001',
+      reason: '단가 오류',
+    });
+    expect(sent).toEqual({ reason: '단가 오류' });
+  });
+
+  it('목 서버는 예전 필드 이름(body)을 400 으로 막는다', async () => {
+    const response = await fetch(`${PURCHASE_BASE_PATH}/purchase-orders/po-001/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: '단가 오류' }),
+    });
+    expect(response.status).toBe(400);
+  });
+});

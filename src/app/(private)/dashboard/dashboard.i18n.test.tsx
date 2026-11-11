@@ -6,6 +6,7 @@ import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { API_BASE_URL } from '@/app/types/api';
 import { useAuthStore } from '@/store/authStore';
+import type { Locale } from '@/i18n/locale';
 import DashboardClient from './DashboardClient';
 import QuickActions from './components/QuickActions';
 import WorkflowStatus from './components/WorkflowStatus';
@@ -97,6 +98,27 @@ describe('대시보드 영어(i18n 4)', () => {
     expect(screen.getByRole('button', { name: 'Purchase orders' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Unknown process' })).toBeInTheDocument();
     expect(screen.getByText('No workflows to show.')).toBeInTheDocument();
+  });
+
+  // 게이트웨이 DashboardServiceImpl 이 재고 담당(IM)에게 IN, OUT 탭을 보낸다
+  const IM_TABS: [Locale, string, string][] = [
+    ['ko', '입고 프로세스', '출고 프로세스'],
+    ['en', 'Receiving', 'Shipping'],
+  ];
+  it.each(IM_TABS)('재고 담당 탭 IN, OUT 이 이름으로 보인다(%s)', (locale, inLabel, outLabel) => {
+    renderWithProviders(
+      <WorkflowStatus
+        workflowData={{
+          tabs: [
+            { tabCode: 'IN', items: [] },
+            { tabCode: 'OUT', items: [] },
+          ],
+        }}
+      />,
+      { locale },
+    );
+    expect(screen.getByRole('button', { name: inLabel })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: outLabel })).toBeInTheDocument();
   });
 
   it('자재 흐름 카드 제목, 요약, 표, 차트 이름이 영어', async () => {

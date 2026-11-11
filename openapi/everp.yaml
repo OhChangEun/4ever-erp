@@ -2964,10 +2964,10 @@ paths:
             schema:
               type: object
               properties:
-                body:
+                reason:
                   type: string
               required:
-                - body
+                - reason
       responses:
         '200':
           description: OK
