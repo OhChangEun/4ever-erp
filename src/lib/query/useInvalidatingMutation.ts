@@ -111,7 +111,7 @@ export function useInvalidatingMutation<TData, TVariables>({
   OptimisticContext | undefined
 > {
   const queryClient = useQueryClient();
-  // 중복 제출 안전망. 같은 훅의 요청이 진행 중이면 두 번째 mutate 는 버린다.
+  // 중복 제출 안전망. 같은 훅의 요청이 진행 중이면 두 번째 mutate 는 버리고, 두 번째 mutateAsync 는 거절한다.
   // isPending 은 렌더 스냅샷이라 같은 틱의 더블 클릭을 못 막는다. ref 로 즉시 표시한다.
   const inFlight = useRef(false);
   const mutation = useMutation<TData, Error, TVariables, OptimisticContext | undefined>({
@@ -176,7 +176,7 @@ export function useInvalidatingMutation<TData, TVariables>({
     },
   });
 
-  const { mutate: rawMutate } = mutation;
+  const { mutate: rawMutate, mutateAsync: rawMutateAsync } = mutation;
   const mutate = useCallback<typeof rawMutate>(
     (...args) => {
       if (inFlight.current) {
@@ -193,6 +193,20 @@ export function useInvalidatingMutation<TData, TVariables>({
     [rawMutate],
   );
 
-  // mutateAsync 는 그대로 둔다. 순차 호출과 테스트가 쓴다. 화면 버튼은 mutate 를 쓴다.
-  return { ...mutation, mutate };
+  // mutateAsync 는 순차 호출, 테스트, 확인 모달(ConfirmModal)이 쓴다. 그 밖의 화면 버튼은 mutate 를 쓴다.
+  // 확인 모달이 두 개 떠 있으면 모달마다 잠금이 따로라 같은 안전망을 건다(2026-11-12 리뷰 A1).
+  // 진행 중인 요청의 Promise 를 돌려주지 않고 거절한다. 두 번째 호출은 다른 행일 수 있고,
+  // 보내지 않은 요청이 성공으로 보이면 화면이 서버와 어긋난다(우선순위 1). 훅의 onError 는 불리지 않는다.
+  const mutateAsync = useCallback<typeof rawMutateAsync>(
+    (...args) => {
+      if (inFlight.current) {
+        return Promise.reject(new Error('진행 중인 요청이 있어 보내지 않았습니다.'));
+      }
+      inFlight.current = true;
+      return rawMutateAsync(...args);
+    },
+    [rawMutateAsync],
+  );
+
+  return { ...mutation, mutate, mutateAsync };
 }

@@ -45,6 +45,41 @@ function Page() {
   );
 }
 
+/** 처음 포커스를 받을 요소를 data-autofocus 로 표시한 모달. 표시한 요소가 첫 tabbable 이 아니다 */
+function Marked(_: ModalProps) {
+  return (
+    <div>
+      <input aria-label="첫 입력" />
+      <input aria-label="표시한 입력" data-autofocus />
+    </div>
+  );
+}
+
+function MarkedPage() {
+  const { openModal } = useModal();
+  return (
+    <button type="button" onClick={() => openModal(Marked, { title: '표시 있음' })}>
+      표시 있는 모달 열기
+    </button>
+  );
+}
+
+/** 포커스가 버튼에 남은 채 같은 모달을 두 번 여는 경우(모달 틀 청크가 오기 전 Enter 두 번)를 한 핸들러로 흉내 낸다 */
+function DoublePage() {
+  const { openModal } = useModal();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        openModal(Inner, { title: '한 번만' });
+        openModal(Inner, { title: '한 번만' });
+      }}
+    >
+      두 번 열기
+    </button>
+  );
+}
+
 /** 모달 안의 작은 층(드롭다운 목록, 달력, 충돌 안내)을 띄우는 폼 */
 function FormWithLayers(_: ModalProps) {
   const [kind, setKind] = useState('');
@@ -118,10 +153,51 @@ const setup = async () => {
   return { trigger, dialog: await screen.findByRole('dialog', { name: '첫 번째' }) };
 };
 
+describe('모달 중복 열기', () => {
+  it('같은 버튼에서 같은 모달을 연달아 열어도 하나만 뜨고, 닫은 뒤에는 다시 열린다', async () => {
+    render(
+      <ModalProvider>
+        <DoublePage />
+      </ModalProvider>,
+      { wrapper: IntlTestProvider },
+    );
+    const trigger = screen.getByRole('button', { name: '두 번 열기' });
+    await userEvent.click(trigger);
+    await screen.findByRole('dialog', { name: '한 번만' });
+    expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+
+    // 하나를 닫으면 남는 모달이 없다. 닫은 뒤 같은 버튼에서 다시 열 수 있다
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await userEvent.click(trigger);
+    await screen.findByRole('dialog', { name: '한 번만' });
+    expect(screen.getAllByRole('dialog', { hidden: true })).toHaveLength(1);
+  });
+});
+
 describe('모달(포커스와 키보드)', () => {
   it('열리면 포커스가 모달 안으로 간다', async () => {
     const { dialog } = await setup();
     expect(dialog).toContainElement(document.activeElement as HTMLElement);
+  });
+
+  it('표시(data-autofocus)가 없는 모달은 예전처럼 첫 tabbable(닫기 버튼)에 포커스가 간다', async () => {
+    const { dialog } = await setup();
+    await waitFor(() => expect(within(dialog).getByRole('button', { name: '닫기' })).toHaveFocus());
+  });
+
+  it('data-autofocus 로 표시한 요소가 있으면 열릴 때 그 요소에 포커스가 간다', async () => {
+    render(
+      <ModalProvider>
+        <MarkedPage />
+      </ModalProvider>,
+      { wrapper: IntlTestProvider },
+    );
+    await userEvent.click(screen.getByRole('button', { name: '표시 있는 모달 열기' }));
+    const dialog = await screen.findByRole('dialog', { name: '표시 있음' });
+    await waitFor(() =>
+      expect(within(dialog).getByRole('textbox', { name: '표시한 입력' })).toHaveFocus(),
+    );
   });
 
   it('Tab 을 계속 눌러도 포커스가 모달 밖으로 나가지 않는다', async () => {

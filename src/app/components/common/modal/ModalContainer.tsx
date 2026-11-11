@@ -20,7 +20,7 @@ interface ModalContainerProps {
  * 모달 프레임. 제목 줄과 본문을 선으로 나누고, 등장은 150ms 페이드만.
  * 크기는 내용에 맞추되 화면의 90% 를 넘지 않는다.
  *
- * 접근성은 Radix Dialog 가 맡는다(접근성 2 카드, 결정 2): 열리면 포커스가 안으로 들어가고 Tab 이 밖으로
+ * 접근성은 Radix Dialog 가 맡는다(접근성 2 카드, 결정 2): 열리면 포커스가 안으로 들어가고(data-autofocus 로 표시한 요소가 있으면 거기로) Tab 이 밖으로
  * 나가지 않는다. Esc 는 맨 위 모달만 닫는다. 닫히면 연 버튼으로 포커스가 돌아간다. 뒤 화면은 aria-hidden.
  * 배경 클릭으로는 닫지 않는다. 입력 중인 폼을 실수로 잃지 않게(우선순위 2).
  * 안의 팝업(드롭다운, 달력)은 이 틀 안으로 portal 된다(PopoverPortal). 팝업이나 충돌 안내가 떠 있으면
@@ -54,6 +54,19 @@ const ModalContainer = ({
           aria-describedby={undefined}
           onPointerDownOutside={(event) => event.preventDefault()}
           onInteractOutside={(event) => event.preventDefault()}
+          // 처음 포커스. 모달이 data-autofocus 로 표시한 요소가 있으면 그리로, 없으면 Radix 기본(첫 tabbable, 보통 닫기 버튼).
+          // React 의 autoFocus 는 commit 때 먼저 돌아 겹친 모달에서 안 먹는다. 아래 모달의 포커스 가두기가 아직 살아 있어
+          // 포커스를 되가져가고, 그 뒤 이 모달은 포커스가 밖에 있다고 보고 첫 tabbable 로 보낸다. 이 콜백은 그 뒤에 불린다.
+          onOpenAutoFocus={(event) => {
+            const marked =
+              event.currentTarget instanceof HTMLElement
+                ? event.currentTarget.querySelector('[data-autofocus]')
+                : null;
+            if (marked instanceof HTMLElement) {
+              event.preventDefault();
+              marked.focus();
+            }
+          }}
           onEscapeKeyDown={(event) => {
             if (contentEl?.querySelector(NESTED_LAYER_SELECTOR)) event.preventDefault();
           }}

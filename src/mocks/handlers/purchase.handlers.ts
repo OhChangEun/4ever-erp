@@ -79,8 +79,17 @@ export const purchaseHandlers = [
     if (shouldError(request)) return error('Failed to approve requisition', 500);
     return ok(null);
   }),
-  http.post(`${PURCHASE_BASE_PATH}/purchase-requisitions/:prId/reject`, ({ request }) => {
+  http.post(`${PURCHASE_BASE_PATH}/purchase-requisitions/:prId/reject`, async ({ request }) => {
     if (shouldError(request)) return error('Failed to reject requisition', 500);
+    // 게이트웨이 DTO 는 comment 만 받는다(계약도 문자열 필수). 다른 이름으로 오면 사유가 비므로 목에서 막는다
+    const body: unknown = await request.json();
+    if (
+      typeof body !== 'object' ||
+      body === null ||
+      !('comment' in body) ||
+      typeof body.comment !== 'string'
+    )
+      return error('comment is required', 400);
     return ok(null);
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, ({ request }) => {

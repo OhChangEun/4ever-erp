@@ -14,6 +14,8 @@
     "detail": "Details",
     "approve": "Approve",
     "reject": "Reject",
+    "rejectReason": "Reason for rejection",
+    "rejectReasonRequired": "Enter a reason for rejection.",
     "edit": "Edit",
     "cancel": "Cancel",
     "allStatuses": "All statuses",

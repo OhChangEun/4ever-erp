@@ -87,7 +87,8 @@
   },
   "common": {
     "all": "전체",
-    "close": "닫기"
+    "close": "닫기",
+    "cancel": "취소"
   },
   "sidebar": {
     "openMenu": "메뉴 열기",

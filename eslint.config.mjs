@@ -63,6 +63,8 @@ export default defineConfig([
       '@typescript-eslint/no-unnecessary-condition': 'error', // 0 (타입 4차). 서버 값 가드는 응답을 zod 로 검증한 뒤에만 지운다
       // 타입 import 분리. 린트 2차에서 --fix 로 343 → 0, error 로
       '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
+      // 브라우저 기본 창(alert, confirm, prompt)은 앱 언어를 안 따르고 자동화를 멈춘다. 확인은 ConfirmModal, 알림은 토스트
+      'no-alert': 'error', // 0 (2026-11-12 확인 창 카드)
       // 날짜는 현지 기준(toDateKey). toISOString 은 UTC 라 한국 시간 오전 9시 전엔 어제가 된다(성능 2, 3 카드에서 8곳)
       'no-restricted-syntax': [
         'error',

@@ -179,10 +179,11 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 모달과 팝업 층(2026-11-10 접근성 2):
 
-1. 모달 틀은 Radix Dialog(`src/app/components/common/modal/ModalContainer.tsx`). 포커스 가두기, Esc(맨 위 모달만), 닫힌 뒤 연 요소로 포커스 복귀, 뒤 화면 aria-hidden 을 맡긴다. 배경 클릭으로는 닫지 않는다. 틀은 `next/dynamic` 으로 첫 로드에서 빼고 화면이 한가할 때 미리 받는다(`ModalProvider.tsx:18`, `:51`).
+1. 모달 틀은 Radix Dialog(`src/app/components/common/modal/ModalContainer.tsx`). 열릴 때 포커스는 모달이 `data-autofocus` 로 표시한 요소, 없으면 첫 tabbable(닫기 버튼)로 간다(`:60`. React 의 `autoFocus` 는 겹친 모달에서 안 먹어 쓰지 않는다). 포커스 가두기, Esc(맨 위 모달만), 닫힌 뒤 연 요소로 포커스 복귀, 뒤 화면 aria-hidden 을 맡긴다. 배경 클릭으로는 닫지 않는다. 틀은 `next/dynamic` 으로 첫 로드에서 빼고 화면이 한가할 때 미리 받는다(`ModalProvider.tsx:18`, `:51`).
 2. Radix 모달은 열리면 body 에 `pointer-events: none` 을 건다. 그래서 드롭다운 목록, 달력 같은 팝업은 `FloatingPortal` 대신 `PopoverPortal`(`src/app/components/common/PopoverPortal.tsx`)로 붙인다. 모달 안이면 모달 틀 안에, 밖이면 body 에 붙는다. 새 팝업 컴포넌트도 이것을 쓴다.
 3. 모달 안에 팝업이나 충돌 안내(`role="alertdialog"`)가 떠 있으면 모달은 Esc 를 넘긴다. 팝업은 스스로 Esc 를 받아 닫아야 한다(`src/app/hooks/useCloseOnEscape.ts`).
 4. `Dropdown` 은 APG 의 select-only combobox(2026-11-10 접근성 3). 버튼이 combobox, 목록이 listbox, 포커스는 버튼에 남고 가리킨 항목은 `aria-activedescendant`. 키보드와 aria 는 floating-ui interaction 훅(`src/app/components/common/Dropdown.tsx:71`). Esc 는 `useDismiss` 가 받는다. Radix Select 를 안 쓴 이유는 `ai/decisions.md` 접근성 3 행.
+5. 확인 창은 `ConfirmModal`(`src/app/components/common/modal/ConfirmModal.tsx:25`) 하나다. 브라우저 `confirm()` 은 쓰지 않는다(2026-11-12, 화면 코드 0건). `openModal(ConfirmModal, { title: 질문 문장, onConfirm })` 로 열고, `onConfirm` 에는 도메인 훅의 `mutateAsync` 를 넘긴다. Promise 가 끝날 때까지 버튼을 잠그고 성공하면 닫고 실패하면 열어 둔다. 실패 문구는 훅의 `onError` 토스트가 보인다. 중복 제출은 세 겹으로 막는다: 확인 버튼 잠금, 같은 버튼에서 같은 모달을 또 열면 무시(`ModalProvider.tsx:106`, 모달 틀 청크가 오기 전 Enter 두 번), 진행 중인 `mutateAsync` 재호출 거절(`src/lib/query/useInvalidatingMutation.ts:200`). `reason` 을 주면 필수 사유 칸이 생긴다(구매 요청 반려 `comment`, 발주서 반려 `reason`. 휴가 반려는 게이트웨이가 본문을 받지 않아 없다).
 
 ## 7. 환경 변수
 
