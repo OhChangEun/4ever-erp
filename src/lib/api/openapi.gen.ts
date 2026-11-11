@@ -6478,7 +6478,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    body: string;
+                    reason: string;
                 };
             };
         };

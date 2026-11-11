@@ -25,6 +25,7 @@ import {
 } from '@/app/(private)/purchase/types/SupplierType';
 import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
 import axios from '@/lib/axiosInstance';
+import type { paths } from '@/lib/api/openapi.gen';
 import { getParsed } from '@/lib/api/parse';
 import { optionListSchema } from '@/lib/api/schemas';
 import {
@@ -115,11 +116,14 @@ export const approvePurchaseOrder = async (purchaseOrderId: string) => {
   return res.data;
 };
 
-// 발주서 반려
-export const rejectPurchaseOrder = async (purchaseOrderId: string, body: string) => {
+// 발주서 반려. 본문 모양은 계약(게이트웨이 PurchaseOrderRejectRequestDto)에서 가져온다
+type RejectPurchaseOrderBody =
+  paths['/scm-pp/mm/purchase-orders/{purchaseOrderId}/reject']['post']['requestBody']['content']['application/json'];
+export const rejectPurchaseOrder = async (purchaseOrderId: string, reason: string) => {
+  const payload: RejectPurchaseOrderBody = { reason };
   const res = await axios.post<ApiResponse<null>>(
     `${PURCHASE_ENDPOINTS.PURCHASE_ORDER_REJECT(purchaseOrderId)}`,
-    { body },
+    payload,
   );
   return res.data;
 };
