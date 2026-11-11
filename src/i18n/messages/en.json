@@ -312,7 +312,7 @@
     "inputList": {
       "title": "Process steps",
       "add": "Add step",
-      "remove": "Delete item",
+      "remove": "Remove item {position}",
       "item": "Item {position}"
     },
     "dropdownInputModal": {

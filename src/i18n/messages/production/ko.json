@@ -71,6 +71,7 @@
     "requestQuantity": "요청 수량",
     "availableQuantity": "가용 수량",
     "productionNeeded": "생산 필요량",
+    "quantity": "{quantity}개",
     "result": {
       "STOCK_SUFFICIENT": "재고 충당 가능",
       "PASS": "생산 가능",

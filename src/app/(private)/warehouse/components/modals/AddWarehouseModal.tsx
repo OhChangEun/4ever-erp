@@ -17,11 +17,14 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { warehouseManagerInfoKeys } from '@/app/(private)/warehouse/warehouse.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { DEFAULT_WAREHOUSE_TYPE, WAREHOUSE_TYPE_OPTIONS } from '../../warehouse.constants';
+import { useInventoryLabels } from '@/app/(private)/inventory';
 
 const AddWarehouseModal = ({ onClose }: ModalProps) => {
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
   const t = useTranslations('warehouse');
+  // 유형 글자는 창고 목록, 상세와 같은 라벨(원자재창고)
+  const { warehouseTypeLabel } = useInventoryLabels();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const [formData, setFormData] = useState<AddWarehouseRequest>({
@@ -118,7 +121,7 @@ const AddWarehouseModal = ({ onClose }: ModalProps) => {
         >
           {WAREHOUSE_TYPE_OPTIONS.map((option) => (
             <option key={option} value={option}>
-              {t(`warehouseType.${option}`)}
+              {warehouseTypeLabel(option)}
             </option>
           ))}
         </select>

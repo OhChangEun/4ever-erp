@@ -10,7 +10,7 @@ describe('입력 아이콘 버튼의 접근 가능한 이름', () => {
     const onChange = vi.fn();
     render(<InputList initialItems={[{ key: 7, value: '조립' }]} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: '항목 삭제' }));
+    await userEvent.click(screen.getByRole('button', { name: '항목 1 삭제' }));
 
     expect(onChange).toHaveBeenCalledExactlyOnceWith([]);
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
@@ -33,7 +33,7 @@ describe('입력 아이콘 버튼의 접근 가능한 이름', () => {
     await userEvent.click(screen.getByRole('button', { name: '목록 입력 창 열기' }));
 
     expect(screen.getByRole('textbox')).toHaveValue('조립');
-    expect(screen.getByRole('button', { name: '항목 삭제' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '항목 1 삭제' })).toBeInTheDocument();
   });
 
   // 입력칸은 화면에 보이는 순번(키가 아니라 위치)으로 이름을 받는다
@@ -56,5 +56,25 @@ describe('입력 아이콘 버튼의 접근 가능한 이름', () => {
       { key: 7, value: '조립' },
       { key: 9, value: '도장2' },
     ]);
+  });
+
+  // 낭독기가 줄을 구분하게 삭제 버튼도 화면 순번으로 이름을 받는다(남은 표시 결함 3 카드)
+  it('삭제 버튼을 순번 이름으로 찾아 그 줄만 지우고, 남은 줄은 순번이 당겨진다', async () => {
+    const onChange = vi.fn();
+    render(
+      <InputList
+        initialItems={[
+          { key: 7, value: '조립' },
+          { key: 9, value: '도장' },
+        ]}
+        onChange={onChange}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: '항목 2 삭제' }));
+
+    expect(onChange).toHaveBeenLastCalledWith([{ key: 7, value: '조립' }]);
+    expect(screen.getByRole('button', { name: '항목 1 삭제' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '항목 2 삭제' })).not.toBeInTheDocument();
   });
 });

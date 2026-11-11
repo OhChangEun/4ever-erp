@@ -19,11 +19,11 @@ import {
 import { getAnalytics } from '../../sales.api';
 import { analyticsKeys } from '@/app/(private)/sales/sales.keys';
 import { type SalesAnalysis } from '@/app/(private)/sales/types/SalesChartType';
-import { toShortWon } from '@/app/(private)/sales/utils';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { toDateKey } from '@/app/utils/date';
-import { useTranslations } from 'next-intl';
+import { compactWon, formatCurrency } from '@/app/utils/number';
+import { useLocale, useTranslations } from 'next-intl';
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="h-full flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-500">
@@ -36,8 +36,9 @@ const EmptyState = ({ message }: { message: string }) => (
 const SalesChartPanels = ({ analyticsData }: { analyticsData: SalesAnalysis }) => {
   const t = useTranslations('sales.chart');
   const tc = useTranslations('sales.common');
-  // 축과 툴팁의 짧은 금액(₩1.2억 / ₩120M)
-  const shortWon = (value: number) => t('money', toShortWon(value));
+  const locale = useLocale();
+  // 축과 라벨의 짧은 금액(1.2억 / 120M). 정확한 금액은 툴팁이 formatCurrency 로 보인다
+  const shortWon = (value: number) => compactWon(value, locale);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280'];
 
@@ -109,7 +110,7 @@ const SalesChartPanels = ({ analyticsData }: { analyticsData: SalesAnalysis }) =
                 <Tooltip
                   formatter={(value, name) => [
                     name === 'sales'
-                      ? shortWon(Number(value))
+                      ? formatCurrency(Number(value))
                       : tc('orderCount', { count: Number(value) }),
                     name === 'sales' ? t('salesAmount') : t('orderCount'),
                   ]}
@@ -208,7 +209,7 @@ const SalesChartPanels = ({ analyticsData }: { analyticsData: SalesAnalysis }) =
                       const customer = customerData.find((c) => c.name === props.payload.name);
                       return [
                         t('customerTooltip', {
-                          money: shortWon(Number(value)),
+                          money: formatCurrency(Number(value)),
                           count: customer?.orders ?? 0,
                         }),
                         t('salesAmount'),

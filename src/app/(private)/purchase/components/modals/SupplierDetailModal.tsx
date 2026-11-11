@@ -12,6 +12,7 @@ import { useModal } from '@/app/components/common/modal/useModal';
 import SupplierFormModal from '@/app/(private)/purchase/components/modals/SupplierFormModal';
 import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { useTranslations } from 'next-intl';
+import { useSupplierCategoryLabels } from '@/app/(private)/purchase/supplierCategory';
 
 interface SupplierDetailModalProps extends ModalProps {
   supplierId: string;
@@ -21,6 +22,7 @@ export default function SupplierDetailModal({ supplierId, onClose }: SupplierDet
   const { openModal } = useModal();
   const t = useTranslations('purchase.supplierDetail');
   const tc = useTranslations('purchase.common');
+  const { categoryLabel } = useSupplierCategoryLabels();
 
   const {
     data: supplier,
@@ -64,7 +66,9 @@ export default function SupplierDetailModal({ supplierId, onClose }: SupplierDet
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">{t('category')}</p>
-              <p className="text-base font-medium text-gray-900">{supplierInfo?.category}</p>
+              <p className="text-base font-medium text-gray-900">
+                {supplierInfo && categoryLabel(supplierInfo.category)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">{t('status')}</p>

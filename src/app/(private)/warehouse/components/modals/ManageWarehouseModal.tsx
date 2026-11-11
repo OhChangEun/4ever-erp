@@ -216,7 +216,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
             ))}
             {WAREHOUSE_TYPE_OPTIONS.map((option) => (
               <option key={option} value={option}>
-                {t(`warehouseType.${option}`)}
+                {warehouseTypeLabel(option)}
               </option>
             ))}
           </select>

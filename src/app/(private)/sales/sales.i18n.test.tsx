@@ -135,14 +135,15 @@ describe('영업 화면 영어(i18n 8)', () => {
     expect(screen.getByRole('columnheader', { name: '거래액' })).toBeInTheDocument();
   });
 
-  it('매출 분석의 제목과 제품 비중 금액이 영어(₩5M), 한국어는 억 단위 그대로', async () => {
+  // 남은 표시 결함 3 카드: 짧은 금액은 compactWon 하나(예전 toShortWon 은 ₩5M, ₩0.1억)
+  it('매출 분석의 제목과 제품 비중 금액이 영어(5M), 한국어는 500만', async () => {
     const { unmount } = renderWithProviders(<SalesChart />, { locale: 'en' });
-    expect(await screen.findByText('40% (₩5M)')).toBeInTheDocument();
+    expect(await screen.findByText('40% (5M)')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Monthly sales trend' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Sales by top customer' })).toBeInTheDocument();
     unmount();
     renderWithProviders(<SalesChart />);
-    expect(await screen.findByText('40% (₩0.1억)')).toBeInTheDocument();
+    expect(await screen.findByText('40% (500만)')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '제품별 매출 비중' })).toBeInTheDocument();
   });
 });

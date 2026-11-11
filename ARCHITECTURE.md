@@ -12,7 +12,8 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
    │
    └─ axios ──/api/proxy/*──▶ src/app/api/proxy/[...path]/route.ts (세션 검증, API RBAC, Bearer 교환)
                                   ├─ BACKEND_API_URL 있음 → 실 서버
-                                  └─ 없음 → src/app/api/[...slug]/route.ts (서버 목, MSW 핸들러 어댑터)
+                                  └─ 없음 → src/app/api/[...slug]/route.ts (서버 목. 프록시가 서명한 증명이 있는 호출만 받는다)
+                                             └─▶ src/server/serverMock.ts (MSW 핸들러 어댑터)
 개발 시 NEXT_PUBLIC_API_MOCKING=enabled → MSW 서비스 워커가 브라우저에서 먼저 가로챔 (src/mocks/)
 ```
 
@@ -22,8 +23,9 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 
 1. 도메인 `*.api.ts` 가 `*_ENDPOINTS` 상수로 URL 을 만든다. 기본 base 는 `/api/proxy` 다 (`src/app/types/api.ts:4`). 응답 래퍼는 `ApiResponse<T>` (`src/app/types/api.ts:14`).
 2. 전역 axios 는 타임아웃 4초 (`src/lib/axiosInstance.ts:4`). 응답 인터셉터 하나가 두 가지를 한다. 2xx 인데 래퍼가 깨진 응답(`success === false`, GET 인데 `data` 없음)을 `invalidShape` 로 올리고 (`:21`), 실패는 전부 `AppError` 로 정규화해 reject 한다 (`:48`, 종류 9개는 `src/lib/AppError.ts:8`). 실패를 URL 별 빈 데이터로 바꿔치기하던 fallback 은 2026-11-09 에 지웠다(카드 `ai/cards/2026-11-09_오류를_빈_데이터로_숨기는_fallback_제거.md`). AppError 는 종류와 진단용 원문(`message`)을 보존하고 번역이나 React 훅을 쓰지 않는다. 화면과 토스트는 `useErrorMessage` (`src/i18n/useErrorMessage.ts:7`)로 공통 메시지의 `errors` 에서 종류별 안내만 번역해 표시한다. 서버 메시지는 화면에 덧붙이지 않는다. `TableStatusBox` 와 `StatSection` 은 `error` prop 으로 이 한 줄을 보인다 (`src/app/components/common/TableStatusBox.tsx:32`, `StatSection.tsx:48`).
-3. `/api/proxy/[...path]` 가 받는다. 상태 변경 요청은 same-origin 검사 (`src/app/api/proxy/[...path]/route.ts:52`), 세션 쿠키 검증 (`:61`), 업스트림 base 결정 (`:43`, `:71`), 경로 정규화 뒤 도메인별 role 검사 (`:23` 규칙표, `:36` 인사 셀프서비스 예외), 쿠키를 떼고 `Authorization: Bearer` 를 붙여 fetch.
-4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다. 응답은 단위 테스트와 같은 MSW 핸들러가 만든다 (`:18` `getResponse`, 2026-11-10 목 한 벌 카드). 예전 손으로 쓴 서버 목 1,902줄은 지웠다.
+3. `/api/proxy/[...path]` 가 받는다. 상태 변경 요청은 same-origin 검사 (`src/app/api/proxy/[...path]/route.ts:66`), 세션 쿠키 검증 (`:72`), 업스트림 base 결정 (`:54`, `:79`), 경로 정규화 뒤 도메인별 role 검사 (`:98`, 규칙표와 인사 셀프서비스 예외는 `src/lib/authz/policy.ts`), 쿠키를 떼고 `Authorization: Bearer` 를 붙여 fetch. 역할 헤더 `x-session-role` 은 세션 값으로 늘 덮어쓴다(`:116`).
+4. 업스트림이 없으면 `src/app/api/[...slug]/route.ts` 가 목 데이터를 돌려준다. 응답은 단위 테스트와 같은 MSW 핸들러가 만든다 (`src/server/serverMock.ts:24` `getResponse`, 2026-11-10 목 한 벌 카드). 예전 손으로 쓴 서버 목 1,902줄은 지웠다.
+   서버 목 라우트는 프록시가 넘긴 호출만 받는다(2026-11-12 남은 표시 결함 3 리뷰). 이 라우트는 페이지 프록시 matcher(api 제외)와 API 인가 표(`/api/proxy/*` 에만) 밖이라, 프록시가 업스트림이 서버 목일 때만 SESSION_SECRET 으로 서명한 30초짜리 증명 `x-mock-proof` 를 붙이고(`src/server/auth/mockProof.ts:14`, 프록시 `:122`. 브라우저가 넣은 값은 지운다. 실백엔드로는 안 보낸다) 라우트가 검증한다(`src/app/api/[...slug]/route.ts:15`). 증명이 없거나 틀리면 401. 역할은 요청 헤더가 아니라 증명에서 읽어 `x-session-role` 을 다시 쓴다. 증명에는 용도 값(`use`)이 있어 같은 비밀키로 서명한 세션 JWT 를 내밀어도 통과하지 못한다. 그래서 `/api/<경로>` 직접 호출은 로그인해도 401 이다(`/api/me` 같은 `USER_ENDPOINTS` 포함. 화면은 부르지 않는다).
 5. 화면은 TanStack Query 로 받는다. 키는 도메인별 팩토리 (`src/app/(private)/purchase/api/purchase.keys.ts:6` 가 표준 모양: all → lists → list(params), details → detail(id)). 리터럴 키는 0건.
 
 ## 3. 인증과 인가 (지금)
@@ -34,7 +36,7 @@ Next.js 16 App Router 하나가 화면과 BFF(Backend for Frontend)를 겸한다
 - 클라이언트 가드는 매 진입마다 `/api/auth/me` 로 확인하고 (`src/app/(private)/_PrivateGuard.tsx:20`, 사용자 타입은 `src/lib/auth/userInfo.ts`) 결과를 `authStore` 에 캐시한다. 이 스토어는 localStorage 에 persist 된다 (`src/store/authStore.ts:12`). 표시용 캐시일 뿐 권한 판단에 쓰지 않는다.
 - 구매 요청 부서는 인증 사용자의 `/business/profile` 을 기존 프로필 API와 쿼리 키로 조회한다 (`src/app/(private)/purchase/components/modals/PurchaseRequestFormModal.tsx:54`). 열 때 다시 확인하고 조회 중, 실패, 부서 없음은 입력을 유지하며 제출을 막는다. 프로필은 게이트웨이의 원형 중계라 `department` 와 `departmentName` 문자열을 허용한다 (`:28`). 생성 본문은 `items` 만 보내고 요청자 ID는 게이트웨이가 인증 principal에서 결정한다 (`openapi/everp.yaml:6835`, 팀 백엔드 `MmController.createPurchaseRequisition` 기준).
 - 프록시는 세션 JWT 자체를 Bearer 로 보낸다. 실 IdP 토큰이 없어서다. 실 서버가 생기면 반드시 바뀐다 (4절).
-- 공격 점검(BFF 문서 Phase 5)은 테스트로 고정했다: 같은 출처 판정 `src/lib/auth/sameOrigin.test.ts`, 프록시 우회와 401, 403 `src/app/api/proxy/[...path]/route.test.ts`, alg none `src/lib/auth/session.test.ts`, 오픈 리다이렉트 `src/lib/auth/returnTo.test.ts`, 콜백 재사용과 state 위조 `src/server/auth/oidcLogin.test.ts`.
+- 공격 점검(BFF 문서 Phase 5)은 테스트로 고정했다: 같은 출처 판정 `src/lib/auth/sameOrigin.test.ts`, 프록시 우회와 401, 403, 지어낸 역할과 증명 헤더 덮어쓰기 `src/app/api/proxy/[...path]/route.test.ts`, 서버 목 직접 호출과 증명 위조 401 `src/app/api/[...slug]/route.test.ts`, alg none `src/lib/auth/session.test.ts`, 오픈 리다이렉트 `src/lib/auth/returnTo.test.ts`, 콜백 재사용과 state 위조 `src/server/auth/oidcLogin.test.ts`.
 - 알림 SSE 도 같은 프록시 주소로 붙어 세션 쿠키로 인증된다. 브라우저는 Authorization 헤더를 보내지 않는다 (`src/app/components/header/Notification/useNotificationSSE.ts:41`). 옛 SPA 시절 토큰 파일은 2026-11-10 지웠고 PKCE 도구만 서버 쪽으로 옮겼다(지금은 `packages/auth/src/pkce.ts`).
 
 ## 4. 인증과 인가: OIDC 모드
@@ -166,10 +168,10 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 src/
   app/(private)/<domain>/   page.tsx, <domain>.api.ts, <domain>.service.ts, <domain>.keys.ts, components/, types/
   app/(public)/             login, callback(옛 흔적, /login 으로 리다이렉트만), profile, unauthorized
-  app/api/                  auth/*, proxy/[...path], [...slug](서버 목, MSW 핸들러를 서버에서 돌림)
+  app/api/                  auth/*, proxy/[...path], [...slug](서버 목, 프록시 증명 확인 뒤 src/server/serverMock.ts 가 MSW 핸들러를 서버에서 돌림)
   app/components/common/    앱 모델에 묶인 공통 UI(TableStatusBox, StatSection, 달력, 모달, 토스트 등). 나머지는 packages/ui
   lib/                      axios, auth, queryClient, role, status.constants
-  mocks/                    MSW 핸들러 한 벌. 브라우저(워커), 단위 테스트(src/test/msw-server.ts), 서버 목이 같이 씀. 구체 경로를 :param 경로보다 앞에 정렬(src/mocks/handlers.ts)
+  mocks/                    MSW 핸들러 한 벌. 브라우저(워커), 단위 테스트(src/test/msw-server.ts), 서버 목이 같이 씀. 구체 경로를 :param 경로보다 앞에 정렬(src/mocks/handlers.ts). 역할에 따라 응답이 다른 목(대시보드 워크플로우 탭)은 x-session-role 헤더를 읽는다(서버 목 라우트가 프록시 증명의 역할로 정한다)
   store/                    Zustand 2개(auth 캐시, 사이드바)
   test/                     vitest 보조(MSW 서버, server-only mock)
 ```
@@ -217,9 +219,9 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 - Storybook: `packages/ui/.storybook`(react-vite, a11y 애드온). `pnpm --filter @everp/ui storybook` 으로 띄운다. 스토리는 `packages/ui/src/*.stories.tsx`, `stories.test.tsx` 가 모든 스토리를 그리고 play 를 돌리고 axe(색 대비 제외) 위반 0 을 본다. `pnpm verify` 가 Storybook 빌드까지 한다.
 - 디자인 토큰: `packages/ui/tokens.css` 가 원본(색 `@theme static`, z-index 변수와 `@utility z-modal` 등, 애니메이션). 앱 `src/styles/globals.css` 와 Storybook `preview.css` 가 가져온다. 층 순서는 local 10 < header 30 < sidebar 40 < overlay 50 < modal 1000 < toast 1100 < popover 9999.
 - CI: PR 과 main push 에서 `pnpm verify`(lint, 타입, 단위 테스트, Storybook) → build → 번들 크기 비교(라우트당 +5KB) → e2e(next start) → Lighthouse(`perf/lighthouse.sh`: 로그인과 로그인 뒤 3화면, 데스크톱 1회, 접근성 0.9 미만이면 실패, 성능은 경고). 번들과 Lighthouse 표는 job summary 와 PR 코멘트 하나(다음 실행은 같은 코멘트를 고친다). Lighthouse 보고서는 밖으로 올리지 않고 artifact 로만. Vercel 은 GitHub 연동으로 main 머지 때 Production 배포만 한다. PR 브랜치의 preview 는 `vercel.json` 의 `git.deploymentEnabled` 로 껐다(2026-11-10, 무료 플랜 하루 배포 한도를 PR preview 가 다 써서 운영 배포가 밀렸다. 머지 판단은 CI 의 같은 빌드 e2e 가 한다). 화면을 미리 보여 줄 일이 있으면 `vercel deploy` 로 한 번 올린다.
-- 언어(i18n): next-intl 4.14.9. 메시지는 `src/i18n/messages/{ko,en}.json`. URL 에 언어를 넣지 않고 쿠키(`NEXT_LOCALE`)로 고른다. 서버는 늘 한국어로 정적 렌더하고 브라우저가 쿠키를 읽어 바꾼다(`src/i18n/IntlProvider.tsx`, 레이아웃이 쿠키를 읽으면 모든 페이지가 동적 렌더로 바뀐다). 플러그인 `precompile` 로 ICU 해석기를 빌드 때 빼서 첫 로드 증가가 14.5KB → 5.7KB. 남은 한국어 문자열 수는 `node scripts/count-hangul.mjs`. 재고 분류와 창고 유형의 표시용 별칭은 `src/app/(private)/inventory/inventory.labels.ts`에서 `src/i18n/messages/inventory/{ko,en}.json`의 `inventory.labels` 메시지에 연결한다. 미확인 코드는 원문을 보이고 서버 값은 바꾸지 않는다. 수량과 금액 글자는 `src/app/utils/number.ts` 의 `formatNumber`, `formatCurrency` 로 낸다(쉼표 고정, 인자 없는 `toLocaleString()` 은 브라우저 언어를 따라 쓰지 않는다). 차트 짧은 금액 `compactWon` 은 화면 언어(`useLocale()`)를 인자로 받는다(`src/app/utils/number.ts:25`).
+- 언어(i18n): next-intl 4.14.9. 메시지는 `src/i18n/messages/{ko,en}.json`. URL 에 언어를 넣지 않고 쿠키(`NEXT_LOCALE`)로 고른다. 서버는 늘 한국어로 정적 렌더하고 브라우저가 쿠키를 읽어 바꾼다(`src/i18n/IntlProvider.tsx`, 레이아웃이 쿠키를 읽으면 모든 페이지가 동적 렌더로 바뀐다). 플러그인 `precompile` 로 ICU 해석기를 빌드 때 빼서 첫 로드 증가가 14.5KB → 5.7KB. 남은 한국어 문자열 수는 `node scripts/count-hangul.mjs`. 재고 분류와 창고 유형의 표시용 별칭은 `src/app/(private)/inventory/inventory.labels.ts`에서 `src/i18n/messages/inventory/{ko,en}.json`의 `inventory.labels` 메시지에 연결한다. 미확인 코드는 원문을 보이고 서버 값은 바꾸지 않는다. 수량과 금액 글자는 `src/app/utils/number.ts` 의 `formatNumber`, `formatCurrency` 로 낸다(쉼표 고정, 언어를 넘기지 않은(인자 없음, `undefined`) `toLocaleString()`, `toLocaleDateString()`, `toLocaleTimeString()` 은 브라우저 언어를 따라 쓰지 않는다. `eslint.config.mjs` 의 `no-restricted-syntax` 가 error 로 막고 테스트 파일만 뺀다). 차트 축과 라벨의 짧은 금액은 `compactWon` 하나다(재무, 자재 흐름, 영업 차트). 화면 언어(`useLocale()`)를 인자로 받는다(`src/app/utils/number.ts:25`). 툴팁은 `formatCurrency`.
   패키지 UI 문구는 `packages/ui/src/UiText.tsx:13` 의 `UiText` 타입과 한국어 `defaultUiText` 가 정한다. `UiTextProvider` 로 앱 번역을 받는다. `src/i18n/UiTextBridge.tsx:15` 가 `src/i18n/messages/{ko,en}.json` 의 `ui` 를 연결한다. 새 문구는 타입, 기본값, 브리지, ko/en 메시지 네 곳을 함께 고친다.
-  입력 아이콘 버튼 이름과 `InputList` 입력칸 이름(화면 순번을 받는 함수 `inputList.item`)도 이 경로를 쓴다(`UiText.tsx:43`, `UiTextBridge.tsx:50`). 충돌 설명의 한국어 목적격 조사는 `packages/ui/src/koreanObjectParticle.ts:2` 를 기본값과 브리지가 함께 쓰며, 한글 받침에 따라 을/를을 고른다. 비한글은 기존 을을 유지하므로 현재 호출부의 BOM 문구는 같다.
+  입력 아이콘 버튼 이름과 `InputList` 입력칸, 삭제 버튼 이름(화면 순번을 받는 함수 `inputList.item`, `inputList.remove`)도 이 경로를 쓴다(`UiText.tsx:43`, `UiTextBridge.tsx:50`). 충돌 설명의 한국어 목적격 조사는 `packages/ui/src/koreanObjectParticle.ts:2` 를 기본값과 브리지가 함께 쓰며, 한글 받침에 따라 을/를을 고른다. 비한글은 기존 을을 유지하므로 현재 호출부의 BOM 문구는 같다.
 - 로컬 훅: commit-msg 는 commitlint(타입 `feat|fix|refac|test|chore|docs`), pre-commit 은 lint-staged.
 - 테스트: vitest + Testing Library + MSW. 설정 `vitest.config.mts`, 공통 `vitest.setup.ts`(핸들러 없는 요청은 실패시킴). 서버 전용 모듈 테스트는 파일 첫 줄에 `// @vitest-environment node`.
 - 린트: `eslint.config.mjs`. 타입 인식 규칙을 warn 으로 켜고 주석에 측정값을 적어 뒀다. 억제 파일 `eslint-suppressions.json` 은 린트 블록이 끝나면 삭제.

@@ -6079,19 +6079,27 @@ components:
         week:
           type: string
         demand:
-          type: number
+          description: null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음)
+          anyOf:
+            - type: number
+            - type: 'null'
         requiredInventory:
-          type: number
+          description: null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음)
+          anyOf:
+            - type: number
+            - type: 'null'
         productionNeeded:
-          type: number
+          description: null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음)
+          anyOf:
+            - type: number
+            - type: 'null'
         plannedProduction:
-          type: number
+          description: null 이거나 없으면 화면은 - (남은 표시 결함 3 카드. zod 전 화면 가드가 있던 수량, 실서버 근거 없음)
+          anyOf:
+            - type: number
+            - type: 'null'
       required:
         - week
-        - demand
-        - requiredInventory
-        - productionNeeded
-        - plannedProduction
     BomListResponse:
       type: object
       properties:

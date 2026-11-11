@@ -245,8 +245,10 @@ export const purchaseHandlers = [
   http.get(PURCHASE_ENDPOINTS.SUPPLIER_CATEGORY_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier category dropdown', 500);
     return ok([
-      { key: 'MATERIAL', value: '자재' },
-      { key: 'SERVICE', value: '서비스' },
+      // 코드는 응답 enum(SupplierCategory)과 같다. 예전 SERVICE 는 목록 응답이 형식 오류로 막는 값이었다
+      { key: 'MATERIAL', value: '원자재' },
+      { key: 'PARTS', value: '부품' },
+      { key: 'ETC', value: '기타' },
     ]);
   }),
   http.get(PURCHASE_ENDPOINTS.SUPPLIER_SEARCH_TYPE_OPTIONS, ({ request }) => {

@@ -21,7 +21,12 @@
     "allStatuses": "All statuses",
     "searchPlaceholder": "Enter a search term",
     "required": "Fill in all required fields.",
-    "days": "{days, plural, one {# day} other {# days}}"
+    "days": "{days, plural, one {# day} other {# days}}",
+    "supplierCategory": {
+      "MATERIAL": "Raw materials",
+      "PARTS": "Parts",
+      "ETC": "Other"
+    }
   },
   "requestList": {
     "create": "New purchase request",

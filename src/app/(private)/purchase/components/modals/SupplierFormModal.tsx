@@ -25,6 +25,7 @@ import { LoadingMessage } from '@everp/ui';
 import { Input, InputLabel } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useTranslations } from 'next-intl';
+import { useSupplierCategoryLabels } from '@/app/(private)/purchase/supplierCategory';
 
 interface SupplierFormModalProps extends ModalProps {
   initialData?: SupplierDetail; // 수정 모드일 때 전달
@@ -36,6 +37,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   const toast = useToast();
   const t = useTranslations('purchase.supplierForm');
   const tc = useTranslations('purchase.common');
+  const { categoryOptions } = useSupplierCategoryLabels();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialData?.supplierInfo.category || '',
@@ -320,7 +322,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                 <InputLabel label={t('category')} required={true} />
                 <Dropdown
                   placeholder={t('categoryPlaceholder')}
-                  items={supplierCategoryOptions}
+                  items={categoryOptions(supplierCategoryOptions)}
                   value={selectedCategory}
                   onChange={(category: string) => {
                     // 선택값과 제출용 값을 한 번에 바꾼다(예전엔 effect 로 옮겼다)

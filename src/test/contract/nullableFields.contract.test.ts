@@ -60,6 +60,25 @@ const READS: Record<string, NullableRead> = {
     nullable: [['content', 0, 'dueDate']],
     id: ['content', 0, 'quotationId'],
   },
+  // 남은 표시 결함 3 카드. 수량이지만 zod 전 화면이 네 칸 모두 `?? '-'` 로 막았다(f769122b^ MpsTab.tsx)
+  'MPS 목록': {
+    url: PRODUCTION_ENDPOINTS.MPS_PLANS,
+    read: () =>
+      production.fetchMpsList({
+        bomId: 'bom-001',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        page: 0,
+        size: 100,
+      }),
+    nullable: [
+      ['content', 0, 'demand'],
+      ['content', 0, 'requiredInventory'],
+      ['content', 0, 'productionNeeded'],
+      ['content', 0, 'plannedProduction'],
+    ],
+    id: ['bomId'],
+  },
   '주문 상세': {
     url: SALES_ENDPOINTS.ORDER_DETAIL(ID),
     read: () => sales.getOrderDetail(ID),
@@ -137,7 +156,7 @@ const EMPTY_CASES = Object.entries(READS).flatMap(([name, { url, read, nullable 
   ),
 );
 
-describe('가드가 있던 글자 필드는 null 이거나 없어도 읽힌다', () => {
+describe('가드가 있던 필드는 null 이거나 없어도 읽힌다', () => {
   it.each(EMPTY_CASES)('$label', async ({ url, read, path, edit }) => {
     await serveEdited(url, (data) => edit(data, path));
     await expect(read()).resolves.toBeDefined();

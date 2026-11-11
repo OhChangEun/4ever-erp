@@ -16,10 +16,11 @@ interface MpsRow {
   productName: string;
   bomId: string;
   week: string;
-  demand: number;
-  requiredInventory: number;
-  productionNeeded: number;
-  plannedProduction: number;
+  // 서버가 비워 보낼 수 있다. 빈 값은 0 이 아니라 '-' 로 그린다
+  demand?: number | null;
+  requiredInventory?: number | null;
+  productionNeeded?: number | null;
+  plannedProduction?: number | null;
 }
 
 export default function MpsTab() {
@@ -91,23 +92,25 @@ export default function MpsTab() {
     {
       key: 'demand',
       label: t('common.demand'),
-      render: (_, row) => <span className="text-gray-700">{row.demand}</span>,
+      render: (_, row) => <span className="text-gray-700">{row.demand ?? '-'}</span>,
     },
     {
       key: 'requiredInventory',
       label: t('common.requiredInventory'),
-      render: (_, row) => <span className="text-gray-700">{row.requiredInventory}</span>,
+      render: (_, row) => <span className="text-gray-700">{row.requiredInventory ?? '-'}</span>,
     },
     {
       key: 'productionNeeded',
       label: t('common.productionNeeded'),
-      render: (_, row) => <span className="text-sm text-gray-700">{row.productionNeeded}</span>,
+      render: (_, row) => (
+        <span className="text-sm text-gray-700">{row.productionNeeded ?? '-'}</span>
+      ),
     },
     {
       key: 'plannedProduction',
       label: t('common.plannedProduction'),
       render: (_, row) => (
-        <span className="font-semibold text-blue-600">{row.plannedProduction}</span>
+        <span className="font-semibold text-blue-600">{row.plannedProduction ?? '-'}</span>
       ),
     },
   ];

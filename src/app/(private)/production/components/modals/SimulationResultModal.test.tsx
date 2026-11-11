@@ -11,7 +11,7 @@ const result: QuotationSimulationData = {
   customerCompanyName: '한빛전자',
   productId: 'prod-001',
   productName: '모터 A',
-  requestQuantity: 10,
+  requestQuantity: 1200,
   // 정오 UTC 라 어느 시간대에서도 1월 15일
   requestDueDate: Date.UTC(2026, 0, 15, 12),
   simulation: {
@@ -45,5 +45,20 @@ describe('시뮬레이션 결과 요청 납기', () => {
   it('한국어 화면은 예전과 같다', () => {
     renderModal();
     expect(screen.getByText('2026. 1. 15.')).toBeInTheDocument();
+  });
+});
+
+/** 남은 표시 결함 3 카드. 응답에 단위 필드가 없어 EA 로 보고, 글자는 영업 결정(개, pcs)을 따른다 */
+describe('시뮬레이션 결과 수량 단위', () => {
+  it('한국어는 개', () => {
+    renderModal();
+    expect(screen.getByText('1,200개')).toBeInTheDocument();
+    expect(screen.queryByText(/EA/)).not.toBeInTheDocument();
+  });
+
+  it('영어는 pcs', () => {
+    renderModal('en');
+    expect(screen.getByText('1,200 pcs')).toBeInTheDocument();
+    expect(screen.queryByText(/EA/)).not.toBeInTheDocument();
   });
 });

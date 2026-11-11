@@ -52,7 +52,10 @@ describe('창고 화면 영어(i18n 3)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add warehouse' }));
     const dialog = await screen.findByRole('dialog', { name: 'New warehouse' });
     expect(await within(dialog).findByLabelText('Warehouse name')).toBeInTheDocument();
-    expect(within(dialog).getByRole('option', { name: 'Raw materials' })).toBeInTheDocument();
+    // 목록, 상세와 같은 라벨(남은 표시 결함 3 카드)
+    expect(
+      within(dialog).getByRole('option', { name: 'Raw materials warehouse' }),
+    ).toBeInTheDocument();
   });
 
   it('재고 칸의 요약, 목록, 단계 이름이 영어', () => {

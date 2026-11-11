@@ -12,8 +12,8 @@ describe('창고 등록 모달', () => {
   // 등록 요청 계약(팀 백엔드 WarehouseCreateRequestDto)은 MATERIAL, ITEM, ETC 다.
   // 예전엔 초기값이 빈 문자열이라 화면은 첫 옵션(원자재)을 보이면서 요청에는 빈 값을 보냈다
   it.each([
-    { pick: undefined, shown: '원자재', sent: 'MATERIAL' },
-    { pick: '부품', shown: '부품', sent: 'ITEM' },
+    { pick: undefined, shown: '원자재창고', sent: 'MATERIAL' },
+    { pick: '부품창고', shown: '부품창고', sent: 'ITEM' },
   ])('유형을 $shown 으로 보고 등록하면 $sent 를 보낸다', async ({ pick, shown, sent }) => {
     const bodies: unknown[] = [];
     server.use(

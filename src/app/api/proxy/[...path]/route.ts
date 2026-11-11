@@ -1,13 +1,14 @@
 import { readFreshSession } from '@/server/auth/session';
 import { isSameOriginRequest } from '@/lib/auth/sameOrigin';
 import { canAccessApi } from '@/lib/authz/policy';
+import { MOCK_PROOF_HEADER, signMockProof } from '@/server/auth/mockProof';
 import { type NextRequest, NextResponse } from 'next/server';
 
 // BFF 프록시 - 브라우저는 세션 쿠키만 보내고, 백엔드가 요구하는 Bearer 토큰은 서버에서 붙인다.
 // 브라우저 어디에도 액세스 토큰이 남지 않는다.
 //
 // 업스트림: BACKEND_API_URL (서버 전용 env, NEXT_PUBLIC 아님).
-// 없으면 이 앱의 목 API 레이어(/api/[...slug])로 넘긴다.
+// 없으면 이 앱의 목 API 레이어(/api/[...slug])로 넘긴다. 서버 목은 프록시가 서명한 증명(x-mock-proof)이 있어야 응답한다.
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
@@ -114,6 +115,12 @@ async function handle(req: NextRequest, ctx: RouteContext) {
   headers.set('authorization', `Bearer ${session.upstreamToken}`);
   headers.set('x-session-role', session.role);
   headers.set('x-request-id', requestId);
+  // 서버 목(`/api/[...slug]`)은 이 증명이 있는 호출만 받는다. 브라우저가 넣은 값은 지우고,
+  // 업스트림이 이 앱의 서버 목일 때만 세션 역할로 새로 서명한다. 실백엔드로는 보내지 않는다
+  headers.delete(MOCK_PROOF_HEADER);
+  if (!process.env.BACKEND_API_URL) {
+    headers.set(MOCK_PROOF_HEADER, await signMockProof(session.role, requestId));
+  }
 
   // 4. 업스트림 호출 - body는 GET/HEAD 외에만 전달
   const hasBody = req.method !== 'GET' && req.method !== 'HEAD';

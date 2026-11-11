@@ -4,6 +4,23 @@ import nextTs from 'eslint-config-next/typescript';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
 import everp from '@everp/eslint-plugin';
 
+// no-restricted-syntax 로 막는 모양. 테스트 파일은 UTC 날짜 자르기만 막는다(맨 아래 블록)
+const UTC_DATE_SPLIT = {
+  selector:
+    "CallExpression[callee.property.name='split'][callee.object.type='CallExpression'][callee.object.callee.property.name='toISOString']",
+  message:
+    "toISOString().split('T')[0] 은 UTC 날짜다. 현지 날짜는 '@/app/utils/date' 의 toDateKey 를 쓴다.",
+};
+const BARE_TO_LOCALE_STRING = {
+  // 언어 자리가 비었거나 undefined 인 호출. 문자열 접근(x['toLocaleString']())은 property.value 로 잡는다(리뷰 P2).
+  // 펼친 인자(...args)와 템플릿 글자 접근은 못 잡는다. type 을 같이 보는 이유: esquery 는 없는 속성도 글자 'undefined' 로 견줘
+  // name 만 보면 글자 리터럴('ko-KR')까지 걸린다
+  selector:
+    "CallExpression:matches([arguments.length=0], [arguments.0.type='Identifier'][arguments.0.name='undefined']):matches([callee.property.name=/^toLocale(Date|Time)?String$/], [callee.property.value=/^toLocale(Date|Time)?String$/])",
+  message:
+    "언어를 넘기지 않은 toLocaleString() 류는 브라우저 언어를 따른다. 수량과 금액은 '@/app/utils/number' 의 formatNumber, formatCurrency 를, 날짜는 화면 언어(useLocale)를 넘긴다.",
+};
+
 export default defineConfig([
   globalIgnores([
     'node_modules/**',
@@ -66,15 +83,8 @@ export default defineConfig([
       // 브라우저 기본 창(alert, confirm, prompt)은 앱 언어를 안 따르고 자동화를 멈춘다. 확인은 ConfirmModal, 알림은 토스트
       'no-alert': 'error', // 0 (2026-11-12 확인 창 카드)
       // 날짜는 현지 기준(toDateKey). toISOString 은 UTC 라 한국 시간 오전 9시 전엔 어제가 된다(성능 2, 3 카드에서 8곳)
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector:
-            "CallExpression[callee.property.name='split'][callee.object.type='CallExpression'][callee.object.callee.property.name='toISOString']",
-          message:
-            "toISOString().split('T')[0] 은 UTC 날짜다. 현지 날짜는 '@/app/utils/date' 의 toDateKey 를 쓴다.",
-        },
-      ],
+      // 인자 없는 toLocale*String 은 브라우저 언어를 따라 화면 언어와 어긋난다. 0 (남은 표시 결함 3 카드)
+      'no-restricted-syntax': ['error', UTC_DATE_SPLIT, BARE_TO_LOCALE_STRING],
     },
   },
 
@@ -121,6 +131,7 @@ export default defineConfig([
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       'no-restricted-imports': 'off', // 테스트는 AxiosError 로 오류 모양을 만들어야 한다
+      'no-restricted-syntax': ['error', UTC_DATE_SPLIT], // 인자 없는 toLocale*String 은 테스트에서 허용
     },
   },
 ]);
