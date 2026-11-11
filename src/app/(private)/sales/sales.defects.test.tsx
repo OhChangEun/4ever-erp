@@ -134,4 +134,65 @@ describe('영업 화면 결함', () => {
     expect(screen.queryByText('신규 견적 요청이 등록되었습니다.')).not.toBeInTheDocument();
     expect(note).toHaveValue('급함');
   });
+
+  it('재고 확인 시각은 렌더 때의 지금 시각이 아니라 서버가 확인한 시각이다', async () => {
+    server.use(
+      http.post(SALES_ENDPOINTS.INVENTORY_CHECK, () =>
+        ok({
+          items: [
+            {
+              itemId: 'a',
+              itemName: '모터 A',
+              requiredQuantity: 10,
+              inventoryQuantity: 20,
+              shortageQuantity: 0,
+              statusCode: 'AVAILABLE',
+              productionRequired: false,
+              inventoryCheckTime: '2026-11-10T15:05:00',
+            },
+          ],
+        }),
+      ),
+    );
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date('2026-11-11T09:30:00'));
+    try {
+      renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+      await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
+      expect(await screen.findByText('재고 확인 일시: 오후 03:05')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('서버 확인 시각이 없거나 잘못되면 Invalid Date 대신 결과를 받은 시각', async () => {
+    server.use(
+      http.post(SALES_ENDPOINTS.INVENTORY_CHECK, () =>
+        ok({
+          items: [
+            {
+              itemId: 'a',
+              itemName: '모터 A',
+              requiredQuantity: 10,
+              inventoryQuantity: 20,
+              shortageQuantity: 0,
+              statusCode: 'AVAILABLE',
+              productionRequired: false,
+              inventoryCheckTime: 'not-a-date',
+            },
+          ],
+        }),
+      ),
+    );
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date('2026-11-11T14:20:00'));
+    try {
+      renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+      await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
+      expect(await screen.findByText('재고 확인 일시: 오후 02:20')).toBeInTheDocument();
+      expect(screen.queryByText(/Invalid Date/)).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
