@@ -16,6 +16,7 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { itemInfoKeys, warehouseInfoKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 const AddInventoryModal = ({ onClose }: ModalProps) => {
   const t = useTranslations('inventory');
@@ -152,7 +153,7 @@ const AddInventoryModal = ({ onClose }: ModalProps) => {
             <input
               type="text"
               readOnly
-              value={selectedItem?.unitPrice.toLocaleString() ?? ''}
+              value={selectedItem ? formatNumber(selectedItem.unitPrice) : ''}
               className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
             />
           </div>

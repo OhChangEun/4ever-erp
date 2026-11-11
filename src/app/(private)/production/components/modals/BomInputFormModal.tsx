@@ -37,6 +37,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
@@ -210,7 +211,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
           type="text"
           value={
             materialInfo?.unitPrice
-              ? t('bomForm.won', { value: materialInfo.unitPrice.toLocaleString() })
+              ? t('bomForm.won', { value: formatNumber(materialInfo.unitPrice) })
               : ''
           }
           disabled

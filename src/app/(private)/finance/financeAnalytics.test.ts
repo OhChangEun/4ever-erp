@@ -64,6 +64,6 @@ describe('compactWon', () => {
     [1_000_000_000, '10억'],
     [-25_000_000, '-2,500만'],
   ])('%d → %s', (n, s) => {
-    expect(compactWon(n)).toBe(s);
+    expect(compactWon(n, 'ko')).toBe(s);
   });
 });

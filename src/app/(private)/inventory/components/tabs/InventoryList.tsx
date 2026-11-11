@@ -27,7 +27,7 @@ import { inventoryKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useTranslations } from 'next-intl';
 import { useInventoryLabels } from '../../inventory.labels';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 const InventoryList = () => {
   const t = useTranslations('inventory');
   const { hasCategoryLabel, categoryLabel, warehouseTypeLabel } = useInventoryLabels();
@@ -106,25 +106,25 @@ const InventoryList = () => {
       key: 'currentStock',
       label: t('list.columns.currentStock'),
       align: 'right',
-      render: (_, inv) => `${inv.currentStock.toLocaleString()} ${inv.uomName}`,
+      render: (_, inv) => `${formatNumber(inv.currentStock)} ${inv.uomName}`,
     },
     {
       key: 'forShipmentStock',
       label: t('list.columns.forShipmentStock'),
       align: 'right',
-      render: (_, inv) => `${inv.forShipmentStock.toLocaleString()} ${inv.uomName}`,
+      render: (_, inv) => `${formatNumber(inv.forShipmentStock)} ${inv.uomName}`,
     },
     {
       key: 'reservedStock',
       label: t('list.columns.reservedStock'),
       align: 'right',
-      render: (_, inv) => `${inv.reservedStock.toLocaleString()} ${inv.uomName}`,
+      render: (_, inv) => `${formatNumber(inv.reservedStock)} ${inv.uomName}`,
     },
     {
       key: 'safetyStock',
       label: t('list.columns.safetyStock'),
       align: 'right',
-      render: (_, inv) => `${inv.safetyStock.toLocaleString()} ${inv.uomName}`,
+      render: (_, inv) => `${formatNumber(inv.safetyStock)} ${inv.uomName}`,
     },
     {
       key: 'unitPrice',

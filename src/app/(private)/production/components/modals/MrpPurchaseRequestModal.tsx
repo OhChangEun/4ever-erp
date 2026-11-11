@@ -9,9 +9,9 @@ import { type MrpPlannedOrderList } from '../../types/MrpPlannedOrdersListApiTyp
 import type { ItemResponse } from '@/app/(private)/inventory';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 interface ItemWithQuantity extends ItemResponse {
   quantity: number;
   totalPrice: number;
@@ -30,6 +30,8 @@ export default function MrpPurchaseRequestModal({
   onClose,
 }: PurchaseRequestModalProps) {
   const t = useTranslations('production');
+  // 브라우저 언어가 아니라 앱 언어로 날짜를 쓴다(en-GB 브라우저면 월과 일이 바뀌어 읽힌다)
+  const locale = useLocale();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const itemIds = orders.map((order) => order.itemId);
@@ -120,7 +122,7 @@ export default function MrpPurchaseRequestModal({
             </div>
             <div>
               <span className="text-blue-600">{t('purchaseRequest.requestDate')}</span>
-              <span className="ml-2 font-medium">{new Date().toLocaleDateString()}</span>
+              <span className="ml-2 font-medium">{new Date().toLocaleDateString(locale)}</span>
             </div>
           </div>
         </div>
@@ -157,7 +159,7 @@ export default function MrpPurchaseRequestModal({
                     {order.quotationNumber}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">{order.itemName}</td>
-                  <td className="px-4 py-3">{order.quantity.toLocaleString()}</td>
+                  <td className="px-4 py-3">{formatNumber(order.quantity)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {formatCurrency(order.unitPrice)}
                   </td>

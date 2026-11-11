@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createStatCard } from './CreateStatCard';
+import { mockBrowserLocale } from '@/test/browserLocale';
 
 describe('createStatCard', () => {
   it('통화 단위는 값 앞에 붙는다', () => {
@@ -25,5 +26,15 @@ describe('createStatCard', () => {
 
   it('변화율 0 은 increase 로 분류한다 (현재 동작 고정)', () => {
     expect(createStatCard('총 매출', 1, 0).changeType).toBe('increase');
+  });
+
+  describe('브라우저 언어가 de-DE 여도', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('자리 구분은 쉼표(1.200 이 아니다)', () => {
+      mockBrowserLocale('de-DE');
+      expect(createStatCard('총 매출', 4200000, 0, '₩').value).toBe('₩4,200,000');
+      expect(createStatCard('입고', 1200, 0, '건').value).toBe('1,200건');
+    });
   });
 });

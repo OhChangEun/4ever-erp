@@ -16,6 +16,7 @@ import { summarizeClusters } from '../clusters';
 import { useWarehouseClusters } from '../useWarehouseClusters';
 import WarehouseScene from './WarehouseScene';
 import FreeCameraControls from './FreeCameraControls';
+import { formatNumber } from '@/app/utils/number';
 
 const WarehouseVisualizer = ({
   warehouseId,
@@ -212,7 +213,7 @@ const WarehouseVisualizer = ({
                       </div>
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
                         <span>{tv('itemCount', { count: summary.totalItems })}</span>
-                        <span>{tv('totalQty', { qty: summary.totalQty.toLocaleString() })}</span>
+                        <span>{tv('totalQty', { qty: formatNumber(summary.totalQty) })}</span>
                         <span className={summary.lowStock > 0 ? 'text-red-500 font-semibold' : ''}>
                           {tv('lowStock', { count: summary.lowStock })}
                         </span>
@@ -244,7 +245,7 @@ const WarehouseVisualizer = ({
                     </div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
                       <span>{tv('itemCount', { count: summary.totalItems })}</span>
-                      <span>{tv('totalQty', { qty: summary.totalQty.toLocaleString() })}</span>
+                      <span>{tv('totalQty', { qty: formatNumber(summary.totalQty) })}</span>
                       <span className={summary.lowStock > 0 ? 'text-red-500 font-semibold' : ''}>
                         {tv('lowStock', { count: summary.lowStock })}
                       </span>

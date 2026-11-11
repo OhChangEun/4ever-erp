@@ -16,7 +16,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { lowStockKeys } from '@/app/(private)/low-stock/lowStock.keys';
 import { useTranslations } from 'next-intl';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 import { Button } from '@everp/ui';
 // 구매 요청 모달은 누를 때만 받는다. 재고 화면 공개 입구(ui.ts)에는 다른 모달도 있어
 // 정적으로 가져오면 그것까지 첫 로드에 딸려 온다(시각화 8 뒤 /low-stock +5.0KB, CI 번들 표)
@@ -157,7 +157,7 @@ export default function LowStockList() {
       label: t('columns.currentStock'),
       render: (_, lowStock) => (
         <span className="text-sm text-gray-900">
-          {lowStock.currentStock.toLocaleString()} {lowStock.uomName}
+          {formatNumber(lowStock.currentStock)} {lowStock.uomName}
         </span>
       ),
     },
@@ -166,7 +166,7 @@ export default function LowStockList() {
       label: t('columns.safetyStock'),
       render: (_, lowStock) => (
         <span className="text-sm text-gray-500">
-          {lowStock.safetyStock.toLocaleString()} {lowStock.uomName}
+          {formatNumber(lowStock.safetyStock)} {lowStock.uomName}
         </span>
       ),
     },

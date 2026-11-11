@@ -7,6 +7,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { Table } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 interface SimulationResultModalProps extends ModalProps {
   simulationResults: QuotationSimulationData[];
@@ -170,7 +171,7 @@ export default function SimulationResultModal({
                   <Flex direction="col" gap={1} className="bg-gray-50 rounded-lg px-3 py-2">
                     <span className="text-xs text-gray-400">{t('simulation.requestQuantity')}</span>
                     <span className="font-medium text-sm text-gray-700">
-                      {selectedResult.requestQuantity.toLocaleString()} EA
+                      {formatNumber(selectedResult.requestQuantity)} EA
                     </span>
                   </Flex>
                   <p className="text-center text-gray-300 text-xs select-none">−</p>
@@ -179,7 +180,7 @@ export default function SimulationResultModal({
                       {t('simulation.availableQuantity')}
                     </span>
                     <span className="font-medium text-sm text-gray-700">
-                      {availableQuantity.toLocaleString()} EA
+                      {formatNumber(availableQuantity)} EA
                     </span>
                   </Flex>
                   <p className="text-center text-gray-300 text-xs select-none">=</p>
@@ -188,7 +189,7 @@ export default function SimulationResultModal({
                       {t('simulation.productionNeeded')}
                     </span>
                     <span className={`font-semibold text-sm ${textColor}`}>
-                      {shortageQuantity.toLocaleString()} EA
+                      {formatNumber(shortageQuantity)} EA
                     </span>
                     <span className={`text-xs ${subColor}`}>
                       {t(`simulation.result.${resultKey}`)}

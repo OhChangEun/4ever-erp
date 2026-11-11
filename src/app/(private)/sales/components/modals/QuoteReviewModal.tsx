@@ -20,9 +20,10 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
   const t = useTranslations('sales.quoteReview');
+  const locale = useLocale();
   const tq = useTranslations('sales.quote');
   const tc = useTranslations('sales.common');
   const [inventoryCheckResult, setInventoryCheckResult] = useState<InventoryCheckRes[] | null>(
@@ -227,7 +228,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
             {/* 확인 일시 */}
             <div className="text-sm text-gray-500 text-right">
               {t('checkedAt', {
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
               })}
             </div>
           </div>

@@ -9,7 +9,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
 import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
 export interface PurchaseOrderDetailModalProps extends ModalProps {
@@ -113,9 +113,7 @@ export default function PurchaseOrderDetailModal({
               {order.items.map((item, index) => (
                 <tr key={index} className="border-b border-gray-200 text-center">
                   <td className="px-4 py-3 text-sm text-gray-900">{item.itemName}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
-                    {item.quantity.toLocaleString()}
-                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{formatNumber(item.quantity)}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{item.uomName}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     {formatCurrency(item.unitPrice)}
