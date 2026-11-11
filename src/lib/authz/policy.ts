@@ -118,6 +118,28 @@ export const canAccessPage = (role: Role, pathname: string): boolean => {
 /** 회사 전체 손익(재무 현황, 시각화 4)을 볼 역할. 재무 화면은 고객사, 공급사도 들어오지만 이건 사내 재무만 */
 export const FINANCE_ANALYTICS_ROLES = ['ALL_ADMIN', ...FCM] as const satisfies readonly Role[];
 
+/*
+ * 운영 화면은 운영 역할 모두에게 열리지만 쓰기 API 몇 개는 게이트웨이가 더 좁게 막는다.
+ * 목록은 게이트웨이 @PreAuthorize 그대로 옮겼다(_4EVER_BE_GW/src/main/java/org/ever/_4ever_be_gw/ 기준).
+ * 버튼 노출과 아래 API_RULES 가 같은 목록을 읽는다.
+ */
+/** scm/pp/controller/PpController.java:326 mrp/convert, :488 quotations/simulate, :545 quotations/confirm */
+export const PP_PLANNING_ROLES = ['ALL_ADMIN', ...PP] as const satisfies readonly Role[];
+/**
+ * scm/im/controller/ImController.java 의 POST 셋. :297 stock-transfers, :423 warehouses,
+ * :455 items/info(조회지만 POST)
+ */
+export const IM_GATEWAY_ROLES = ['ALL_ADMIN', ...IM] as const satisfies readonly Role[];
+/**
+ * scm/mm/controller/MmController.java 의 POST 넷. :111 supplier, :185 stock-purchase-requisitions,
+ * :335 purchase-requisitions/{id}/release, :371 purchase-requisitions/{id}/reject
+ */
+export const MM_GATEWAY_ROLES = ['ALL_ADMIN', ...MM] as const satisfies readonly Role[];
+/** 계획 주문의 자재 구매 요청은 items/info 다음 stock-purchase-requisitions 를 부른다. 둘 다 통과하는 역할만 */
+export const MRP_PURCHASE_REQUEST_ROLES: readonly Role[] = IM_GATEWAY_ROLES.filter((role) =>
+  hasRole(MM_GATEWAY_ROLES, role),
+);
+
 /**
  * 영역보다 좁은 API 규칙. 영역 표보다 먼저 본다.
  * 탭을 숨기는 것만으로는 직접 요청을 못 막는다(시각화 4 리뷰 P1).
@@ -126,6 +148,14 @@ export const API_RULES: readonly { prefix: string; roles: readonly Role[] }[] = 
   { prefix: 'business/fcm/analytics', roles: FINANCE_ANALYTICS_ROLES },
   // 이번 달 자재 흐름(시각화 6). 대시보드는 모두에게 열리지만 회사 전체 구매, 재고, 출하 금액은 운영 역할만
   { prefix: 'dashboard/supply-flow', roles: OPERATIONS },
+  // 게이트웨이가 403 을 줄 요청은 프록시에서 먼저 막는다. 다섯 경로 모두 게이트웨이에는 POST 하나뿐이다.
+  // supplier, warehouses, stock-transfers 는 같은 경로에 누구나 쓰는 GET 이 있고 이 표는 메서드를 안 봐서 넣지 않는다.
+  // 구매 요청 release, reject 는 id 가 경로 가운데라 접두사로 못 잡는다(넣으면 목록 GET 까지 막힌다). 게이트웨이가 403 으로 막는다
+  { prefix: 'scm-pp/pp/mrp/convert', roles: PP_PLANNING_ROLES },
+  { prefix: 'scm-pp/pp/quotations/simulate', roles: PP_PLANNING_ROLES },
+  { prefix: 'scm-pp/pp/quotations/confirm', roles: PP_PLANNING_ROLES },
+  { prefix: 'scm-pp/iv/items/info', roles: IM_GATEWAY_ROLES },
+  { prefix: 'scm-pp/mm/stock-purchase-requisitions', roles: MM_GATEWAY_ROLES },
 ];
 
 /** API 접근. upstreamPath 는 /api/proxy 뒤의 정규화된 경로. 표에 없는 경로는 로그인만 되면 통과 */

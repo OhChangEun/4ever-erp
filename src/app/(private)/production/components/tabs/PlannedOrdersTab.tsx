@@ -23,6 +23,8 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 import { formatNumber } from '@/app/utils/number';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, MRP_PURCHASE_REQUEST_ROLES } from '@/lib/authz/policy';
 
 interface PlannedOrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -31,6 +33,8 @@ interface PlannedOrdersTabProps {
 export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) {
   const t = useTranslations('production');
   const { openModal } = useModal();
+  // 구매 요청 모달은 재고(IM) API 다음 구매(MM) API 를 부른다. 둘 다 통과하는 역할만 버튼을 본다
+  const canRequestPurchase = hasRole(MRP_PURCHASE_REQUEST_ROLES, useRole());
 
   // mrp 계획주문 견적 드롭다운
   const { options: mrpQuotationOptions } = useDropdown(
@@ -192,11 +196,13 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
               setCurrentPage(1);
             }}
           />
-          <Button
-            label={t('plannedOrders.purchaseRequest')}
-            onClick={handlePurchaseRequest}
-            disabled={selectedOrders.length === 0}
-          />
+          {canRequestPurchase && (
+            <Button
+              label={t('plannedOrders.purchaseRequest')}
+              onClick={handlePurchaseRequest}
+              disabled={selectedOrders.length === 0}
+            />
+          )}
         </div>
       </div>
 

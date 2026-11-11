@@ -135,6 +135,31 @@ describe('인가 표 하나', () => {
     expect(canAccessApi('SUPPLIER_ADMIN', 'dashboard/statistics')).toBe(true);
   });
 
+  it('의도한 변화: 생산 화면 쓰기 API 는 게이트웨이 @PreAuthorize 와 같은 역할만', () => {
+    const allowed = (path: string) => ROLES.filter((role) => canAccessApi(role, path));
+    // PpController.java 326, 488, 545
+    for (const path of [
+      'scm-pp/pp/mrp/convert',
+      'scm-pp/pp/quotations/simulate',
+      'scm-pp/pp/quotations/confirm',
+    ])
+      expect([path, allowed(path)]).toEqual([path, ['ALL_ADMIN', 'PP_USER', 'PP_ADMIN']]);
+    // ImController.java 454-455
+    expect(allowed('scm-pp/iv/items/info')).toEqual(['ALL_ADMIN', 'IM_USER', 'IM_ADMIN']);
+    // MmController.java 184-185
+    expect(allowed('scm-pp/mm/stock-purchase-requisitions')).toEqual([
+      'ALL_ADMIN',
+      'MM_USER',
+      'MM_ADMIN',
+    ]);
+    // 같은 영역의 다른 경로는 그대로(조회, 미리보기는 게이트웨이도 역할을 안 본다)
+    expect(canAccessApi('SD_USER', 'scm-pp/pp/quotations')).toBe(true);
+    expect(canAccessApi('SD_USER', 'scm-pp/pp/quotations/preview')).toBe(true);
+    expect(canAccessApi('MM_USER', 'scm-pp/pp/mrp/runs')).toBe(true);
+    expect(canAccessApi('PP_USER', 'scm-pp/iv/items/toggle')).toBe(true);
+    expect(canAccessApi('SUPPLIER_ADMIN', 'scm-pp/mm/purchase-orders')).toBe(true);
+  });
+
   it('메뉴: 대시보드는 공급사에게 숨긴다(페이지는 열림). 나머지는 페이지 표와 같다', () => {
     expect(menuRoles('/dashboard')).not.toContain('SUPPLIER_ADMIN');
     expect(canAccessPage('SUPPLIER_ADMIN', '/dashboard')).toBe(true);

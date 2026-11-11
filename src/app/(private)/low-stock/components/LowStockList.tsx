@@ -18,6 +18,8 @@ import { useTranslations } from 'next-intl';
 
 import { formatCurrency, formatNumber } from '@/app/utils/number';
 import { Button } from '@everp/ui';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
 // 구매 요청 모달은 누를 때만 받는다. 재고 화면 공개 입구(ui.ts)에는 다른 모달도 있어
 // 정적으로 가져오면 그것까지 첫 로드에 딸려 온다(시각화 8 뒤 /low-stock +5.0KB, CI 번들 표)
 const InventoryPurchaseRequestModal = dynamic(() =>
@@ -28,6 +30,8 @@ export default function LowStockList() {
   const t = useTranslations('lowStock.list');
   const { openModal } = useModal();
   const toast = useToast();
+  // 구매 요청 모달은 stock-purchase-requisitions 를 부른다. 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
+  const canRequestPurchase = hasRole(MM_GATEWAY_ROLES, useRole());
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -227,7 +231,9 @@ export default function LowStockList() {
                 autoSelectFirst
               />
 
-              <Button label={t('orderSelected')} onClick={handleBulkOrder} />
+              {canRequestPurchase && (
+                <Button label={t('orderSelected')} onClick={handleBulkOrder} />
+              )}
             </div>
           </div>
         </div>

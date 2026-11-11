@@ -26,9 +26,13 @@ import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import StockTrend from '../StockTrend';
 import { useTranslations } from 'next-intl';
 import { useInventoryLabels } from '../../inventory.labels';
+import { useRole } from '@/app/hooks/useRole';
+import { hasRole, IM_GATEWAY_ROLES } from '@/lib/authz/policy';
 const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
   const { categoryLabel } = useInventoryLabels();
   const t = useTranslations('inventory');
+  // 재고 이동은 게이트웨이가 IM 과 ALL_ADMIN 만 받는다
+  const canMove = hasRole(IM_GATEWAY_ROLES, useRole());
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState({
@@ -252,20 +256,22 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
           </div>
 
           <div className="mt-6 flex gap-2 ">
-            <Button
-              variant="secondary"
-              label={t('detail.moveStock')}
-              onClick={() => {
-                handleStockMove();
-              }}
-              className="w-[49%]"
-            />
+            {canMove && (
+              <Button
+                variant="secondary"
+                label={t('detail.moveStock')}
+                onClick={() => {
+                  handleStockMove();
+                }}
+                className="w-[49%]"
+              />
+            )}
             <Button
               label={t('detail.editSafetyStock')}
               onClick={() => {
                 handleSafetyStockEdit();
               }}
-              className="w-[51%]"
+              className={canMove ? 'w-[51%]' : 'w-full'}
             />
           </div>
         </div>

@@ -57,6 +57,7 @@ describe('구매 화면 영어(i18n 5)', () => {
   });
 
   it('구매 요청 목록의 표 머리와 버튼이 영어, 작성 모달도 영어', async () => {
+    loginAs('MM_USER'); // 승인과 반려는 MM 과 ALL_ADMIN 에게만 보인다
     renderWithProviders(<PurchaseRequestListTab />, { locale: 'en' });
     expect(await screen.findByRole('columnheader', { name: 'Request no.' })).toBeInTheDocument();
     expect(await screen.findByText('PR-2026-001')).toBeInTheDocument();
@@ -69,6 +70,7 @@ describe('구매 화면 영어(i18n 5)', () => {
   });
 
   it('공급업체 목록의 배송 기간이 영어 복수형', async () => {
+    loginAs('MM_USER'); // 공급업체 등록은 MM 과 ALL_ADMIN 에게만 보인다
     renderWithProviders(<SupplierListTab />, { locale: 'en' });
     expect(await screen.findByRole('heading', { name: 'Suppliers' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '5 days' })).toBeInTheDocument();
