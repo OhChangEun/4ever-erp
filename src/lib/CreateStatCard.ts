@@ -1,4 +1,5 @@
 import { type StatCardType } from '@/app/types/StatType';
+import { formatNumber } from '@/app/utils/number';
 
 // 지표 공통 처리 함수
 export const createStatCard = (
@@ -10,7 +11,7 @@ export const createStatCard = (
   trend?: readonly number[],
 ): StatCardType => {
   const formattedValue =
-    unit === '₩' ? `${unit}${value.toLocaleString()}` : `${value.toLocaleString()}${unit}`;
+    unit === '₩' ? `${unit}${formatNumber(value)}` : `${formatNumber(value)}${unit}`;
   const change = `${delta > 0 ? '+' : ''}${delta}%`;
   const changeType = delta >= 0 ? 'increase' : 'decrease';
 

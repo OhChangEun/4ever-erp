@@ -9,7 +9,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { useTranslations } from 'next-intl';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 import { Button } from '@everp/ui';
 interface SelectedItem {
   itemId: string;
@@ -108,13 +108,13 @@ export default function InventoryPurchaseRequestModal({
                     <div className="text-xs text-gray-500">{item.itemNumber}</div>
                     <div className="text-xs text-gray-500 mt-1">
                       {t('purchaseRequest.stockLine', {
-                        current: item.currentStock.toLocaleString(),
-                        safety: item.safetyStock.toLocaleString(),
+                        current: formatNumber(item.currentStock),
+                        safety: formatNumber(item.safetyStock),
                         unit: item.uomName,
                       })}
                       {shortage > 0 && (
                         <span className="text-red-600 ml-1">
-                          {t('purchaseRequest.shortage', { count: shortage.toLocaleString() })}
+                          {t('purchaseRequest.shortage', { count: formatNumber(shortage) })}
                         </span>
                       )}
                     </div>

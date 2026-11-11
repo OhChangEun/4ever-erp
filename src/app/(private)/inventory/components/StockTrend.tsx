@@ -8,14 +8,13 @@ import { inventoryKeys } from '../inventory.keys';
 import { daysUntilBelow } from '../stockTrend';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 // Recharts 는 모달을 열 때만 받는다(첫 로드 예산, DESIGN_GUIDELINES 허용 차트 1번)
 const StockTrendChart = dynamic(() => import('./StockTrendChart'), {
   ssr: false,
   loading: () => <div className="h-40" aria-hidden="true" />,
 });
-
-const fmt = (n: number) => n.toLocaleString('ko-KR');
 
 /**
  * 품목 재고 추이(최근 30일)와 안전재고선, 소진 예상(시각화 2).
@@ -65,7 +64,7 @@ export default function StockTrend({ itemId }: { itemId: string }) {
                 {data.points.map((p) => (
                   <tr key={p.date} className="border-t border-gray-100">
                     <td className="py-1">{p.date}</td>
-                    <td className="py-1 text-right">{fmt(p.stock)}</td>
+                    <td className="py-1 text-right">{formatNumber(p.stock)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -114,11 +113,11 @@ function Summary({
   return (
     <p id={id} className="text-sm text-gray-700">
       {t('summary', {
-        first: fmt(first),
-        last: fmt(last),
+        first: formatNumber(first),
+        last: formatNumber(last),
         unit,
-        min: fmt(min),
-        safety: fmt(safetyStock),
+        min: formatNumber(min),
+        safety: formatNumber(safetyStock),
       })}{' '}
       {days === 0 && <strong className="text-red-600">{t('alreadyBelow')}</strong>}
       {days !== null && days > 0 && (

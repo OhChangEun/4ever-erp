@@ -24,6 +24,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 interface OrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -166,17 +167,17 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     {
       key: 'requiredQuantity',
       label: t('requirements.requiredQuantity'),
-      render: (_, item) => <>{item.requiredQuantity.toLocaleString()}</>,
+      render: (_, item) => <>{formatNumber(item.requiredQuantity)}</>,
     },
     {
       key: 'availableStock',
       label: t('requirements.availableStock'),
-      render: (_, item) => <>{item.availableStock.toLocaleString()}</>,
+      render: (_, item) => <>{formatNumber(item.availableStock)}</>,
     },
     {
       key: 'consumptionQuantity',
       label: t('requirements.consumption'),
-      render: (_, item) => <>{item.consumptionQuantity.toLocaleString()}</>,
+      render: (_, item) => <>{formatNumber(item.consumptionQuantity)}</>,
     },
     {
       key: 'availableStatusCode',
@@ -188,7 +189,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
       label: t('requirements.shortage'),
       render: (_, item) =>
         item.shortageQuantity > 0 ? (
-          <span className="text-red-600 font-medium">{item.shortageQuantity.toLocaleString()}</span>
+          <span className="text-red-600 font-medium">{formatNumber(item.shortageQuantity)}</span>
         ) : (
           <>0</>
         ),

@@ -22,6 +22,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 interface PlannedOrdersTabProps {
   tabButtons?: React.ReactNode;
@@ -158,7 +159,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
     {
       key: 'quantity',
       label: t('common.quantity'),
-      render: (_, order) => <>{order.quantity.toLocaleString()}</>,
+      render: (_, order) => <>{formatNumber(order.quantity)}</>,
     },
     { key: 'procurementStartDate', label: t('common.procurementStartDate') },
     {

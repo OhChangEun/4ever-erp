@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/app/utils/number';
 
 /**
  * 재고 선 하나 + 안전재고 기준선(시각화 2). 색은 토큰 두 개(선: 브랜드, 기준선: 빨강), 그라데이션 없음.
@@ -45,7 +46,7 @@ export default function StockTrendChart({
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip formatter={(v) => [Number(v).toLocaleString('ko-KR'), t('tooltipStock')]} />
+          <Tooltip formatter={(v) => [formatNumber(Number(v)), t('tooltipStock')]} />
           <ReferenceLine
             y={safetyStock}
             // 재고가 전부 안전재고보다 낮아도 기준선이 보이게 축을 늘린다. 기본값은 화면 밖이면 지운다(리뷰 P2)

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ResponsiveContainer, Sankey, Tooltip } from 'recharts';
 import type { NodeProps, LinkProps } from 'recharts/types/chart/Sankey';
 import { compactWon, formatCurrency } from '@/app/utils/number';
@@ -27,6 +27,7 @@ export default function SupplyFlowChart({
   describedBy: string;
 }) {
   const t = useTranslations('dashboard.supplyFlow');
+  const locale = useLocale();
   const kindOf = (index: number) => nodes[index]?.kind ?? 'flow';
   const maxDepth = Math.max(0, ...longestDepths(nodes.length, links));
 
@@ -45,7 +46,7 @@ export default function SupplyFlowChart({
           fontSize={11}
           fill="var(--color-gray-700)"
         >
-          {payload.name} {compactWon(value)}
+          {payload.name} {compactWon(value, locale)}
         </text>
       </g>
     );

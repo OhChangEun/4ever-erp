@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { compactWon, formatCurrency } from '@/app/utils/number';
 import type financeKo from '@/i18n/messages/finance/ko.json';
 import type { MonthlyPoint } from '../../types/FinanceAnalyticsType';
@@ -33,6 +33,7 @@ export default function MonthlyChart({
   describedBy: string;
 }) {
   const t = useTranslations('finance.overview');
+  const locale = useLocale();
   return (
     <div role="img" aria-label={t('monthly.chart')} aria-describedby={describedBy} className="h-64">
       <ResponsiveContainer width="100%" height="100%">
@@ -47,7 +48,7 @@ export default function MonthlyChart({
           />
           <YAxis
             width={52}
-            tickFormatter={compactWon}
+            tickFormatter={(v: number) => compactWon(v, locale)}
             tick={{ fontSize: 11, fill: 'var(--color-gray-500)' }}
             tickLine={false}
             axisLine={false}
