@@ -25,6 +25,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Table, type TableColumn } from '@everp/ui';
 import { Pagination } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
+import ConfirmModal from '@/app/components/common/modal/ConfirmModal';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { formatDateTime } from '@/app/utils/date';
 import { SearchBar } from '@everp/ui';
@@ -96,11 +97,13 @@ export default function PurchaseRequestListTab() {
   });
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳.
-  const { mutate: approveRequest, isPending: isApproving } = useApprovePurchaseRequest({
+  // 확인 모달이 요청이 끝난 것을 알아야 닫으므로 mutateAsync 를 넘긴다. 중복 제출은 모달의 확인 버튼 잠금과 훅의 안전망이 막는다.
+  // 승인이나 반려가 가는 중에는 같은 행의 다른 버튼도 잠근다(요청 중 Esc 로 모달을 닫을 수 있다).
+  const { mutateAsync: approveRequest, isPending: isApproving } = useApprovePurchaseRequest({
     onSuccess: () => toast.success(t('approveSuccess')),
     onError: (error) => toast.error(t('approveError', { message: errorMessageOf(error) })),
   });
-  const { mutate: rejectRequest, isPending: isRejecting } = useRejectPurchaseRequest({
+  const { mutateAsync: rejectRequest, isPending: isRejecting } = useRejectPurchaseRequest({
     onSuccess: () => toast.success(t('rejectSuccess')),
     onError: (error) => toast.error(t('rejectError', { message: errorMessageOf(error) })),
   });
@@ -125,15 +128,18 @@ export default function PurchaseRequestListTab() {
   };
 
   const handleApprove = (purchaseRequestId: string) => {
-    if (confirm(t('confirmApprove'))) {
-      approveRequest(purchaseRequestId);
-    }
+    openModal(ConfirmModal, {
+      title: t('confirmApprove'),
+      onConfirm: () => approveRequest(purchaseRequestId),
+    });
   };
 
   const handleReject = (purchaseRequestId: string) => {
-    if (confirm(t('confirmReject'))) {
-      rejectRequest({ purchaseRequestId, comment: '' });
-    }
+    openModal(ConfirmModal, {
+      title: t('confirmReject'),
+      reason: { label: tc('rejectReason'), required: tc('rejectReasonRequired') },
+      onConfirm: (comment) => rejectRequest({ purchaseRequestId, comment }),
+    });
   };
 
   const columns: TableColumn<PurchaseRequestListItem>[] = [
@@ -185,6 +191,7 @@ export default function PurchaseRequestListTab() {
                 className="px-2"
                 onClick={() => handleApprove(r.purchaseRequisitionId)}
                 loading={isApproving}
+                disabled={isRejecting}
               />
               <Button
                 label={tc('reject')}
@@ -193,6 +200,7 @@ export default function PurchaseRequestListTab() {
                 className="text-red-600 hover:bg-red-50 px-2"
                 onClick={() => handleReject(r.purchaseRequisitionId)}
                 loading={isRejecting}
+                disabled={isApproving}
               />
             </>
           )}

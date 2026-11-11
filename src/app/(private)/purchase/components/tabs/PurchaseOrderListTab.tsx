@@ -21,6 +21,7 @@ import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useModal } from '@/app/components/common/modal/useModal';
+import ConfirmModal from '@/app/components/common/modal/ConfirmModal';
 import { SearchBar } from '@everp/ui';
 import { useDebounce } from 'use-debounce';
 import { type PurchaseOrderListParams } from '@/app/(private)/purchase/types/PurchaseOrderType';
@@ -87,39 +88,45 @@ export default function PurchaseOrderListTab() {
   });
 
   // mutation 과 무효화 범위는 purchase.mutations.ts 한 곳. 여기선 결과를 알리기만 한다.
-  const { mutate: approveOrder, isPending: isApproving } = useApprovePurchaseOrder({
+  // 확인 모달이 요청이 끝난 것을 알아야 닫으므로 mutateAsync 를 넘긴다. 중복 제출은 모달의 확인 버튼 잠금과 훅의 안전망이 막는다.
+  const { mutateAsync: approveOrder, isPending: isApproving } = useApprovePurchaseOrder({
     onSuccess: () => toast.success(t('approveSuccess')),
     onError: (error) => toast.error(t('approveError', { message: errorMessageOf(error) })),
   });
-  const { mutate: rejectOrder, isPending: isRejecting } = useRejectPurchaseOrder({
+  const { mutateAsync: rejectOrder, isPending: isRejecting } = useRejectPurchaseOrder({
     onSuccess: () => toast.success(t('rejectSuccess')),
     onError: (error) => toast.error(t('rejectError', { message: errorMessageOf(error) })),
   });
-  const { mutate: startDelivery, isPending: isStartingDelivery } = useStartPurchaseOrderDelivery({
-    onSuccess: () => toast.info(t('deliverySuccess')),
-    onError: (error) => toast.error(t('deliveryError', { message: errorMessageOf(error) })),
-  });
+  const { mutateAsync: startDelivery, isPending: isStartingDelivery } =
+    useStartPurchaseOrderDelivery({
+      onSuccess: () => toast.info(t('deliverySuccess')),
+      onError: (error) => toast.error(t('deliveryError', { message: errorMessageOf(error) })),
+    });
 
   const orders = orderData?.content || []; // optional chaining으로 안전하게 처리
   const pageInfo = orderData?.page;
   const totalPages = pageInfo?.totalPages ?? 1;
 
   const handleApprove = (purchaseOrderId: string) => {
-    if (confirm(t('confirmApprove'))) {
-      approveOrder(purchaseOrderId);
-    }
+    openModal(ConfirmModal, {
+      title: t('confirmApprove'),
+      onConfirm: () => approveOrder(purchaseOrderId),
+    });
   };
 
   const handleReject = (purchaseOrderId: string) => {
-    if (confirm(t('confirmReject'))) {
-      rejectOrder({ purchaseOrderId, reason: '' });
-    }
+    openModal(ConfirmModal, {
+      title: t('confirmReject'),
+      reason: { label: tc('rejectReason'), required: tc('rejectReasonRequired') },
+      onConfirm: (reason) => rejectOrder({ purchaseOrderId, reason }),
+    });
   };
 
   const handleStartDelivery = (purchaseOrderId: string) => {
-    if (confirm(t('confirmStartDelivery'))) {
-      startDelivery(purchaseOrderId);
-    }
+    openModal(ConfirmModal, {
+      title: t('confirmStartDelivery'),
+      onConfirm: () => startDelivery(purchaseOrderId),
+    });
   };
 
   // 상세 보기 모달 핸들러

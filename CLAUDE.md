@@ -53,7 +53,7 @@ UI 작업은 `DESIGN_GUIDELINES.md`를 따른다. 새 컴포넌트를 만들기 
   - 레이아웃: `Flex`, `Spacing`
   - 데이터: `Table`, `Pagination`, `StatSection`
   - 입력: `Button`, `IconButton`, `Input`, `Dropdown`, `DateRangePicker`, `SearchBar`
-  - 피드백: `TableStatusBox`, `ModalStatusBox`, `StatusLabel`, `LoadingSpinner`, `ConflictDialog`(409 충돌 안내)
+  - 피드백: `TableStatusBox`, `ModalStatusBox`, `StatusLabel`, `LoadingSpinner`, `ConflictDialog`(409 충돌 안내), `ConfirmModal`(확인 창, 사유 입력. 브라우저 `confirm()` 은 린트가 막는다)
   - 내비게이션: `TabNavigation`, `TabButtons`, `SubNavigation`
   - 날 것의 `<div style>` 나 raw `<table>` 대신 반드시 공통 컴포넌트 사용 여부를 먼저 검토
 

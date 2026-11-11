@@ -203,6 +203,29 @@ describe('발주 반려 URL', () => {
   });
 });
 
+describe('구매 요청 반려 본문', () => {
+  // 게이트웨이 PurchaseRequisitionRejectRequestDto 의 필드는 comment 하나다(MmController.java:378)
+  it('반려 사유를 comment 로 보내고 기본 목이 받는다', async () => {
+    const queryClient = createTestQueryClient();
+    await runHook(queryClient, useRejectPurchaseRequest, {
+      purchaseRequestId: 'pr-001',
+      comment: '예산 초과',
+    });
+  });
+
+  it.each([
+    ['다른 필드 이름(reason)', { reason: '예산 초과' }],
+    ['문자열이 아닌 comment', { comment: 1 }],
+  ])('목 서버는 %s 을 400 으로 막는다', async (_, body) => {
+    const response = await fetch(`${PURCHASE_BASE_PATH}/purchase-requisitions/pr-001/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    expect(response.status).toBe(400);
+  });
+});
+
 describe('발주 반려 본문', () => {
   // 게이트웨이 PurchaseOrderRejectRequestDto 의 필드는 reason 하나다. body 로 보내면 사유가 null 로 들어간다
   it('반려 사유를 reason 으로 보낸다', async () => {

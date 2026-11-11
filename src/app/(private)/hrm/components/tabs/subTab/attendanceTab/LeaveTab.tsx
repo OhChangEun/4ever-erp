@@ -14,6 +14,8 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
+import { useModal } from '@/app/components/common/modal/useModal';
+import ConfirmModal from '@/app/components/common/modal/ConfirmModal';
 import { useApproveLeave, useRejectLeave } from '@/app/(private)/hrm/api/hrm.mutations';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
@@ -22,6 +24,7 @@ import { Button } from '@everp/ui';
 export default function LeaveTab() {
   const t = useTranslations('hrm');
   // --- 모달 출력 ---
+  const { openModal } = useModal();
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
@@ -67,25 +70,30 @@ export default function LeaveTab() {
   type LeaveItem = (typeof leaveList)[0];
 
   // mutation 과 무효화 범위는 hrm.mutations.ts 한 곳.
-  const { mutate: approveLeave, isPending: isApproving } = useApproveLeave({
+  // 확인 모달이 요청이 끝난 것을 알아야 닫으므로 mutateAsync 를 넘긴다. 중복 제출은 모달의 확인 버튼 잠금과 훅의 안전망이 막는다.
+  // 승인이나 반려가 가는 중에는 같은 행의 다른 버튼도 잠근다(요청 중 Esc 로 모달을 닫을 수 있다).
+  const { mutateAsync: approveLeave, isPending: isApproving } = useApproveLeave({
     onSuccess: () => toast.success(t('leave.approved')),
     onError: (error) => toast.error(t('leave.approveError', { message: errorMessageOf(error) })),
   });
-  const { mutate: rejectLeave, isPending: isRejecting } = useRejectLeave({
+  const { mutateAsync: rejectLeave, isPending: isRejecting } = useRejectLeave({
     onSuccess: () => toast.info(t('leave.rejected')),
     onError: (error) => toast.error(t('leave.rejectError', { message: errorMessageOf(error) })),
   });
 
   const handleApprove = (requestId: string) => {
-    if (confirm(t('leave.approveConfirm'))) {
-      approveLeave(requestId);
-    }
+    openModal(ConfirmModal, {
+      title: t('leave.approveConfirm'),
+      onConfirm: () => approveLeave(requestId),
+    });
   };
 
   const handleReject = (requestId: string) => {
-    if (confirm(t('leave.rejectConfirm'))) {
-      rejectLeave(requestId);
-    }
+    // 게이트웨이 휴가 반려는 본문을 받지 않는다(HrmController.java:490). 그래서 사유 칸이 없다
+    openModal(ConfirmModal, {
+      title: t('leave.rejectConfirm'),
+      onConfirm: () => rejectLeave(requestId),
+    });
   };
 
   const columns: TableColumn<LeaveItem>[] = [
@@ -137,6 +145,7 @@ export default function LeaveTab() {
               className="px-2"
               onClick={() => handleApprove(leave.leaveRequestId)}
               loading={isApproving}
+              disabled={isRejecting}
             />
             <Button
               label={t('leave.reject')}
@@ -145,6 +154,7 @@ export default function LeaveTab() {
               className="text-red-600 hover:bg-red-50 px-2"
               onClick={() => handleReject(leave.leaveRequestId)}
               loading={isRejecting}
+              disabled={isApproving}
             />
           </div>
         ) : (

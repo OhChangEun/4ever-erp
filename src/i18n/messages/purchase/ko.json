@@ -14,6 +14,8 @@
     "detail": "상세",
     "approve": "승인",
     "reject": "반려",
+    "rejectReason": "반려 사유",
+    "rejectReasonRequired": "반려 사유를 입력해 주세요.",
     "edit": "수정",
     "cancel": "취소",
     "allStatuses": "전체 상태",

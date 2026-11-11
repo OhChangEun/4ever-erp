@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useAuthStore } from '@/store/authStore';
 import { delay, HttpResponse } from 'msw';
@@ -88,7 +88,7 @@ describe('발주 승인 중복 제출 방지', () => {
     vi.restoreAllMocks();
   });
 
-  it('승인 버튼을 빠르게 두 번 눌러도 요청은 한 번, 진행 중엔 버튼이 잠긴다', async () => {
+  it('승인 확인을 빠르게 두 번 눌러도 요청은 한 번, 진행 중엔 확인 버튼과 행 버튼이 잠긴다', async () => {
     // 승인 버튼은 공급사 역할 + PENDING 상태에서만 보인다
     useAuthStore.getState().setUserInfo({
       id: 2,
@@ -96,7 +96,8 @@ describe('발주 승인 중복 제출 방지', () => {
       email: 'supplier@everp.local',
       role: 'SUPPLIER_ADMIN',
     });
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    // 브라우저 기본 창을 쓰면 false 라 요청이 안 나가 아래 단언이 깨진다
+    const nativeConfirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     let approveCalls = 0;
     let listCalls = 0;
@@ -137,16 +138,156 @@ describe('발주 승인 중복 제출 방지', () => {
       },
       { timeout: 3000 },
     );
-    const approve = screen.getByRole('button', { name: '승인' });
+    await user.click(screen.getByRole('button', { name: '승인' }));
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    const dialog = within(
+      await screen.findByRole('dialog', { name: '해당 발주서를 승인하시겠습니까?' }),
+    );
 
-    await user.click(approve);
-    await user.click(approve); // 두 번째 클릭. 버튼이 잠겨 있거나 안전망이 버려야 한다
-    expect(screen.getByRole('button', { name: '승인' })).toBeDisabled();
+    await user.click(dialog.getByRole('button', { name: '확인' }));
+    await user.click(dialog.getByRole('button', { name: '확인' })); // 두 번째 클릭. 버튼이 잠겨 있어야 한다
+    expect(dialog.getByRole('button', { name: '확인' })).toBeDisabled();
+    // 모달 뒤의 행 버튼도 예전처럼 진행 중엔 잠긴다(모달 뒤라 hidden 으로 찾는다)
+    expect(screen.getByRole('button', { name: '승인', hidden: true })).toBeDisabled();
 
-    await waitFor(() => expect(screen.getByRole('button', { name: '승인' })).toBeEnabled(), {
-      timeout: 3000,
-    });
+    // 성공하면 모달이 닫히고 행 버튼이 풀린다
+    await waitFor(
+      () => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: '승인' })).toBeEnabled();
+      },
+      { timeout: 3000 },
+    );
     expect(approveCalls).toBe(1);
+  });
+});
+
+describe('발주 확인 창과 반려 사유', () => {
+  afterEach(() => {
+    useAuthStore.getState().clearUserInfo();
+    vi.restoreAllMocks();
+  });
+
+  const order = (statusCode: string) => ({
+    purchaseOrderId: 'po-001',
+    purchaseOrderNumber: 'PO-2026-001',
+    supplierName: '대양상사',
+    itemsSummary: '원자재 A 외 2건',
+    orderDate: '2026-01-08',
+    dueDate: '2026-01-30',
+    totalAmount: 4200000,
+    statusCode,
+  });
+
+  /** 공급사로 발주 한 건을 띄우고, 옵션 로드 뒤의 두 번째 목록까지 끝난 표에서 행 버튼을 누른다 */
+  const openFromRow = async (statusCode: string, button: string, locale: 'ko' | 'en' = 'ko') => {
+    useAuthStore.getState().setUserInfo({
+      id: 2,
+      name: '대양상사',
+      email: 'supplier@everp.local',
+      role: 'SUPPLIER_ADMIN',
+    });
+    const nativeConfirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    let listCalls = 0;
+    server.use(
+      http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, () => {
+        listCalls += 1;
+        return ok({
+          content: [order(statusCode)],
+          page: { number: 0, size: 10, totalElements: 1, totalPages: 1, hasNext: false },
+        });
+      }),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<PurchaseOrderListTab />, { locale });
+    await waitFor(
+      () => {
+        expect(listCalls).toBeGreaterThanOrEqual(2);
+        expect(screen.getByRole('button', { name: button })).toBeEnabled();
+      },
+      { timeout: 3000 },
+    );
+    await user.click(screen.getByRole('button', { name: button }));
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    return user;
+  };
+
+  const REJECT_URL = `${PURCHASE_BASE_PATH}/purchase-orders/:poId/reject`;
+
+  it('반려: 사유가 비면 요청이 안 나가고, 입력한 사유가 본문 reason 에 실리고, 성공하면 닫힌다', async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(REJECT_URL, async ({ request }) => {
+        bodies.push(await request.json());
+        return ok(null);
+      }),
+    );
+    const user = await openFromRow('PENDING', '반려');
+    const dialog = within(
+      await screen.findByRole('dialog', { name: '해당 발주서를 반려하시겠습니까?' }),
+    );
+    const field = dialog.getByRole('textbox', { name: '반려 사유' });
+    expect(field).toHaveAccessibleDescription('반려 사유를 입력해 주세요.');
+    expect(dialog.getByRole('button', { name: '확인' })).toBeDisabled();
+    await user.click(dialog.getByRole('button', { name: '확인' }));
+    expect(bodies).toEqual([]);
+
+    await user.type(field, '납기를 맞출 수 없습니다');
+    await user.click(dialog.getByRole('button', { name: '확인' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(bodies).toEqual([{ reason: '납기를 맞출 수 없습니다' }]);
+  });
+
+  it('반려 실패: 모달과 사유가 남고 오류가 보인다', async () => {
+    let calls = 0;
+    server.use(
+      http.post(REJECT_URL, () => {
+        calls += 1;
+        return scenarioResponse('500');
+      }),
+    );
+    const user = await openFromRow('PENDING', '반려');
+    const dialog = within(
+      await screen.findByRole('dialog', { name: '해당 발주서를 반려하시겠습니까?' }),
+    );
+    await user.type(dialog.getByRole('textbox', { name: '반려 사유' }), '단가 불일치');
+    await user.click(dialog.getByRole('button', { name: '확인' }));
+
+    expect(await screen.findByText(/반려 중 오류가 발생했습니다/)).toHaveTextContent(
+      ko.errors.server,
+    );
+    expect(calls).toBe(1);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(dialog.getByRole('textbox', { name: '반려 사유' })).toHaveValue('단가 불일치');
+    await waitFor(() => expect(dialog.getByRole('button', { name: '확인' })).toBeEnabled());
+  });
+
+  it('배송 시작: 앱 모달에서 확인하면 요청이 한 번 나간다', async () => {
+    let calls = 0;
+    server.use(
+      http.post(`${PURCHASE_BASE_PATH}/:poId/start-delivery`, () => {
+        calls += 1;
+        return ok(null);
+      }),
+    );
+    const user = await openFromRow('APPROVAL', '배송 시작');
+    const dialog = within(await screen.findByRole('dialog', { name: '배송을 시작하시겠습니까?' }));
+    expect(dialog.queryByRole('textbox')).not.toBeInTheDocument();
+    await user.click(dialog.getByRole('button', { name: '확인' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(calls).toBe(1);
+  });
+
+  it('영어 로케일에서 반려 모달의 제목, 버튼, 사유 라벨과 안내가 영어다', async () => {
+    await openFromRow('PENDING', 'Reject', 'en');
+    const dialog = within(
+      await screen.findByRole('dialog', { name: 'Reject this purchase order?' }),
+    );
+    expect(
+      dialog.getByRole('textbox', { name: 'Reason for rejection' }),
+    ).toHaveAccessibleDescription('Enter a reason for rejection.');
+    expect(dialog.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+    expect(dialog.getByRole('button', { name: 'OK' })).toBeDisabled();
   });
 });
 

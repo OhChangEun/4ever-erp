@@ -87,7 +87,8 @@
   },
   "common": {
     "all": "All",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "sidebar": {
     "openMenu": "Open menu",

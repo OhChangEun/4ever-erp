@@ -51,7 +51,9 @@ describe('useInvalidatingMutation 중복 제출 안전망', () => {
     await waitFor(() => expect(mutationFn).toHaveBeenCalledTimes(2));
   });
 
-  it('mutateAsync 는 막지 않는다(순차 호출과 테스트용)', async () => {
+  // 2026-11-12 확인 창 카드 리뷰 A1: 예전엔 "mutateAsync 는 막지 않는다"(동시 2번 → 요청 2번)였다.
+  // 확인 모달이 mutateAsync 를 쓰게 되면서 모달 두 개가 같은 요청을 두 번 보낼 수 있어 기대값을 바꿨다.
+  it('mutateAsync 를 연달아 두 번 불러도 요청은 한 번이고, 두 번째는 보내지 않았다고 거절한다', async () => {
     const mutationFn = vi.fn((id: string) => delayed(id, 10));
     const { result } = renderHook(
       () =>
@@ -62,8 +64,65 @@ describe('useInvalidatingMutation 중복 제출 안전망', () => {
         }),
       { wrapper },
     );
-    await Promise.all([result.current.mutateAsync('a'), result.current.mutateAsync('b')]);
+    const first = result.current.mutateAsync('a');
+    // 보내지 않은 요청을 성공으로 알리면 안 된다(다른 행의 모달일 수 있다). 그래서 첫 요청의 결과를 돌려주지 않는다
+    await expect(result.current.mutateAsync('b')).rejects.toThrow('진행 중인 요청');
+    await expect(first).resolves.toBe('a');
+    expect(mutationFn).toHaveBeenCalledTimes(1);
+    expect(mutationFn).toHaveBeenCalledWith('a', expect.anything());
+  });
+
+  it('mutateAsync 순차 호출은 둘 다 간다(순차 호출과 테스트용)', async () => {
+    const mutationFn = vi.fn((id: string) => delayed(id, 10));
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, string>({
+          mutationKey: ['test', 'guard4'],
+          mutationFn,
+          effects: () => [],
+        }),
+      { wrapper },
+    );
+    await expect(result.current.mutateAsync('a')).resolves.toBe('a');
+    await expect(result.current.mutateAsync('b')).resolves.toBe('b');
     expect(mutationFn).toHaveBeenCalledTimes(2);
+  });
+
+  it('mutateAsync 가 실패한 뒤에도 다시 부를 수 있다', async () => {
+    const mutationFn = vi
+      .fn<(id: string) => Promise<string>>()
+      .mockRejectedValueOnce(new Error('500'))
+      .mockResolvedValueOnce('ok');
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, string>({
+          mutationKey: ['test', 'guard5'],
+          mutationFn,
+          effects: () => [],
+        }),
+      { wrapper },
+    );
+    await expect(result.current.mutateAsync('a')).rejects.toThrow('500');
+    await expect(result.current.mutateAsync('a')).resolves.toBe('ok');
+  });
+
+  it('mutateAsync 가 진행 중이면 mutate 도 버린다(같은 안전망)', async () => {
+    const mutationFn = vi.fn((id: string) => delayed(id, 10));
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { result } = renderHook(
+      () =>
+        useInvalidatingMutation<string, string>({
+          mutationKey: ['test', 'guard6'],
+          mutationFn,
+          effects: () => [],
+        }),
+      { wrapper },
+    );
+    const first = result.current.mutateAsync('a');
+    act(() => result.current.mutate('b'));
+    await first;
+    expect(mutationFn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
   });
 });
 

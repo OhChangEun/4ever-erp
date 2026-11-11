@@ -1,4 +1,6 @@
 import { type ModalProps } from '@/app/components/common/modal/types';
+import { useModal } from '@/app/components/common/modal/useModal';
+import ConfirmModal from '@/app/components/common/modal/ConfirmModal';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPayRollDetail } from '@/app/(private)/hrm/api/hrm.api';
 import { Button } from '@everp/ui';
@@ -18,6 +20,7 @@ interface PayrollDetailModalProps extends ModalProps {
 export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
+  const { openModal } = useModal();
   const t = useTranslations('hrm');
   // 한국어는 예전처럼 2026. 11. 10., 영어는 11/10/2026
   const dateLocale = useLocale() === 'ko' ? 'ko-KR' : 'en-US';
@@ -33,9 +36,11 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
   const handlePayrollComplete = () => {
     if (!payrollId) return;
 
-    if (confirm(t('payroll.completeConfirm'))) {
-      mutation.mutate({ payrollId });
-    }
+    // 성공하면 위 onSuccess 가 이 모달을 닫고, 확인 모달은 Promise 가 끝나면 스스로 닫는다
+    openModal(ConfirmModal, {
+      title: t('payroll.completeConfirm'),
+      onConfirm: () => mutation.mutateAsync({ payrollId }),
+    });
   };
 
   const {

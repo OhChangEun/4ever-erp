@@ -97,13 +97,27 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         height: fullProps.height,
         onClose,
         element: <Component {...fullProps} />,
+        component: Component,
         // Radix Dialog 는 Dialog.Trigger 로 포커스를 돌린다. 코드로 여는 모달이라 연 순간의 포커스를 기억한다
         returnFocusTo:
           document.activeElement instanceof HTMLElement ? document.activeElement : null,
       };
 
-      // 상태 업데이트 → 렌더링 트리거
-      setModals((prev) => [...prev, newModal]);
+      // 같은 버튼에서 같은 모달을 또 열면 무시한다. 모달 틀 청크가 오기 전에는 포커스가 버튼에 남아
+      // Enter 두 번이 모달 두 개가 되고, 확인 모달이면 같은 요청이 두 번 나간다(2026-11-12 리뷰 A1).
+      // 틀이 뜬 뒤에는 포커스가 모달 안으로 가므로 겹쳐 여는 모달(연 요소가 다르다)은 그대로 열린다.
+      // 무시된 호출이 받는 id 는 스택에 없다. 그 id 로 닫아도 아무 일도 없다.
+      setModals((prev) =>
+        prev.some(
+          (open) =>
+            open.component === Component &&
+            open.returnFocusTo === newModal.returnFocusTo &&
+            newModal.returnFocusTo !== null &&
+            newModal.returnFocusTo !== document.body,
+        )
+          ? prev
+          : [...prev, newModal],
+      );
       return id;
     },
 
