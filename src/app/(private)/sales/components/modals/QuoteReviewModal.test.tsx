@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http } from 'msw';
+import { ok } from '@/mocks/utils';
+import { SALES_ENDPOINTS } from '@/app/types/api';
+import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { mockBrowserLocale } from '@/test/browserLocale';
 import QuoteReviewModal from './QuoteReviewModal';
@@ -25,5 +29,32 @@ describe('견적 검토 모달 재고 확인 시각', () => {
     expect(
       await screen.findByText(/^재고 확인 일시: (오전|오후) \d{2}:\d{2}$/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('견적 검토 모달 재고 확인 표', () => {
+  it('필요 수량과 재고 수량에 자리 구분 쉼표', async () => {
+    server.use(
+      http.post(SALES_ENDPOINTS.INVENTORY_CHECK, () =>
+        ok({
+          items: [
+            {
+              itemId: 'item-1001',
+              itemName: '모터 A',
+              requiredQuantity: 1200,
+              inventoryQuantity: 15000,
+              shortageQuantity: 0,
+              statusCode: 'AVAILABLE',
+              productionRequired: false,
+              inventoryCheckTime: '2026-11-11T01:00:00Z',
+            },
+          ],
+        }),
+      ),
+    );
+    renderWithProviders(<QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="q-1" />);
+    await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
+    expect(await screen.findByRole('cell', { name: '1,200' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '15,000' })).toBeInTheDocument();
   });
 });

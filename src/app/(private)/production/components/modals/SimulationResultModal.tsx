@@ -6,7 +6,7 @@ import { Flex } from '@everp/ui';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { Table } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber } from '@/app/utils/number';
 
 interface SimulationResultModalProps extends ModalProps {
@@ -41,6 +41,7 @@ export default function SimulationResultModal({
   onConfirm,
 }: SimulationResultModalProps) {
   const t = useTranslations('production');
+  const locale = useLocale();
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(
     simulationResults[0]?.quotationId || null,
   );
@@ -120,7 +121,7 @@ export default function SimulationResultModal({
                     { label: t('common.productName'), value: selectedResult.productName },
                     {
                       label: t('common.requestDueDate'),
-                      value: new Date(selectedResult.requestDueDate).toLocaleDateString('ko-KR'),
+                      value: new Date(selectedResult.requestDueDate).toLocaleDateString(locale),
                     },
                     {
                       label: t('common.suggestedDueDate'),

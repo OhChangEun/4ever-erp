@@ -20,6 +20,7 @@ describe('(private) 오류 경계', () => {
     expect(alert).toHaveTextContent('화면을 그리는 중 오류가 발생했습니다');
     expect(alert).toHaveTextContent('dg-778899');
     expect(alert).not.toHaveTextContent('at ');
+    expect(alert).not.toHaveTextContent('목록 계산 중 깨짐');
     await userEvent.click(screen.getByRole('button', { name: '다시 시도' }));
     expect(retry).toHaveBeenCalledTimes(1);
   });
@@ -48,6 +49,17 @@ describe('(private) 오류 경계', () => {
     error.stack = 'Error: 깨짐\n    at Table (table.tsx:10:5)';
     render(<PrivateError error={error} retry={() => {}} />, { wrapper: IntlTestProvider });
     expect(screen.getByRole('alert')).toHaveTextContent('at Table (table.tsx:10:5)');
+  });
+
+  it('개발 모드, Safari 와 Firefox stack(message 없음): 원인 문구도 보인다', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.stubEnv('NODE_ENV', 'development');
+    const error = new Error('목록 계산 중 깨짐');
+    error.stack = 'Table@http://localhost:3000/table.js:10:5';
+    render(<PrivateError error={error} retry={() => {}} />, { wrapper: IntlTestProvider });
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('목록 계산 중 깨짐');
+    expect(alert).toHaveTextContent('Table@http://localhost:3000/table.js:10:5');
   });
 
   it('영어 화면에서는 영어 문구, 오류 ID, 다시 시도', async () => {

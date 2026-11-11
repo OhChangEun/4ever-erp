@@ -18,7 +18,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 
-import { formatCurrency } from '@/app/utils/number';
+import { formatCurrency, formatNumber } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useLocale, useTranslations } from 'next-intl';
 const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProps) => {
@@ -211,8 +211,12 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                   {inventoryCheckResult.map((item, index: number) => (
                     <tr key={index} className="border-b">
                       <td className="px-4 py-3 text-sm font-medium">{item.itemName}</td>
-                      <td className="px-4 py-3 text-sm text-center">{item.requiredQuantity}</td>
-                      <td className="px-4 py-3 text-sm text-center">{item.inventoryQuantity}</td>
+                      <td className="px-4 py-3 text-sm text-center">
+                        {formatNumber(item.requiredQuantity)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-center">
+                        {formatNumber(item.inventoryQuantity)}
+                      </td>
                       <td className="px-4 py-3 text-center">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${

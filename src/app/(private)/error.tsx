@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { IconButton } from '@everp/ui';
+import { devErrorDetail } from '@/lib/devErrorDetail';
 
 /**
  * 화면 층 오류 경계(옵저버빌리티 1, Error Boundary 3층 중 가운데).
@@ -43,9 +44,9 @@ export default function PrivateError({
         variant="secondary"
         onClick={() => retry()}
       />
-      {isDev && error.stack && (
+      {isDev && (
         <pre className="mt-2 max-h-48 w-full max-w-2xl overflow-auto rounded bg-gray-100 p-3 text-left text-xs">
-          {error.stack}
+          {devErrorDetail(error)}
         </pre>
       )}
     </div>

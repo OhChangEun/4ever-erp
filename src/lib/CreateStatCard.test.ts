@@ -28,6 +28,14 @@ describe('createStatCard', () => {
     expect(createStatCard('총 매출', 1, 0).changeType).toBe('increase');
   });
 
+  it('값이 없거나 NaN 이면 단위 없이 - 만', () => {
+    expect(createStatCard('총 매출', Number.NaN, 0, '₩').value).toBe('-');
+    expect(createStatCard('입고', Number.NaN, 0, '건').value).toBe('-');
+    // 0 은 값이다. - 로 바꾸지 않는다
+    expect(createStatCard('총 매출', 0, 0, '₩').value).toBe('₩0');
+    expect(createStatCard('입고', 0, 0, '건').value).toBe('0건');
+  });
+
   describe('브라우저 언어가 de-DE 여도', () => {
     afterEach(() => vi.restoreAllMocks());
 
