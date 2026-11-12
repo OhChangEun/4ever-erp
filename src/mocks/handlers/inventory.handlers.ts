@@ -1,6 +1,44 @@
-import { http } from 'msw';
+import { http, type PathParams } from 'msw';
 import { INVENTORY_BASE_PATH, INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
-import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
+import type { Schema } from '@/lib/api/contract';
+import { mockState } from '../state';
+import {
+  ok,
+  okNoData,
+  error,
+  shouldError,
+  pathSegment,
+  isoNow,
+  makePage,
+  stat,
+  statResponse,
+} from './utils';
+
+/**
+ * 재고 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
+ * 안전재고 수정과 재고 이동은 화면이 응답 전에 값을 바꾼다(낙관적). 목이 안 따르면 다시 가져올 때 원래 값으로 돌아간다.
+ * 재고 상태(NORMAL, URGENT)는 다시 계산하지 않는다. 서버 기준을 모른다(verified=false)
+ */
+const inventoryState = mockState<{
+  safetyStock: Map<string, number>;
+  /** 품목 id → 기본 창고(wh-001)에서 나간 수량. 들어온 것은 음수 */
+  movedOut: Map<string, number>;
+  /** 배송을 시작한 주문. 출고 준비 완료 목록에서 빠진다 */
+  shippedOrders: Set<string>;
+}>(() => ({ safetyStock: new Map(), movedOut: new Map(), shippedOrders: new Set() }));
+
+/** 재고 상세 목의 창고. 재고 이동은 이 창고에서 나가거나 들어올 때만 현재고가 바뀐다 */
+const DETAIL_WAREHOUSE_ID = 'wh-001';
+const UNIT_PRICE = 12000;
+
+/** 품목의 안전재고와 현재고에 쓰기 결과를 덮는다 */
+const stockOf = (request: Request, itemId: string, seed: { current: number; safety: number }) => {
+  const state = inventoryState(request);
+  return {
+    currentStock: seed.current - (state.movedOut.get(itemId) ?? 0),
+    safetyStock: state.safetyStock.get(itemId) ?? seed.safety,
+  };
+};
 
 const mockInventoryStats = statResponse({
   total_stock: stat,
@@ -73,6 +111,7 @@ export const inventoryHandlers = [
       const content = warehouseStock(keyword);
       return ok({ content: content.slice(0, size), page: makePage(page, size, content.length) });
     }
+    const stock = stockOf(request, 'item-1001', { current: 120, safety: 50 });
     return ok({
       content: [
         {
@@ -80,13 +119,12 @@ export const inventoryHandlers = [
           itemNumber: 'ITM-1001',
           itemName: '모터 A',
           category: 'MOTOR',
-          currentStock: 120,
+          ...stock,
           forShipmentStock: 30,
           reservedStock: 10,
-          safetyStock: 50,
           uomName: 'EA',
-          unitPrice: 12000,
-          totalAmount: 1440000,
+          unitPrice: UNIT_PRICE,
+          totalAmount: stock.currentStock * UNIT_PRICE,
           warehouseName: '1공장 창고',
           warehouseType: 'RAW',
           statusCode: 'NORMAL',
@@ -96,8 +134,9 @@ export const inventoryHandlers = [
       page: makePage(page, size, 1),
     });
   }),
-  http.get(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
+  http.get<{ itemId: string }>(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load inventory detail', 500);
+    const stock = stockOf(request, params.itemId, { current: 120, safety: 50 });
     return ok({
       itemId: params.itemId,
       itemNumber: 'ITM-1001',
@@ -105,12 +144,11 @@ export const inventoryHandlers = [
       category: 'MOTOR',
       supplierCompanyName: '대양상사',
       statusCode: 'NORMAL',
-      currentStock: 120,
-      safetyStock: 50,
+      ...stock,
       uomName: 'EA',
-      unitPrice: 12000,
-      totalAmount: 1440000,
-      warehouseId: 'wh-001',
+      unitPrice: UNIT_PRICE,
+      totalAmount: stock.currentStock * UNIT_PRICE,
+      warehouseId: DETAIL_WAREHOUSE_ID,
       warehouseName: '1공장 창고',
       warehouseNumber: 'WH-001',
       location: 'A-1',
@@ -138,9 +176,8 @@ export const inventoryHandlers = [
         {
           itemId: 'item-1002',
           itemName: '베어링 B',
-          currentStock: 20,
+          ...stockOf(request, 'item-1002', { current: 20, safety: 50 }),
           uomName: 'EA',
-          safetyStock: 50,
           statusCode: 'URGENT',
         },
       ],
@@ -161,12 +198,26 @@ export const inventoryHandlers = [
       ],
     });
   }),
-  http.post(INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT, ({ request }) => {
-    if (shouldError(request)) return error('Failed to post stock movement', 500);
-    return okNoData();
-  }),
+  http.post<PathParams, Schema<'StockMovementRequest'>>(
+    INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to post stock movement', 500);
+      const { movedOut } = inventoryState(request);
+      const { itemId, fromWarehouseId, toWarehouseId, stockQuantity } = await request.json();
+      // 이동 기록 행은 만들지 않는다(기록의 종류 코드와 창고 이름을 목이 모른다). 현재고만 따른다
+      const direction =
+        (fromWarehouseId === DETAIL_WAREHOUSE_ID ? 1 : 0) -
+        (toWarehouseId === DETAIL_WAREHOUSE_ID ? 1 : 0);
+      movedOut.set(itemId, (movedOut.get(itemId) ?? 0) + direction * stockQuantity);
+      return okNoData();
+    },
+  ),
   http.patch(new RegExp(`${INVENTORY_BASE_PATH}/iv/items/[^/]+/safety-stock`), ({ request }) => {
     if (shouldError(request)) return error('Failed to update safety stock', 500);
+    // 주소가 .../iv/items/{id}/safety-stock?safetyStock=N
+    const safetyStock = Number(new URL(request.url).searchParams.get('safetyStock'));
+    if (Number.isFinite(safetyStock))
+      inventoryState(request).safetyStock.set(pathSegment(request, 2), safetyStock);
     return okNoData();
   }),
   http.get(INVENTORY_ENDPOINTS.PRODUCTION_LIST, ({ request }) => {
@@ -184,6 +235,7 @@ export const inventoryHandlers = [
           dueDate: '2026-02-05',
           progress: 60,
           totalAmount: 8600000,
+          // 계약 enum 이 PRODUCTION 이다. 메시지 키가 없어 화면엔 "알 수 없음"(카드 "목이 쓰기 결과를 따르게" 별도 보고)
           statusCode: 'PRODUCTION',
         },
       ],
@@ -195,22 +247,22 @@ export const inventoryHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          salesOrderId: 'so-002',
-          salesOrderNumber: 'SO-2026-002',
-          customerName: '미래전자',
-          orderDate: '2026-01-10',
-          dueDate: '2026-02-02',
-          productionCompletionDate: '2026-01-25',
-          readyToShipDate: '2026-01-26',
-          totalAmount: 5200000,
-          statusCode: 'READT_TO_SHIP',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    // 배송을 시작한 주문은 배송중이 되어 이 목록에서 빠진다(게이트웨이 OrderController.java:239)
+    const content = [
+      {
+        salesOrderId: 'so-002',
+        salesOrderNumber: 'SO-2026-002',
+        customerName: '미래전자',
+        orderDate: '2026-01-10',
+        dueDate: '2026-02-02',
+        productionCompletionDate: '2026-01-25',
+        readyToShipDate: '2026-01-26',
+        totalAmount: 5200000,
+        // 오타지만 계약 enum 이 이 값이다. 계약을 고칠 때 같이 고친다(같은 카드 별도 보고)
+        statusCode: 'READT_TO_SHIP',
+      },
+    ].filter((order) => !inventoryState(request).shippedOrders.has(order.salesOrderId));
+    return ok({ content, page: makePage(page, size, content.length) });
   }),
   http.get(`${INVENTORY_BASE_PATH}/sales-orders/production/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load production detail', 500);
@@ -234,14 +286,18 @@ export const inventoryHandlers = [
       orderItems: [{ itemId: 'item-1002', itemName: '베어링 B', quantity: 50, uomName: 'EA' }],
     });
   }),
-  http.patch(`${INVENTORY_BASE_PATH}/sales-orders/:orderId/status`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update shipping status', 500);
-    return ok({
-      salesOrderId: 'so-001',
-      salesOrderCode: 'SO-2026-001',
-      status: 'READY_TO_SHIP',
-    });
-  }),
+  http.patch<{ orderId: string }>(
+    `${INVENTORY_BASE_PATH}/sales-orders/:orderId/status`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update shipping status', 500);
+      inventoryState(request).shippedOrders.add(params.orderId);
+      return ok({
+        salesOrderId: 'so-001',
+        salesOrderCode: 'SO-2026-001',
+        status: 'READY_TO_SHIP',
+      });
+    },
+  ),
   http.get(INVENTORY_ENDPOINTS.PENDING_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load pending list', 500);
     const url = new URL(request.url);
@@ -337,9 +393,8 @@ export const inventoryHandlers = [
           itemName: '베어링 B',
           itemNumber: 'ITM-1002',
           category: 'BEARING',
-          currentStock: 20,
+          ...stockOf(request, 'item-1002', { current: 20, safety: 50 }),
           uomName: 'EA',
-          safetyStock: 50,
           unitPrice: 8000,
           totalAmount: 160000,
           warehouseName: '1공장 창고',

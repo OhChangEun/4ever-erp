@@ -4,6 +4,9 @@ import {
   PRODUCTION_BASE_PATH,
   PRODUCTION_ENDPOINTS,
 } from '@/app/(private)/production/api/production.endpoints';
+import type { Schema } from '@/lib/api/contract';
+import { mockState } from '../state';
+import { purchaseState } from './purchase.handlers';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
 const mockProductionStats = statResponse({
@@ -12,15 +15,78 @@ const mockProductionStats = statResponse({
   bom_count: stat,
 });
 
-// ---- 낙관적 락 시뮬레이션: BOM 서버 측 버전 상태 ----
-const bomServerVersions: Record<string, string> = {};
-const getBomVersion = (bomId: string) => bomServerVersions[bomId] ?? 'v1';
-const bumpBomVersion = (bomId: string): string => {
-  const current = getBomVersion(bomId);
-  const next = `v${parseInt(current.replace('v', ''), 10) + 1}`;
-  bomServerVersions[bomId] = next;
+type Bom = Schema<'BomListData'>;
+
+/**
+ * 생산 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
+ * 상태 값은 서버 근거가 없어(게이트웨이가 Object 로 넘긴다) 화면이 비교하는 값에 맞췄다(verified=false).
+ * 견적 확정 뒤 CHECKED, 계획 주문 전환 뒤 CONVERTED, MES 와 공정은 IN_PROGRESS, COMPLETED.
+ * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인)
+ */
+const productionState = mockState<{
+  /** 낙관적 락 시뮬레이션. 실제 백엔드라면 DB 의 version 컬럼이다. 한 방문자의 충돌 재현이 남에게 409 를 내지 않게 로그인별 */
+  bomVersion: Map<string, string>;
+  bomStatus: Map<string, string>;
+  createdBoms: Bom[];
+  confirmedQuotations: Set<string>;
+  convertedItems: Set<string>;
+  mesStatus: Map<string, string>;
+  /** `MES id/공정 id` → 상태 */
+  operationStatus: Map<string, string>;
+}>(() => ({
+  bomVersion: new Map(),
+  bomStatus: new Map(),
+  createdBoms: [],
+  confirmedQuotations: new Set(),
+  convertedItems: new Set(),
+  mesStatus: new Map(),
+  operationStatus: new Map(),
+}));
+
+const getBomVersion = (request: Request, bomId: string) =>
+  productionState(request).bomVersion.get(bomId) ?? 'v1';
+const bumpBomVersion = (request: Request, bomId: string): string => {
+  const next = `v${parseInt(getBomVersion(request, bomId).replace('v', ''), 10) + 1}`;
+  productionState(request).bomVersion.set(bomId, next);
   return next;
 };
+
+const SEED_BOM: Bom = {
+  bomId: 'bom-001',
+  bomNumber: 'BOM-2026-001',
+  productId: 'prod-001',
+  productNumber: 'PRD-001',
+  productName: '모터 A',
+  version: 'v1',
+  statusCode: '활성',
+  lastModifiedAt: isoNow,
+};
+
+/** MES 상세 목의 공정 둘과 처음 상태. 목록에서 어떤 MES 를 열어도 같은 공정이 나온다 */
+const SEED_OPERATIONS = [
+  {
+    mesOperationLogId: 'op-001',
+    operationNumber: 'OP10',
+    operationName: '절삭',
+    sequence: 1,
+    statusCode: 'COMPLETED',
+    startedAt: isoNow,
+    finishedAt: isoNow,
+    durationHours: 2,
+    manager: { id: 1, name: '박공정' },
+  },
+  {
+    mesOperationLogId: 'op-002',
+    operationNumber: 'OP20',
+    operationName: '조립',
+    sequence: 2,
+    statusCode: 'IN_PROGRESS',
+    startedAt: isoNow,
+    finishedAt: '',
+    durationHours: 0,
+    manager: { id: 2, name: '정공정' },
+  },
+];
 
 export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.STATISTICS, ({ request }) => {
@@ -76,7 +142,12 @@ export const productionHandlers = [
         dueDate: `${year}-${nextMonth}-${day}`,
         availableStatus: availableStatuses[idx % availableStatuses.length],
       };
-    });
+    }).map((quotation) =>
+      // 제안 납기를 확정한 견적은 확인됨으로 바뀐다
+      productionState(request).confirmedQuotations.has(quotation.quotationId)
+        ? { ...quotation, availableStatus: 'CHECKED' }
+        : quotation,
+    );
     let filtered = allData;
     if (filterAvailable && filterAvailable !== 'ALL')
       filtered = filtered.filter((d) => d.availableStatus === filterAvailable);
@@ -205,27 +276,24 @@ export const productionHandlers = [
       page: makePage(0, 10, 1),
     });
   }),
-  http.post(PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM, ({ request }) => {
-    if (shouldError(request)) return error('Failed to confirm quotation', 500);
-    return ok(null);
-  }),
+  http.post<PathParams, { quotationIds?: string[] }>(
+    PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to confirm quotation', 500);
+      const { confirmedQuotations } = productionState(request);
+      for (const id of (await request.json()).quotationIds ?? []) confirmedQuotations.add(id);
+      return ok(null);
+    },
+  ),
   http.get(PRODUCTION_ENDPOINTS.BOMS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load BOM list', 500);
-    return ok({
-      page: makePage(0, 10, 1),
-      content: [
-        {
-          bomId: 'bom-001',
-          bomNumber: 'BOM-2026-001',
-          productId: 'prod-001',
-          productNumber: 'PRD-001',
-          productName: '모터 A',
-          version: 'v1',
-          statusCode: '활성',
-          lastModifiedAt: isoNow,
-        },
-      ],
-    });
+    const state = productionState(request);
+    const content = [SEED_BOM, ...state.createdBoms].map((bom) => ({
+      ...bom,
+      version: getBomVersion(request, bom.bomId),
+      statusCode: state.bomStatus.get(bom.bomId) ?? bom.statusCode,
+    }));
+    return ok({ page: makePage(0, 10, content.length), content });
   }),
   http.get(`${PRODUCTION_BASE_PATH}/products/:productId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load product detail', 500);
@@ -255,8 +323,8 @@ export const productionHandlers = [
       productId: 'prod-001',
       productNumber: 'PRD-001',
       productName: '모터 A',
-      version: getBomVersion(bomId),
-      statusCode: '활성',
+      version: getBomVersion(request, bomId),
+      statusCode: productionState(request).bomStatus.get(bomId) ?? '활성',
       lastModifiedAt: isoNow,
       components: [
         {
@@ -379,7 +447,7 @@ export const productionHandlers = [
       if (shouldError(request)) return error('Failed to update BOM', 500);
       const { bomId } = params;
       const body = await request.json();
-      const serverVersion = getBomVersion(bomId);
+      const serverVersion = getBomVersion(request, bomId);
 
       if (body.version !== serverVersion) {
         return HttpResponse.json(
@@ -392,7 +460,8 @@ export const productionHandlers = [
         );
       }
 
-      const newVersion = bumpBomVersion(bomId);
+      const newVersion = bumpBomVersion(request, bomId);
+      if (body.statusCode) productionState(request).bomStatus.set(bomId, body.statusCode);
       return HttpResponse.json({
         status: 200,
         success: true,
@@ -403,18 +472,32 @@ export const productionHandlers = [
   // [개발 테스트 전용] 서버 버전을 강제로 올려서 충돌 상황 시뮬레이션
   http.post<{ bomId: string }>(
     `${PRODUCTION_BASE_PATH}/boms/:bomId/simulate-conflict`,
-    ({ params }) => {
+    ({ request, params }) => {
       const { bomId } = params;
-      const newVersion = bumpBomVersion(bomId);
+      const newVersion = bumpBomVersion(request, bomId);
       return HttpResponse.json({
         message: `[테스트] 서버 버전이 ${newVersion}로 변경되었습니다. 다음 수정 요청은 409를 반환합니다.`,
       });
     },
   ),
-  http.post(PRODUCTION_ENDPOINTS.BOMS, ({ request }) => {
-    if (shouldError(request)) return error('Failed to create BOM', 500);
-    return okNoData();
-  }),
+  http.post<PathParams, Schema<'BomRequestBody'>>(
+    PRODUCTION_ENDPOINTS.BOMS,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to create BOM', 500);
+      const { createdBoms } = productionState(request);
+      const { productName } = await request.json();
+      const serial = String(createdBoms.length + 2).padStart(3, '0');
+      createdBoms.push({
+        ...SEED_BOM,
+        bomId: `bom-${serial}`,
+        bomNumber: `BOM-2026-${serial}`,
+        productId: `prod-${serial}`,
+        productNumber: `PRD-${serial}`,
+        productName,
+      });
+      return okNoData();
+    },
+  ),
   http.get(PRODUCTION_ENDPOINTS.MRP_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP orders', 500);
     const url = new URL(request.url);
@@ -478,7 +561,11 @@ export const productionHandlers = [
         supplierCompanyName: suppliers[idx % suppliers.length],
         convertStatus: convertStatuses[idx % convertStatuses.length],
       };
-    });
+    }).map((order) =>
+      productionState(request).convertedItems.has(order.itemId)
+        ? { ...order, convertStatus: 'CONVERTED' }
+        : order,
+    );
     let filtered = allData;
     if (filterQuotation && filterQuotation !== 'ALL')
       filtered = filtered.filter((d) => d.quotationId === filterQuotation);
@@ -488,10 +575,16 @@ export const productionHandlers = [
     const start = page * size;
     return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
   }),
-  http.post(PRODUCTION_ENDPOINTS.MRP_CONVERT, ({ request }) => {
-    if (shouldError(request)) return error('Failed to convert MRP orders', 500);
-    return ok({ converted: true });
-  }),
+  http.post<PathParams, Schema<'MrpOrdersConvertReqeustBody'>>(
+    PRODUCTION_ENDPOINTS.MRP_CONVERT,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to convert MRP orders', 500);
+      // 전환 상태만 따른다. 계획 주문 탭에 새 행을 만들지는 않는다(목이 순번으로 만든 500행이고 새 행의 번호 규칙을 모른다)
+      const { convertedItems } = productionState(request);
+      for (const item of (await request.json()).items) convertedItems.add(item.itemId);
+      return ok({ converted: true });
+    },
+  ),
   http.get(PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP planned orders', 500);
     const url = new URL(request.url);
@@ -529,7 +622,12 @@ export const productionHandlers = [
         procurementStartDate: `${year}-${month}-${day}`,
         expectedArrivalDate: `${year}-${nextMonth}-${day}`,
       };
-    });
+    }).map((order) =>
+      // 자재 구매 요청(구매 목의 stock-purchase-requisitions)이 들어간 계획 주문은 승인 대기가 된다
+      purchaseState(request).requestedMrpRuns.has(order.mrpRunId)
+        ? { ...order, status: 'PENDING' }
+        : order,
+    );
     let filtered = allData;
     if (filterStatus && filterStatus !== 'ALL')
       filtered = filtered.filter((d) => d.status === filterStatus);
@@ -562,9 +660,13 @@ export const productionHandlers = [
       const idx = i + 1;
       const statusIdx = idx % statuses.length;
       const qIdx = idx % quotationIds.length;
-      const progress = statuses[statusIdx] === 'IN_PROGRESS' ? 20 + (idx % 70) : 0;
+      const mesId = `mes-${String(idx).padStart(3, '0')}`;
+      // 시작이나 완료를 눌렀으면 그 결과
+      const status = productionState(request).mesStatus.get(mesId) ?? statuses[statusIdx];
+      const progress =
+        status === 'COMPLETED' ? 100 : status === 'IN_PROGRESS' ? 20 + (idx % 70) : 0;
       return {
-        mesId: `mes-${String(idx).padStart(3, '0')}`,
+        mesId,
         mesNumber: `MES-2026-${String(idx).padStart(3, '0')}`,
         productId: `prod-${String((idx % 5) + 1).padStart(3, '0')}`,
         productName: productNames[idx % productNames.length],
@@ -572,8 +674,8 @@ export const productionHandlers = [
         uomName: 'EA',
         quotationId: quotationIds[qIdx],
         quotationNumber: quotationNumbers[qIdx],
-        status: statuses[statusIdx],
-        currentOperation: statuses[statusIdx] === 'IN_PROGRESS' ? 2 : 1,
+        status,
+        currentOperation: status === 'WAITING' ? 1 : 2,
         // 오늘 기준 상대 날짜(시각화 3 간트). 시작은 오늘-14일~오늘, 기간 5~12일.
         // 진행 중인데 끝날이 지난 건(지연)이 몇 개 생긴다
         startDate: toDateKey(addDays(today, -((idx * 3) % 15))),
@@ -591,67 +693,76 @@ export const productionHandlers = [
     const start = page * size;
     return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
   }),
-  http.get(`${PRODUCTION_BASE_PATH}/mes/:mesId`, ({ request, params }) => {
+  http.get<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load MES detail', 500);
+    const state = productionState(request);
+    const { mesId } = params;
+    const statusCode = state.mesStatus.get(mesId) ?? 'IN_PROGRESS';
+    const mesRunning = statusCode === 'IN_PROGRESS';
+    // 버튼을 누를 수 있는지는 서버가 정해 준다. 목은 지금 상태에서 계산한다
+    const operations = SEED_OPERATIONS.map((operation) => {
+      const status =
+        state.operationStatus.get(`${mesId}/${operation.mesOperationLogId}`) ??
+        operation.statusCode;
+      return {
+        ...operation,
+        statusCode: status,
+        canStart: mesRunning && status !== 'IN_PROGRESS' && status !== 'COMPLETED',
+        canComplete: mesRunning && status === 'IN_PROGRESS',
+      };
+    });
+    const allDone = operations.every((operation) => operation.statusCode === 'COMPLETED');
     return ok({
-      mesId: params.mesId,
+      mesId,
       mesNumber: 'MES-2026-001',
       productId: 'prod-001',
       productName: '모터 A',
       quantity: 100,
       uomName: 'EA',
-      progressPercent: 60,
-      statusCode: 'IN_PROGRESS',
+      progressPercent: allDone ? 100 : 60,
+      statusCode,
       plan: { startDate: '2026-01-15', dueDate: '2026-02-01' },
       currentOperation: 'OP20',
-      operations: [
-        {
-          mesOperationLogId: 'op-001',
-          operationNumber: 'OP10',
-          operationName: '절삭',
-          sequence: 1,
-          statusCode: 'COMPLETED',
-          startedAt: isoNow,
-          finishedAt: isoNow,
-          durationHours: 2,
-          manager: { id: 1, name: '박공정' },
-          canStart: false,
-          canComplete: false,
-        },
-        {
-          mesOperationLogId: 'op-002',
-          operationNumber: 'OP20',
-          operationName: '조립',
-          sequence: 2,
-          statusCode: 'IN_PROGRESS',
-          startedAt: isoNow,
-          finishedAt: '',
-          durationHours: 0,
-          manager: { id: 2, name: '정공정' },
-          canStart: false,
-          canComplete: true,
-        },
-      ],
-      canStartMes: false,
-      canCompleteMes: false,
+      operations,
+      canStartMes: statusCode === 'WAITING',
+      canCompleteMes: mesRunning && allDone,
     });
   }),
-  http.put(`${PRODUCTION_BASE_PATH}/mes/:mesId/start`, ({ request }) => {
+  http.put<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId/start`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to start MES', 500);
+    productionState(request).mesStatus.set(params.mesId, 'IN_PROGRESS');
     return okNoData();
   }),
-  http.put(`${PRODUCTION_BASE_PATH}/mes/:mesId/complete`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to complete MES', 500);
-    return okNoData();
-  }),
-  http.put(`${PRODUCTION_BASE_PATH}/mes/:mesId/operations/:operationId/start`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to start operation', 500);
-    return okNoData();
-  }),
-  http.put(`${PRODUCTION_BASE_PATH}/mes/:mesId/operations/:operationId/complete`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to complete operation', 500);
-    return okNoData();
-  }),
+  http.put<{ mesId: string }>(
+    `${PRODUCTION_BASE_PATH}/mes/:mesId/complete`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to complete MES', 500);
+      productionState(request).mesStatus.set(params.mesId, 'COMPLETED');
+      return okNoData();
+    },
+  ),
+  http.put<{ mesId: string; operationId: string }>(
+    `${PRODUCTION_BASE_PATH}/mes/:mesId/operations/:operationId/start`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to start operation', 500);
+      productionState(request).operationStatus.set(
+        `${params.mesId}/${params.operationId}`,
+        'IN_PROGRESS',
+      );
+      return okNoData();
+    },
+  ),
+  http.put<{ mesId: string; operationId: string }>(
+    `${PRODUCTION_BASE_PATH}/mes/:mesId/operations/:operationId/complete`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to complete operation', 500);
+      productionState(request).operationStatus.set(
+        `${params.mesId}/${params.operationId}`,
+        'COMPLETED',
+      );
+      return okNoData();
+    },
+  ),
   http.get(PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MPS dropdown', 500);
     return ok([
