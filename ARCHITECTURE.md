@@ -201,6 +201,17 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 5. 확인 창은 `ConfirmModal`(`src/app/components/common/modal/ConfirmModal.tsx:25`) 하나다. 브라우저 `confirm()` 은 쓰지 않는다(2026-11-12, 화면 코드 0건). `openModal(ConfirmModal, { title: 질문 문장, onConfirm })` 로 열고, `onConfirm` 에는 도메인 훅의 `mutateAsync` 를 넘긴다. Promise 가 끝날 때까지 버튼을 잠그고 성공하면 닫고 실패하면 열어 둔다. 실패 문구는 훅의 `onError` 토스트가 보인다. 중복 제출은 세 겹으로 막는다: 확인 버튼 잠금, 같은 버튼에서 같은 모달을 또 열면 무시(`ModalProvider.tsx:106`, 모달 틀 청크가 오기 전 Enter 두 번), 진행 중인 `mutateAsync` 재호출 거절(`src/lib/query/useInvalidatingMutation.ts:200`). `reason` 을 주면 필수 사유 칸이 생긴다(구매 요청 반려 `comment`, 발주서 반려 `reason`. 휴가 반려는 게이트웨이가 본문을 받지 않아 없다).
 6. 사이드바 알림 팝오버는 예외로 portal 을 쓰지 않는다. 알림 버튼 바로 뒤 DOM 에 그리고 CSS 로 사이드바 오른쪽에 붙인다(`src/app/components/header/Notification/NotificationBell.tsx:125`). Tab 순서가 버튼, 목록, 프로필로 그대로 이어진다. floating-ui 의 `FloatingFocusManager` 를 쓰면 드롭다운이 있는 화면 7곳의 첫 로드가 2.9KB 늘었다. 폭은 `max-w` 로 화면 안에 묶는다(화면 폭에서 사이드바 224, 간격 12, 여백 8 을 뺀 값). 모달이 열려 있으면 사이드바 전체가 눌리지 않아 모달 안 팝업 문제(2번)는 생기지 않는다.
 
+화면 틀과 스크롤(2026-11-12 화면 아래가 잘리는 곳):
+
+1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:37` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고, 알림)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
+2. 탭이 있는 화면(영업, 생산, 구매, 재고, 재무, 인사)은 화면 높이를 꽉 채우고 `TabNavigation` 의 내용 칸 하나가 스크롤 칸이다(`src/app/components/common/TabNavigation.tsx:78`, `overflow-auto`). 제목과 탭, 통계 띠는 고정이다.
+3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:82`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다.
+4. 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 줄지 않고 내용 칸에서 스크롤된다. 탭 컴포넌트가 따로 `overflow-auto` 를 달지 않는다(재무 현황에 있던 것은 지웠다). 내용 칸과 그 조상에 `overflow-hidden` 을 다시 넣으면 넘친 내용을 볼 방법이 없어진다.
+5. 내용 칸은 `role="region"`, 이름은 활성 탭 이름, `tabIndex={0}` 이다(`?tab=` 이 없는 값이면 내용이 없어 이름과 `tabIndex` 를 빼서 빈 Tab 정지가 안 생긴다). 안에 포커스 받을 요소가 없는 탭도 키보드(방향키, PageDown, End)로 스크롤된다. 탭 화면마다 Tab 정지가 하나 는다.
+6. 하위 탭(`SubNavigation`, 인사)의 내용 칸은 스크롤 칸이 아니다. 넘치면 하위 탭 버튼 줄과 같이 2번 칸에서 스크롤된다.
+7. 모달은 본문이 스크롤 칸이다(`src/app/components/common/modal/ModalContainer.tsx:101`, 높이는 화면의 90% 까지).
+8. 회귀 테스트는 `e2e/clipped-content.spec.ts`. 비공개 화면과 탭, 하위 탭 31개, 화면 안 전환 8개, 모달과 팝업 34개를 1280x720 과 1512x772 에서 열어 잘린 곳(`e2e/clipped.ts` 의 `findClipped`)과 이중 스크롤이 0 인지 본다. 허용 목록은 없다. 새 탭이나 모달을 만들면 이 스펙의 목록에 더한다.
+
 ## 7. 환경 변수
 
 | 이름                                                  | 어디서   | 뜻                                                                                                                                 |
