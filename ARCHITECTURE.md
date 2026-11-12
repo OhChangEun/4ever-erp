@@ -95,6 +95,9 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 - 낙관적 락(version 전송)은 BOM 상태 변경에만 있다. 409 를 받으면 공통 빌더가 그 mutation 의 무효화 키를 다시 가져온다(`src/lib/query/useInvalidatingMutation.ts`, onError). 충돌 안내는 공통 `ConflictDialog`. 다른 엔티티의 version 전송은 OpenAPI 계약 카드.
 - mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8, 인사 10, 생산 10, 재고 4, 영업 4, 재무 1, 창고 2, 프로필 5, 알림 2 완료. 컴포넌트 안 `useMutation` 은 0건이다(2026-11-10, `grep -rnE "useMutation[<(]"` 기준. 제네릭 형태 2건은 PR #18 에서 정리). 견적 시뮬레이션과 재고 확인처럼 버튼으로 한 번 하는 요청도 도메인 훅으로 둔다. 읽기는 `useQuery` 로 하고 결과를 state 에 복사하지 않는다.
 
+- 처리 버튼은 서버 상태를 보고 그린다(2026-11-12 이미 처리된 건의 버튼 카드). 승인, 처리 요청, 납품 같은 상태 전이 버튼과 체크박스는 처리할 수 있는 상태 목록(허용 목록)에 든 행에만 열린다. 모르는 상태 값은 잠근다. 같은 규칙을 목록과 모달이 쓰면 도메인 service 의 함수 하나로 둔다(`canProcessInvoice` `src/app/(private)/finance/finance.service.ts:58`, `canProcessQuote` `src/app/(private)/sales/sales.service.ts:56`). 모달의 버튼은 열 때 받은 목록 값이 아니라 그 모달의 상세 쿼리 값을 본다(`PayrollDetailModal.tsx:168`, `QuoteReviewModal.tsx:249`). 처리 뒤 무효화가 상세를 다시 가져오면 같은 모달에서 버튼이 사라진다.
+- 선택은 state 에 id 만 두고 렌더 중에 지금 목록에서 처리할 수 있는 행으로 걸러 쓴다(effect 로 지우지 않는다, R01, R02). 처리 뒤 다시 받은 목록에서 상태가 바뀌면 선택에서 저절로 빠지고 버튼이 잠긴다. "전체 선택"은 처리할 수 있는 행만 넣는다. 목록 다시 받기가 실패하면(캐시에 처리 전 값이 남는다) 고를 수 있는 행이 없는 것으로 보고, 모달은 상세 조회가 오류면 처리 버튼을 숨긴다. 본보기는 `InvoiceList.tsx:89`, `SalesQuoteList.tsx:73`, 생산의 `OrdersTab.tsx:88`, `QuotationTab.tsx:91`, `PlannedOrdersTab.tsx:91`.
+
   구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
 
   | mutation                   | 다시 가져오는 키                                                                                                                                 |

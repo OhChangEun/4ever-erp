@@ -78,18 +78,22 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     queryFn: () => fetchMrpOrdersList(queryParams),
   });
 
-  const orderItems: MrpOrdersListData[] = orders?.content ?? [];
+  // 다시 받기가 실패하면 캐시에 처리 전 목록이 남는다. 그 값으로 고르면 같은 쓰기가 또 가니 행이 없는 것으로 본다(표는 오류 상자)
+  const orderItems: MrpOrdersListData[] = isError ? [] : (orders?.content ?? []);
   const pageInfo = orders?.page;
 
   const totalPages = pageInfo?.totalPages ?? 1;
 
+  // 전환할 수 있는 품목은 미전환뿐이다. 선택은 그릴 때 지금 목록의 미전환 품목으로 거른다(전환 뒤 다시 받으면 빠진다)
+  const convertibleItems = orderItems.filter((item) => item.convertStatus === 'NOT_CONVERTED');
+  const selectedItems = convertibleItems.filter((item) =>
+    selectedRequirements.includes(item.itemId),
+  );
+  const allSelected =
+    convertibleItems.length > 0 && selectedItems.length === convertibleItems.length;
+
   const handleSelectAllRequirements = () => {
-    if (!orders) return;
-    if (selectedRequirements.length === orderItems.length) {
-      setSelectedRequirements([]);
-    } else {
-      setSelectedRequirements(orderItems.map((item) => item.itemId));
-    }
+    setSelectedRequirements(allSelected ? [] : convertibleItems.map((item) => item.itemId));
   };
 
   const handleRequirementSelection = (id: string) => {
@@ -112,21 +116,17 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
 
   // 계획 주문 전환 실행
   const handleConvertToPlannedOrder = () => {
-    if (selectedRequirements.length === 0) {
+    if (selectedItems.length === 0) {
       toast.warning(t('requirements.selectToConvert'));
       return;
     }
 
-    const selectedItems = orderItems
-      .filter((item) => selectedRequirements.includes(item.itemId))
-      .map((item) => ({
+    const body = {
+      items: selectedItems.map((item) => ({
         quotationId: item.quotationId,
         itemId: item.itemId,
         quantity: item.requiredQuantity,
-      }));
-
-    const body = {
-      items: selectedItems,
+      })),
     };
 
     mrpConvert(body);
@@ -142,9 +142,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
         <input
           type="checkbox"
           aria-label={t('requirements.selectAll')}
-          checked={
-            selectedRequirements.length > 0 && selectedRequirements.length === orderItems.length
-          }
+          checked={allSelected}
           onChange={handleSelectAllRequirements}
           className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
         />
@@ -250,7 +248,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
               label={t('requirements.convert')}
               onClick={handleConvertToPlannedOrder}
               loading={isConverting}
-              disabled={selectedRequirements.length === 0}
+              disabled={selectedItems.length === 0}
             />
           )}
         </div>

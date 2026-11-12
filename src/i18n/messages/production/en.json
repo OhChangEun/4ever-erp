@@ -52,7 +52,6 @@
     "confirmSuccess": "Proposed due dates confirmed.",
     "confirmError": "Couldn't confirm proposed due dates. {message}",
     "selectToSimulate": "Select quotes to simulate",
-    "selectUnchecked": "Select quotes whose stock is unchecked.",
     "selectAllUnchecked": "Select all unchecked quotes",
     "checkedRow": "{number} stock already checked (can't select)",
     "quotationNumber": "Quote no.",
@@ -112,6 +111,7 @@
   },
   "plannedOrders": {
     "purchaseRequest": "Request materials",
+    "selectAll": "Select all planned orders",
     "loading": "Loading planned orders...",
     "loadError": "Couldn't load planned orders.",
     "empty": "No planned orders found."

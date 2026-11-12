@@ -79,18 +79,29 @@ export default function QuotationTab() {
   });
 
   // API에서 가져온 견적 데이터 리스트
-  const quotationDataList: QuotationData[] = quotationListData?.content || [];
+  // 다시 받기가 실패하면 캐시에 처리 전 목록이 남는다. 그 값으로 고르면 같은 쓰기가 또 가니 행이 없는 것으로 본다(표는 오류 상자)
+  const quotationDataList: QuotationData[] = isQuotationListError
+    ? []
+    : quotationListData?.content || [];
   const totalPages = quotationListData?.page.totalPages || 1;
   const totalElements = quotationListData?.page.totalElements || 0;
 
+  // 시뮬레이션과 확정은 미확인(UNCHECKED) 견적만. 모르는 상태는 고를 수 없다.
+  // 선택은 그릴 때 지금 목록의 미확인 견적으로 거른다(확정 뒤 다시 받으면 빠진다)
+  const uncheckedIds = quotationDataList
+    .filter((q) => q.availableStatus === 'UNCHECKED')
+    .map((q) => q.quotationId);
+  const selectedIds = selectedQuotes.filter((quotationId) => uncheckedIds.includes(quotationId));
+
   // 시뮬레이션은 서버 상태를 바꾸는 쓰기라 mutation. 무효화는 production.mutations.ts 한 곳.
   const { mutate: simulationQuotations, isPending: simulationPending } = useSimulateQuotations({
-    onSuccess: (simulationResults) => {
+    // 확정은 시뮬레이션한 견적(보낸 id)을 보낸다. 시뮬레이션 중에 선택을 바꿔도 결과 모달과 확정이 같은 묶음이다
+    onSuccess: (simulationResults, simulatedIds) => {
       if (simulationResults.length > 0) {
         openModal(SimulationResultModal, {
           title: t('quotation.simulationTitle'),
           simulationResults,
-          onConfirm: handleConfirmMps,
+          onConfirm: () => confirmQuotations(simulatedIds),
         });
       } else {
         toast.info(t('simulation.empty'));
@@ -118,22 +129,11 @@ export default function QuotationTab() {
 
   // --- 이벤트 핸들러 ---
   const handleSimulation = () => {
-    if (selectedQuotes.length === 0) {
+    if (selectedIds.length === 0) {
       toast.warning(t('quotation.selectToSimulate'));
       return;
     }
-    // API 데이터에서 선택된 견적 중 'NOT_CHECKED'인지 확인
-    const unCheckedQuotes = selectedQuotes.filter((quotationId) => {
-      const quote = quotationDataList.find((q) => q.quotationId === quotationId);
-      return quote && quote.availableStatus === 'UNCHECKED';
-    });
-
-    if (unCheckedQuotes.length === 0) {
-      toast.warning(t('quotation.selectUnchecked'));
-      return;
-    }
-
-    simulationQuotations(unCheckedQuotes);
+    simulationQuotations(selectedIds);
   };
 
   const handleStartDateChange = (value: string) => {
@@ -151,10 +151,6 @@ export default function QuotationTab() {
     // useQuery가 currentPage 변경을 감지하고 자동으로 데이터를 다시 불러옴
   };
 
-  const handleConfirmMps = () => {
-    confirmQuotations(selectedQuotes);
-  };
-
   // --- 컬럼 정의 ---
   const columns: TableColumn<QuotationData>[] = [
     {
@@ -167,26 +163,12 @@ export default function QuotationTab() {
           aria-label={t('quotation.selectAllUnchecked')}
           className="rounded border-gray-300 text-blue-600 accent-blue-600 focus:ring-blue-500"
           onClick={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            const uncheckedIds = quotationDataList
-              .filter((q) => q.availableStatus === 'UNCHECKED')
-              .map((q) => q.quotationId);
-            if (e.target.checked) {
-              setSelectedQuotes(uncheckedIds);
-            } else {
-              setSelectedQuotes([]);
-            }
-          }}
-          checked={
-            quotationDataList.some((q) => q.availableStatus === 'UNCHECKED') &&
-            quotationDataList
-              .filter((q) => q.availableStatus === 'UNCHECKED')
-              .every((q) => selectedQuotes.includes(q.quotationId))
-          }
+          onChange={(e) => setSelectedQuotes(e.target.checked ? uncheckedIds : [])}
+          checked={uncheckedIds.length > 0 && selectedIds.length === uncheckedIds.length}
         />
       ),
       render: (_, quote) =>
-        quote.availableStatus === 'CHECKED' ? (
+        quote.availableStatus !== 'UNCHECKED' ? (
           <input
             type="checkbox"
             aria-label={t('quotation.checkedRow', { number: quote.quotationNumber })}
@@ -245,7 +227,7 @@ export default function QuotationTab() {
               label={t('quotation.simulate')}
               loading={simulationPending}
               onClick={handleSimulation}
-              disabled={selectedQuotes.length === 0 || simulationPending}
+              disabled={selectedIds.length === 0 || simulationPending}
             />
           )}
         </div>

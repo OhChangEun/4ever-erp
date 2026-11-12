@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getPurchaseInvoicesList, getSalesInvoicesList } from '@/app/(private)/finance/finance.api';
 import { type InvoiceTab, invoiceKeys } from '@/app/(private)/finance/finance.keys';
 import { useCompleteInvoice, type InvoiceAction } from '@/app/(private)/finance/finance.mutations';
+import { canProcessInvoice } from '@/app/(private)/finance/finance.service';
 import { Pagination } from '@everp/ui';
 import { useSearchParams } from 'next/navigation';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -41,7 +42,6 @@ const InvoiceList = () => {
     tab: currentTab,
     invoiceId: '',
   });
-  const selectedInvoiceId = selection.tab === currentTab ? selection.invoiceId : '';
   const setSelectedInvoiceId = (invoiceId: string) => setSelection({ tab: currentTab, invoiceId });
 
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus>('ALL');
@@ -74,18 +74,27 @@ const InvoiceList = () => {
     queryFn: queryFn,
   });
 
-  const invoices = invoiceReq?.data ?? [];
+  // 다시 받기가 실패하면 캐시에 처리 전 목록이 남는다. 그 값으로 고르면 같은 쓰기가 또 가니 행이 없는 것으로 본다(표는 오류 상자)
+  const invoices = isError ? [] : (invoiceReq?.data ?? []);
   const pageInfo = invoiceReq?.pageData;
   const totalPages = pageInfo?.totalPages ?? 1;
 
   type InvoiceItem = (typeof invoices)[0];
 
-  const { openModal } = useModal();
-  const errorMessageOf = useErrorMessage();
-  const toast = useToast();
   // 어느 API 를 부를지는 역할과 탭이 정한다. 무효화 범위는 finance.mutations.ts 한 곳.
   const invoiceAction: InvoiceAction =
     role === 'SUPPLIER_ADMIN' ? 'supplierAp' : currentTab === 'sales' ? 'ar' : 'ap';
+  const canProcess = (invoice: InvoiceItem) => canProcessInvoice(invoiceAction, invoice.statusCode);
+  // 선택은 그릴 때 지금 목록에서 처리할 수 있는 전표로 거른다. 처리 뒤 다시 받은 목록에서 빠지면 선택도 빠진다
+  const selectedInvoiceId =
+    selection.tab === currentTab &&
+    invoices.some((invoice) => invoice.invoiceId === selection.invoiceId && canProcess(invoice))
+      ? selection.invoiceId
+      : '';
+
+  const { openModal } = useModal();
+  const errorMessageOf = useErrorMessage();
+  const toast = useToast();
   const { mutate: sendReq, isPending: isCompleting } = useCompleteInvoice({
     onSuccess: (data) => toast.success(data.message),
     onError: (error) => toast.error(t('completeError', { message: errorMessageOf(error) })),
@@ -125,13 +134,7 @@ const InvoiceList = () => {
           type="checkbox"
           aria-label={t('selectRow', { invoiceNumber: invoice.invoiceNumber })}
           checked={selectedInvoiceId === invoice.invoiceId}
-          disabled={
-            currentTab === 'sales'
-              ? invoice.statusCode === 'PAID' || invoice.statusCode === 'UNPAID'
-              : role === 'SUPPLIER_ADMIN'
-                ? invoice.statusCode === 'PAID' || invoice.statusCode === 'UNPAID'
-                : invoice.statusCode === 'PAID' || invoice.statusCode === 'PENDING'
-          }
+          disabled={!canProcess(invoice)}
           onChange={(e) => handleSelectVoucher(invoice.invoiceId, e.target.checked)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
@@ -207,7 +210,7 @@ const InvoiceList = () => {
             label={t('requestSettlement')}
             onClick={handleReceivableComplete}
             loading={isCompleting}
-            disabled={selectedInvoiceId ? false : true}
+            disabled={!selectedInvoiceId}
           />
         </div>
       </div>

@@ -1,0 +1,148 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { http } from 'msw';
+import { error, makePage, ok } from '@/mocks/utils';
+import { FINANCE_ENDPOINTS } from '@/app/types/api';
+import { server } from '@/test/msw-server';
+import { renderWithProviders } from '@/test/render';
+import { countRequests } from '@/test/countRequests';
+import InvoiceList from './InvoiceList';
+
+// 탭은 주소의 tab 파라미터로 고른다. 기본은 매출 탭
+const search = vi.hoisted(() => ({ params: '' }));
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(search.params),
+}));
+afterEach(() => {
+  search.params = '';
+});
+
+/**
+ * 이미 처리된 건의 버튼 카드. 기본 목(매출 전표 AR-2026-001, 대기)은 처리 요청을 기억한다.
+ * 역할이 없으면 매출 탭이고 처리는 매출 수금 완료(ar)다.
+ */
+const salesRow = (invoiceId: string, invoiceNumber: string, statusCode: string) => ({
+  invoiceId,
+  invoiceNumber,
+  connection: { connectionId: 'cus-001', connectionCode: 'CUS-001', connectionName: '한빛전자' },
+  totalAmount: 1000,
+  issueDate: '2026-01-20',
+  dueDate: '2026-02-20',
+  statusCode,
+  referenceNumber: `REF-${invoiceNumber}`,
+});
+
+const useSalesRows = (rows: ReturnType<typeof salesRow>[]) =>
+  server.use(
+    http.get(FINANCE_ENDPOINTS.SALES_INVOICES_LIST, () =>
+      ok({ content: rows, page: makePage(0, 10, rows.length) }),
+    ),
+  );
+
+const REQUEST = '미수 처리 신청';
+const checkbox = (invoiceNumber: string) =>
+  screen.findByRole('checkbox', { name: `${invoiceNumber} 선택` });
+
+describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () => {
+  it('처리할 수 있는 전표는 고를 수 있고, 고르면 처리 요청이 열린다', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<InvoiceList />);
+
+    const box = await checkbox('AR-2026-001');
+    expect(box).toBeEnabled();
+    expect(screen.getByRole('button', { name: REQUEST })).toBeDisabled();
+    await user.click(box);
+    expect(screen.getByRole('button', { name: REQUEST })).toBeEnabled();
+  });
+
+  it('처리 요청 뒤 그 전표는 잠기고 체크가 풀리며, 버튼을 다시 눌러도 두 번째 요청이 없다', async () => {
+    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'));
+    const user = userEvent.setup();
+    renderWithProviders(<InvoiceList />);
+
+    await user.click(await checkbox('AR-2026-001'));
+    await user.click(screen.getByRole('button', { name: REQUEST }));
+
+    const row = within(await screen.findByRole('row', { name: /AR-2026-001/ }));
+    await waitFor(() => expect(row.getByText('완납')).toBeInTheDocument());
+    const box = await checkbox('AR-2026-001');
+    expect(box).toBeDisabled();
+    expect(box).not.toBeChecked();
+    const button = screen.getByRole('button', { name: REQUEST });
+    expect(button).toBeDisabled();
+
+    await user.click(button);
+    expect(posts()).toBe(1);
+  });
+
+  it('완납 전표의 상세를 열어도 처리 요청이 열리지 않는다', async () => {
+    useSalesRows([salesRow('inv-paid', 'AR-PAID', 'PAID')]);
+    const user = userEvent.setup();
+    renderWithProviders(<InvoiceList />);
+
+    const row = within(await screen.findByRole('row', { name: /AR-PAID/ }));
+    await user.click(row.getByRole('button', { name: '상세' }));
+    // 상세 모달이 뜨면 뒤 화면은 aria-hidden 이다
+    expect(screen.getByRole('button', { name: REQUEST, hidden: true })).toBeDisabled();
+  });
+
+  it('모르는 상태 값의 전표는 고를 수 없다', async () => {
+    // verified=false: 게이트웨이가 전표 상태를 Object 로 넘겨 다른 값이 올 수 있다
+    useSalesRows([salesRow('inv-x', 'AR-UNKNOWN', 'SOMETHING_NEW')]);
+    renderWithProviders(<InvoiceList />);
+    expect(await checkbox('AR-UNKNOWN')).toBeDisabled();
+  });
+
+  it('고른 전표가 다시 받은 목록에서 처리할 수 없는 상태면 선택에서 빠진다', async () => {
+    useSalesRows([salesRow('inv-1', 'AR-ONE', 'PENDING')]);
+    const user = userEvent.setup();
+    const { queryClient } = renderWithProviders(<InvoiceList />);
+
+    await user.click(await checkbox('AR-ONE'));
+    expect(screen.getByRole('button', { name: REQUEST })).toBeEnabled();
+
+    // 다른 사람이 먼저 처리했다
+    useSalesRows([salesRow('inv-1', 'AR-ONE', 'PAID')]);
+    await act(() => queryClient.invalidateQueries());
+
+    await waitFor(() => expect(screen.getByRole('button', { name: REQUEST })).toBeDisabled());
+    expect(await checkbox('AR-ONE')).not.toBeChecked();
+  });
+});
+
+describe('전표 목록 리뷰 반영', () => {
+  it('처리 성공 뒤 목록을 다시 못 받으면 버튼이 잠기고 두 번째 요청이 없다', async () => {
+    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'));
+    const user = userEvent.setup();
+    renderWithProviders(<InvoiceList />);
+
+    await user.click(await checkbox('AR-2026-001'));
+    // 처리는 성공하지만 그 뒤 목록 재조회가 실패한다. 캐시에는 처리 전(대기) 목록이 남는다
+    server.use(http.get(FINANCE_ENDPOINTS.SALES_INVOICES_LIST, () => error('Failed to load', 500)));
+    await user.click(screen.getByRole('button', { name: REQUEST }));
+    expect(
+      await screen.findByText('전표 목록을 불러오는 중 오류가 발생했습니다.'),
+    ).toBeInTheDocument();
+
+    const button = screen.getByRole('button', { name: REQUEST });
+    expect(button).toBeDisabled();
+    await user.click(button);
+    expect(posts()).toBe(1);
+  });
+
+  it('사내 매입 탭에서 확인 대기(RESPONSE_PENDING) 전표는 고를 수 있다', async () => {
+    // verified=false: 공급사가 매입 전표를 이 값으로 바꾸는 API 가 있다(FcmController.java:247). 예전 화면도 열어 두었다
+    search.params = 'tab=purchase';
+    server.use(
+      http.get(FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST, () =>
+        ok({
+          content: [salesRow('inv-ap-r', 'AP-RESP', 'RESPONSE_PENDING')],
+          page: makePage(0, 10, 1),
+        }),
+      ),
+    );
+    renderWithProviders(<InvoiceList />);
+    expect(await checkbox('AP-RESP')).toBeEnabled();
+  });
+});
