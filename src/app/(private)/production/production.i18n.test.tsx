@@ -89,12 +89,13 @@ describe('생산 화면 영어(i18n 9)', () => {
     expect(screen.getByRole('button', { name: 'MES' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(1,200건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(생산 중 20건)', async () => {
     renderWithProviders(<ProductionClient realBackend={false} />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('생산 중인 품목')).toBeInTheDocument();
     expect(within(metrics).getByText('BOM 개수')).toBeInTheDocument();
-    expect(within(metrics).getAllByText('1,200건').length).toBeGreaterThan(0);
+    // 생산 중은 MES 목록 50건 중 진행중 20건(카드 "목 데이터 현실성")
+    expect(within(metrics).getAllByText('20건').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: '견적 관리' })).toBeInTheDocument();
   });
 

@@ -58,6 +58,19 @@ describe('목 상태 저장소', () => {
     expect(rows.at(-1)).toBe(`row-${String(MAX_CREATED_ROWS + 3).padStart(3, '0')}`);
   });
 
+  it('행이 밀려나면 그 행을 onDrop 에 넘긴다(행에 딸린 저장도 같이 지우게, 리뷰 A2)', () => {
+    const rows: string[] = [];
+    const dropped: string[] = [];
+    for (let i = 0; i < MAX_CREATED_ROWS + 2; i += 1)
+      addCreated(
+        rows,
+        (serial) => `row-${serial}`,
+        2,
+        (row) => dropped.push(row),
+      );
+    expect(dropped).toEqual(['row-002', 'row-003']);
+  });
+
   it('행 번호는 목록마다 따로 세고, 시작 번호를 줄 수 있다', () => {
     const first: string[] = [];
     const second: string[] = [];

@@ -6,7 +6,7 @@ import { createStatCard } from '@/lib/CreateStatCard';
 
 describe('StatCardItem 스파크라인(시각화 1)', () => {
   it('추이가 있으면 지표 이름으로 된 스파크라인을 그린다', () => {
-    const stat = createStatCard('총 매출', 1200, 12, '₩', [800, 900, 1000, 1200]);
+    const stat = createStatCard('총 매출', 1200, 0.12, '₩', [800, 900, 1000, 1200]);
     renderWithProviders(
       <dl>
         <StatCardItem stat={stat} currentPeriodLabel="전주 대비" />
@@ -15,11 +15,22 @@ describe('StatCardItem 스파크라인(시각화 1)', () => {
     expect(screen.getByRole('img', { name: /총 매출 추이/ })).toBeInTheDocument();
   });
 
+  it('증감률 비율 0.083 은 ▲ +8.3%, -0.12 는 ▼ -12% 로 보인다(목 데이터 현실성 리뷰 7)', () => {
+    renderWithProviders(
+      <dl>
+        <StatCardItem stat={createStatCard('총 매출', 1200, 0.083, '₩')} currentPeriodLabel="" />
+        <StatCardItem stat={createStatCard('총 매입', 1200, -0.12, '₩')} currentPeriodLabel="" />
+      </dl>,
+    );
+    expect(screen.getByText('▲ +8.3%')).toBeInTheDocument();
+    expect(screen.getByText('▼ -12%')).toBeInTheDocument();
+  });
+
   it('추이가 없으면 그리지 않는다(가짜 그래프 금지)', () => {
     renderWithProviders(
       <dl>
         <StatCardItem
-          stat={createStatCard('총 매출', 1200, 12, '₩')}
+          stat={createStatCard('총 매출', 1200, 0.12, '₩')}
           currentPeriodLabel="전주 대비"
         />
       </dl>,

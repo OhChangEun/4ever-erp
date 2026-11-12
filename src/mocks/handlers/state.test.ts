@@ -456,9 +456,9 @@ describe('재고와 창고 목 상태', () => {
     expect(await get(BY_WAREHOUSE)).toMatchObject(
       row({ itemId: 'item-1001', currentStock: 117, safetyStock: 777 }),
     );
-    // 이 조회에만 있는 품목도 따른다
-    await patch(`${SCM}/iv/items/item-wh-002/safety-stock?safetyStock=5`);
-    expect(await get(BY_WAREHOUSE)).toMatchObject(row({ itemId: 'item-wh-002', safetyStock: 5 }));
+    // 이 조회에만 있는 품목도 따른다. 예전 item-wh-002 는 베어링 B 였는데 안전재고 목록과 같은 item-1002 로 바뀌어(카드 "목 데이터 현실성") 볼트 M6 로 본다
+    await patch(`${SCM}/iv/items/item-wh-003/safety-stock?safetyStock=5`);
+    expect(await get(BY_WAREHOUSE)).toMatchObject(row({ itemId: 'item-wh-003', safetyStock: 5 }));
   });
 
   it('안전재고 수정에 safetyStock 이 없으면 400 이고 값은 그대로다(0 으로 저장하지 않는다)', async () => {

@@ -6,11 +6,15 @@ import {
   pathSegment,
   now,
   isoNow,
-  stat,
+  flow,
+  level,
+  hashUnit,
+  periodStat,
   statResponse,
-  trendStat,
   makePage,
 } from '../utils';
+
+export type { Metric } from '../utils';
 
 const mockUserInfo = {
   id: 1,
@@ -63,65 +67,6 @@ const mockNotificationList = {
   page: makePage(0, 10, 2),
 };
 
-const mockSalesStats = statResponse({
-  sales_amount: stat,
-  new_orders_count: stat,
-});
-
-const mockCustomerSalesStats = statResponse({
-  quotation_count: stat,
-});
-
-const mockFinanceStats = statResponse({
-  total_purchases: stat,
-  net_profit: stat,
-  total_sales: stat,
-});
-
-const mockCustomerSupplierStats = statResponse({
-  total_amount: stat,
-});
-
-const mockDashboardStats = statResponse({
-  total_sales: stat,
-  total_purchases: stat,
-  net_profit: stat,
-  total_employees: stat,
-});
-
-const mockInventoryStats = statResponse({
-  total_stock: stat,
-  store_complete: stat,
-  store_pending: stat,
-  delivery_complete: stat,
-  delivery_pending: stat,
-});
-
-const mockWarehouseStats = statResponse({
-  total_warehouse: stat,
-  in_operation_warehouse: stat,
-});
-
-const mockLowStockStats = statResponse({
-  total_emergency: stat,
-  total_warning: stat,
-});
-
-const mockPurchaseStats = statResponse({
-  purchaseOrderAmount: stat,
-  purchaseRequestCount: stat,
-});
-
-const mockSupplierOrderStats = statResponse({
-  orderCount: stat,
-});
-
-const mockProductionStats = statResponse({
-  production_in: stat,
-  production_completed: stat,
-  bom_count: stat,
-});
-
 // ---- 낙관적 락 시뮬레이션: BOM 서버 측 버전 상태 ----
 // 실제 백엔드라면 DB의 version 컬럼이 이 역할을 함
 // MSW에서는 모듈 레벨 변수로 서버 버전을 흉내냄
@@ -134,17 +79,14 @@ const bumpBomVersion = (bomId: string): string => {
   return next;
 };
 
-const mockHrmStats = statResponse({
-  totalEmployeeCount: stat,
-  newEmployeeCount: stat,
-});
-
 export {
   now,
   isoNow,
-  stat,
+  flow,
+  level,
+  hashUnit,
+  periodStat,
   statResponse,
-  trendStat,
   makePage,
   ok,
   okNoData,
@@ -154,19 +96,7 @@ export {
   mockUserInfo,
   mockProfileInfo,
   mockNotificationList,
-  mockSalesStats,
-  mockCustomerSalesStats,
-  mockFinanceStats,
-  mockCustomerSupplierStats,
-  mockDashboardStats,
-  mockInventoryStats,
-  mockWarehouseStats,
-  mockLowStockStats,
-  mockPurchaseStats,
-  mockSupplierOrderStats,
-  mockProductionStats,
   bomServerVersions,
   getBomVersion,
   bumpBomVersion,
-  mockHrmStats,
 };

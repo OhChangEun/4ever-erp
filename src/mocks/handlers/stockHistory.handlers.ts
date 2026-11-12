@@ -2,20 +2,20 @@ import { createOpenApiHttp } from 'openapi-msw';
 import type { paths } from '@/lib/api/openapi.gen';
 import { API_BASE_URL } from '@/app/types/api';
 import { addDays, startOfDay, toDateKey } from '@/app/utils/date';
+import { MOTOR, catalogItem } from './catalog';
+import { stockOf } from './inventory.handlers';
 import { shouldError } from './utils';
 
 /**
  * 품목 재고 추이 목(시각화 2). 새 핸들러라 openapi-msw 로 쓴다(결정 기록 OpenAPI 계약 2).
- * 상세 목(현재고 120, 안전재고 50)과 맞게, 하루 5 개씩 줄어 오늘 120 에서 끝난다. 값은 결정적이다.
+ * 재고 상세 목과 같은 품목의 지금 현재고에서 끝난다(모르는 id 는 상세처럼 모터 A). 하루 5 개씩 줄어 오늘에 닿는다. 값은 결정적이다.
  */
 const http = createOpenApiHttp<paths>({ baseUrl: API_BASE_URL });
 
 const DAYS = 30;
-const CURRENT = 120;
-const SAFETY = 50;
 const DAILY_DROP = 5;
 
-export const stockHistoryPoints = () => {
+export const stockHistoryPoints = (current = MOTOR.current) => {
   const today = startOfDay(new Date());
   return Array.from({ length: DAYS }, (_, i) => {
     const daysAgo = DAYS - 1 - i;
@@ -23,7 +23,7 @@ export const stockHistoryPoints = () => {
     const wobble = daysAgo === 0 ? 0 : ((i % 3) - 1) * 2;
     return {
       date: toDateKey(addDays(today, -daysAgo)),
-      stock: CURRENT + daysAgo * DAILY_DROP + wobble,
+      stock: current + daysAgo * DAILY_DROP + wobble,
     };
   });
 };
@@ -35,6 +35,10 @@ export const stockHistoryHandlers = [
         { status: 500, success: false, message: 'Failed to load stock history' },
         { status: 500 },
       );
+    const stock = stockOf(
+      request,
+      catalogItem(params.itemId) ?? { ...MOTOR, itemId: params.itemId },
+    );
     return response(200).json({
       status: 200,
       success: true,
@@ -42,8 +46,8 @@ export const stockHistoryHandlers = [
       data: {
         itemId: params.itemId,
         uomName: 'EA',
-        safetyStock: SAFETY,
-        points: stockHistoryPoints(),
+        safetyStock: stock.safetyStock,
+        points: stockHistoryPoints(stock.currentStock),
       },
     });
   }),

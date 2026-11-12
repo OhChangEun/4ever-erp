@@ -97,7 +97,7 @@ test('BOM 원가 트리에 완제품 원가(이상)가 있고 조립품을 키�
   await page.getByRole('button', { name: '상세' }).first().click();
   const tree = page.getByRole('group', { name: 'BOM 원가 트리' });
   await expect(tree).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText(/완제품 1개 자재 원가 ₩47,360 이상/)).toBeVisible();
+  await expect(page.getByText(/완제품 1개 자재 원가 ₩54,960 이상/)).toBeVisible();
   await expect(page.getByText(/단가 없는 자재 1개는 0 원으로 세지 않았습니다/)).toBeVisible();
   const rotor = tree.getByRole('button', { name: /^로터 조립/ });
   await rotor.focus();

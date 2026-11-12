@@ -45,11 +45,12 @@ describe('인사 화면 영어(i18n 7)', () => {
     expect(screen.getByRole('button', { name: 'Attendance' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(총 직원 수 1,200명)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(총 직원 수 40명)', async () => {
     renderWithProviders(<HrmClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('총 직원 수')).toBeInTheDocument();
-    expect(within(metrics).getAllByText('1,200명').length).toBeGreaterThan(0);
+    // 근태 집계의 인원(카드 "목 데이터 현실성")
+    expect(within(metrics).getAllByText('40명').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: '직원관리' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '직원정보' })).toBeInTheDocument();
   });

@@ -12,16 +12,31 @@ describe('createStatCard', () => {
     expect(createStatCard('직원 수', 120, 0, '명').value).toBe('120명');
   });
 
+  // 변화율은 계약대로 비율(0.12 = 12%)이다. 화면은 100 을 곱해 소수 첫째 자리 퍼센트로 보인다(목 데이터 현실성 리뷰 7).
+  // 예전 입력 12.5, -3 은 퍼센트 값이었다. 기대 글자는 그대로이고 입력만 비율로 바꿨다
   it('양수 변화율은 + 부호와 % 를 붙이고 increase 로 분류한다', () => {
-    const card = createStatCard('총 매출', 1, 12.5);
+    const card = createStatCard('총 매출', 1, 0.125);
     expect(card.change).toBe('+12.5%');
     expect(card.changeType).toBe('increase');
   });
 
   it('음수 변화율은 부호를 그대로 두고 decrease 로 분류한다', () => {
-    const card = createStatCard('총 매출', 1, -3);
+    const card = createStatCard('총 매출', 1, -0.03);
     expect(card.change).toBe('-3%');
     expect(card.changeType).toBe('decrease');
+  });
+
+  it('비율에 100 을 곱해 소수 첫째 자리까지 보인다', () => {
+    expect(createStatCard('총 매출', 1, 0.083).change).toBe('+8.3%');
+    expect(createStatCard('총 매출', 1, -0.12).change).toBe('-12%');
+    expect(createStatCard('총 매출', 1, 0.0834).change).toBe('+8.3%');
+    expect(createStatCard('총 매출', 1, 0).change).toBe('0%');
+  });
+
+  it('반올림해 0% 가 되는 아주 작은 감소는 0% 이고 increase 다(▼0% 를 보이지 않는다)', () => {
+    const card = createStatCard('총 매출', 1, -0.0004);
+    expect(card.change).toBe('0%');
+    expect(card.changeType).toBe('increase');
   });
 
   it('변화율 0 은 increase 로 분류한다 (현재 동작 고정)', () => {

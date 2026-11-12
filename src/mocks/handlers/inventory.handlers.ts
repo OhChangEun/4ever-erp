@@ -2,6 +2,7 @@ import { http, type PathParams } from 'msw';
 import { INVENTORY_BASE_PATH, INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/app/types/api';
 import type { Schema } from '@/lib/api/contract';
 import { mockState } from '../state';
+import { BEARING, MOTOR, WAREHOUSE_ITEMS, catalogItem, type CatalogItem } from './catalog';
 import {
   ok,
   okNoData,
@@ -10,7 +11,8 @@ import {
   pathSegment,
   isoNow,
   makePage,
-  stat,
+  flow,
+  level,
   statResponse,
 } from './utils';
 
@@ -29,86 +31,101 @@ const inventoryState = mockState<{
 
 /** 재고 상세 목의 창고. 재고 이동은 이 창고에서 나가거나 들어올 때만 현재고가 바뀐다 */
 const DETAIL_WAREHOUSE_ID = 'wh-001';
-const UNIT_PRICE = 12000;
-/** 모터 A(item-1001)의 처음 재고. 일반 목록, 상세, 창고별 조회가 같은 값을 쓴다(같은 품목은 어디서나 같은 수량) */
-const MOTOR_ID = 'item-1001';
-const MOTOR_STOCK = { current: 120, safety: 50 };
 
-/** 품목의 안전재고와 현재고에 쓰기 결과를 덮는다 */
-const stockOf = (request: Request, itemId: string, seed: { current: number; safety: number }) => {
+/** 품목표의 처음 재고에 쓰기 결과를 덮는다. 같은 품목은 어느 조회에서나(재고 추이 목 포함) 같은 수량이다 */
+export const stockOf = (request: Request, item: CatalogItem) => {
   const state = inventoryState(request);
   return {
-    currentStock: seed.current - (state.movedOut.get(itemId) ?? 0),
-    safetyStock: state.safetyStock.get(itemId) ?? seed.safety,
+    currentStock: item.current - (state.movedOut.get(item.itemId) ?? 0),
+    safetyStock: state.safetyStock.get(item.itemId) ?? item.safety,
   };
 };
 
-const mockInventoryStats = statResponse({
-  total_stock: stat,
-  store_complete: stat,
-  store_pending: stat,
-  delivery_complete: stat,
-  delivery_pending: stat,
-});
+/** 품목 한 줄의 공통 칸. 금액은 지금 현재고 × 단가. 상태는 처음 값에서 정하고 쓰기 뒤에 다시 계산하지 않는다 */
+const itemRow = (request: Request, item: CatalogItem) => {
+  const stock = stockOf(request, item);
+  return {
+    itemId: item.itemId,
+    itemNumber: item.itemNumber,
+    itemName: item.itemName,
+    category: item.category,
+    ...stock,
+    uomName: 'EA',
+    unitPrice: item.unitPrice,
+    totalAmount: stock.currentStock * item.unitPrice,
+    statusCode: item.current < item.safety ? 'URGENT' : 'NORMAL',
+  };
+};
 
-const mockLowStockStats = statResponse({
-  total_emergency: stat,
-  total_warning: stat,
-});
+/** 일반 재고 목록의 행(1공장 창고의 모터 A) */
+const inventoryRows = (request: Request) => [
+  {
+    ...itemRow(request, MOTOR),
+    forShipmentStock: 30,
+    reservedStock: 10,
+    warehouseName: '1공장 창고',
+    warehouseType: 'RAW',
+    shelfNumber: 12,
+  },
+];
+
+/** 출고 준비 완료 목록의 처음 행 */
+const READY_TO_SHIP = [
+  {
+    salesOrderId: 'so-002',
+    salesOrderNumber: 'SO-2026-002',
+    customerName: '미래전자',
+    orderDate: '2026-01-10',
+    dueDate: '2026-02-02',
+    productionCompletionDate: '2026-01-25',
+    readyToShipDate: '2026-01-26',
+    totalAmount: 5200000,
+    // 예전 값 READT_TO_SHIP 은 팀 FE 타입의 오타였다(게이트웨이 사본에 없다). 실서버 값은 확인하지 못했다(verified=false).
+    // 게이트웨이 옛 목 데이터의 목록 값이 READY_TO_SHIP 이다. 계약과 화면은 READY_FOR_SHIPMENT 도 받는다
+    statusCode: 'READY_TO_SHIP',
+  },
+];
+
+/** 출고 준비 완료 목록. 배송을 시작한 주문은 배송중이 되어 빠진다(게이트웨이 OrderController.java:239) */
+const readyToShipOf = (request: Request) =>
+  READY_TO_SHIP.filter((order) => !inventoryState(request).shippedOrders.has(order.salesOrderId));
 
 /**
- * 창고 하나의 재고(시각화 8). 값은 순번으로 정해진다. 안전재고 대비 30%~420%, 하나는 안전재고 0.
- * 모터 A 만 순번 값 대신 다른 조회와 같은 처음 재고(MOTOR_STOCK)를 쓴다. 예전엔 여기서만 15개였다(리뷰 P1)
+ * 통계 건수는 아래 목록의 행 수와 같다(입고 완료 1, 입고 대기 1, 출고 대기는 그 로그인이 배송을 시작하면 준다).
+ * 입고 목록은 쓰기가 없어 늘 1, 출고 완료 목록은 목에 없어 같은 크기(1)로 둔다. 재고 금액은 일반 재고 목록의 금액 합이다(지금 값)
  */
-const WAREHOUSE_ITEMS = [
-  '구리선',
-  '베어링 B',
-  '볼트 M6',
-  '알루미늄 판',
-  '모터 A',
-  '샤프트',
-  '커버',
-  '패킹',
-  '너트 M6',
-  '와셔',
-  '하우징',
-  '기어',
-  '스프링',
-  '케이블',
-];
-const warehouseStock = (request: Request, warehouseName: string) =>
-  WAREHOUSE_ITEMS.map((itemName, i) => {
-    const isMotor = itemName === '모터 A';
-    const safety = i === 13 ? 0 : 50 + (i % 4) * 25;
-    const ratio = [0.3, 0.8, 1.1, 1.3, 1.8, 2.4, 3.5, 4.2][i % 8];
-    const seed = isMotor ? MOTOR_STOCK : { current: Math.round((safety || 40) * ratio), safety };
-    const itemId = isMotor ? MOTOR_ID : `item-wh-${String(i + 1).padStart(3, '0')}`;
-    // 안전재고 수정과 재고 이동을 다른 조회와 똑같이 따른다
-    const stock = stockOf(request, itemId, seed);
-    return {
-      itemId,
-      itemNumber: `ITM-${String(3000 + i)}`,
-      itemName,
-      category: '자재',
-      ...stock,
-      forShipmentStock: 0,
-      reservedStock: 0,
-      uomName: 'EA',
-      unitPrice: 1000 + i * 150,
-      totalAmount: stock.currentStock * (1000 + i * 150),
-      warehouseName,
-      warehouseType: 'RAW',
-      // 상태는 다른 조회처럼 처음 값에서 정하고 쓰기 뒤에 다시 계산하지 않는다
-      statusCode: seed.current < seed.safety ? 'URGENT' : 'NORMAL',
-      shelfNumber: i + 1,
-    };
+const inventoryStats = (request: Request) =>
+  statResponse({
+    total_stock: level(inventoryRows(request).reduce((sum, row) => sum + row.totalAmount, 0)),
+    store_complete: flow(1),
+    store_pending: flow(1),
+    delivery_complete: flow(1),
+    delivery_pending: flow(readyToShipOf(request).length),
   });
+
+/** 안전재고 목록(베어링 B). 긴급 건수 통계가 이 행 수를 쓴다 */
+const LOW_STOCK_ITEMS = [BEARING];
+const mockLowStockStats = statResponse({
+  total_emergency: flow(LOW_STOCK_ITEMS.filter((item) => item.current < item.safety).length),
+  total_warning: flow(0),
+});
+
+/** 창고 하나의 재고(시각화 8). 품목표의 14개에 안전재고 수정과 재고 이동을 다른 조회와 똑같이 덮는다 */
+const warehouseStock = (request: Request, warehouseName: string) =>
+  WAREHOUSE_ITEMS.map((item, i) => ({
+    ...itemRow(request, item),
+    forShipmentStock: 0,
+    reservedStock: 0,
+    warehouseName,
+    warehouseType: 'RAW',
+    shelfNumber: i + 1,
+  }));
 
 export const inventoryHandlers = [
   // ----------------------- Inventory -----------------------
   http.get(INVENTORY_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load inventory stats', 500);
-    return ok(mockInventoryStats);
+    return ok(inventoryStats(request));
   }),
   http.get(INVENTORY_ENDPOINTS.INVENTORY_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load inventory list', 500);
@@ -121,49 +138,22 @@ export const inventoryHandlers = [
       const content = warehouseStock(request, keyword);
       return ok({ content: content.slice(0, size), page: makePage(page, size, content.length) });
     }
-    const stock = stockOf(request, MOTOR_ID, MOTOR_STOCK);
-    return ok({
-      content: [
-        {
-          itemId: MOTOR_ID,
-          itemNumber: 'ITM-1001',
-          itemName: '모터 A',
-          category: 'MOTOR',
-          ...stock,
-          forShipmentStock: 30,
-          reservedStock: 10,
-          uomName: 'EA',
-          unitPrice: UNIT_PRICE,
-          totalAmount: stock.currentStock * UNIT_PRICE,
-          warehouseName: '1공장 창고',
-          warehouseType: 'RAW',
-          statusCode: 'NORMAL',
-          shelfNumber: 12,
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    const content = inventoryRows(request);
+    return ok({ content, page: makePage(page, size, content.length) });
   }),
   http.get<{ itemId: string }>(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load inventory detail', 500);
-    const stock = stockOf(request, params.itemId, MOTOR_STOCK);
+    // 목록에 있는 품목은 품목표에서 찾는다. 모르는 id 는 계약에 404 가 없어 모터 A 본문에 그 id 를 싣는다
+    const item = catalogItem(params.itemId) ?? { ...MOTOR, itemId: params.itemId };
     return ok({
-      itemId: params.itemId,
-      itemNumber: 'ITM-1001',
-      itemName: '모터 A',
-      category: 'MOTOR',
+      ...itemRow(request, item),
       supplierCompanyName: '대양상사',
-      statusCode: 'NORMAL',
-      ...stock,
-      uomName: 'EA',
-      unitPrice: UNIT_PRICE,
-      totalAmount: stock.currentStock * UNIT_PRICE,
       warehouseId: DETAIL_WAREHOUSE_ID,
       warehouseName: '1공장 창고',
       warehouseNumber: 'WH-001',
       location: 'A-1',
       lastModified: isoNow,
-      description: '표준 모터',
+      description: `${item.itemName} 표준 규격`,
       stockMovement: [
         {
           type: 'IN',
@@ -182,15 +172,13 @@ export const inventoryHandlers = [
   http.get(INVENTORY_ENDPOINTS.LOW_STOCK, ({ request }) => {
     if (shouldError(request)) return error('Failed to load low stock', 500);
     return ok({
-      content: [
-        {
-          itemId: 'item-1002',
-          itemName: '베어링 B',
-          ...stockOf(request, 'item-1002', { current: 20, safety: 50 }),
-          uomName: 'EA',
-          statusCode: 'URGENT',
-        },
-      ],
+      content: LOW_STOCK_ITEMS.map((item) => {
+        const { itemId, itemName, currentStock, safetyStock, uomName, statusCode } = itemRow(
+          request,
+          item,
+        );
+        return { itemId, itemName, currentStock, safetyStock, uomName, statusCode };
+      }),
     });
   }),
   http.get(INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT, ({ request }) => {
@@ -260,22 +248,7 @@ export const inventoryHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    // 배송을 시작한 주문은 배송중이 되어 이 목록에서 빠진다(게이트웨이 OrderController.java:239)
-    const content = [
-      {
-        salesOrderId: 'so-002',
-        salesOrderNumber: 'SO-2026-002',
-        customerName: '미래전자',
-        orderDate: '2026-01-10',
-        dueDate: '2026-02-02',
-        productionCompletionDate: '2026-01-25',
-        readyToShipDate: '2026-01-26',
-        totalAmount: 5200000,
-        // 예전 값 READT_TO_SHIP 은 팀 FE 타입의 오타였다(게이트웨이 사본에 없다). 실서버 값은 확인하지 못했다(verified=false).
-        // 게이트웨이 옛 목 데이터의 목록 값이 READY_TO_SHIP 이다. 계약과 화면은 READY_FOR_SHIPMENT 도 받는다
-        statusCode: 'READY_TO_SHIP',
-      },
-    ].filter((order) => !inventoryState(request).shippedOrders.has(order.salesOrderId));
+    const content = readyToShipOf(request);
     return ok({ content, page: makePage(page, size, content.length) });
   }),
   http.get(`${INVENTORY_BASE_PATH}/sales-orders/production/:itemId`, ({ request, params }) => {
@@ -323,8 +296,9 @@ export const inventoryHandlers = [
           purchaseOrderId: 'po-001',
           purchaseOrderNumber: 'PO-2026-001',
           supplierCompanyName: '대양상사',
-          orderDate: '2026-01-10',
-          dueDate: '2026-02-01',
+          // 구매 목의 발주 목록과 같은 발주다(같은 날짜, 금액)
+          orderDate: '2026-01-08',
+          dueDate: '2026-01-30',
           totalAmount: 4200000,
           statusCode: 'PENDING',
         },
@@ -356,8 +330,8 @@ export const inventoryHandlers = [
     if (shouldError(request)) return error('Failed to load item toggle', 500);
     return ok([
       {
-        itemId: 'item-1001',
-        unitPrice: 12000,
+        itemId: MOTOR.itemId,
+        unitPrice: MOTOR.unitPrice,
         supplierCompanyName: '대양상사',
         uomName: 'EA',
         supplierCompanyId: 'sup-001',
@@ -381,10 +355,10 @@ export const inventoryHandlers = [
     if (shouldError(request)) return error('Failed to load materials', 500);
     return ok([
       {
-        itemId: 'item-1001',
-        itemName: '모터 A',
-        itemNmber: 'ITM-1001',
-        unitPrice: 12000,
+        itemId: MOTOR.itemId,
+        itemName: MOTOR.itemName,
+        itemNmber: MOTOR.itemNumber,
+        unitPrice: MOTOR.unitPrice,
         supplierName: '대양상사',
       },
     ]);
@@ -400,23 +374,11 @@ export const inventoryHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get('page') ?? 0);
     const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          itemId: 'item-1002',
-          itemName: '베어링 B',
-          itemNumber: 'ITM-1002',
-          category: 'BEARING',
-          ...stockOf(request, 'item-1002', { current: 20, safety: 50 }),
-          uomName: 'EA',
-          unitPrice: 8000,
-          totalAmount: 160000,
-          warehouseName: '1공장 창고',
-          warehouseNumber: 'WH-001',
-          statusCode: 'URGENT',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    const content = LOW_STOCK_ITEMS.map((item) => ({
+      ...itemRow(request, item),
+      warehouseName: '1공장 창고',
+      warehouseNumber: 'WH-001',
+    }));
+    return ok({ content, page: makePage(page, size, content.length) });
   }),
 ];

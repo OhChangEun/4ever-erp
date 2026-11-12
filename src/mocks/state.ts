@@ -54,12 +54,20 @@ const createdCounts = new WeakMap<object, number>();
 /**
  * 새 행을 목록 끝에 붙인다. 생성 핸들러는 배열에 직접 push 하지 않고 이것만 쓴다(상한이 한 곳에 있다).
  * `make` 는 세 자리 순번을 받는다. 기본 행이 001 이라 만든 행은 `first`(기본 2)부터 센다.
+ * 행이 상한으로 밀려나면 `onDrop` 에 그 행을 넘긴다. 행에 딸린 저장(품목 줄 등)을 여기서 같이 지운다
  */
-export const addCreated = <T>(rows: T[], make: (serial: string) => T, first = 2) => {
+export const addCreated = <T>(
+  rows: T[],
+  make: (serial: string) => T,
+  first = 2,
+  onDrop?: (row: T) => void,
+) => {
   const count = createdCounts.get(rows) ?? 0;
   createdCounts.set(rows, count + 1);
   rows.push(make(String(first + count).padStart(3, '0')));
-  if (rows.length > MAX_CREATED_ROWS) rows.shift();
+  if (rows.length <= MAX_CREATED_ROWS) return;
+  const dropped = rows.shift();
+  if (dropped !== undefined) onDrop?.(dropped);
 };
 
 /** 모든 로그인의 상태를 지운다. 단위 테스트는 테스트마다 부른다(vitest.setup.ts) */
