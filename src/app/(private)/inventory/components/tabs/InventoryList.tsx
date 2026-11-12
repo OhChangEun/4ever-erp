@@ -175,10 +175,9 @@ const InventoryList = () => {
         <LowStockAlert />
         <StockMovement />
       </div>
-      <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 shrink-0">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">{t('list.title')}</h2>
+      <div className="flex flex-col flex-1 min-h-0 gap-6 overflow-hidden">
+        <div className="shrink-0">
+          <div className="flex items-center justify-end">
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
                 <Dropdown

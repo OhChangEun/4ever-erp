@@ -207,7 +207,7 @@ const SalesQuoteList = () => {
       </div>
 
       {/* 견적 목록 */}
-      <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 gap-6 overflow-hidden">
         {isLoading ? (
           <TableStatusBox type="loading" message={t('loading')} />
         ) : isError ? (

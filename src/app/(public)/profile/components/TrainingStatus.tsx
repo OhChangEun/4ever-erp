@@ -57,7 +57,8 @@ const TrainingStatus = () => {
 
       {/* 탭 메뉴 */}
       <div className="border-b border-gray-200">
-        <nav className="flex space-x-8 px-6">
+        {/* -mb-px: 활성 탭 밑줄이 아래 회색 선 위에 겹쳐 한 겹으로 보이게(TabNavigation 과 같은 방식) */}
+        <nav className="flex space-x-8 px-6 -mb-px">
           <button
             onClick={() => setActiveTab('progress')}
             className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap ${
