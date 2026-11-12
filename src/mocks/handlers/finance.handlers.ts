@@ -1,6 +1,9 @@
 import { http } from 'msw';
 import { FINANCE_BASE_PATH, FINANCE_ENDPOINTS } from '@/app/types/api';
 import { mockState } from '../state';
+import { BEARING, MOTOR, line } from './catalog';
+import { monthlyMetric } from './financeAnalytics.handlers';
+import { PURCHASE_ORDER_LINES } from './purchase.handlers';
 import {
   ok,
   okNoData,
@@ -8,7 +11,7 @@ import {
   shouldError,
   pathSegment,
   makePage,
-  stat,
+  flow,
   statResponse,
 } from './utils';
 
@@ -19,28 +22,33 @@ import {
  */
 const invoiceStatus = mockState(() => new Map<string, string>());
 
-const mockFinanceStats = statResponse({
-  total_purchases: stat,
-  net_profit: stat,
-  total_sales: stat,
-});
-
-const mockCustomerSupplierStats = statResponse({
-  total_amount: stat,
-});
+/** 전표 총액. 고객사와 공급사 통계의 주 값이 이 금액이다 */
+const AP_TOTAL = 4200000;
+const AR_TOTAL = 8200000;
+/** 매출 전표의 품목 줄. 단가는 품목표 값이고 합이 총액이다 */
+const AR_LINES = [line(MOTOR, 550), line(BEARING, 200)];
 
 export const financeHandlers = [
   http.get(FINANCE_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load finance stats', 500);
-    return ok(mockFinanceStats);
+    // 재무 월별 손익(재무 현황 그래프)과 같은 값
+    return ok(
+      statResponse({
+        total_purchases: monthlyMetric('purchases'),
+        net_profit: monthlyMetric('netProfit'),
+        total_sales: monthlyMetric('sales'),
+      }),
+    );
   }),
   http.get(FINANCE_ENDPOINTS.CUSTOMER_STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load customer stats', 500);
-    return ok(mockCustomerSupplierStats);
+    // 고객사의 총 구매액은 그 고객의 매출 전표 금액
+    return ok(statResponse({ total_amount: flow(AR_TOTAL) }));
   }),
   http.get(FINANCE_ENDPOINTS.SUPPLIER_STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier stats', 500);
-    return ok(mockCustomerSupplierStats);
+    // 공급사의 총 매출액은 그 공급사의 매입 전표 금액
+    return ok(statResponse({ total_amount: flow(AP_TOTAL) }));
   }),
   http.get(FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase invoices', 500);
@@ -57,7 +65,7 @@ export const financeHandlers = [
             connectionCode: 'SUP-001',
             connectionName: '대양상사',
           },
-          totalAmount: 4200000,
+          totalAmount: AP_TOTAL,
           issueDate: '2026-01-15',
           dueDate: '2026-02-15',
           statusCode: invoiceStatus(request).get('inv-ap-001') ?? 'UNPAID',
@@ -80,18 +88,13 @@ export const financeHandlers = [
       dueDate: '2026-02-15',
       name: '대양상사',
       referenceNumber: 'REF-AP-001',
-      totalAmount: 4200000,
+      totalAmount: AP_TOTAL,
       note: '납기 준수 요청',
-      items: [
-        {
-          itemId: 'item-2001',
-          itemName: '원자재 A',
-          quantity: 200,
-          unitOfMaterialName: 'EA',
-          unitPrice: 20000,
-          totalPrice: 4000000,
-        },
-      ],
+      // 같은 거래의 발주(PO-2026-001)와 같은 품목
+      items: PURCHASE_ORDER_LINES.map(({ uomName, ...item }) => ({
+        ...item,
+        unitOfMaterialName: uomName,
+      })),
     });
   }),
   http.post(new RegExp(`${FINANCE_BASE_PATH}/invoice/ap/receivable/request`), ({ request }) => {
@@ -126,7 +129,7 @@ export const financeHandlers = [
             connectionCode: 'CUS-001',
             connectionName: '한빛전자',
           },
-          totalAmount: 8200000,
+          totalAmount: AR_TOTAL,
           issueDate: '2026-01-20',
           dueDate: '2026-02-20',
           statusCode: invoiceStatus(request).get('inv-ar-001') ?? 'PENDING',
@@ -149,18 +152,13 @@ export const financeHandlers = [
       dueDate: '2026-02-20',
       name: '한빛전자',
       referenceNumber: 'REF-AR-001',
-      totalAmount: 8200000,
+      totalAmount: AR_TOTAL,
       note: '입금 대기',
-      items: [
-        {
-          itemId: 'item-1001',
-          itemName: '모터 A',
-          quantity: 100,
-          unitOfMaterialName: 'EA',
-          unitPrice: 82000,
-          totalPrice: 8200000,
-        },
-      ],
+      items: AR_LINES.map(({ amount, ...item }) => ({
+        ...item,
+        unitOfMaterialName: 'EA',
+        totalPrice: amount,
+      })),
     });
   }),
 ];

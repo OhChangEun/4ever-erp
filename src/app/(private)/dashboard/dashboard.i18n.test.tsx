@@ -61,16 +61,17 @@ describe('대시보드 영어(i18n 4)', () => {
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Total employees')).toBeInTheDocument();
     expect(within(metrics).getByText('Total sales')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200')).toBeInTheDocument();
+    // 직원 수는 근태 집계의 인원 40(카드 "목 데이터 현실성")
+    expect(within(metrics).getByText('40')).toBeInTheDocument();
     expect(within(metrics).queryByText(/명/)).not.toBeInTheDocument();
   });
 
-  it('한국어 통계 카드는 예전과 같다(직원 수 1,200명)', async () => {
+  it('한국어 통계 카드는 예전과 같다(직원 수 40명)', async () => {
     loginAs('MM_ADMIN');
     renderWithProviders(<DashboardClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(within(metrics).getByText('총 직원 수')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200명')).toBeInTheDocument();
+    expect(within(metrics).getByText('40명')).toBeInTheDocument();
   });
 
   it('빠른 작업 제목과 카드가 영어, 신규 견적서 작성은 모달을 연다', async () => {

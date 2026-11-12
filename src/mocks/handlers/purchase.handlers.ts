@@ -6,7 +6,8 @@ import {
 import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { ok, error, shouldError, pathSegment, makePage, stat, statResponse } from './utils';
+import { monthlyMetric } from './financeAnalytics.handlers';
+import { ok, error, shouldError, pathSegment, makePage, flow, statResponse } from './utils';
 
 type Requisition = Schema<'PurchaseRequestListItem'>;
 // 수정과 등록 본문은 상태와 분류를 글자로 보낸다. 목은 받은 값을 그대로 돌려주므로 enum 으로 좁히지 않는다
@@ -16,6 +17,16 @@ type SupplierInfo = Omit<Schema<'SupplierInfo'>, 'supplierStatusCode' | 'categor
 };
 type SupplierEdit = Schema<'UpdateSupplierBody'>;
 type ManagerInfo = Schema<'ManagerInfo'>;
+/** 구매 요청 상세의 품목 줄 */
+interface RequisitionLine {
+  itemId: number;
+  itemName: string;
+  dueDate: string;
+  quantity: number;
+  uomCode: string;
+  unitPrice: number;
+  amount: number;
+}
 
 /**
  * 구매 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
@@ -32,6 +43,8 @@ export const purchaseState = mockState<{
   supplierEdits: Map<string, SupplierEdit>;
   /** 자재 구매 요청이 들어간 계획 주문(mrpRunId). 생산 목의 계획 주문 목록이 읽는다 */
   requestedMrpRuns: Set<string>;
+  /** 새 구매 요청의 품목 줄(요청 id → 줄) */
+  requisitionLines: Map<string, RequisitionLine[]>;
 }>(() => ({
   requisitionStatus: new Map(),
   createdRequisitions: [],
@@ -39,6 +52,7 @@ export const purchaseState = mockState<{
   createdSuppliers: [],
   supplierEdits: new Map(),
   requestedMrpRuns: new Set(),
+  requisitionLines: new Map(),
 }));
 type PurchaseState = ReturnType<typeof purchaseState>;
 
@@ -54,14 +68,72 @@ const SEED_REQUISITION: Requisition = {
   totalAmount: 4200000,
 };
 
-/** 새 구매 요청 행. 요청자는 게이트웨이가 로그인에서 정하므로 목은 기본 행의 사람을 쓴다 */
-const addRequisition = (state: PurchaseState, totalAmount: number) => {
-  addCreated(state.createdRequisitions, (serial) => ({
-    ...SEED_REQUISITION,
-    purchaseRequisitionId: `pr-${serial}`,
-    purchaseRequisitionNumber: `PR-2026-${serial}`,
-    requestDate: toDateKey(new Date()),
-    totalAmount,
+/**
+ * 발주서 PO-2026-001 의 품목 줄(목록의 "원자재 A 외 2건"). 합이 총액 4,200,000 이다(카드 "목 데이터 현실성").
+ * 같은 거래의 구매 요청 PR-2026-001 과 매입 전표 AP-2026-001 도 이 줄을 쓴다
+ */
+export const PURCHASE_ORDER_LINES = [
+  {
+    itemId: 'item-2001',
+    itemName: '원자재 A',
+    quantity: 150,
+    uomName: 'EA',
+    unitPrice: 20000,
+    totalPrice: 3000000,
+  },
+  {
+    itemId: 'item-2002',
+    itemName: '원자재 B',
+    quantity: 100,
+    uomName: 'EA',
+    unitPrice: 9000,
+    totalPrice: 900000,
+  },
+  {
+    itemId: 'item-2003',
+    itemName: '원자재 C',
+    quantity: 60,
+    uomName: 'EA',
+    unitPrice: 5000,
+    totalPrice: 300000,
+  },
+];
+const SEED_REQUISITION_LINES: RequisitionLine[] = PURCHASE_ORDER_LINES.map((item, i) => ({
+  itemId: i + 1,
+  itemName: item.itemName,
+  dueDate: '2026-02-01',
+  quantity: item.quantity,
+  uomCode: item.uomName,
+  unitPrice: item.unitPrice,
+  amount: item.totalPrice,
+}));
+
+/** 새 구매 요청 행. 요청자는 게이트웨이가 로그인에서 정하므로 목은 기본 행의 사람을 쓴다. 총액은 줄 금액 합 */
+const addRequisition = (state: PurchaseState, lines: RequisitionLine[]) => {
+  addCreated(
+    state.createdRequisitions,
+    (serial) => {
+      state.requisitionLines.set(`pr-${serial}`, lines);
+      return {
+        ...SEED_REQUISITION,
+        purchaseRequisitionId: `pr-${serial}`,
+        purchaseRequisitionNumber: `PR-2026-${serial}`,
+        requestDate: toDateKey(new Date()),
+        totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
+      };
+    },
+    2,
+    // 상한으로 밀려난 요청의 줄도 같이 지운다(리뷰 A2)
+    (dropped) => state.requisitionLines.delete(dropped.purchaseRequisitionId),
+  );
+};
+
+/** 구매 요청 목록. 기본 행과 새 행에 바뀐 상태를 덮는다 */
+const requisitionsOf = (request: Request) => {
+  const state = purchaseState(request);
+  return [SEED_REQUISITION, ...state.createdRequisitions].map((row) => ({
+    ...row,
+    statusCode: state.requisitionStatus.get(row.purchaseRequisitionId) ?? row.statusCode,
   }));
 };
 
@@ -99,31 +171,40 @@ const editedSupplier = (info: SupplierInfo, edit: SupplierEdit | undefined): Sup
       }
     : info;
 
-const mockPurchaseStats = statResponse({
-  purchaseOrderAmount: stat,
-  purchaseRequestCount: stat,
-});
-
-const mockSupplierOrderStats = statResponse({
-  orderCount: stat,
-});
+/** 공급사 담당자. 수정했으면 수정한 값이다(공급사 상세와 발주 상세가 같이 쓴다) */
+const supplierManager = (state: PurchaseState, supplierId: string): ManagerInfo => {
+  const edit = state.supplierEdits.get(supplierId);
+  if (edit)
+    return {
+      managerName: edit.managerName,
+      managerPhone: edit.managerPhone,
+      managerEmail: edit.managerEmail,
+    };
+  return (
+    state.createdSuppliers.find((s) => s.supplierInfo.supplierId === supplierId)?.managerInfo ??
+    SEED_MANAGER
+  );
+};
 
 export const purchaseHandlers = [
   http.get(PURCHASE_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase stats', 500);
-    return ok(mockPurchaseStats);
+    // 발주 금액은 재무 월별 손익의 매입, 구매 요청 건수의 주 값은 그 로그인의 구매 요청 목록 행 수(리뷰 관찰 1)
+    return ok(
+      statResponse({
+        purchaseOrderAmount: monthlyMetric('purchases'),
+        purchaseRequestCount: flow(requisitionsOf(request).length),
+      }),
+    );
   }),
   http.get(PURCHASE_ENDPOINTS.SUPPLIER_ORDERS_STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier orders stats', 500);
-    return ok(mockSupplierOrderStats);
+    // 주 값은 발주서 목록 행 수(목록은 늘 1행이고 쓰기로 행이 늘지 않는다)
+    return ok(statResponse({ orderCount: flow(1) }));
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase requisitions', 500);
-    const state = purchaseState(request);
-    const content = [SEED_REQUISITION, ...state.createdRequisitions].map((row) => ({
-      ...row,
-      statusCode: state.requisitionStatus.get(row.purchaseRequisitionId) ?? row.statusCode,
-    }));
+    const content = requisitionsOf(request);
     return ok({ content, page: makePage(0, 10, content.length) });
   }),
   http.post<PathParams, Schema<'CreatePurchaseRequestBody'>>(
@@ -133,7 +214,15 @@ export const purchaseHandlers = [
       const { items } = await request.json();
       addRequisition(
         purchaseState(request),
-        items.reduce((sum, item) => sum + item.quantity * item.expectedUnitPrice, 0),
+        items.map((item, i) => ({
+          itemId: i + 1,
+          itemName: item.itemName,
+          dueDate: item.dueDate,
+          quantity: item.quantity,
+          uomCode: item.uomName,
+          unitPrice: item.expectedUnitPrice,
+          amount: item.quantity * item.expectedUnitPrice,
+        })),
       );
       return ok(null);
     },
@@ -144,8 +233,19 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to create stock purchase requisition', 500);
       const state = purchaseState(request);
       const { items } = await request.json();
-      // 본문에 단가가 없어 금액은 0 이다
-      addRequisition(state, 0);
+      // 본문에 단가와 품목 이름이 없어 이름은 품목 id, 금액은 0 이다
+      addRequisition(
+        state,
+        items.map((item, i) => ({
+          itemId: i + 1,
+          itemName: item.productId,
+          dueDate: '',
+          quantity: item.quantity,
+          uomCode: 'EA',
+          unitPrice: 0,
+          amount: 0,
+        })),
+      );
       for (const item of items) if (item.mrpRunId) state.requestedMrpRuns.add(item.mrpRunId);
       return ok(null);
     },
@@ -154,27 +254,27 @@ export const purchaseHandlers = [
     `${PURCHASE_BASE_PATH}/purchase-requisitions/:prId`,
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load requisition detail', 500);
+      const { prId } = params;
+      // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 행의 본문에 그 id 를 싣는다.
+      // 행을 못 찾았으면 저장된 줄도 쓰지 않는다(기본 행의 총액과 줄이 짝이다, 리뷰 A2)
+      const found = requisitionsOf(request).find((r) => r.purchaseRequisitionId === prId);
+      const row = found ?? {
+        ...SEED_REQUISITION,
+        statusCode:
+          purchaseState(request).requisitionStatus.get(prId) ?? SEED_REQUISITION.statusCode,
+      };
       return ok({
-        id: params.prId,
-        purchaseRequisitionNumber: 'PR-2026-001',
-        requesterId: 'emp-001',
-        requesterName: '홍길동',
-        departmentId: 'dept-001',
-        departmentName: '구매팀',
-        requestDate: '2026-01-10',
-        statusCode: purchaseState(request).requisitionStatus.get(params.prId) ?? 'PENDING',
-        items: [
-          {
-            itemId: 1,
-            itemName: '원자재 A',
-            dueDate: '2026-02-01',
-            quantity: 200,
-            uomCode: 'EA',
-            unitPrice: 20000,
-            amount: 4000000,
-          },
-        ],
-        totalAmount: 4200000,
+        id: prId,
+        purchaseRequisitionNumber: row.purchaseRequisitionNumber,
+        requesterId: row.requesterId,
+        requesterName: row.requesterName,
+        departmentId: row.departmentId,
+        departmentName: row.departmentName,
+        requestDate: row.requestDate,
+        statusCode: row.statusCode,
+        items:
+          (found && purchaseState(request).requisitionLines.get(prId)) ?? SEED_REQUISITION_LINES,
+        totalAmount: row.totalAmount,
       });
     },
   ),
@@ -265,18 +365,10 @@ export const purchaseHandlers = [
         supplierId: 'sup-001',
         supplierNumber: 'SUP-001',
         supplierName: '대양상사',
-        managerPhone: '010-5555-6666',
-        managerEmail: 'supplier@everp.co.kr',
-        items: [
-          {
-            itemId: 'item-2001',
-            itemName: '원자재 A',
-            quantity: 200,
-            uomName: 'EA',
-            unitPrice: 20000,
-            totalPrice: 4000000,
-          },
-        ],
+        // 공급사 상세와 같은 담당자
+        managerPhone: supplierManager(purchaseState(request), 'sup-001').managerPhone,
+        managerEmail: supplierManager(purchaseState(request), 'sup-001').managerEmail,
+        items: PURCHASE_ORDER_LINES,
         totalAmount: 4200000,
         note: '납기 준수 요청',
       });
@@ -300,21 +392,13 @@ export const purchaseHandlers = [
       const state = purchaseState(request);
       const { supplierId } = params;
       const created = state.createdSuppliers.find((s) => s.supplierInfo.supplierId === supplierId);
-      const edit = state.supplierEdits.get(supplierId);
-      const managerInfo = created?.managerInfo ?? SEED_MANAGER;
       return ok({
         // 모르는 id 는 예전처럼 기본 공급사 본문에 id 만 바꿔 준다
         supplierInfo: editedSupplier(
           created?.supplierInfo ?? { ...SEED_SUPPLIER, supplierId },
-          edit,
+          state.supplierEdits.get(supplierId),
         ),
-        managerInfo: edit
-          ? {
-              managerName: edit.managerName,
-              managerPhone: edit.managerPhone,
-              managerEmail: edit.managerEmail,
-            }
-          : managerInfo,
+        managerInfo: supplierManager(state, supplierId),
       });
     },
   ),

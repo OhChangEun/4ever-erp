@@ -37,6 +37,17 @@ vi.mock('@/app/(private)/_RouteProviders', () => ({
   ),
 }));
 
+/**
+ * 통계 띠에서 제목이 title 인 항목의 값 칸. 항목은 제목(dt, term) 다음 값(dd, definition) 순서다.
+ * 같은 글자(1건)가 여러 카드에 있어도 어느 카드인지 가린다(목 데이터 현실성 리뷰 관찰 2)
+ */
+const statOf = (metrics: HTMLElement, title: string) => {
+  const terms = within(metrics).getAllByRole('term');
+  const index = terms.findIndex((term) => term.textContent === title);
+  expect(index, title).toBeGreaterThanOrEqual(0);
+  return within(within(metrics).getAllByRole('definition')[index]);
+};
+
 /** 루트 레이아웃처럼 공통 메시지만 준다. 도메인 메시지는 라우트 레이아웃이 붙여야 한다 */
 const renderUnderRoot = (ui: ReactNode) =>
   render(
@@ -75,12 +86,14 @@ describe('재고 화면 영어(i18n 6)', () => {
     expect(screen.getByRole('button', { name: 'Receiving' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(입고 완료 1,200건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(입고 완료 1건)', async () => {
     renderWithProviders(<InventoryClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('총 재고 가치')).toBeInTheDocument();
-    expect(within(metrics).getAllByText('1,200건').length).toBeGreaterThan(0);
-    expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
+    // 입고 완료는 입고 목록 1건, 재고 가치는 재고 목록 금액 합 120 × 12,000(카드 "목 데이터 현실성")
+    expect(statOf(metrics, '입고 완료').getByText('1건')).toBeInTheDocument();
+    expect(statOf(metrics, '출고 완료').getByText('1건')).toBeInTheDocument();
+    expect(statOf(metrics, '총 재고 가치').getByText('₩1,440,000')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '입고 관리' })).toBeInTheDocument();
   });
 
@@ -181,7 +194,8 @@ describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
     renderWithProviders(<LowStockPage />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('긴급 재고 부족')).toBeInTheDocument();
-    expect(within(metrics).getAllByText('1,200건').length).toBeGreaterThan(0);
+    // 긴급은 안전재고 목록의 부족 1건(카드 "목 데이터 현실성")
+    expect(statOf(metrics, '긴급 재고 부족').getByText('1건')).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('checkbox', { name: '베어링 B 선택' }));
     await userEvent.click(screen.getByRole('button', { name: '선택 품목 발주' }));
     const dialog = await screen.findByRole('dialog', { name: '발주 요청' });

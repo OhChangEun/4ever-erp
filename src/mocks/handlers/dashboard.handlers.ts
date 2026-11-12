@@ -1,13 +1,8 @@
 import { http } from 'msw';
 import { DASHBOARD_ENDPOINTS } from '@/app/types/api';
-import { ok, error, shouldError, isoNow, stat, statResponse } from './utils';
-
-const mockDashboardStats = statResponse({
-  total_sales: stat,
-  total_purchases: stat,
-  net_profit: stat,
-  total_employees: stat,
-});
+import { HEADCOUNT } from './attendanceSummary.handlers';
+import { monthlyMetric } from './financeAnalytics.handlers';
+import { ok, error, shouldError, isoNow, level, statResponse } from './utils';
 
 /**
  * 역할 앞 글자(MM_ADMIN 의 MM)별 워크플로우 탭 코드. 게이트웨이 DashboardServiceImpl.java:56 의 switch 와 같은 코드, 같은 순서다
@@ -59,7 +54,15 @@ const workflowTab = (tabCode: string) => {
 export const dashboardHandlers = [
   http.get(DASHBOARD_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load dashboard stats', 500);
-    return ok(mockDashboardStats);
+    // 금액은 재무 월별 손익(재무 화면과 같은 값), 직원 수는 근태 집계의 인원
+    return ok(
+      statResponse({
+        total_sales: monthlyMetric('sales'),
+        total_purchases: monthlyMetric('purchases'),
+        net_profit: monthlyMetric('netProfit'),
+        total_employees: level(HEADCOUNT),
+      }),
+    );
   }),
   http.get(DASHBOARD_ENDPOINTS.WORKFLOW_STATUS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load workflow status', 500);

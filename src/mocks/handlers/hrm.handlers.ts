@@ -2,7 +2,8 @@ import { http, type PathParams } from 'msw';
 import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
+import { HEADCOUNT } from './attendanceSummary.handlers';
+import { ok, okNoData, error, shouldError, isoNow, makePage, level, statResponse } from './utils';
 
 type Employee = Schema<'EmployeeData'>;
 type Program = Schema<'ProgramListData'>;
@@ -84,10 +85,23 @@ const SEED_PROGRAM: Program = {
   capacity: 30,
 };
 
+/**
+ * 직원 수는 근태 집계 목의 인원이다(카드 "목 데이터 현실성" 결정 4). 직원 목록이 한 줄이라 목록 수를 쓰면 1명이 된다.
+ * 신규 입사자는 직원 목록의 입사일(2022년)로 셀 수 없어 한 달에 2명꼴로 둔다(verified=false)
+ */
 const mockHrmStats = statResponse({
-  totalEmployeeCount: stat,
-  newEmployeeCount: stat,
+  totalEmployeeCount: level(HEADCOUNT),
+  newEmployeeCount: { week: 0, month: 2, quarter: 5, year: 18 },
 });
+
+/** 교육 프로그램 목록. 기본 행과 새 행에 수정한 이름, 상태를 덮는다 */
+const programsOf = (request: Request) => {
+  const state = hrmState(request);
+  return [SEED_PROGRAM, ...state.createdPrograms].map((program) => ({
+    ...program,
+    ...state.programEdits.get(program.programId),
+  }));
+};
 
 export const hrmHandlers = [
   http.get(HRM_ENDPOINTS.STATISTICS, ({ request }) => {
@@ -280,23 +294,23 @@ export const hrmHandlers = [
   ),
   http.get(HRM_ENDPOINTS.PROGRAM, ({ request }) => {
     if (shouldError(request)) return error('Failed to load program list', 500);
-    const state = hrmState(request);
-    const content = [SEED_PROGRAM, ...state.createdPrograms].map((program) => ({
-      ...program,
-      ...state.programEdits.get(program.programId),
-    }));
+    const content = programsOf(request);
     return ok({ content, page: makePage(0, 10, content.length) });
   }),
   http.get<{ programId: string }>(`${HRM_BASE_PATH}/program/:programId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load program detail', 500);
+    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 프로그램 본문에 그 id 와 수정한 값을 싣는다
+    const program = programsOf(request).find((row) => row.programId === params.programId) ?? {
+      ...SEED_PROGRAM,
+      ...hrmState(request).programEdits.get(params.programId),
+    };
     return ok({
       programId: params.programId,
-      programName: '안전 교육',
-      statusCode: 'ACTIVE',
-      ...hrmState(request).programEdits.get(params.programId),
-      category: 'SAFETY',
-      trainingHour: 4,
-      isOnline: true,
+      programName: program.programName,
+      statusCode: program.statusCode,
+      category: program.category,
+      trainingHour: program.trainingHour,
+      isOnline: program.isOnline,
       startDate: '2026-02-01',
       designatedEmployee: [
         {

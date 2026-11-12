@@ -11,7 +11,8 @@ import { shouldError } from './utils';
 const http = createOpenApiHttp<paths>({ baseUrl: API_BASE_URL });
 
 const WEEKS = 12;
-const HEADCOUNT = 40;
+/** 회사 인원. 인사와 대시보드 통계의 직원 수도 이 값이다 */
+export const HEADCOUNT = 40;
 
 export const attendanceDays = (today = new Date()) => {
   const end = startOfDay(today);

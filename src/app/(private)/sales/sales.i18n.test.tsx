@@ -6,6 +6,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/i18n/messages/en.json';
 import ko from '@/i18n/messages/ko.json';
+import { http } from 'msw';
+import { ok } from '@/mocks/utils';
+import { SALES_ENDPOINTS } from '@/app/types/api';
+import { server } from '@/test/msw-server';
 import { createTestQueryClient, renderWithProviders } from '@/test/render';
 import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
@@ -69,21 +73,22 @@ describe('영업 화면 영어(i18n 8)', () => {
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Sales')).toBeInTheDocument();
     expect(within(metrics).getByText('New orders')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200')).toBeInTheDocument();
+    // 매출은 재무 월별 손익의 이번 달 8억의 7/30, 신규 주문은 주문 목록 1건(카드 "목 데이터 현실성")
+    expect(within(metrics).getByText('₩186,670,000')).toBeInTheDocument();
+    expect(within(metrics).getByText('1')).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Quotes' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Customers' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sales analytics' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(신규 주문 1,200건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(신규 주문 1건)', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<SalesClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(within(metrics).getByText('매출')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200건')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
+    expect(within(metrics).getByText('1건')).toBeInTheDocument();
+    expect(within(metrics).getByText('₩186,670,000')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '견적 관리' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '매출 분석' })).toBeInTheDocument();
   });
@@ -137,6 +142,35 @@ describe('영업 화면 영어(i18n 8)', () => {
 
   // 남은 표시 결함 3 카드: 짧은 금액은 compactWon 하나(예전 toShortWon 은 ₩5M, ₩0.1억)
   it('매출 분석의 제목과 제품 비중 금액이 영어(5M), 한국어는 500만', async () => {
+    // 기본 목은 요청 기간(오늘 기준)의 주마다 값을 만들어 날마다 금액이 바뀐다(카드 "목 데이터 현실성").
+    // 이 테스트는 금액 글자 형식을 보므로 예전 기본 목과 같은 고정 응답을 준다
+    server.use(
+      http.get(SALES_ENDPOINTS.ANALYTICS, () =>
+        ok({
+          period: {
+            start: '2026-01-01',
+            end: '2026-01-31',
+            weekStart: '2026-01-01',
+            weekEnd: '2026-01-07',
+            weekCount: 5,
+          },
+          trend: [{ year: 2026, month: 1, week: 1, sale: 1200000, orderCount: 12 }],
+          trendScale: { sale: { min: 1000000, max: 2000000 }, orderCount: { min: 10, max: 20 } },
+          productShare: [
+            { productCode: 'P-1001', productName: '모터 A', sale: 5000000, saleShare: 40 },
+          ],
+          topCustomers: [
+            {
+              customerNumber: 'CUS-001',
+              customerName: '한빛전자',
+              orderCount: 5,
+              sale: 8000000,
+              active: true,
+            },
+          ],
+        }),
+      ),
+    );
     const { unmount } = renderWithProviders(<SalesChart />, { locale: 'en' });
     expect(await screen.findByText('40% (5M)')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Monthly sales trend' })).toBeInTheDocument();

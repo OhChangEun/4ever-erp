@@ -2,7 +2,7 @@ import { createOpenApiHttp } from 'openapi-msw';
 import type { paths } from '@/lib/api/openapi.gen';
 import { API_BASE_URL } from '@/app/types/api';
 import { toDateKey } from '@/app/utils/date';
-import { shouldError } from './utils';
+import { shouldError, type Metric } from './utils';
 
 /**
  * 재무 현황 목(시각화 4). 새 핸들러라 openapi-msw 로 쓴다(결정 기록 OpenAPI 계약 2).
@@ -26,6 +26,25 @@ export const financeMonthlyPoints = (today = new Date()) =>
       netProfit: sales - purchases,
     };
   });
+
+/**
+ * 통계 띠의 금액 지표(카드 "목 데이터 현실성" 결정 2). 재무, 대시보드, 영업, 구매가 같은 월별 손익을 쓴다.
+ * 월은 이번 달, 분기는 최근 3달 합, 연은 12달 합, 주는 월의 7/30
+ */
+export const monthlyMetric = (
+  key: 'sales' | 'purchases' | 'netProfit',
+  today = new Date(),
+): Metric => {
+  const values = financeMonthlyPoints(today).map((point) => point[key]);
+  const month = values[values.length - 1];
+  const sum = (list: number[]) => list.reduce((acc, value) => acc + value, 0);
+  return {
+    week: round((month * 7) / 30),
+    month,
+    quarter: sum(values.slice(-3)),
+    year: sum(values),
+  };
+};
 
 const AGING = [
   { bucket: 'CURRENT', amount: 182_000_000, count: 12 },

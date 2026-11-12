@@ -29,21 +29,22 @@ describe('구매 화면 영어(i18n 5)', () => {
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Purchase requests')).toBeInTheDocument();
     expect(within(metrics).getByText('Purchase order amount')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
+    // 구매 요청은 목록 1건, 발주 금액은 재무 월별 손익의 이번 달 매입 6억 1,200만의 7/30(카드 "목 데이터 현실성")
+    expect(within(metrics).getByText('1')).toBeInTheDocument();
+    expect(within(metrics).getByText('₩142,800,000')).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Purchase requests' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Purchase orders' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Suppliers' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(구매 요청 1,200건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(구매 요청 1건)', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<PurchaseClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(within(metrics).getByText('구매 요청')).toBeInTheDocument();
-    expect(within(metrics).getByText('1,200건')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩1,200')).toBeInTheDocument();
+    expect(within(metrics).getByText('1건')).toBeInTheDocument();
+    expect(within(metrics).getByText('₩142,800,000')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '공급업체 관리' })).toBeInTheDocument();
   });
 

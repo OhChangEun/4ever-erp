@@ -3,7 +3,7 @@ import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
 import { addCreated, mockState } from '../state';
-import { makePage, shouldError, stat, trendStat } from './utils';
+import { level, makePage, periodStat, shouldError } from './utils';
 
 /**
  * 창고 목. OpenAPI 계약(`openapi/everp.yaml`)에 묶인 `http` 로 쓴다(OpenAPI 계약 1 카드).
@@ -53,14 +53,26 @@ const editedFields = (edit: WarehouseEdit | undefined) =>
     statusCode: edit.warehouseStatusCode,
   };
 
+/** 창고 목록. 기본 행과 새 행에 수정한 값을 덮는다 */
+const warehousesOf = (request: Request) => {
+  const state = warehouseState(request);
+  return [SEED_WAREHOUSE, ...state.created].map((row) => ({
+    ...row,
+    ...editedFields(state.edits.get(row.warehouseId)),
+  }));
+};
+
 export const warehouseHandlers = [
   http.get('/scm-pp/iv/warehouses/statistic', ({ request, response }) => {
     if (shouldError(request))
       return response('default').json(failure('Failed to load warehouse stats'), { status: 500 });
-    // openapi-msw 가 지표 이름까지 확인하므로 지표를 하나씩 만든다
+    // openapi-msw 가 지표 이름까지 확인하므로 지표를 하나씩 만든다. 값은 그 로그인의 창고 목록(지금 값, 리뷰 관찰 1)
+    const rows = warehousesOf(request);
+    const total = level(rows.length);
+    const active = level(rows.filter((row) => row.statusCode === 'ACTIVE').length);
     const period = (p: 'week' | 'month' | 'quarter' | 'year') => ({
-      total_warehouse: trendStat(p, 'total_warehouse', stat),
-      in_operation_warehouse: trendStat(p, 'in_operation_warehouse', stat),
+      total_warehouse: periodStat(p, 'total_warehouse', total[p]),
+      in_operation_warehouse: periodStat(p, 'in_operation_warehouse', active[p]),
     });
     return response(200).json({
       ...OK,
@@ -77,11 +89,7 @@ export const warehouseHandlers = [
       return response('default').json(failure('Failed to load warehouse list'), { status: 500 });
     const page = Number(query.get('page') ?? 0);
     const size = Number(query.get('size') ?? 10);
-    const state = warehouseState(request);
-    const content = [SEED_WAREHOUSE, ...state.created].map((row) => ({
-      ...row,
-      ...editedFields(state.edits.get(row.warehouseId)),
-    }));
+    const content = warehousesOf(request);
     return response(200).json({
       ...OK,
       data: { content, page: makePage(page, size, content.length) },
@@ -91,17 +99,21 @@ export const warehouseHandlers = [
     if (shouldError(request))
       return response('default').json(failure('Failed to load warehouse detail'), { status: 500 });
     const edit = warehouseState(request).edits.get(params.warehouseId);
+    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 창고 본문에 수정한 값을 덮어 준다
+    const row = warehousesOf(request).find((w) => w.warehouseId === params.warehouseId) ?? {
+      ...SEED_WAREHOUSE,
+      ...editedFields(edit),
+    };
     return response(200).json({
       ...OK,
       data: {
         warehouseInfo: {
-          warehouseName: '1공장 창고',
-          warehouseNumber: 'WH-001',
-          warehouseType: 'RAW',
-          statusCode: 'ACTIVE',
-          location: '서울 강서구',
+          warehouseName: row.warehouseName,
+          warehouseNumber: row.warehouseNumber,
+          warehouseType: row.warehouseType,
+          statusCode: row.statusCode,
+          location: row.location,
           description: edit?.note ?? '주 원자재 보관',
-          ...editedFields(edit),
         },
         manager: {
           managerId: MANAGER.managerId,

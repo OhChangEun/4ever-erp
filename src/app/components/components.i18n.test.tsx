@@ -45,7 +45,7 @@ const notification = (source: NotificationData['source']): NotificationData => (
   createdAt: '2026-11-10T09:05:00',
 });
 
-const stat: StatCardType = createStatCard('Revenue', 1200, 12, '₩', [1, 2, 3]);
+const stat: StatCardType = createStatCard('Revenue', 1200, 0.12, '₩', [1, 2, 3]);
 const statsData = { week: [stat], month: [stat], quarter: [stat], year: [stat] };
 
 function ToastTrigger() {
