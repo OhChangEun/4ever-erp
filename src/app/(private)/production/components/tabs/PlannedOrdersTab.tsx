@@ -81,23 +81,21 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
   });
 
   // content 배열 추출
-  const plannedOrders = plannedOrdersData?.content || [];
+  // 다시 받기가 실패하면 캐시에 처리 전 목록이 남는다. 그 값으로 고르면 같은 쓰기가 또 가니 행이 없는 것으로 본다(표는 오류 상자)
+  const plannedOrders = isError ? [] : plannedOrdersData?.content || [];
   const pageInfo = plannedOrdersData?.page;
 
   const totalPages = pageInfo?.totalPages ?? 1;
 
-  const handleSelectAllOrders = () => {
-    // 선택 가능한 주문만 필터링 (INITIAL, REJECTED 제외)
-    const selectableOrders = plannedOrders
-      .filter((order) => order.status === 'INITIAL' || order.status === 'REJECTED')
-      .map((order) => order.mrpRunId);
+  // 자재 구매 요청은 INITIAL, REJECTED 주문만. 선택은 그릴 때 지금 목록의 그 주문으로 거른다(요청 뒤 다시 받으면 빠진다)
+  const selectableOrders = plannedOrders
+    .filter((order) => order.status === 'INITIAL' || order.status === 'REJECTED')
+    .map((order) => order.mrpRunId);
+  const selectedIds = selectedOrders.filter((id) => selectableOrders.includes(id));
+  const allSelected = selectableOrders.length > 0 && selectedIds.length === selectableOrders.length;
 
-    // 이미 모두 선택된 경우 해제, 아니면 전체 선택
-    if (selectedOrders.length === selectableOrders.length) {
-      setSelectedOrders([]);
-    } else {
-      setSelectedOrders(selectableOrders);
-    }
+  const handleSelectAllOrders = () => {
+    setSelectedOrders(allSelected ? [] : selectableOrders);
   };
 
   const handleOrderSelection = (mrpId: string) => {
@@ -108,7 +106,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
 
   const handlePurchaseRequest = () => {
     const selectedOrdersData = plannedOrders.filter((order) =>
-      selectedOrders.includes(order.mrpRunId),
+      selectedIds.includes(order.mrpRunId),
     );
 
     openModal(MrpPurchaseRequestModal, {
@@ -124,33 +122,34 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
       key: 'mrpRunId',
       label: '',
       width: '48px',
-      headerRender: () => {
-        const selectableOrders = plannedOrders
-          .filter((o) => o.status === 'INITIAL' || o.status === 'REJECTED')
-          .map((o) => o.mrpRunId);
-        return (
+      headerRender: () => (
+        <input
+          type="checkbox"
+          aria-label={t('plannedOrders.selectAll')}
+          checked={allSelected}
+          onChange={handleSelectAllOrders}
+          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+        />
+      ),
+      render: (_, order) => {
+        const label = t('common.selectRow', { name: `${order.quotationNumber} ${order.itemName}` });
+        return selectableOrders.includes(order.mrpRunId) ? (
           <input
             type="checkbox"
-            checked={
-              selectableOrders.length > 0 &&
-              selectableOrders.every((id) => selectedOrders.includes(id))
-            }
-            onChange={handleSelectAllOrders}
-            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
-          />
-        );
-      },
-      render: (_, order) =>
-        order.status === 'INITIAL' || order.status === 'REJECTED' ? (
-          <input
-            type="checkbox"
+            aria-label={label}
             checked={selectedOrders.includes(order.mrpRunId)}
             onChange={() => handleOrderSelection(order.mrpRunId)}
             className="rounded border-gray-300 cursor-pointer"
           />
         ) : (
-          <input type="checkbox" className="rounded border-gray-300 text-gray-300" disabled />
-        ),
+          <input
+            type="checkbox"
+            aria-label={label}
+            className="rounded border-gray-300 text-gray-300"
+            disabled
+          />
+        );
+      },
     },
     {
       key: 'quotationNumber',
@@ -200,7 +199,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
             <Button
               label={t('plannedOrders.purchaseRequest')}
               onClick={handlePurchaseRequest}
-              disabled={selectedOrders.length === 0}
+              disabled={selectedIds.length === 0}
             />
           )}
         </div>

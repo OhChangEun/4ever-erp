@@ -14,10 +14,9 @@ import { formatCurrency } from '@/app/utils/number';
 import { useLocale, useTranslations } from 'next-intl';
 interface PayrollDetailModalProps extends ModalProps {
   payrollId: string;
-  payStatus: string;
 }
 
-export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDetailModalProps) {
+export function PayrollDetailModal({ payrollId, onClose }: PayrollDetailModalProps) {
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const { openModal } = useModal();
@@ -165,7 +164,8 @@ export function PayrollDetailModal({ payrollId, payStatus, onClose }: PayrollDet
         </div>
       </div>
 
-      {payStatus === 'PAYROLL_UNPAID' ? (
+      {/* 열 때 받은 목록 값이 아니라 상세 쿼리의 상태를 본다. 그 사이 지급 처리가 끝났으면 버튼이 없다 */}
+      {statusCode === 'PAYROLL_UNPAID' ? (
         <div className="flex justify-end">
           <Button
             label={t('payroll.complete')}

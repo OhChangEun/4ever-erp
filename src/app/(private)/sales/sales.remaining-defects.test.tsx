@@ -67,6 +67,31 @@ describe.each(locales)('영업 화면 남은 결함 (%s)', (locale) => {
       : 'Immediate delivery completed for quote QT-2026-001.';
 
   const requestDelivery = async () => {
+    // 즉시 납품은 대기 견적에만 보인다(이미 처리된 건의 버튼 카드). 기본 목 상세는 승인 견적이라 대기로 준다
+    server.use(
+      http.get(SALES_ENDPOINTS.QUOTE_DETAIL('q-1'), () =>
+        ok({
+          quotationId: 'q-1',
+          quotationNumber: 'QT-2026-001',
+          quotationDate: '2026-01-10',
+          dueDate: '2026-02-01',
+          statusCode: 'PENDING',
+          customerName: '한빛전자',
+          ceoName: '박대표',
+          items: [
+            {
+              itemId: 'item-1001',
+              itemName: '모터 A',
+              quantity: 100,
+              uomName: 'EA',
+              unitPrice: 12000,
+              amount: 1200000,
+            },
+          ],
+          totalAmount: 12500000,
+        }),
+      ),
+    );
     renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />, {
       locale,
     });

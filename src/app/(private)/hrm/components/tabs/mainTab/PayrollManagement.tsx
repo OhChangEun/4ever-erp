@@ -120,7 +120,6 @@ export default function PayrollManagement() {
     openModal(PayrollDetailModal, {
       title: t('payroll.detailTitle'),
       payrollId: payroll.payrollId,
-      payStatus: payroll.pay.statusCode,
       width: '600px',
       height: '680px',
     });

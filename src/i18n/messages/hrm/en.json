@@ -43,7 +43,8 @@
     "days": "{count, plural, one {# day} other {# days}}",
     "hours": "{count, plural, one {# hour} other {# hours}}",
     "completedAt": "Completed: {date}",
-    "loadFailed": "Couldn't load data."
+    "loadFailed": "Couldn't load data.",
+    "retry": "Retry"
   },
   "employees": {
     "department": "Department / Position",

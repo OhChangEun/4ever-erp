@@ -14,6 +14,7 @@ import { getQuoteDetail } from '../../sales.api';
 import { useCheckInventory, useConfirmQuotation, useProcessDelivery } from '../../sales.mutations';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
 import { isAllInventoryFulfilled } from '../../utils';
+import { canProcessQuote } from '../../sales.service';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
@@ -243,8 +244,9 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
         )}
       </div>
 
-      {/* 액션 버튼 */}
-      {inventoryCheckResult && (
+      {/* 액션 버튼. 상세 쿼리의 상태를 본다. 처리한 뒤 다시 받은 상세가 대기가 아니면 사라진다.
+          다시 받기가 실패하면(오류 창을 닫아도) 캐시에 처리 전 상세가 남으니 숨긴다 */}
+      {inventoryCheckResult && !isError && canProcessQuote(quote.statusCode) && (
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('nextTitle')}</h4>
 

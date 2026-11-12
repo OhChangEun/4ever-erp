@@ -47,3 +47,10 @@ export const mapCustomerSalesStatsToCards = (
     return acc;
   }, {});
 };
+
+/**
+ * 검토 요청과 즉시 납품을 할 수 있는 견적 상태. 대기(PENDING) 하나다. 검토중(REVIEW)은 이미 검토 요청을 보냈고,
+ * 승인과 반려는 끝난 견적이다. 모르는 값은 처리할 수 없는 쪽으로 본다(같은 쓰기를 두 번 보내지 않게).
+ * verified=false: 게이트웨이 견적 응답은 Object(SdController.java:95), 상태 enum QuotationStatus 는 참조하는 곳이 없다
+ */
+export const canProcessQuote = (statusCode: string) => statusCode === 'PENDING';

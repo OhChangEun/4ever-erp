@@ -6,6 +6,7 @@ import QuoteDetailModal from '../modals/QuoteDetailModal';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getQuoteList } from '@/app/(private)/sales/sales.api';
 import { quoteKeys } from '@/app/(private)/sales/sales.keys';
+import { canProcessQuote } from '@/app/(private)/sales/sales.service';
 import { useDebounce } from 'use-debounce';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
@@ -31,7 +32,7 @@ const SalesQuoteList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('quotationNumber');
   const [statusFilter, setStatusFilter] = useState<QuoteStatusFilter>('ALL');
-  const [selectedQuotationId, setSelectedQuotationId] = useState<string>('');
+  const [selection, setSelection] = useState<string>('');
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -68,8 +69,15 @@ const SalesQuoteList = () => {
 
   type QuoteItem = (typeof quotes)[0];
 
+  // 선택은 그릴 때 지금 목록에서 처리할 수 있는 견적으로 거른다. 처리 뒤 다시 받은 목록에서 빠지면 선택도 빠진다
+  const selectedQuotationId = quotes.some(
+    (quote) => quote.quotationId === selection && canProcessQuote(quote.statusCode),
+  )
+    ? selection
+    : '';
+
   const handleViewQuote = (quote: Quote) => {
-    setSelectedQuotationId(quote.quotationId);
+    setSelection(quote.quotationId);
     openModal(QuoteDetailModal, {
       width: '900px',
       height: '600px',
@@ -79,7 +87,7 @@ const SalesQuoteList = () => {
   };
 
   const handleCheckboxChange = (quotationId: string) => {
-    setSelectedQuotationId((prev) => (prev === quotationId ? '' : quotationId));
+    setSelection((prev) => (prev === quotationId ? '' : quotationId));
   };
   const handleViewReview = () => {
     openModal(QuoteReviewModal, {
@@ -108,6 +116,7 @@ const SalesQuoteList = () => {
           type="checkbox"
           aria-label={t('selectRow', { number: quote.quotationNumber })}
           checked={selectedQuotationId === quote.quotationId}
+          disabled={!canProcessQuote(quote.statusCode)}
           onChange={() => handleCheckboxChange(quote.quotationId)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />

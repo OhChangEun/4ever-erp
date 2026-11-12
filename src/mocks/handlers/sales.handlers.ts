@@ -172,8 +172,12 @@ export const salesHandlers = [
         quotationNumber: 'QT-2026-001',
         quotationDate: '2026-01-10',
         dueDate: '2026-02-01',
-        // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13). 검토 요청이나 즉시 납품을 했으면 그 결과
-        statusCode: salesState(request).quoteStatus.get(quotationId) ?? 'APPROVAL',
+        // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13). 목록에 있는 견적이면 목록과 같은 상태
+        // (검토 요청이나 즉시 납품의 결과 포함). 목록에 없는 id 는 예전처럼 고정 본문의 APPROVAL
+        statusCode:
+          quotesOf(request).find((quote) => quote.quotationId === quotationId)?.statusCode ??
+          salesState(request).quoteStatus.get(quotationId) ??
+          'APPROVAL',
         customerName: '한빛전자',
         ceoName: '박대표',
         items: [

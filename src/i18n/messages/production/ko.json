@@ -52,7 +52,6 @@
     "confirmSuccess": "제안납기를 확정하였습니다.",
     "confirmError": "제안납기를 확정하는데 실패했습니다. {message}",
     "selectToSimulate": "시뮬레이션을 실행할 견적을 선택해주세요",
-    "selectUnchecked": "가용 재고가 '미확인'인 견적을 선택해주세요.",
     "selectAllUnchecked": "미확인 견적 전체 선택",
     "checkedRow": "{number} 가용재고 확인 완료(선택할 수 없음)",
     "quotationNumber": "견적 번호",
@@ -112,6 +111,7 @@
   },
   "plannedOrders": {
     "purchaseRequest": "자재 구매 요청",
+    "selectAll": "계획 주문 전체 선택",
     "loading": "계획 주문 목록을 불러오는 중입니다...",
     "loadError": "계획 주문 목록을 불러오는 중 오류가 발생했습니다.",
     "empty": "조회된 계획 주문 데이터가 없습니다"
