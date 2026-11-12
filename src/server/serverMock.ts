@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import { getResponse } from 'msw';
 import { NextResponse, type NextRequest } from 'next/server';
 import { handlers } from '@/mocks/handlers';
@@ -11,11 +12,28 @@ import { API_BASE_URL } from '@/app/types/api';
  * 여기는 누가 불렀는지 보지 않는다. 라우트(`src/app/api/[...slug]/route.ts`)가 프록시 증명을 확인하고
  * 역할 헤더를 증명의 역할로 바꾼 headers 를 넘긴다. 라우트 말고는 테스트만 직접 부른다.
  */
+/**
+ * 목 상태 저장소(`src/mocks/state.ts`)와 알림 목이 `Authorization` 을 로그인별 키로 쓴다. 핸들러는 이 값을 키로만 쓰고
+ * 토큰 내용을 읽지 않는다. 세션 토큰 원문이 저장소 키로 서버 메모리에 남지 않게 SHA-256 해시로 바꿔 넘긴다.
+ * 해시는 여기(서버 전용)에서 한다. 저장소 안에서 하면 브라우저 번들에 `node:crypto` 가 딸려 온다
+ */
+const withHashedAuthorization = (source: Headers): Headers => {
+  const authorization = source.get('authorization');
+  if (!authorization) return source;
+  const headers = new Headers(source);
+  headers.set(
+    'authorization',
+    `sha256:${createHash('sha256').update(authorization).digest('hex')}`,
+  );
+  return headers;
+};
+
 export async function serveMock(
   request: NextRequest,
   slug: string[],
-  headers: Headers = request.headers,
+  sourceHeaders: Headers = request.headers,
 ): Promise<Response> {
+  const headers = withHashedAuthorization(sourceHeaders);
   const path = slug.join('/');
   const { origin, search } = request.nextUrl;
   const hasBody = request.method !== 'GET' && request.method !== 'HEAD';

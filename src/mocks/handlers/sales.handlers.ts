@@ -15,7 +15,7 @@ interface CustomerPatchBody {
 import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
 import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
 type Quote = Schema<'Quote'>;
@@ -24,9 +24,11 @@ type Customer = Schema<'SalesCustomer'>;
 
 /**
  * 영업 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
- * 견적 상태는 게이트웨이 QuotationStatus: 검토 요청 뒤 REVIEW, 즉시 납품 뒤 APPROVAL.
- * 즉시 납품은 주문을 READY_FOR_SHIPMENT 로 만든다(SdController.java:392).
- * 이미 처리된 견적에 또 보내도 성공으로 답한다(실서버 동작 미확인, verified=false)
+ * 상태 값은 verified=false 다. 견적 목록과 상세는 게이트웨이가 Object 로 넘긴다(SdController.java:95).
+ * 견적 REVIEW(검토 요청 뒤), APPROVAL(즉시 납품 뒤): 목록 요청의 파라미터 설명(SdController.java:101)과 enum QuotationStatus.
+ *   그 enum 은 참조하는 곳이 없고, 같은 컨트롤러의 승인 API 설명(:392)은 APPROVED 라고 적는다.
+ * 새 주문 READY_FOR_SHIPMENT: 승인 API 설명(SdController.java:392).
+ * 이미 처리된 견적에 또 보내도 성공으로 답한다(실서버 동작 미확인)
  */
 const salesState = mockState<{
   quoteStatus: Map<string, Quote['statusCode']>;
@@ -194,16 +196,19 @@ export const salesHandlers = [
       if (shouldError(request)) return error('Failed to create quote', 500);
       const state = salesState(request);
       const body = await request.json();
-      const serial = String(mockQuotes.length + state.createdQuotes.length + 1).padStart(3, '0');
       // 고객과 담당자는 게이트웨이가 로그인에서 정한다. 목은 첫 견적의 값을 쓴다
-      state.createdQuotes.push({
-        ...mockQuotes[0],
-        quotationId: `qt-${serial}`,
-        quotationNumber: `QT-2026-${serial}`,
-        quotationDate: toDateKey(new Date()),
-        totalAmount: body.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
-        statusCode: 'PENDING',
-      });
+      addCreated(
+        state.createdQuotes,
+        (serial) => ({
+          ...mockQuotes[0],
+          quotationId: `qt-${serial}`,
+          quotationNumber: `QT-2026-${serial}`,
+          quotationDate: toDateKey(new Date()),
+          totalAmount: body.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
+          statusCode: 'PENDING',
+        }),
+        mockQuotes.length + 1,
+      );
       return ok({ items: body });
     },
   ),
@@ -295,7 +300,7 @@ export const salesHandlers = [
       // 같은 견적을 또 눌러도 주문은 하나만 만든다
       const salesOrderId = `so-${quotationId}`;
       if (!state.createdOrders.some((order) => order.salesOrderId === salesOrderId)) {
-        state.createdOrders.push({
+        addCreated(state.createdOrders, () => ({
           ...mockOrders[0],
           salesOrderId,
           salesOrderNumber: `SO-${quote.quotationNumber}`,
@@ -304,7 +309,7 @@ export const salesHandlers = [
           dueDate: quote.dueDate,
           totalAmount: quote.totalAmount,
           statusCode: 'READY_FOR_SHIPMENT',
-        });
+        }));
       }
       return okNoData();
     },
@@ -365,8 +370,7 @@ export const salesHandlers = [
       if (shouldError(request)) return error('Failed to create customer', 500);
       const state = salesState(request);
       const body = await request.json();
-      const serial = String(state.createdCustomers.length + 2).padStart(3, '0');
-      state.createdCustomers.push({
+      addCreated(state.createdCustomers, (serial) => ({
         customerId: `cus-${serial}`,
         customerNumber: `CUS-${serial}`,
         customerName: body.companyName ?? '',
@@ -380,7 +384,7 @@ export const salesHandlers = [
         orderCount: 0,
         lastOrderDate: '',
         statusCode: 'ACTIVE',
-      });
+      }));
       return ok({
         eventId: 'evt-customer-100',
         transactionId: 'tx-customer-100',

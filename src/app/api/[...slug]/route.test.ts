@@ -93,6 +93,46 @@ describe('서버 목 = MSW 핸들러', () => {
 });
 
 /**
+ * 목이 쓰기 결과를 따르게 리뷰 P1(보안). 목 상태 저장소는 요청의 `Authorization` 을 로그인별 키로 쓰고 최근 200개만 기억한다.
+ * 증명 없는 호출이 저장소에 닿으면, 로그인 없이 `Authorization` 을 바꿔 가며 보내 남의 상태를 밀어낼 수 있다.
+ */
+describe('증명 없는 호출은 목 상태 저장소에 닿지 않는다', () => {
+  const LIST = 'scm-pp/mm/purchase-requisitions';
+  const REJECT = `${LIST}/pr-001/reject`;
+  const json = { 'content-type': 'application/json' };
+  const body = JSON.stringify({ comment: '예산 초과' });
+  const firstStatus = async (authorization: string) => {
+    const res = await callRoute('GET', LIST, { headers: { authorization } });
+    const parsed: { data: { content: { statusCode: string }[] } } = await res.json();
+    return parsed.data.content[0].statusCode;
+  };
+
+  it('증명 없는 쓰기 요청은 401 이고, 그 뒤 맞는 증명으로 조회하면 처음 상태다', async () => {
+    const res = await callDirect('POST', REJECT, {
+      body,
+      headers: { ...json, authorization: 'Bearer visitor-a' },
+    });
+    expect(res.status).toBe(401);
+    expect(await firstStatus('Bearer visitor-a')).toBe('PENDING');
+  });
+
+  it('증명 없이 Authorization 을 바꿔 201번 보내도 로그인한 방문자의 상태가 밀려나지 않는다', async () => {
+    const rejected = await callRoute('POST', REJECT, {
+      body,
+      headers: { ...json, authorization: 'Bearer visitor-a' },
+    });
+    expect(rejected.status).toBe(200);
+    for (let i = 0; i < 201; i += 1) {
+      const res = await callDirect('GET', LIST, {
+        headers: { authorization: `Bearer flood-${i}` },
+      });
+      expect(res.status).toBe(401);
+    }
+    expect(await firstStatus('Bearer visitor-a')).toBe('REJECTED');
+  });
+});
+
+/**
  * 남은 표시 결함 3 리뷰 P2(보안). 서버 목은 세션 검증도 인가 표도 없는 자리라 프록시가 넘긴 호출만 받는다.
  * 프록시는 SESSION_SECRET 으로 서명한 증명(`x-mock-proof`)을 붙이고, 역할은 헤더가 아니라 증명에서 읽는다.
  */

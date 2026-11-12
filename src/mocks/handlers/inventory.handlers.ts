@@ -30,6 +30,9 @@ const inventoryState = mockState<{
 /** 재고 상세 목의 창고. 재고 이동은 이 창고에서 나가거나 들어올 때만 현재고가 바뀐다 */
 const DETAIL_WAREHOUSE_ID = 'wh-001';
 const UNIT_PRICE = 12000;
+/** 모터 A(item-1001)의 처음 재고. 일반 목록, 상세, 창고별 조회가 같은 값을 쓴다(같은 품목은 어디서나 같은 수량) */
+const MOTOR_ID = 'item-1001';
+const MOTOR_STOCK = { current: 120, safety: 50 };
 
 /** 품목의 안전재고와 현재고에 쓰기 결과를 덮는다 */
 const stockOf = (request: Request, itemId: string, seed: { current: number; safety: number }) => {
@@ -53,13 +56,16 @@ const mockLowStockStats = statResponse({
   total_warning: stat,
 });
 
-/** 창고 하나의 재고(시각화 8). 값은 순번으로 정해진다. 안전재고 대비 30%~420%, 하나는 안전재고 0 */
+/**
+ * 창고 하나의 재고(시각화 8). 값은 순번으로 정해진다. 안전재고 대비 30%~420%, 하나는 안전재고 0.
+ * 모터 A 만 순번 값 대신 다른 조회와 같은 처음 재고(MOTOR_STOCK)를 쓴다. 예전엔 여기서만 15개였다(리뷰 P1)
+ */
 const WAREHOUSE_ITEMS = [
-  '모터 A',
+  '구리선',
   '베어링 B',
   '볼트 M6',
   '알루미늄 판',
-  '구리선',
+  '모터 A',
   '샤프트',
   '커버',
   '패킹',
@@ -70,26 +76,30 @@ const WAREHOUSE_ITEMS = [
   '스프링',
   '케이블',
 ];
-const warehouseStock = (warehouseName: string) =>
+const warehouseStock = (request: Request, warehouseName: string) =>
   WAREHOUSE_ITEMS.map((itemName, i) => {
-    const safetyStock = i === 13 ? 0 : 50 + (i % 4) * 25;
+    const isMotor = itemName === '모터 A';
+    const safety = i === 13 ? 0 : 50 + (i % 4) * 25;
     const ratio = [0.3, 0.8, 1.1, 1.3, 1.8, 2.4, 3.5, 4.2][i % 8];
-    const currentStock = Math.round((safetyStock || 40) * ratio);
+    const seed = isMotor ? MOTOR_STOCK : { current: Math.round((safety || 40) * ratio), safety };
+    const itemId = isMotor ? MOTOR_ID : `item-wh-${String(i + 1).padStart(3, '0')}`;
+    // 안전재고 수정과 재고 이동을 다른 조회와 똑같이 따른다
+    const stock = stockOf(request, itemId, seed);
     return {
-      itemId: i === 0 ? 'item-1001' : `item-wh-${String(i + 1).padStart(3, '0')}`,
+      itemId,
       itemNumber: `ITM-${String(3000 + i)}`,
       itemName,
       category: '자재',
-      currentStock,
+      ...stock,
       forShipmentStock: 0,
       reservedStock: 0,
-      safetyStock,
       uomName: 'EA',
       unitPrice: 1000 + i * 150,
-      totalAmount: currentStock * (1000 + i * 150),
+      totalAmount: stock.currentStock * (1000 + i * 150),
       warehouseName,
       warehouseType: 'RAW',
-      statusCode: currentStock < safetyStock ? 'URGENT' : 'NORMAL',
+      // 상태는 다른 조회처럼 처음 값에서 정하고 쓰기 뒤에 다시 계산하지 않는다
+      statusCode: seed.current < seed.safety ? 'URGENT' : 'NORMAL',
       shelfNumber: i + 1,
     };
   });
@@ -108,14 +118,14 @@ export const inventoryHandlers = [
     // 창고 3D(시각화 8)는 창고 이름으로 거른다. 그 창고의 품목 14개(재고율 4단계와 기준 없음이 다 나온다)
     const keyword = url.searchParams.get('keyword');
     if (url.searchParams.get('type') === 'WAREHOUSE_NAME' && keyword) {
-      const content = warehouseStock(keyword);
+      const content = warehouseStock(request, keyword);
       return ok({ content: content.slice(0, size), page: makePage(page, size, content.length) });
     }
-    const stock = stockOf(request, 'item-1001', { current: 120, safety: 50 });
+    const stock = stockOf(request, MOTOR_ID, MOTOR_STOCK);
     return ok({
       content: [
         {
-          itemId: 'item-1001',
+          itemId: MOTOR_ID,
           itemNumber: 'ITM-1001',
           itemName: '모터 A',
           category: 'MOTOR',
@@ -136,7 +146,7 @@ export const inventoryHandlers = [
   }),
   http.get<{ itemId: string }>(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load inventory detail', 500);
-    const stock = stockOf(request, params.itemId, { current: 120, safety: 50 });
+    const stock = stockOf(request, params.itemId, MOTOR_STOCK);
     return ok({
       itemId: params.itemId,
       itemNumber: 'ITM-1001',
@@ -214,10 +224,12 @@ export const inventoryHandlers = [
   ),
   http.patch(new RegExp(`${INVENTORY_BASE_PATH}/iv/items/[^/]+/safety-stock`), ({ request }) => {
     if (shouldError(request)) return error('Failed to update safety stock', 500);
-    // 주소가 .../iv/items/{id}/safety-stock?safetyStock=N
-    const safetyStock = Number(new URL(request.url).searchParams.get('safetyStock'));
-    if (Number.isFinite(safetyStock))
-      inventoryState(request).safetyStock.set(pathSegment(request, 2), safetyStock);
+    // 주소가 .../iv/items/{id}/safety-stock?safetyStock=N. 계약에서 safetyStock 은 필수다
+    const raw = new URL(request.url).searchParams.get('safetyStock');
+    const safetyStock = Number(raw);
+    // Number(null) 과 Number('') 는 0 이다. 값이 없으면 0 으로 저장하지 않고 거절한다
+    if (!raw?.trim() || !Number.isFinite(safetyStock)) return error('safetyStock is required', 400);
+    inventoryState(request).safetyStock.set(pathSegment(request, 2), safetyStock);
     return okNoData();
   }),
   http.get(INVENTORY_ENDPOINTS.PRODUCTION_LIST, ({ request }) => {
@@ -235,8 +247,9 @@ export const inventoryHandlers = [
           dueDate: '2026-02-05',
           progress: 60,
           totalAmount: 8600000,
-          // 계약 enum 이 PRODUCTION 이다. 메시지 키가 없어 화면엔 "알 수 없음"(카드 "목이 쓰기 결과를 따르게" 별도 보고)
-          statusCode: 'PRODUCTION',
+          // 실서버 값은 확인하지 못했다(verified=false). 게이트웨이 옛 목 데이터와 같은 목의 상세가 IN_PRODUCTION 이고,
+          // 팀 FE 타입은 PRODUCTION 이었다. 계약과 화면은 둘 다 받는다(카드 "목이 쓰기 결과를 따르게" 리뷰 반영 11)
+          statusCode: 'IN_PRODUCTION',
         },
       ],
       page: makePage(page, size, 1),
@@ -258,8 +271,9 @@ export const inventoryHandlers = [
         productionCompletionDate: '2026-01-25',
         readyToShipDate: '2026-01-26',
         totalAmount: 5200000,
-        // 오타지만 계약 enum 이 이 값이다. 계약을 고칠 때 같이 고친다(같은 카드 별도 보고)
-        statusCode: 'READT_TO_SHIP',
+        // 예전 값 READT_TO_SHIP 은 팀 FE 타입의 오타였다(게이트웨이 사본에 없다). 실서버 값은 확인하지 못했다(verified=false).
+        // 게이트웨이 옛 목 데이터의 목록 값이 READY_TO_SHIP 이다. 계약과 화면은 READY_FOR_SHIPMENT 도 받는다
+        statusCode: 'READY_TO_SHIP',
       },
     ].filter((order) => !inventoryState(request).shippedOrders.has(order.salesOrderId));
     return ok({ content, page: makePage(page, size, content.length) });

@@ -5,7 +5,7 @@ import {
   PRODUCTION_ENDPOINTS,
 } from '@/app/(private)/production/api/production.endpoints';
 import type { Schema } from '@/lib/api/contract';
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { purchaseState } from './purchase.handlers';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
@@ -20,9 +20,12 @@ type Bom = Schema<'BomListData'>;
 /**
  * 생산 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
  * 상태 값은 서버 근거가 없어(게이트웨이가 Object 로 넘긴다) 화면이 비교하는 값에 맞췄다(verified=false).
- * 견적 확정 뒤 CHECKED, 계획 주문 전환 뒤 CONVERTED, MES 와 공정은 IN_PROGRESS, COMPLETED.
+ * 견적 확정 뒤 CHECKED, 계획 주문 전환 뒤 CONVERTED, MES 와 공정은 IN_PROGRESS, COMPLETED(시작 전 값은 아래 MES_SEED_STATUSES 주석).
  * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인)
  */
+type MesStatus = 'WAITING' | 'IN_PROGRESS' | 'COMPLETED';
+type OperationStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+
 const productionState = mockState<{
   /** 낙관적 락 시뮬레이션. 실제 백엔드라면 DB 의 version 컬럼이다. 한 방문자의 충돌 재현이 남에게 409 를 내지 않게 로그인별 */
   bomVersion: Map<string, string>;
@@ -30,9 +33,9 @@ const productionState = mockState<{
   createdBoms: Bom[];
   confirmedQuotations: Set<string>;
   convertedItems: Set<string>;
-  mesStatus: Map<string, string>;
+  mesStatus: Map<string, MesStatus>;
   /** `MES id/공정 id` → 상태 */
-  operationStatus: Map<string, string>;
+  operationStatus: Map<string, OperationStatus>;
 }>(() => ({
   bomVersion: new Map(),
   bomStatus: new Map(),
@@ -62,31 +65,65 @@ const SEED_BOM: Bom = {
   lastModifiedAt: isoNow,
 };
 
-/** MES 상세 목의 공정 둘과 처음 상태. 목록에서 어떤 MES 를 열어도 같은 공정이 나온다 */
-const SEED_OPERATIONS = [
+/**
+ * MES 의 처음 상태. 목록과 상세가 같은 규칙을 쓴다. 예전 상세는 어떤 MES 를 열어도 진행중이라 "MES 시작"을 누를 수 없었다(리뷰 P2).
+ * 값은 verified=false 다. 게이트웨이는 MES 응답을 Object 로 넘긴다(scm/pp/controller/PpController.java:133, :189).
+ * - 목록의 시작 전 값 WAITING: 화면의 상태 글자표(MesTab.tsx:36)가 아는 값이다. 게이트웨이 옛 목 데이터는 PLANNED 였는데
+ *   (mockdata/scmpp/controller/PpController.java:906) 그 값을 주면 화면이 코드를 그대로 보인다. 화면과 같이 고칠 일이다(카드의 넘기는 표).
+ * - 상세의 시작 전 값 PENDING: 상세는 공통 상태 글자(StatusLabel)를 쓰는데 WAITING 은 거기 없다.
+ * - 공정의 시작 전 값 PENDING: 게이트웨이 옛 목 데이터(같은 파일 :975).
+ */
+const MES_SEED_STATUSES: MesStatus[] = [
+  'WAITING',
+  'IN_PROGRESS',
+  'WAITING',
+  'IN_PROGRESS',
+  'WAITING',
+];
+/** `mes-007` 이면 7번째 규칙. 끝에 번호가 없는 id 는 예전 상세처럼 진행중 */
+const seedMesStatus = (mesId: string): MesStatus => {
+  const serial = Number(/(\d+)$/.exec(mesId)?.[1]);
+  return Number.isInteger(serial)
+    ? MES_SEED_STATUSES[serial % MES_SEED_STATUSES.length]
+    : 'IN_PROGRESS';
+};
+const mesStatusOf = (request: Request, mesId: string): MesStatus =>
+  productionState(request).mesStatus.get(mesId) ?? seedMesStatus(mesId);
+
+/** MES 상세 목의 공정 둘. 목록에서 어떤 MES 를 열어도 같은 공정이 나온다. `running` 은 진행중인 MES 에서의 처음 상태 */
+const OPERATIONS: Array<{
+  mesOperationLogId: string;
+  operationNumber: string;
+  operationName: string;
+  sequence: number;
+  manager: { id: number; name: string };
+  running: OperationStatus;
+}> = [
   {
     mesOperationLogId: 'op-001',
     operationNumber: 'OP10',
     operationName: '절삭',
     sequence: 1,
-    statusCode: 'COMPLETED',
-    startedAt: isoNow,
-    finishedAt: isoNow,
-    durationHours: 2,
     manager: { id: 1, name: '박공정' },
+    running: 'COMPLETED',
   },
   {
     mesOperationLogId: 'op-002',
     operationNumber: 'OP20',
     operationName: '조립',
     sequence: 2,
-    statusCode: 'IN_PROGRESS',
-    startedAt: isoNow,
-    finishedAt: '',
-    durationHours: 0,
     manager: { id: 2, name: '정공정' },
+    running: 'IN_PROGRESS',
   },
 ];
+/** 공정의 지금 상태. 시작 전인 MES 의 공정은 전부 시작 전이다 */
+const operationStatusOf = (
+  request: Request,
+  mesId: string,
+  operation: (typeof OPERATIONS)[number],
+): OperationStatus =>
+  productionState(request).operationStatus.get(`${mesId}/${operation.mesOperationLogId}`) ??
+  (seedMesStatus(mesId) === 'WAITING' ? 'PENDING' : operation.running);
 
 export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.STATISTICS, ({ request }) => {
@@ -486,15 +523,14 @@ export const productionHandlers = [
       if (shouldError(request)) return error('Failed to create BOM', 500);
       const { createdBoms } = productionState(request);
       const { productName } = await request.json();
-      const serial = String(createdBoms.length + 2).padStart(3, '0');
-      createdBoms.push({
+      addCreated(createdBoms, (serial) => ({
         ...SEED_BOM,
         bomId: `bom-${serial}`,
         bomNumber: `BOM-2026-${serial}`,
         productId: `prod-${serial}`,
         productNumber: `PRD-${serial}`,
         productName,
-      });
+      }));
       return okNoData();
     },
   ),
@@ -653,16 +689,14 @@ export const productionHandlers = [
       'QT-2026-005',
     ];
     const quotationIds = ['qt-001', 'qt-002', 'qt-003', 'qt-004', 'qt-005'];
-    const statuses = ['WAITING', 'IN_PROGRESS', 'WAITING', 'IN_PROGRESS', 'WAITING'];
     const baseTotal = 50;
     const today = startOfDay(new Date());
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
-      const statusIdx = idx % statuses.length;
       const qIdx = idx % quotationIds.length;
       const mesId = `mes-${String(idx).padStart(3, '0')}`;
-      // 시작이나 완료를 눌렀으면 그 결과
-      const status = productionState(request).mesStatus.get(mesId) ?? statuses[statusIdx];
+      // 시작이나 완료를 눌렀으면 그 결과, 아니면 상세와 같은 처음 상태
+      const status = mesStatusOf(request, mesId);
       const progress =
         status === 'COMPLETED' ? 100 : status === 'IN_PROGRESS' ? 20 + (idx % 70) : 0;
       return {
@@ -695,23 +729,27 @@ export const productionHandlers = [
   }),
   http.get<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load MES detail', 500);
-    const state = productionState(request);
     const { mesId } = params;
-    const statusCode = state.mesStatus.get(mesId) ?? 'IN_PROGRESS';
-    const mesRunning = statusCode === 'IN_PROGRESS';
-    // 버튼을 누를 수 있는지는 서버가 정해 준다. 목은 지금 상태에서 계산한다
-    const operations = SEED_OPERATIONS.map((operation) => {
-      const status =
-        state.operationStatus.get(`${mesId}/${operation.mesOperationLogId}`) ??
-        operation.statusCode;
+    const mes = mesStatusOf(request, mesId);
+    const running = mes === 'IN_PROGRESS';
+    const statuses = OPERATIONS.map((operation) => operationStatusOf(request, mesId, operation));
+    // 버튼을 누를 수 있는지는 서버가 정해 준다. 목은 지금 상태에서 계산한다. 공정은 앞 공정이 끝나야 시작할 수 있다
+    const operations = OPERATIONS.map(({ running: _running, ...operation }, index) => {
+      const status = statuses[index];
       return {
         ...operation,
         statusCode: status,
-        canStart: mesRunning && status !== 'IN_PROGRESS' && status !== 'COMPLETED',
-        canComplete: mesRunning && status === 'IN_PROGRESS',
+        startedAt: status === 'PENDING' ? '' : isoNow,
+        finishedAt: status === 'COMPLETED' ? isoNow : '',
+        durationHours: status === 'COMPLETED' ? 2 : 0,
+        canStart:
+          running &&
+          status === 'PENDING' &&
+          statuses.slice(0, index).every((before) => before === 'COMPLETED'),
+        canComplete: running && status === 'IN_PROGRESS',
       };
     });
-    const allDone = operations.every((operation) => operation.statusCode === 'COMPLETED');
+    const allDone = statuses.every((status) => status === 'COMPLETED');
     return ok({
       mesId,
       mesNumber: 'MES-2026-001',
@@ -719,18 +757,21 @@ export const productionHandlers = [
       productName: '모터 A',
       quantity: 100,
       uomName: 'EA',
-      progressPercent: allDone ? 100 : 60,
-      statusCode,
+      progressPercent: allDone ? 100 : mes === 'WAITING' ? 0 : 60,
+      // 상세의 상태 글자는 공통 상태 메시지다. 시작 전은 PENDING(대기)으로 준다(위 MES_SEED_STATUSES 주석)
+      statusCode: mes === 'WAITING' ? 'PENDING' : mes,
       plan: { startDate: '2026-01-15', dueDate: '2026-02-01' },
       currentOperation: 'OP20',
       operations,
-      canStartMes: statusCode === 'WAITING',
-      canCompleteMes: mesRunning && allDone,
+      canStartMes: mes === 'WAITING',
+      canCompleteMes: running && allDone,
     });
   }),
   http.put<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId/start`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to start MES', 500);
-    productionState(request).mesStatus.set(params.mesId, 'IN_PROGRESS');
+    // 시작 전일 때만 바꾼다. 진행중이거나 끝난 MES 에 또 보내면 그대로 두고 성공으로 답한다(실서버 동작 미확인)
+    if (mesStatusOf(request, params.mesId) === 'WAITING')
+      productionState(request).mesStatus.set(params.mesId, 'IN_PROGRESS');
     return okNoData();
   }),
   http.put<{ mesId: string }>(
@@ -745,10 +786,11 @@ export const productionHandlers = [
     `${PRODUCTION_BASE_PATH}/mes/:mesId/operations/:operationId/start`,
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to start operation', 500);
-      productionState(request).operationStatus.set(
-        `${params.mesId}/${params.operationId}`,
-        'IN_PROGRESS',
-      );
+      const { mesId, operationId } = params;
+      const operation = OPERATIONS.find((item) => item.mesOperationLogId === operationId);
+      // 시작 전일 때만 바꾼다. 끝난 공정에 시작을 또 보내도 진행중으로 되돌리지 않고 성공으로 답한다(실서버 동작 미확인)
+      if (operation && operationStatusOf(request, mesId, operation) === 'PENDING')
+        productionState(request).operationStatus.set(`${mesId}/${operationId}`, 'IN_PROGRESS');
       return okNoData();
     },
   ),

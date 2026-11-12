@@ -25,6 +25,7 @@
     "URGENT": "Urgent",
     "MATERIAL_PREPARATION": "Preparing materials",
     "IN_PRODUCTION": "In production",
+    "PRODUCTION": "In production",
     "READY_TO_SHIP": "Ready to ship",
     "READY_FOR_SHIPMENT": "Ready to ship",
     "DELIVERING": "Delivering",

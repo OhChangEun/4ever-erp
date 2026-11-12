@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
+import * as z from 'zod';
 import { mockApi } from '@/test/mockApi';
 
 /**
@@ -72,6 +73,31 @@ describe('구매 목 상태', () => {
         page: { totalElements: 2 },
       },
     });
+  });
+
+  it('한 로그인이 만든 행은 목록마다 50개까지만 남고, 오래된 것부터 빠진다. id 는 겹치지 않는다', async () => {
+    for (let i = 1; i <= 52; i += 1) {
+      await post(REQUESTS, {
+        items: [{ itemName: '볼트', quantity: 1, uomName: 'EA', expectedUnitPrice: i }],
+      });
+    }
+    const body = await get(REQUESTS);
+    const parsed = z
+      .object({
+        data: z.object({
+          content: z.array(
+            z.object({ purchaseRequisitionId: z.string(), totalAmount: z.number() }),
+          ),
+        }),
+      })
+      .parse(body);
+    const rows = parsed.data.content;
+    // 기본 행 1 + 만든 행 50
+    expect(rows).toHaveLength(51);
+    expect(new Set(rows.map((r) => r.purchaseRequisitionId)).size).toBe(51);
+    // 처음 만든 둘(금액 1, 2)이 빠지고 3번째부터 남는다
+    expect(rows[1].totalAmount).toBe(3);
+    expect(rows.at(-1)?.totalAmount).toBe(52);
   });
 
   it('재고성 구매 요청은 구매 요청 목록에 새 행을 만들고, 그 계획 주문을 PENDING 으로 바꾼다', async () => {
@@ -230,6 +256,19 @@ describe('인사 목 상태', () => {
     });
     expect(await get(`${HRM}/training-status`)).toMatchObject({
       data: { items: [{ employeeId: 'emp-001', inProgressCount: 2 }] },
+    });
+  });
+
+  it('같은 프로그램을 같은 직원에게 또 지정해도 성공이고 이력은 하나다', async () => {
+    await post(`${HRM}/program/emp-001`, { programId: 'prog-001' });
+    expect(await post(`${HRM}/program/emp-001`, { programId: 'prog-001' })).toMatchObject({
+      success: true,
+    });
+    expect(await get(`${HRM}/training/employee/emp-001`)).toMatchObject({
+      data: { programHistory: [{ programStatus: 'COMPLETED' }, { programId: 'prog-001' }] },
+    });
+    expect(await get(`${HRM}/training-status`)).toMatchObject({
+      data: { items: [{ inProgressCount: 2 }] },
     });
   });
 
@@ -398,6 +437,42 @@ describe('재고와 창고 목 상태', () => {
     expect(await get(`${SCM}/iv/items/item-9999`)).toMatchObject({ data: { safetyStock: 50 } });
   });
 
+  it('창고 3D 가 쓰는 창고별 재고 조회도 같은 품목은 같은 수량이고, 안전재고 수정과 재고 이동을 따른다', async () => {
+    const BY_WAREHOUSE = `${SCM}/iv/inventory-items?type=WAREHOUSE_NAME&keyword=${encodeURIComponent('1공장 창고')}&size=20`;
+    // 일반 목록과 상세가 주는 값(현재고 120, 안전재고 50)과 같다
+    expect(await get(BY_WAREHOUSE)).toMatchObject(
+      row({ itemId: 'item-1001', currentStock: 120, safetyStock: 50, statusCode: 'NORMAL' }),
+    );
+
+    await patch(`${SCM}/iv/items/item-1001/safety-stock?safetyStock=777`);
+    await post(`${SCM}/iv/stock-transfers`, {
+      fromWarehouseId: 'wh-001',
+      toWarehouseId: 'wh-002',
+      itemId: 'item-1001',
+      stockQuantity: 3,
+      uomName: 'EA',
+      reason: '재배치',
+    });
+    expect(await get(BY_WAREHOUSE)).toMatchObject(
+      row({ itemId: 'item-1001', currentStock: 117, safetyStock: 777 }),
+    );
+    // 이 조회에만 있는 품목도 따른다
+    await patch(`${SCM}/iv/items/item-wh-002/safety-stock?safetyStock=5`);
+    expect(await get(BY_WAREHOUSE)).toMatchObject(row({ itemId: 'item-wh-002', safetyStock: 5 }));
+  });
+
+  it('안전재고 수정에 safetyStock 이 없으면 400 이고 값은 그대로다(0 으로 저장하지 않는다)', async () => {
+    expect(await patch(`${SCM}/iv/items/item-1001/safety-stock`)).toMatchObject({
+      status: 400,
+      success: false,
+    });
+    expect(await patch(`${SCM}/iv/items/item-1001/safety-stock?safetyStock=abc`)).toMatchObject({
+      status: 400,
+      success: false,
+    });
+    expect(await get(`${SCM}/iv/items/item-1001`)).toMatchObject({ data: { safetyStock: 50 } });
+  });
+
   it('부족 재고 품목의 안전재고를 수정하면 안전재고 화면 목록도 바뀐다', async () => {
     await patch(`${SCM}/iv/items/item-1002/safety-stock?safetyStock=30`);
     expect(await get(`${SCM}/iv/shortage`)).toMatchObject(
@@ -545,7 +620,7 @@ describe('생산 목 상태', () => {
     );
   });
 
-  it('공정을 완료하면 그 공정이 COMPLETED 이고 MES 완료 버튼이 열린다. 다시 시작하면 IN_PROGRESS 다', async () => {
+  it('공정을 완료하면 그 공정이 COMPLETED 이고 MES 완료 버튼이 열린다', async () => {
     const DETAIL = `${PP}/mes/mes-001`;
     expect(await get(DETAIL)).toMatchObject({
       data: { canCompleteMes: false, operations: [{}, { statusCode: 'IN_PROGRESS' }] },
@@ -561,12 +636,17 @@ describe('생산 목 상태', () => {
         ],
       },
     });
+  });
 
-    await put(`${DETAIL}/operations/op-002/start`);
+  it('완료한 공정에 시작을 또 보내도 성공이고 COMPLETED 그대로다', async () => {
+    const DETAIL = `${PP}/mes/mes-001`;
+    await put(`${DETAIL}/operations/op-002/complete`);
+    expect(await put(`${DETAIL}/operations/op-002/start`)).toMatchObject({ success: true });
+    expect(await put(`${DETAIL}/operations/op-001/start`)).toMatchObject({ success: true });
     expect(await get(DETAIL)).toMatchObject({
       data: {
-        canCompleteMes: false,
-        operations: [{}, { statusCode: 'IN_PROGRESS', canStart: false, canComplete: true }],
+        canCompleteMes: true,
+        operations: [{ statusCode: 'COMPLETED' }, { statusCode: 'COMPLETED', canStart: false }],
       },
     });
   });
@@ -590,11 +670,62 @@ describe('생산 목 상태', () => {
     expect(await get(`${PP}/mes?status=COMPLETED`)).toMatchObject(content({ mesId: 'mes-001' }));
   });
 
-  it('대기 중인 MES 를 시작하면 목록과 상세가 IN_PROGRESS 다', async () => {
+  it('목록에서 시작 전인 MES 는 상세에서도 시작 전이고 시작 버튼이 열린다. 시작하면 목록과 상세가 IN_PROGRESS 다', async () => {
+    const DETAIL = `${PP}/mes/mes-002`;
     expect(await get(`${PP}/mes`)).toMatchObject(row({ mesId: 'mes-002', status: 'WAITING' }));
-    await put(`${PP}/mes/mes-002/start`);
+    // 상세의 상태 글자는 공통 상태 메시지를 쓴다. 시작 전은 PENDING(대기)
+    expect(await get(DETAIL)).toMatchObject({
+      data: {
+        statusCode: 'PENDING',
+        progressPercent: 0,
+        canStartMes: true,
+        canCompleteMes: false,
+        operations: [
+          { mesOperationLogId: 'op-001', statusCode: 'PENDING', canStart: false },
+          { mesOperationLogId: 'op-002', statusCode: 'PENDING', canStart: false },
+        ],
+      },
+    });
+
+    await put(`${DETAIL}/start`);
     expect(await get(`${PP}/mes`)).toMatchObject(row({ mesId: 'mes-002', status: 'IN_PROGRESS' }));
-    expect(await get(`${PP}/mes/mes-002`)).toMatchObject({ data: { statusCode: 'IN_PROGRESS' } });
+    expect(await get(DETAIL)).toMatchObject({
+      data: {
+        statusCode: 'IN_PROGRESS',
+        canStartMes: false,
+        // 앞 공정부터 시작할 수 있다
+        operations: [
+          { statusCode: 'PENDING', canStart: true, canComplete: false },
+          { statusCode: 'PENDING', canStart: false },
+        ],
+      },
+    });
+  });
+
+  it('시작 전 공정을 시작하면 IN_PROGRESS, 완료하면 다음 공정의 시작이 열린다', async () => {
+    const DETAIL = `${PP}/mes/mes-002`;
+    await put(`${DETAIL}/start`);
+    await put(`${DETAIL}/operations/op-001/start`);
+    expect(await get(DETAIL)).toMatchObject({
+      data: { operations: [{ statusCode: 'IN_PROGRESS', canStart: false, canComplete: true }, {}] },
+    });
+
+    await put(`${DETAIL}/operations/op-001/complete`);
+    expect(await get(DETAIL)).toMatchObject({
+      data: {
+        canCompleteMes: false,
+        operations: [
+          { statusCode: 'COMPLETED', canComplete: false },
+          { statusCode: 'PENDING', canStart: true },
+        ],
+      },
+    });
+  });
+
+  it('완료한 MES 에 시작을 또 보내도 성공이고 COMPLETED 그대로다', async () => {
+    await put(`${PP}/mes/mes-001/complete`);
+    expect(await put(`${PP}/mes/mes-001/start`)).toMatchObject({ success: true });
+    expect(await get(`${PP}/mes/mes-001`)).toMatchObject({ data: { statusCode: 'COMPLETED' } });
   });
 });
 

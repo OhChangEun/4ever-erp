@@ -2,7 +2,7 @@ import { createOpenApiHttp } from 'openapi-msw';
 import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { makePage, shouldError, stat, trendStat } from './utils';
 
 /**
@@ -117,15 +117,14 @@ export const warehouseHandlers = [
       return response('default').json(failure('Failed to add warehouse'), { status: 500 });
     const { created } = warehouseState(request);
     const body = await request.json();
-    const serial = String(created.length + 2).padStart(3, '0');
-    created.push({
+    addCreated(created, (serial) => ({
       ...SEED_WAREHOUSE,
       warehouseId: `wh-${serial}`,
       warehouseNumber: `WH-${serial}`,
       warehouseName: body.warehouseName,
       warehouseType: body.warehouseType,
       location: body.location,
-    });
+    }));
     return response(200).json(OK);
   }),
   http.get('/scm-pp/iv/warehouses/managers/toggle', ({ request, response }) => {

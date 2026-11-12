@@ -8,11 +8,15 @@ const ORIGIN = 'http://localhost';
  * 목 핸들러를 서버 목 어댑터(`src/app/api/[...slug]/route.ts`)와 같은 방식(getResponse)으로 부른다.
  * path 는 프록시 주소 뒤쪽(`/scm-pp/mm/...`). auth 는 프록시가 붙이는 `Authorization` 값이다(로그인별 목 상태의 키).
  */
-export const mockApi = async (
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH',
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH';
+type CallOptions = { body?: unknown; auth?: string };
+
+/** 응답 본문과 함께 HTTP 상태를 돌려준다 */
+const mockCall = async (
+  method: Method,
   path: string,
-  options: { body?: unknown; auth?: string } = {},
-): Promise<unknown> => {
+  options: CallOptions = {},
+): Promise<{ status: number; body: unknown }> => {
   const headers = new Headers({ 'Content-Type': 'application/json' });
   if (options.auth) headers.set('Authorization', options.auth);
   const response = await getResponse(
@@ -25,8 +29,15 @@ export const mockApi = async (
     { baseUrl: ORIGIN },
   );
   if (!response) throw new Error(`목 핸들러 없음: ${method} ${path}`);
-  return response.json();
+  const body: unknown = await response.json();
+  return { status: response.status, body };
 };
+
+export const mockApi = async (
+  method: Method,
+  path: string,
+  options: CallOptions = {},
+): Promise<unknown> => (await mockCall(method, path, options)).body;
 
 /** 상태를 바꾸는 쓰기 한 건. 계약 테스트가 전부 보낸 뒤 GET 응답을 다시 검사한다 */
 type MockWrite = [method: 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown];
@@ -115,6 +126,10 @@ const writesFor = (id: (seed: string) => string): MockWrite[] => [
   ['POST', `/business/fcm/invoice/ar/${id('inv-ar-001')}/receivable/complete`],
   ['POST', `/business/fcm/invoice/ap/receivable/request?invoiceId=${id('inv-ap-001')}`],
   ['POST', `/business/fcm/invoice/ap/${id('inv-ap-001')}/payable/complete`],
+  // 위와 같은 행의 반대 쓰기. 다른 id 로 보낸다(같은 id 면 뒤 쓰기가 앞 결과를 덮는다)
+  ['POST', `/scm-pp/mm/purchase-requisitions/${id('pr-002')}/release`],
+  ['POST', `/scm-pp/mm/purchase-orders/${id('po-002')}/reject`, { reason: '단가 불일치' }],
+  ['PATCH', `/business/hrm/leave/request/${id('leave-002')}/reject`],
 ];
 
 /** 목록에 새 행을 만드는 쓰기 */
@@ -233,10 +248,21 @@ const CREATES: MockWrite[] = [
   ],
 ];
 
+const isSuccess = (body: unknown) =>
+  typeof body === 'object' && body !== null && 'success' in body && body.success === true;
+
 /**
- * 반영되는 쓰기를 전부 보낸다. 계약 테스트는 상세를 `id-1` 로 불러서, 목록의 기본 행과 `id-1` 양쪽에 같은 쓰기를 보낸다
+ * 결과를 기억하는 쓰기를 전부 보낸다(40종, `src/test/mockApi.test.ts` 가 핸들러 목록과 맞춰 본다).
+ * 계약 테스트는 상세를 `id-1` 로 불러서, 목록의 기본 행과 `id-1` 양쪽에 같은 쓰기를 보낸다.
+ * 보낸 요청과 성공 여부(2xx 이고 본문의 `success` 가 true)를 돌려준다
  */
 export const applyAllMockWrites = async (auth?: string) => {
   const writes = [...writesFor((seed) => seed), ...writesFor(() => 'id-1'), ...CREATES];
-  for (const [method, path, body] of writes) await mockApi(method, path, { body, auth });
+  const sent: Array<{ method: string; path: string; ok: boolean }> = [];
+  for (const [method, path, body] of writes) {
+    const response = await mockCall(method, path, { body, auth });
+    const ok = response.status >= 200 && response.status < 300 && isSuccess(response.body);
+    sent.push({ method, path, ok });
+  }
+  return sent;
 };

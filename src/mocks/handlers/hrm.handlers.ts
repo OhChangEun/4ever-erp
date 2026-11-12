@@ -1,7 +1,7 @@
 import { http, type PathParams } from 'msw';
 import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import type { Schema } from '@/lib/api/contract';
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
 
 type Employee = Schema<'EmployeeData'>;
@@ -11,8 +11,12 @@ type TimeRecordEdit = { checkInTime: string; checkOutTime: string };
 
 /**
  * 인사 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
- * 급여 상태는 게이트웨이 enum PayrollStatus(PAYROLL_UNPAID, PAYROLL_PAID), 휴가는 LeaveRequestStatus(APPROVED, REJECTED).
- * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인, verified=false)
+ * 상태 값은 verified=false 다. 타입이 있는 응답 필드 근거가 없다.
+ * 급여 PAYROLL_UNPAID, PAYROLL_PAID: 목록 요청의 파라미터 설명(HrmController.java:349)과 enum PayrollStatus.
+ *   그 enum 은 선언만 있고 참조하는 곳이 없다. 응답 DTO `PayrollListPayDto.statusCode` 는 String 이다.
+ * 휴가 APPROVED, REJECTED: enum LeaveRequestStatus(참조하는 곳 없음). 게이트웨이 목록 DTO `LeaveRequestListItemDto` 에는
+ *   상태 필드가 아예 없다(HrmController.java:572). 화면은 `leave.status` 로 버튼을 그린다(카드 별도 보고).
+ * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인)
  */
 const hrmState = mockState<{
   paidPayrolls: Set<string>;
@@ -391,15 +395,15 @@ export const hrmHandlers = [
       if (shouldError(request)) return error('Failed to create program', 500);
       const state = hrmState(request);
       const body = await request.json();
-      state.createdPrograms.push({
+      addCreated(state.createdPrograms, (serial) => ({
         ...SEED_PROGRAM,
-        programId: `prog-${String(state.createdPrograms.length + 2).padStart(3, '0')}`,
+        programId: `prog-${serial}`,
         programName: body.programName,
         category: body.category,
         trainingHour: body.trainingHour,
         isOnline: body.isOnline,
         capacity: body.capacity,
-      });
+      }));
       return ok(null);
     },
   ),
@@ -418,10 +422,10 @@ export const hrmHandlers = [
       if (shouldError(request)) return error('Failed to assign program', 500);
       const { assignedPrograms } = hrmState(request);
       const { programId } = await request.json();
-      assignedPrograms.set(params.employeeId, [
-        ...(assignedPrograms.get(params.employeeId) ?? []),
-        programId,
-      ]);
+      const assigned = assignedPrograms.get(params.employeeId) ?? [];
+      assignedPrograms.set(params.employeeId, assigned);
+      // 같은 프로그램을 또 지정하면 이력을 늘리지 않고 성공으로 답한다(실서버 동작 미확인)
+      if (!assigned.includes(programId)) addCreated(assigned, () => programId);
       return ok(null);
     },
   ),
@@ -448,8 +452,7 @@ export const hrmHandlers = [
       if (shouldError(request)) return error('Failed to register employee', 500);
       const state = hrmState(request);
       const body = await request.json();
-      const serial = String(state.createdEmployees.length + 2).padStart(3, '0');
-      state.createdEmployees.push({
+      addCreated(state.createdEmployees, (serial) => ({
         ...SEED_EMPLOYEE,
         employeeId: `emp-${serial}`,
         employeeNumber: `EMP-2026-${serial}`,
@@ -461,7 +464,7 @@ export const hrmHandlers = [
         hireDate: body.hireDate,
         birthDate: body.birthDate,
         address: `${body.baseAddress} ${body.detailAddress}`,
-      });
+      }));
       return ok(null);
     },
   ),
