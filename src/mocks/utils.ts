@@ -59,6 +59,9 @@ export const ok = <T>(data: T) =>
 export const okNoData = () => HttpResponse.json({ status: 200, success: true, message: 'OK' });
 export const error = (message = 'Mock error', status = 500) =>
   HttpResponse.json({ status, success: false, message }, { status });
+/** 주소 경로를 뒤에서 센 조각(1 이 마지막). RegExp 로 등록한 핸들러는 params 가 없어 주소에서 id 를 꺼낸다 */
+export const pathSegment = (request: Request, fromEnd: number) =>
+  new URL(request.url).pathname.split('/').at(-fromEnd) ?? '';
 export const shouldError = (request: Request) => {
   const url = new URL(request.url);
   return (

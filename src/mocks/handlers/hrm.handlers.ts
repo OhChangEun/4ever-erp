@@ -1,6 +1,84 @@
-import { http } from 'msw';
+import { http, type PathParams } from 'msw';
 import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
+import type { Schema } from '@/lib/api/contract';
+import { mockState } from '../state';
 import { ok, okNoData, error, shouldError, isoNow, makePage, stat, statResponse } from './utils';
+
+type Employee = Schema<'EmployeeData'>;
+type Program = Schema<'ProgramListData'>;
+type ProgramEdit = { programName: string; statusCode: string };
+type TimeRecordEdit = { checkInTime: string; checkOutTime: string };
+
+/**
+ * 인사 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
+ * 급여 상태는 게이트웨이 enum PayrollStatus(PAYROLL_UNPAID, PAYROLL_PAID), 휴가는 LeaveRequestStatus(APPROVED, REJECTED).
+ * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인, verified=false)
+ */
+const hrmState = mockState<{
+  paidPayrolls: Set<string>;
+  leaveStatus: Map<string, string>;
+  departmentEdits: Map<string, Schema<'DepartmentsRequestBody'>>;
+  employeeEdits: Map<string, Schema<'EmployeeUpdateRequest'>>;
+  createdEmployees: Employee[];
+  programEdits: Map<string, ProgramEdit>;
+  createdPrograms: Program[];
+  /** 직원 id → 지정한 교육 프로그램 id 들 */
+  assignedPrograms: Map<string, string[]>;
+  timeRecordEdits: Map<string, TimeRecordEdit>;
+}>(() => ({
+  paidPayrolls: new Set(),
+  leaveStatus: new Map(),
+  departmentEdits: new Map(),
+  employeeEdits: new Map(),
+  createdEmployees: [],
+  programEdits: new Map(),
+  createdPrograms: [],
+  assignedPrograms: new Map(),
+  timeRecordEdits: new Map(),
+}));
+
+const payrollStatus = (request: Request, payrollId: string) =>
+  hrmState(request).paidPayrolls.has(payrollId) ? 'PAYROLL_PAID' : 'PAYROLL_UNPAID';
+
+// 드롭다운 목과 직원 수정, 등록이 같은 이름표를 쓴다
+const DEPARTMENTS = [
+  { key: 'dept-001', value: '영업팀' },
+  { key: 'dept-002', value: '구매팀' },
+];
+const POSITIONS = [
+  { key: 'pos-001', value: '팀장' },
+  { key: 'pos-002', value: '사원' },
+];
+const PROGRAMS = [{ key: 'prog-001', value: '안전 교육' }];
+/** 모르는 id 는 id 를 그대로 보인다 */
+const nameOf = (options: Array<{ key: string; value: string }>, id: string) =>
+  options.find((option) => option.key === id)?.value ?? id;
+
+const SEED_EMPLOYEE: Employee = {
+  employeeId: 'emp-001',
+  employeeNumber: 'EMP-2026-001',
+  name: '홍길동',
+  email: 'user@everp.co.kr',
+  phone: '010-1234-5678',
+  position: '팀장',
+  department: '영업팀',
+  statusCode: 'ACTIVE',
+  hireDate: '2022-03-01',
+  birthDate: '1990-01-01',
+  address: '서울특별시 강남구',
+  createdAt: isoNow,
+  updatedAt: isoNow,
+};
+
+const SEED_PROGRAM: Program = {
+  programId: 'prog-001',
+  programName: '안전 교육',
+  statusCode: 'ACTIVE',
+  category: 'SAFETY',
+  trainingHour: 4,
+  isOnline: true,
+  capacity: 30,
+};
 
 const mockHrmStats = statResponse({
   totalEmployeeCount: stat,
@@ -14,26 +92,19 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.EMPLOYEE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load employees', 500);
-    return ok({
-      content: [
-        {
-          employeeId: 'emp-001',
-          employeeNumber: 'EMP-2026-001',
-          name: '홍길동',
-          email: 'user@everp.co.kr',
-          phone: '010-1234-5678',
-          position: '팀장',
-          department: '영업팀',
-          statusCode: 'ACTIVE',
-          hireDate: '2022-03-01',
-          birthDate: '1990-01-01',
-          address: '서울특별시 강남구',
-          createdAt: isoNow,
-          updatedAt: isoNow,
-        },
-      ],
-      page: makePage(0, 10, 1),
+    const state = hrmState(request);
+    const content = [SEED_EMPLOYEE, ...state.createdEmployees].map((employee) => {
+      const edit = state.employeeEdits.get(employee.employeeId);
+      return edit
+        ? {
+            ...employee,
+            name: edit.employeeName,
+            department: nameOf(DEPARTMENTS, edit.departmentId),
+            position: nameOf(POSITIONS, edit.positionId),
+          }
+        : employee;
     });
+    return ok({ content, page: makePage(0, 10, content.length) });
   }),
   http.get(HRM_ENDPOINTS.POSITIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load positions', 500);
@@ -80,6 +151,8 @@ export const hrmHandlers = [
           managerId: 'emp-001',
           location: '서울 강남',
           statusCode: 'ACTIVE',
+          // 부서장 이름은 부서원 목이 한 명이라 바꾸지 않고 id 와 설명만 따른다
+          ...hrmState(request).departmentEdits.get('dept-001'),
           employeeCount: 8,
           establishedDate: '2020-01-01',
           employees: [
@@ -94,10 +167,14 @@ export const hrmHandlers = [
       ],
     });
   }),
-  http.patch(`${HRM_BASE_PATH}/departments/:departmentId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update department', 500);
-    return ok(null);
-  }),
+  http.patch<{ departmentId: string }, Schema<'DepartmentsRequestBody'>>(
+    `${HRM_BASE_PATH}/departments/:departmentId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update department', 500);
+      hrmState(request).departmentEdits.set(params.departmentId, await request.json());
+      return ok(null);
+    },
+  ),
   http.get(HRM_ENDPOINTS.PAYROLL, ({ request }) => {
     if (shouldError(request)) return error('Failed to load payroll list', 500);
     return ok({
@@ -117,14 +194,14 @@ export const hrmHandlers = [
             overtimePay: 200000,
             deduction: 150000,
             netPay: 3050000,
-            statusCode: 'PENDING',
+            statusCode: payrollStatus(request, 'pay-001'),
           },
         },
       ],
       page: makePage(0, 10, 1),
     });
   }),
-  http.get(`${HRM_BASE_PATH}/payroll/:payrollId`, ({ request, params }) => {
+  http.get<{ payrollId: string }>(`${HRM_BASE_PATH}/payroll/:payrollId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load payroll detail', 500);
     return ok({
       payrollId: params.payrollId,
@@ -145,7 +222,7 @@ export const hrmHandlers = [
         deductionItem: [{ itemContent: '세금', itemSum: 150000 }],
         netPay: 3050000,
       },
-      statusCode: 'PENDING',
+      statusCode: payrollStatus(request, params.payrollId),
       expectedDate: '2026-01-25',
     });
   }),
@@ -159,7 +236,7 @@ export const hrmHandlers = [
           department: '영업팀',
           position: '팀장',
           completedCount: 2,
-          inProgressCount: 1,
+          inProgressCount: 1 + (hrmState(request).assignedPrograms.get('emp-001')?.length ?? 0),
           requiredMissingCount: 0,
           lastTrainingDate: '2026-01-05',
         },
@@ -167,49 +244,52 @@ export const hrmHandlers = [
       page: makePage(0, 10, 1),
     });
   }),
-  http.get(`${HRM_BASE_PATH}/training/employee/:employeeId`, ({ request, params }) => {
-    if (shouldError(request)) return error('Failed to load training detail', 500);
-    return ok({
-      employeeId: params.employeeId,
-      employeeName: '홍길동',
-      department: '영업팀',
-      position: '팀장',
-      completedCount: 2,
-      requiredMissingCount: 0,
-      lastTrainingDate: '2026-01-05',
-      programHistory: [
-        {
-          programId: 'prog-001',
-          programName: '안전 교육',
-          programStatus: 'COMPLETED',
-          completedAt: '2026-01-05',
-        },
-      ],
-    });
-  }),
+  http.get<{ employeeId: string }>(
+    `${HRM_BASE_PATH}/training/employee/:employeeId`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to load training detail', 500);
+      const assigned = hrmState(request).assignedPrograms.get(params.employeeId) ?? [];
+      return ok({
+        employeeId: params.employeeId,
+        employeeName: '홍길동',
+        department: '영업팀',
+        position: '팀장',
+        completedCount: 2,
+        requiredMissingCount: 0,
+        lastTrainingDate: '2026-01-05',
+        programHistory: [
+          {
+            programId: 'prog-001',
+            programName: '안전 교육',
+            programStatus: 'COMPLETED',
+            completedAt: '2026-01-05',
+          },
+          ...assigned.map((programId) => ({
+            programId,
+            programName: nameOf(PROGRAMS, programId),
+            programStatus: 'INCOMPLETED',
+            completedAt: '',
+          })),
+        ],
+      });
+    },
+  ),
   http.get(HRM_ENDPOINTS.PROGRAM, ({ request }) => {
     if (shouldError(request)) return error('Failed to load program list', 500);
-    return ok({
-      content: [
-        {
-          programId: 'prog-001',
-          programName: '안전 교육',
-          statusCode: 'ACTIVE',
-          category: 'SAFETY',
-          trainingHour: 4,
-          isOnline: true,
-          capacity: 30,
-        },
-      ],
-      page: makePage(0, 10, 1),
-    });
+    const state = hrmState(request);
+    const content = [SEED_PROGRAM, ...state.createdPrograms].map((program) => ({
+      ...program,
+      ...state.programEdits.get(program.programId),
+    }));
+    return ok({ content, page: makePage(0, 10, content.length) });
   }),
-  http.get(`${HRM_BASE_PATH}/program/:programId`, ({ request, params }) => {
+  http.get<{ programId: string }>(`${HRM_BASE_PATH}/program/:programId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load program detail', 500);
     return ok({
       programId: params.programId,
       programName: '안전 교육',
       statusCode: 'ACTIVE',
+      ...hrmState(request).programEdits.get(params.programId),
       category: 'SAFETY',
       trainingHour: 4,
       isOnline: true,
@@ -248,6 +328,8 @@ export const hrmHandlers = [
           workDate: '2026-01-28',
           checkInTime: '2026-01-28T09:00:00',
           checkOutTime: '2026-01-28T18:00:00',
+          // 근무 시간과 지각 여부는 다시 계산하지 않는다(서버 규칙을 모른다)
+          ...hrmState(request).timeRecordEdits.get('time-001'),
           totalWorkMinutes: 540,
           overtimeMinutes: 30,
           statusCode: 'ON_TIME',
@@ -273,61 +355,123 @@ export const hrmHandlers = [
           endDate: '2026-02-06',
           numberOfLeaveDays: 2,
           remainingLeaveDays: 8,
-          status: 'PENDING',
+          status: hrmState(request).leaveStatus.get('leave-001') ?? 'PENDING',
         },
       ],
       page: makePage(0, 10, 1),
     });
   }),
-  http.patch(`${HRM_BASE_PATH}/employee/:employeeId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update employee', 500);
-    return okNoData();
-  }),
-  http.patch(`${HRM_BASE_PATH}/leave/request/:requestId/release`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to approve leave', 500);
-    return ok(null);
-  }),
-  http.patch(`${HRM_BASE_PATH}/leave/request/:requestId/reject`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to reject leave', 500);
-    return ok(null);
-  }),
-  http.post(HRM_ENDPOINTS.PROGRAM, ({ request }) => {
-    if (shouldError(request)) return error('Failed to create program', 500);
-    return ok(null);
-  }),
-  http.patch(`${HRM_BASE_PATH}/program/:programId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update program', 500);
-    return ok(null);
-  }),
-  http.post(`${HRM_BASE_PATH}/program/:employeeId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to assign program', 500);
-    return ok(null);
-  }),
-  http.put(`${HRM_BASE_PATH}/time-record/:timerecordId`, ({ request }) => {
-    if (shouldError(request)) return error('Failed to update time record', 500);
-    return ok(null);
-  }),
-  http.post(HRM_ENDPOINTS.PAYROLL_COMPLETE, ({ request }) => {
-    if (shouldError(request)) return error('Failed to complete payroll', 500);
-    return ok(null);
-  }),
-  http.post(HRM_ENDPOINTS.EMPLOYEE_SIGNUP, ({ request }) => {
-    if (shouldError(request)) return error('Failed to register employee', 500);
-    return ok(null);
-  }),
+  http.patch<{ employeeId: string }, Schema<'EmployeeUpdateRequest'>>(
+    `${HRM_BASE_PATH}/employee/:employeeId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update employee', 500);
+      hrmState(request).employeeEdits.set(params.employeeId, await request.json());
+      return okNoData();
+    },
+  ),
+  http.patch<{ requestId: string }>(
+    `${HRM_BASE_PATH}/leave/request/:requestId/release`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to approve leave', 500);
+      hrmState(request).leaveStatus.set(params.requestId, 'APPROVED');
+      return ok(null);
+    },
+  ),
+  http.patch<{ requestId: string }>(
+    `${HRM_BASE_PATH}/leave/request/:requestId/reject`,
+    ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to reject leave', 500);
+      hrmState(request).leaveStatus.set(params.requestId, 'REJECTED');
+      return ok(null);
+    },
+  ),
+  http.post<PathParams, Schema<'CreateProgramRequest'>>(
+    HRM_ENDPOINTS.PROGRAM,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to create program', 500);
+      const state = hrmState(request);
+      const body = await request.json();
+      state.createdPrograms.push({
+        ...SEED_PROGRAM,
+        programId: `prog-${String(state.createdPrograms.length + 2).padStart(3, '0')}`,
+        programName: body.programName,
+        category: body.category,
+        trainingHour: body.trainingHour,
+        isOnline: body.isOnline,
+        capacity: body.capacity,
+      });
+      return ok(null);
+    },
+  ),
+  http.patch<{ programId: string }, ProgramEdit>(
+    `${HRM_BASE_PATH}/program/:programId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update program', 500);
+      const { programName, statusCode } = await request.json();
+      hrmState(request).programEdits.set(params.programId, { programName, statusCode });
+      return ok(null);
+    },
+  ),
+  http.post<{ employeeId: string }, { programId: string }>(
+    `${HRM_BASE_PATH}/program/:employeeId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to assign program', 500);
+      const { assignedPrograms } = hrmState(request);
+      const { programId } = await request.json();
+      assignedPrograms.set(params.employeeId, [
+        ...(assignedPrograms.get(params.employeeId) ?? []),
+        programId,
+      ]);
+      return ok(null);
+    },
+  ),
+  http.put<{ timerecordId: string }, TimeRecordEdit>(
+    `${HRM_BASE_PATH}/time-record/:timerecordId`,
+    async ({ request, params }) => {
+      if (shouldError(request)) return error('Failed to update time record', 500);
+      const { checkInTime, checkOutTime } = await request.json();
+      hrmState(request).timeRecordEdits.set(params.timerecordId, { checkInTime, checkOutTime });
+      return ok(null);
+    },
+  ),
+  http.post<PathParams, Schema<'PayRollCompleteRequestParams'>>(
+    HRM_ENDPOINTS.PAYROLL_COMPLETE,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to complete payroll', 500);
+      hrmState(request).paidPayrolls.add((await request.json()).payrollId);
+      return ok(null);
+    },
+  ),
+  http.post<PathParams, Schema<'EmployeeRegisterRequest'>>(
+    HRM_ENDPOINTS.EMPLOYEE_SIGNUP,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to register employee', 500);
+      const state = hrmState(request);
+      const body = await request.json();
+      const serial = String(state.createdEmployees.length + 2).padStart(3, '0');
+      state.createdEmployees.push({
+        ...SEED_EMPLOYEE,
+        employeeId: `emp-${serial}`,
+        employeeNumber: `EMP-2026-${serial}`,
+        name: body.name,
+        email: body.email,
+        phone: body.phoneNumber,
+        position: nameOf(POSITIONS, body.positionId),
+        department: nameOf(DEPARTMENTS, body.departmentId),
+        hireDate: body.hireDate,
+        birthDate: body.birthDate,
+        address: `${body.baseAddress} ${body.detailAddress}`,
+      });
+      return ok(null);
+    },
+  ),
   http.get(HRM_ENDPOINTS.DEPARTMENTS_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load departments dropdown', 500);
-    return ok([
-      { key: 'dept-001', value: '영업팀' },
-      { key: 'dept-002', value: '구매팀' },
-    ]);
+    return ok(DEPARTMENTS);
   }),
   http.get(`${HRM_BASE_PATH}/:departmentId/positions/all`, ({ request }) => {
     if (shouldError(request)) return error('Failed to load positions dropdown', 500);
-    return ok([
-      { key: 'pos-001', value: '팀장' },
-      { key: 'pos-002', value: '사원' },
-    ]);
+    return ok(POSITIONS);
   }),
   http.get(HRM_ENDPOINTS.ATTENDANCE_STATUS_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load attendance status dropdown', 500);
@@ -342,9 +486,10 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.PAYROLL_STATUS_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load payroll status dropdown', 500);
+    // key 는 게이트웨이 enum PayrollStatus. 목록의 statusCode 필터로 그대로 간다(HrmController.java:349)
     return ok([
-      { key: 'PENDING', value: '대기' },
-      { key: 'PAID', value: '지급완료' },
+      { key: 'PAYROLL_UNPAID', value: '미지급' },
+      { key: 'PAYROLL_PAID', value: '지급완료' },
     ]);
   }),
   http.get(HRM_ENDPOINTS.TRAINING_CATE_DROPDOWN, ({ request }) => {
@@ -356,7 +501,7 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.PROGRAM_LIST_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load program dropdown', 500);
-    return ok([{ key: 'prog-001', value: '안전 교육' }]);
+    return ok(PROGRAMS);
   }),
   http.get(HRM_ENDPOINTS.PROGRAM_COMPLETION_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load program completion dropdown', 500);

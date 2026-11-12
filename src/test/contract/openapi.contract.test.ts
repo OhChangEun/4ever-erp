@@ -7,6 +7,7 @@ import openapiTS, { astToString } from 'openapi-typescript';
 import { getResponse } from 'msw';
 import { handlers } from '@/mocks/handlers';
 import { API_BASE_URL, WAREHOUSE_ENDPOINTS } from '@/app/types/api';
+import { applyAllMockWrites } from '@/test/mockApi';
 import { loadContract, type Contract } from './loadContract';
 
 /**
@@ -174,7 +175,8 @@ describe('OpenAPI 계약: 전 도메인', () => {
     expect(missing).toEqual([]);
   });
 
-  it('계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
+  /** 계약의 GET 전부를 목에 물어 스키마와 안 맞는 것을 모은다 */
+  const getFailures = async () => {
     const contract = loadContract();
     const gets = Object.keys(contract.paths).filter((p) => contract.paths[p].get);
     expect(gets.length).toBeGreaterThan(60);
@@ -184,7 +186,21 @@ describe('OpenAPI 계약: 전 도메인', () => {
       const result = responseSchema(contract, template, 'get').safeParse(await mockJson(url));
       if (!result.success) failures.push(`${template}: ${z.prettifyError(result.error)}`);
     }
-    expect(failures).toEqual([]);
+    return failures;
+  };
+
+  it('계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
+    expect(await getFailures()).toEqual([]);
+  });
+
+  // 목이 쓰기 결과를 따르게 카드. 새 행, 바뀐 상태, 수정한 필드가 든 응답도 계약 모양이어야 한다
+  it('쓰기를 전부 한 뒤에도 계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
+    await applyAllMockWrites();
+    // 쓰기가 실제로 반영됐는지부터 본다(구매 요청 2건 생성). 안 그러면 처음 상태를 또 검사할 뿐이다
+    expect(await mockJson(`${API_BASE_URL}/scm-pp/mm/purchase-requisitions`)).toMatchObject({
+      data: { page: { totalElements: 3 } },
+    });
+    expect(await getFailures()).toEqual([]);
   });
 });
 
