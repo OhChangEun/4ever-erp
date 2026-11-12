@@ -4,6 +4,7 @@
  *
  * 로그인별로 나눈다. 서버 목(`src/app/api/[...slug]/route.ts`)에는 프록시가 세션에서 꺼낸
  * `Authorization: Bearer ...` 가 붙어 오므로 그 값이 키다. 한 방문자가 전부 승인해도 다음 방문자는 처음 상태를 본다.
+ * 그 값은 세션 토큰 원문이 아니라 서버 목 어댑터(`src/server/serverMock.ts`)가 바꿔 넣은 해시다.
  * 브라우저 MSW 와 단위 테스트에는 그 헤더가 없어 저장소 하나를 같이 쓴다.
  * 데모 세션 JWT 는 계정, 역할, 발급 시각(초)으로 만들어져 같은 계정이 같은 초에 로그인하면 키가 같다.
  */
@@ -42,6 +43,23 @@ export const mockState = <T extends object>(init: () => T) => {
     bySession.set(session, created);
     return created;
   };
+};
+
+// shortcut: 한 로그인이 만든 행은 목록마다 50개까지만 기억하고 넘으면 오래된 것부터 버린다(목이 페이지를 자르지 않아 만든 행이 전부 한 응답에 실린다), 목이 페이지를 자르게 되면 상한을 올린다
+export const MAX_CREATED_ROWS = 50;
+
+/** 목록마다 지금까지 만든 행 수. 오래된 행을 버린 뒤에도 번호가 겹치지 않게 따로 센다 */
+const createdCounts = new WeakMap<object, number>();
+
+/**
+ * 새 행을 목록 끝에 붙인다. 생성 핸들러는 배열에 직접 push 하지 않고 이것만 쓴다(상한이 한 곳에 있다).
+ * `make` 는 세 자리 순번을 받는다. 기본 행이 001 이라 만든 행은 `first`(기본 2)부터 센다.
+ */
+export const addCreated = <T>(rows: T[], make: (serial: string) => T, first = 2) => {
+  const count = createdCounts.get(rows) ?? 0;
+  createdCounts.set(rows, count + 1);
+  rows.push(make(String(first + count).padStart(3, '0')));
+  if (rows.length > MAX_CREATED_ROWS) rows.shift();
 };
 
 /** 모든 로그인의 상태를 지운다. 단위 테스트는 테스트마다 부른다(vitest.setup.ts) */

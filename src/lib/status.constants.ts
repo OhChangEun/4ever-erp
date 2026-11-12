@@ -44,6 +44,8 @@ export const STATUS_COLOR_MAP: Partial<Record<string, string>> = {
 
   DELIVERING: 'bg-blue-100 text-blue-700 border-blue-300',
   IN_PRODUCTION: 'bg-orange-100 text-orange-700 border-orange-300',
+  // 출하 생산중 목록의 값 후보. 실서버가 어느 쪽을 주는지 확인하지 못해 둘 다 같은 글자와 색으로 받는다
+  PRODUCTION: 'bg-orange-100 text-orange-700 border-orange-300',
   MATERIAL_PREPARATION: 'bg-yellow-100 text-yellow-700 border-yellow-300',
   READY_TO_SHIP: 'bg-green-100 text-green-700 border-green-300',
 

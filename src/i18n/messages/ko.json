@@ -25,6 +25,7 @@
     "URGENT": "긴급",
     "MATERIAL_PREPARATION": "자재 준비 중",
     "IN_PRODUCTION": "생산중",
+    "PRODUCTION": "생산중",
     "READY_TO_SHIP": "출고 준비 완료",
     "READY_FOR_SHIPMENT": "출고 준비 완료",
     "DELIVERING": "배송중",

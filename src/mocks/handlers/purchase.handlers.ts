@@ -5,7 +5,7 @@ import {
 } from '@/app/(private)/purchase/api/purchase.endpoints';
 import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { ok, error, shouldError, pathSegment, makePage, stat, statResponse } from './utils';
 
 type Requisition = Schema<'PurchaseRequestListItem'>;
@@ -19,9 +19,10 @@ type ManagerInfo = Schema<'ManagerInfo'>;
 
 /**
  * 구매 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
- * 처리 뒤 상태 값: 구매 요청은 게이트웨이 설명(MmController.java:228)의 APPROVAL, REJECTED.
- * 발주서는 계약 enum 과 화면이 비교하는 값(APPROVAL 이면 배송 시작 버튼)의 APPROVAL, REJECTED, DELIVERING.
- * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인, verified=false)
+ * 처리 뒤 상태 값은 전부 verified=false 다. 게이트웨이는 구매 응답을 `ResponseEntity<Object>` 로 넘겨 타입이 있는 근거가 없다.
+ * 구매 요청 APPROVAL, REJECTED: 목록 요청의 파라미터 설명(MmController.java:228)에 나오는 값. 응답 필드 근거는 아니다.
+ * 발주서 APPROVAL, REJECTED, DELIVERING: FE 가 쓴 계약 enum 과 화면이 비교하는 값(APPROVAL 이면 배송 시작 버튼). 서버 근거 없음.
+ * 이미 처리된 건에 또 보내도 성공으로 답한다(실서버 동작 미확인)
  */
 export const purchaseState = mockState<{
   requisitionStatus: Map<string, string>;
@@ -55,14 +56,13 @@ const SEED_REQUISITION: Requisition = {
 
 /** 새 구매 요청 행. 요청자는 게이트웨이가 로그인에서 정하므로 목은 기본 행의 사람을 쓴다 */
 const addRequisition = (state: PurchaseState, totalAmount: number) => {
-  const serial = String(state.createdRequisitions.length + 2).padStart(3, '0');
-  state.createdRequisitions.push({
+  addCreated(state.createdRequisitions, (serial) => ({
     ...SEED_REQUISITION,
     purchaseRequisitionId: `pr-${serial}`,
     purchaseRequisitionNumber: `PR-2026-${serial}`,
     requestDate: toDateKey(new Date()),
     totalAmount,
-  });
+  }));
 };
 
 const SEED_SUPPLIER: SupplierInfo = {
@@ -324,8 +324,7 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to create supplier', 500);
       const state = purchaseState(request);
       const { supplierInfo, managerInfo } = await request.json();
-      const serial = String(state.createdSuppliers.length + 2).padStart(3, '0');
-      state.createdSuppliers.push({
+      addCreated(state.createdSuppliers, (serial) => ({
         supplierInfo: {
           ...supplierInfo,
           supplierDetailAddress: supplierInfo.supplierDetailAddress ?? null,
@@ -334,7 +333,7 @@ export const purchaseHandlers = [
           supplierStatusCode: 'ACTIVE',
         },
         managerInfo,
-      });
+      }));
       return ok(null);
     },
   ),

@@ -2864,8 +2864,11 @@ export interface components {
             dueDate: string;
             progress: number;
             totalAmount: number;
-            /** @constant */
-            statusCode: "PRODUCTION";
+            /**
+             * @description 실서버 값 미확인(verified=false). 팀 FE 타입은 PRODUCTION, 게이트웨이 옛 목 데이터(mockdata ImController.java:1004)와 주문 상태 설명(SdController.java:343)은 IN_PRODUCTION. 둘 다 받는다
+             * @enum {string}
+             */
+            statusCode: "PRODUCTION" | "IN_PRODUCTION";
         };
         ReadyToShipListResponse: {
             salesOrderId: string;
@@ -2876,8 +2879,11 @@ export interface components {
             productionCompletionDate: string;
             readyToShipDate: string;
             totalAmount: number;
-            /** @constant */
-            statusCode: "READT_TO_SHIP";
+            /**
+             * @description 실서버 값 미확인(verified=false). 예전 값 READT_TO_SHIP 은 팀 FE 타입의 오타였다(게이트웨이 사본에 없음). 게이트웨이 옛 목 데이터의 목록 값은 READY_TO_SHIP(mockdata ImController.java:1071), 상세와 주문 상태는 READY_FOR_SHIPMENT(:594, SdController.java:343). 둘 다 받는다
+             * @enum {string}
+             */
+            statusCode: "READY_TO_SHIP" | "READY_FOR_SHIPMENT";
         };
         ShippingDetailResponse: {
             salesOrderId: string;

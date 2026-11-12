@@ -195,7 +195,8 @@ describe('OpenAPI 계약: 전 도메인', () => {
 
   // 목이 쓰기 결과를 따르게 카드. 새 행, 바뀐 상태, 수정한 필드가 든 응답도 계약 모양이어야 한다
   it('쓰기를 전부 한 뒤에도 계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
-    await applyAllMockWrites();
+    const sent = await applyAllMockWrites();
+    expect(sent.filter((write) => !write.ok)).toEqual([]);
     // 쓰기가 실제로 반영됐는지부터 본다(구매 요청 2건 생성). 안 그러면 처음 상태를 또 검사할 뿐이다
     expect(await mockJson(`${API_BASE_URL}/scm-pp/mm/purchase-requisitions`)).toMatchObject({
       data: { page: { totalElements: 3 } },

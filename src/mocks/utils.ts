@@ -59,9 +59,18 @@ export const ok = <T>(data: T) =>
 export const okNoData = () => HttpResponse.json({ status: 200, success: true, message: 'OK' });
 export const error = (message = 'Mock error', status = 500) =>
   HttpResponse.json({ status, success: false, message }, { status });
-/** 주소 경로를 뒤에서 센 조각(1 이 마지막). RegExp 로 등록한 핸들러는 params 가 없어 주소에서 id 를 꺼낸다 */
-export const pathSegment = (request: Request, fromEnd: number) =>
-  new URL(request.url).pathname.split('/').at(-fromEnd) ?? '';
+/**
+ * 주소 경로를 뒤에서 센 조각(1 이 마지막). RegExp 로 등록한 핸들러는 params 가 없어 주소에서 id 를 꺼낸다.
+ * 끝 슬래시는 세지 않고 인코딩된 글자는 푼다(이름 붙은 경로 params 와 같게). 잘못된 인코딩이면 받은 글자 그대로
+ */
+export const pathSegment = (request: Request, fromEnd: number) => {
+  const segment = new URL(request.url).pathname.replace(/\/+$/, '').split('/').at(-fromEnd) ?? '';
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
 export const shouldError = (request: Request) => {
   const url = new URL(request.url);
   return (
