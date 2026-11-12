@@ -20,12 +20,10 @@ const MonthlyChart = dynamic(() => import('./MonthlyChart'), {
 /** 재무 현황 탭(시각화 4). 왼쪽 월별 매출, 매입, 순이익, 오른쪽 미수금 경과 */
 export default function FinanceOverview() {
   return (
-    // 탭 틀이 overflow-hidden 이라 여기서 세로 스크롤을 연다. 표로 보기 12행이 짧은 창에서 잘리지 않게(리뷰 P2)
-    <div className="flex-1 min-h-0 overflow-y-auto">
-      <div className="grid grid-cols-3 gap-6 py-4">
-        <Monthly />
-        <Aging />
-      </div>
+    // 세로 스크롤은 탭 내용 칸(TabNavigation)이 한다. 표로 보기 12행이 짧은 창에서 넘치면 그 칸이 스크롤된다
+    <div className="grid grid-cols-3 gap-6 py-4">
+      <Monthly />
+      <Aging />
     </div>
   );
 }

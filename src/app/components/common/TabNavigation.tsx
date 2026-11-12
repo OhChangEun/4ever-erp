@@ -70,8 +70,17 @@ export default function TabNavigation({ tabs, header }: TabNavigationProps) {
 
       {header && <div className="shrink-0">{header}</div>}
 
-      {/* 활성 탭 내용 */}
-      <div className="flex-1 min-h-0 mt-4 flex flex-col overflow-hidden">
+      {/* 활성 탭 내용. 이 칸이 스크롤 칸이다. 목록 탭은 최상위가 h-full 로 칸 높이를 받고 표가 flex-1 min-h-0
+          로 남은 높이에 맞춰 줄어 표 안에서 스크롤하고(이 칸은 안 넘친다), 차트나 카드 격자처럼 줄지 않는
+          내용은 여기서 스크롤된다. overflow-hidden 이면 넘친 내용을 볼 방법이 없다(카드 화면 아래가 잘리는 곳).
+          안에 포커스 받을 요소가 없는 탭도 키보드로 스크롤되게 포커스를 받는 이름 있는 영역으로 둔다.
+          ?tab= 이 없는 값이면 내용이 없으니 이름도 Tab 정지도 주지 않는다 */}
+      <div
+        role="region"
+        aria-label={activeTab?.name}
+        tabIndex={activeTab ? 0 : undefined}
+        className="flex-1 min-h-0 mt-4 flex flex-col overflow-auto"
+      >
         {ActiveComponent && <ActiveComponent />}
       </div>
     </div>
