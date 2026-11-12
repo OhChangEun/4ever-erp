@@ -28,13 +28,14 @@ export default function SubNavigation({ tabs, paramName = 'subTab' }: SubNavigat
 
   return (
     <div className="flex flex-col h-full">
-      {/* 네비게이션바 */}
-      <nav className="-mb-px border-b border-gray-200 flex space-x-6 shrink-0">
+      {/* 네비게이션바. 버튼의 -mb-px 로 활성 밑줄을 nav 의 회색 선 위에 겹쳐 한 겹으로 보이게 한다 */}
+      {/* nav 에 overflow(가로 스크롤 등)를 붙이면 내려온 밑줄 1px 이 잘린다. 그때는 회색 선을 바깥 div 로 옮기고 -mb-px 를 nav 에 둔다(TabNavigation 방식) */}
+      <nav className="border-b border-gray-200 flex space-x-6 shrink-0">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`group inline-flex items-center pt-2 pb-2 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap ${
+            className={`group inline-flex items-center pt-2 pb-2 px-1 -mb-px border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap ${
               currentTab === tab.id
                 ? 'border-blue-500 text-blue-500'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

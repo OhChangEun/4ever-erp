@@ -215,26 +215,23 @@ export default function LowStockList() {
         <i className="ri-arrow-left-line mr-1"></i>
         {t('back')}
       </Link>
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
-            <div className="flex items-center space-x-4">
-              <Dropdown
-                placeholder={t('allStatuses')}
-                items={LOW_STOCK_STATUS_OPTIONS.map((code) => ({
-                  key: code,
-                  value: t(`statusFilter.${code}`),
-                }))}
-                value={statusFilter}
-                onChange={(status: string) => setStatusFilter(status)}
-                autoSelectFirst
-              />
+      <div className="flex flex-col gap-6">
+        {/* 툴바. 이 화면은 탭이 없어 제목을 툴바 왼쪽에 둔다 */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+          <div className="flex items-center space-x-4">
+            <Dropdown
+              placeholder={t('allStatuses')}
+              items={LOW_STOCK_STATUS_OPTIONS.map((code) => ({
+                key: code,
+                value: t(`statusFilter.${code}`),
+              }))}
+              value={statusFilter}
+              onChange={(status: string) => setStatusFilter(status)}
+              autoSelectFirst
+            />
 
-              {canRequestPurchase && (
-                <Button label={t('orderSelected')} onClick={handleBulkOrder} />
-              )}
-            </div>
+            {canRequestPurchase && <Button label={t('orderSelected')} onClick={handleBulkOrder} />}
           </div>
         </div>
 

@@ -27,7 +27,6 @@
     "allStatuses": "All statuses"
   },
   "list": {
-    "title": "Inventory",
     "detailModalTitle": "Stock details",
     "searchPlaceholder": "Search",
     "warehouses": "Warehouses",
@@ -79,7 +78,6 @@
     "emptyHint": "Receipts and shipments will show up here."
   },
   "shipping": {
-    "title": "Shipping",
     "subTabs": {
       "producing": "In production",
       "readyToShip": "Ready to ship"
@@ -111,7 +109,6 @@
     "error": "Couldn't change the status. {message}"
   },
   "receiving": {
-    "title": "Receiving",
     "subTabs": {
       "pending": "Pending",
       "received": "Received"

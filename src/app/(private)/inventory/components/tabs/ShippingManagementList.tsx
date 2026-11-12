@@ -74,106 +74,96 @@ const ShippingManagementList = () => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="p-6 border-b border-gray-200 shrink-0">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{t('shipping.title')}</h2>
-        </div>
+    <div className="flex flex-col h-full gap-6 overflow-hidden">
+      <div className="flex self-start space-x-1 bg-gray-100 rounded-lg p-1 shrink-0">
+        {shippingStatusTabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setSelectedSubTab(tab.id);
+              setCurrentPage(1);
+            }}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
+              selectedSubTab === tab.id
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {tab.name} ({tab.count})
+          </button>
+        ))}
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 p-6 overflow-hidden">
-        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6 shrink-0">
-          {shippingStatusTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setSelectedSubTab(tab.id);
-                setCurrentPage(1);
-              }}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
-                selectedSubTab === tab.id
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.name} ({tab.count})
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-          {isProductionLoading || isReadyLoading ? (
-            <TableStatusBox type="loading" message={t('shipping.loading')} />
-          ) : isProductionError || isReadyError ? (
-            <TableStatusBox type="error" message={t('shipping.loadError')} />
-          ) : (
-            <Table
-              isStale={
-                selectedSubTab === 'producing' ? isProductionPlaceholder : isReadyPlaceholder
-              }
-              columns={[
-                { key: 'salesOrderNumber', label: t('shipping.columns.salesOrderNumber') },
-                { key: 'customerName', label: t('shipping.columns.customerName') },
-                {
-                  key: 'orderDate',
-                  label: t('shipping.columns.orderDate'),
-                  render: (_, row) => row.orderDate.slice(0, 10),
-                },
-                {
-                  key: 'dueDate',
-                  label: t('shipping.columns.dueDate'),
-                  render: (_, row) => row.dueDate.slice(0, 10),
-                },
-                {
-                  key: 'totalAmount',
-                  label: t('shipping.columns.totalAmount'),
-                  align: 'right',
-                  render: (_, row) => formatCurrency(row.totalAmount),
-                },
-                {
-                  key: 'statusCode',
-                  label: t('shipping.columns.statusCode'),
-                  render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
-                },
-                {
-                  key: 'action',
-                  label: t('shipping.columns.action'),
-                  align: 'right',
-                  render: (_, row) => (
-                    <Button
-                      label={t('common.detail')}
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-600 hover:bg-gray-100 px-2"
-                      onClick={() => {
-                        openModal(ShippingDetailModal, {
-                          width: '900px',
-                          title: t('shipping.detailModalTitle', { number: row.salesOrderNumber }),
-                          selectedOrderId: row.salesOrderId,
-                          selectedSubTab: selectedSubTab,
-                        });
-                      }}
-                    />
-                  ),
-                },
-              ]}
-              data={currentData}
-              keyExtractor={(row) => row.salesOrderId}
-              emptyMessage={t('shipping.empty')}
-              className="flex-1 min-h-0"
-            />
-          )}
-        </div>
-        {/* 페이지네이션 */}
-        {isCurrentError || isCurrentLoading ? null : (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalElements={pageInfo?.totalElements}
-            onPageChange={(page) => setCurrentPage(page)}
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        {isProductionLoading || isReadyLoading ? (
+          <TableStatusBox type="loading" message={t('shipping.loading')} />
+        ) : isProductionError || isReadyError ? (
+          <TableStatusBox type="error" message={t('shipping.loadError')} />
+        ) : (
+          <Table
+            isStale={selectedSubTab === 'producing' ? isProductionPlaceholder : isReadyPlaceholder}
+            columns={[
+              { key: 'salesOrderNumber', label: t('shipping.columns.salesOrderNumber') },
+              { key: 'customerName', label: t('shipping.columns.customerName') },
+              {
+                key: 'orderDate',
+                label: t('shipping.columns.orderDate'),
+                render: (_, row) => row.orderDate.slice(0, 10),
+              },
+              {
+                key: 'dueDate',
+                label: t('shipping.columns.dueDate'),
+                render: (_, row) => row.dueDate.slice(0, 10),
+              },
+              {
+                key: 'totalAmount',
+                label: t('shipping.columns.totalAmount'),
+                align: 'right',
+                render: (_, row) => formatCurrency(row.totalAmount),
+              },
+              {
+                key: 'statusCode',
+                label: t('shipping.columns.statusCode'),
+                render: (_, row) => <StatusLabel statusCode={row.statusCode} />,
+              },
+              {
+                key: 'action',
+                label: t('shipping.columns.action'),
+                align: 'right',
+                render: (_, row) => (
+                  <Button
+                    label={t('common.detail')}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-600 hover:bg-gray-100 px-2"
+                    onClick={() => {
+                      openModal(ShippingDetailModal, {
+                        width: '900px',
+                        title: t('shipping.detailModalTitle', { number: row.salesOrderNumber }),
+                        selectedOrderId: row.salesOrderId,
+                        selectedSubTab: selectedSubTab,
+                      });
+                    }}
+                  />
+                ),
+              },
+            ]}
+            data={currentData}
+            keyExtractor={(row) => row.salesOrderId}
+            emptyMessage={t('shipping.empty')}
+            className="flex-1 min-h-0"
           />
         )}
       </div>
+      {/* 페이지네이션 */}
+      {isCurrentError || isCurrentLoading ? null : (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={pageInfo?.totalElements}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 };

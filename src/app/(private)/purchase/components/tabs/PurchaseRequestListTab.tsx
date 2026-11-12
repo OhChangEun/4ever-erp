@@ -210,9 +210,9 @@ export default function PurchaseRequestListTab() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 필터 헤더 */}
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center shrink-0">
+    <div className="flex flex-col h-full gap-3">
+      {/* 필터 헤더. 아래 표가 위 테두리를 그리므로 아래 선을 두지 않는다 */}
+      <div className="flex justify-between items-center shrink-0">
         {/* <CalendarButton /> */}
         <DateRangePicker
           startDate={startDate}

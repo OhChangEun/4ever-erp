@@ -70,6 +70,7 @@ describe('재고 화면 영어(i18n 6)', () => {
     expect(await within(metrics).findByText('Total stock value')).toBeInTheDocument();
     expect(within(metrics).getByText('Shipped')).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Inventory' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Shipping' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Receiving' })).toBeInTheDocument();
   });
@@ -85,7 +86,8 @@ describe('재고 화면 영어(i18n 6)', () => {
 
   it('재고 목록의 표 머리, 버튼, 상태 필터, 부족 알림이 영어', async () => {
     renderWithProviders(<InventoryList />, { locale: 'en' });
-    expect(screen.getByRole('heading', { name: 'Inventory' })).toBeInTheDocument();
+    // 표 위 제목은 탭 이름(Inventory)과 겹쳐 지웠다(카드 표 테두리 한 겹). 탭 글자는 위 InventoryClient 테스트가 본다
+    expect(screen.queryByRole('heading', { name: 'Inventory' })).not.toBeInTheDocument();
     expect(await screen.findByRole('columnheader', { name: 'On hand' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add material' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Low stock alerts' })).toBeInTheDocument();
