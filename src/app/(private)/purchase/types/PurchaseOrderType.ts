@@ -17,8 +17,5 @@ export type PurchaseOrderListItem = Schema<'PurchaseOrderListItem'>;
 // 발주서 목록 응답
 export type PurchaseOrderListResponse = Schema<'PurchaseOrderListResponse'>;
 
-// 발주서 상세 품목
-export type PurchaseOrderDetailItem = Schema<'PurchaseOrderDetailItem'>;
-
 // 발주서 상세
 export type PurchaseOrderDetail = Schema<'PurchaseOrderDetail'>;

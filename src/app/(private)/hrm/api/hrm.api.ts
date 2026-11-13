@@ -14,10 +14,6 @@ import {
   type EmployeeUpdateRequest,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import {
-  type PositionDataResponse,
-  type PositionDetailResponse,
-} from '@/app/(private)/hrm/types/HrmPositionsApiType';
-import {
   type DepartmentsListResponse,
   type DepartmentsRequestBody,
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
@@ -63,20 +59,6 @@ export const fetchEmployeesList = async (
   const res = await axios.get<ApiResponse<EmployeeListResponse>>(`${HRM_ENDPOINTS.EMPLOYEE}`, {
     params,
   });
-  return res.data.data;
-};
-
-// 직급 목록 조회
-export const fetchPositionsList = async (): Promise<PositionDataResponse> => {
-  const res = await axios.get<ApiResponse<PositionDataResponse>>(`${HRM_ENDPOINTS.POSITIONS}`);
-  return res.data.data;
-};
-
-// 직급 상세 조회
-export const fetchPositionsDetail = async (positionId: string): Promise<PositionDetailResponse> => {
-  const res = await axios.get<ApiResponse<PositionDetailResponse>>(
-    `${HRM_ENDPOINTS.POSITION_DETAIL(positionId)}`,
-  );
   return res.data.data;
 };
 

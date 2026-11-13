@@ -6,7 +6,7 @@ import { useRole } from '@/app/hooks/useRole';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
-import { useRoleLabel } from '@/app/components/header/ProfileDropdown';
+import { useRoleLabel } from '@/app/components/header/roleLabel';
 import { logout } from '@/lib/auth/logout';
 import { useLocale, useTranslations } from 'next-intl';
 import { LOCALES } from '@/i18n/locale';

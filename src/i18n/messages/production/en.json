@@ -84,12 +84,6 @@
     "loadError": "Couldn't load data.",
     "empty": "No MPS data found."
   },
-  "mpsPreview": {
-    "empty": "No preview data.",
-    "summary": "Quote no.: {number} | Confirmed due date: {dueDate}",
-    "category": "Type",
-    "confirm": "Confirm MPS"
-  },
   "requirements": {
     "selectAll": "Select all net requirements",
     "convertedRow": "{name} already converted to a planned order (can't select)",

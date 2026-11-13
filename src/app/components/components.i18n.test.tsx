@@ -13,7 +13,7 @@ import { useSidebarStore } from '@/store/sidebarStore';
 import type { StatCardType } from '@/app/types/StatType';
 import type { NotificationData } from './header/types/NotificationApiType';
 import Sidebar from './sidebar/Sidebar';
-import Navigation from './header/Navigation';
+import SidebarNavigation from './sidebar/SidebarNavigation';
 import NotificationHeader from './header/Notification/NotificationHeader';
 import NotificationList from './header/Notification/NotificationList';
 import StatSection from './common/StatSection';
@@ -101,9 +101,9 @@ describe('공통 화면 영어(i18n 10)', () => {
     expect(screen.getByText('XX_USER')).toBeInTheDocument();
   });
 
-  it('헤더 메뉴: 역할에 따라 바뀐 이름도 영어', () => {
+  it('사이드바 메뉴: 역할에 따라 바뀐 이름도 영어(쓰지 않던 헤더 메뉴에서 옮김)', () => {
     loginAs('CUSTOMER_ADMIN');
-    renderWithProviders(<Navigation />, { locale: 'en' });
+    renderWithProviders(<SidebarNavigation isExpanded />, { locale: 'en' });
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Purchasing' })).toHaveAttribute('href', '/sales');
   });

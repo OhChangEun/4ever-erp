@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Sparkline } from '@everp/ui';
 import { type StatCardType } from '@/app/types/StatType';

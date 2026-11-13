@@ -2,7 +2,6 @@ import { fetchDepartmentsList } from '@/app/(private)/hrm/api/hrm.api';
 import { type DepartmentsData } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
 import { useTranslations } from 'next-intl';
 import { DepartmentDetailModal } from '../../../modals/DepartmentDetailModal';
 import { DepartmentEditModal } from '../../../modals/DepartmentEditModal';

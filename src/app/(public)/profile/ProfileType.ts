@@ -3,11 +3,6 @@ export interface EmploymentInfoProps {
   setIsEditing: (show: boolean) => void;
 }
 
-export interface ProfileHeaderProps {
-  isEditing: boolean;
-  setIsEditing: (show: boolean) => void;
-}
-
 export interface EditUserRequest {
   email?: string;
   phoneNumber: string;

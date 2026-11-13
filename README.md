@@ -136,7 +136,6 @@ const { options } = useDropdown('warehouses', fetchWarehouseOptions, 'include');
 **MPS (주생산일정, MpsTab)**
 
 - BOM 제품 드롭다운·날짜 범위 선택 시 주차별 수요·공급·재고·순소요 매트릭스 테이블 렌더링
-- 현재 주차 하이라이트, 수요 수량 셀 클릭 시 `MpsPreviewModal`로 상세 조회
 
 **MRP (자재소요계획, MrpTab → OrdersTab / PlannedOrdersTab)**
 
@@ -195,7 +194,7 @@ const { options } = useDropdown('warehouses', fetchWarehouseOptions, 'include');
 
 **근태 관리 (AttendanceTab / LeaveTab)**
 
-- 출퇴근 기록 조회 및 수정 (`AttendanceEditModal`)
+- 출퇴근 기록 조회
 - 휴가 신청 목록 조회, 관리자 휴가 승인 / 반려 (`postLeaveRelease` / `postLeaveReject`)
 
 **교육 관리 (EmployeeTrainingTab / AvailableProgramTab)**

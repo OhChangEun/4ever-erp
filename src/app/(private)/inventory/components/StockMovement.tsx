@@ -22,7 +22,7 @@ export default function StockMovement() {
   const stockMovementCount = stockMovementRes?.length ?? 0;
 
   return (
-    <div className="bg-white rounded-lg border border border-gray-200">
+    <div className="bg-white rounded-lg border border-gray-200">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">{t('stockMovement.title')}</h3>

@@ -29,10 +29,6 @@ export const departmentKeys = {
 export const positionKeys = {
   all: ['hrm', 'positions'] as const,
 
-  details: () => [...positionKeys.all, 'detail'] as const,
-
-  detail: (positionId: string) => [...positionKeys.details(), positionId] as const,
-
   dropdown: (departmentId: string) => [...positionKeys.all, 'dropdown', departmentId] as const,
 };
 

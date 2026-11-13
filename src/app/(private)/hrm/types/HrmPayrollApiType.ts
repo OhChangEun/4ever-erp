@@ -9,10 +9,6 @@ export interface PayrollRequestParams extends PageRequest {
   statusCode?: string;
 }
 
-export type EmployeeSummary = Schema<'HrmEmployeeSummary'>;
-
-export type PaySummary = Schema<'PaySummary'>;
-
 export type PayRollList = Schema<'PayRollList'>;
 
 export type PayRollListResponse = Schema<'PayRollListResponse'>;

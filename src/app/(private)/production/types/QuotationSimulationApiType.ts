@@ -1,9 +1,6 @@
 import type { Schema } from '@/lib/api/contract';
 import { type PageRequest } from '@/app/types/Page';
 
-// 시뮬레이션 정보
-export type SimulationData = Schema<'SimulationData'>;
-
 // 시뮬레이션 후 응답 데이터
 export type QuotationSimulationData = Schema<'QuotationSimulationData'>;
 

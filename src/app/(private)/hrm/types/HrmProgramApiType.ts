@@ -11,8 +11,6 @@ export interface ProgramRequestParams extends PageRequest {
   category?: string;
 }
 
-export type designatedEmployeeSummary = Schema<'designatedEmployeeSummary'>;
-
 export type ProgramDetailResponse = Schema<'ProgramDetailResponse'>;
 
 export type CreateProgramRequest = Schema<'CreateProgramRequest'>;

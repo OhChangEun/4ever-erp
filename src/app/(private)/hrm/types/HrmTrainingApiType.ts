@@ -1,8 +1,6 @@
 import type { Schema } from '@/lib/api/contract';
 import { type PageRequest } from '@/app/types/Page';
 
-export type TrainingListData = Schema<'TrainingListData'>;
-
 export type TrainingListResponse = Schema<'TrainingListResponse'>;
 
 export interface TrainingRequestParams extends PageRequest {

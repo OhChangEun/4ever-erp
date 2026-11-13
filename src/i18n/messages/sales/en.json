@@ -110,7 +110,6 @@
     "salesAmount": "Sales",
     "orderCount": "Orders",
     "week": "{month, select, 1 {Jan} 2 {Feb} 3 {Mar} 4 {Apr} 5 {May} 6 {Jun} 7 {Jul} 8 {Aug} 9 {Sep} 10 {Oct} 11 {Nov} 12 {Dec} other {{month}}} W{week}",
-    "money": "₩{million}M",
     "trendEmpty": "No sales trend data to show.",
     "productShareTitle": "Sales share by product",
     "share": "Share",
@@ -269,33 +268,5 @@
     "success": "Customer added.",
     "error": "Couldn't add the customer. {message}",
     "accountError": "The customer may already be registered. Check the customer list, then check the contact's account."
-  },
-  "newQuote": {
-    "title": "New quote",
-    "customerTitle": "Customer info",
-    "customerName": "Customer *",
-    "customerNamePlaceholder": "Enter the customer name",
-    "manager": "Contact",
-    "managerPlaceholder": "Enter the contact name",
-    "email": "Email",
-    "emailPlaceholder": "Enter an email",
-    "quoteTitle": "Quote info",
-    "quoteDate": "Quote date *",
-    "dueDate": "Requested due date",
-    "itemsTitle": "Quote items",
-    "addItem": "Add item",
-    "columns": {
-      "product": "Product",
-      "spec": "Specs",
-      "quantity": "Qty",
-      "unitPrice": "Unit price",
-      "amount": "Amount",
-      "action": "Actions"
-    },
-    "productPlaceholder": "Product",
-    "specPlaceholder": "Specs",
-    "total": "Quote total",
-    "submit": "Create quote",
-    "success": "Quote {number} created."
   }
 }

@@ -6,7 +6,7 @@ import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import TrainingDetailModal from '@/app/(private)/hrm/components/modals/TrainingDetailModal';
 import AddEmployeeTrainingModal from '@/app/(private)/hrm/components/modals/AddEmployeeTrainingModal';

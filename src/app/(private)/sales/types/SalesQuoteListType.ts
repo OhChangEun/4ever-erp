@@ -7,37 +7,7 @@ export type QuoteStatus = 'ALL' | 'APPROVED' | 'APPROVAL' | 'REVIEW' | 'PENDING'
 // 받는 쪽(QuoteStatus)과 달리 APPROVED 는 없다. 계약 값이 바뀌면 선택지가 tsc 에서 걸린다
 export type QuoteStatusFilter = NonNullable<QueryOf<'/business/sd/quotations'>['status']>;
 
-export interface QuoteItem {
-  product: string;
-  specification: string;
-  quantity: number;
-  unitPrice: number;
-}
-
 export type Quote = Schema<'Quote'>;
-
-export interface QuoteFormItem {
-  id: number;
-  product: string;
-  specification: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
-
-export interface QuoteFormData {
-  customer: string;
-  customerContact: string;
-  customerEmail: string;
-  quoteDate: string;
-  validUntil: string;
-  items: QuoteFormItem[];
-  totalAmount: number;
-  notes: string;
-  paymentTerms: string;
-  deliveryTerms: string;
-  warranty: string;
-}
 
 export interface QuoteQueryParams {
   startDate?: string;

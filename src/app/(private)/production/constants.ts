@@ -70,15 +70,3 @@ export const MRP_TABS: MrpSubTab[] = [
 
 // 가용 재고 상태 필터링
 export type AvailableStockStatus = 'ALL' | 'CHECKED' | 'UNCHECKED';
-
-// MES 상태 필터
-export type MesStatusCode = 'ALL' | 'WAITING' | 'IN_PROGRESS';
-
-export type ProductType =
-  'ALL' | 'DOOR_PANEL' | 'HOOD_PANEL' | 'FENDER_PANEL' | 'TRUNK_LID' | 'ROOF_PANEL';
-
-// MRP 순소요 상태 필터
-export type MrpOrderStatus = 'ALL' | 'SUFFICIENT' | 'INSUFFICIENT';
-
-// MRP 계획 주문 상태 필터
-export type MrpPlannedOrderStatus = 'ALL' | 'PENDING' | 'PLANNED' | 'APPROVED' | 'REJECTED';

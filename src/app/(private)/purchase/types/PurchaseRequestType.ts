@@ -14,9 +14,6 @@ export type PurchaseRequestListItem = Schema<'PurchaseRequestListItem'>;
 // 구매 요청 목록 응답
 export type PurchaseRequestListResponse = Schema<'PurchaseRequestListResponse'>;
 
-// 구매 요청 상세 품목
-export type PurchaseRequestDetailItem = Schema<'PurchaseRequestDetailItem'>;
-
 // 구매 요청 상세
 export type PurchaseRequestDetail = Schema<'PurchaseRequestDetail'>;
 
@@ -32,9 +29,6 @@ export interface PurchaseRequestFormItem {
   purpose: string;
   note?: string;
 }
-
-// 비재고성 구매 요청 등록 품목 (서버 전송용, id 제외)
-export type CreatePurchaseRequestItem = Schema<'CreatePurchaseRequestItem'>;
 
 // 비재고성 구매 요청 등록 바디
 export type CreatePurchaseRequestBody = Schema<'CreatePurchaseRequestBody'>;
