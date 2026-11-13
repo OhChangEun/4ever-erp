@@ -3,7 +3,8 @@ import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
 import { addCreated, mockState } from '../state';
-import { level, makePage, notFoundBody, periodStat, shouldError } from './utils';
+import { WAREHOUSES } from './seed';
+import { level, notFoundBody, paged, periodStat, shouldError } from './utils';
 
 /**
  * 창고 목. OpenAPI 계약(`openapi/everp.yaml`)에 묶인 `http` 로 쓴다(OpenAPI 계약 1 카드).
@@ -33,16 +34,8 @@ const MANAGER = {
   managerEmail: 'manager@everp.co.kr',
 };
 
-const SEED_WAREHOUSE: WarehouseRow = {
-  warehouseId: 'wh-001',
-  warehouseNumber: 'WH-001',
-  warehouseName: '1공장 창고',
-  statusCode: 'ACTIVE',
-  warehouseType: 'RAW',
-  location: '서울 강서구',
-  manager: MANAGER.managerName,
-  managerPhone: MANAGER.managerPhone,
-};
+/** 창고 씨앗 12곳(`seed.ts`, 재고 이동의 창고 선택과 같은 표). wh-001 은 예전 값 그대로 */
+const SEED_WAREHOUSE: WarehouseRow = WAREHOUSES[0];
 
 /** 수정 요청이 바꾸는 네 필드. 담당자는 목에 한 명뿐이라 그대로다 */
 const editedFields = (edit: WarehouseEdit | undefined) =>
@@ -56,7 +49,7 @@ const editedFields = (edit: WarehouseEdit | undefined) =>
 /** 창고 목록. 기본 행과 새 행에 수정한 값을 덮는다 */
 const warehousesOf = (request: Request) => {
   const state = warehouseState(request);
-  return [SEED_WAREHOUSE, ...state.created].map((row) => ({
+  return [...WAREHOUSES, ...state.created].map((row) => ({
     ...row,
     ...editedFields(state.edits.get(row.warehouseId)),
   }));
@@ -84,16 +77,10 @@ export const warehouseHandlers = [
       },
     });
   }),
-  http.get('/scm-pp/iv/warehouses', ({ request, query, response }) => {
+  http.get('/scm-pp/iv/warehouses', ({ request, response }) => {
     if (shouldError(request))
       return response('default').json(failure('Failed to load warehouse list'), { status: 500 });
-    const page = Number(query.get('page') ?? 0);
-    const size = Number(query.get('size') ?? 10);
-    const content = warehousesOf(request);
-    return response(200).json({
-      ...OK,
-      data: { content, page: makePage(page, size, content.length) },
-    });
+    return response(200).json({ ...OK, data: paged(request, warehousesOf(request)) });
   }),
   http.get('/scm-pp/iv/warehouses/{warehouseId}', ({ request, params, response }) => {
     if (shouldError(request))
@@ -127,14 +114,18 @@ export const warehouseHandlers = [
       return response('default').json(failure('Failed to add warehouse'), { status: 500 });
     const { created } = warehouseState(request);
     const body = await request.json();
-    addCreated(created, (serial) => ({
-      ...SEED_WAREHOUSE,
-      warehouseId: `wh-${serial}`,
-      warehouseNumber: `WH-${serial}`,
-      warehouseName: body.warehouseName,
-      warehouseType: body.warehouseType,
-      location: body.location,
-    }));
+    addCreated(
+      created,
+      (serial) => ({
+        ...SEED_WAREHOUSE,
+        warehouseId: `wh-${serial}`,
+        warehouseNumber: `WH-${serial}`,
+        warehouseName: body.warehouseName,
+        warehouseType: body.warehouseType,
+        location: body.location,
+      }),
+      WAREHOUSES.length + 1,
+    );
     return response(200).json(OK);
   }),
   http.get('/scm-pp/iv/warehouses/managers/toggle', ({ request, response }) => {

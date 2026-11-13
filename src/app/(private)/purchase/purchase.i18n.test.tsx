@@ -3,6 +3,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
 import { useAuthStore } from '@/store/authStore';
+import { formatNumber } from '@/app/utils/number';
+import { monthlyMetric } from '@/mocks/handlers/financeAnalytics.handlers';
 import PurchaseClient from './PurchaseClient';
 import PurchaseRequestListTab from './components/tabs/PurchaseRequestListTab';
 import SupplierListTab from './components/tabs/SupplierListTab';
@@ -18,6 +20,9 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/purchase',
 }));
 
+/** 발주 금액 카드의 주 값(재무 월별 손익 목의 이번 달 매입 7/30) */
+const weekPurchases = () => `₩${formatNumber(monthlyMetric('purchases').week)}`;
+
 const loginAs = (role: string) =>
   useAuthStore.getState().setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role });
 
@@ -32,22 +37,23 @@ describe('구매 화면 영어(i18n 5)', () => {
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Purchase requests')).toBeInTheDocument();
     expect(within(metrics).getByText('Purchase order amount')).toBeInTheDocument();
-    // 구매 요청은 목록 1건, 발주 금액은 재무 월별 손익의 이번 달 매입 6억 1,200만의 7/30(카드 "목 데이터 현실성")
-    expect(within(metrics).getByText('1')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩142,800,000')).toBeInTheDocument();
+    // 구매 요청은 목록 15건, 발주 금액은 재무 월별 손익의 이번 달 매입의 7/30(카드 "목 데이터 현실성").
+    // 매입은 이번 달 주문 합에서 나와 날마다 달라 목에서 꺼낸다(카드 "데모 데이터 채우기")
+    expect(within(metrics).getByText('15')).toBeInTheDocument();
+    expect(within(metrics).getByText(weekPurchases())).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Purchase requests' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Purchase orders' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Suppliers' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(구매 요청 1건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(구매 요청 15건)', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<PurchaseClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(within(metrics).getByText('구매 요청')).toBeInTheDocument();
-    expect(within(metrics).getByText('1건')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩142,800,000')).toBeInTheDocument();
+    expect(within(metrics).getByText('15건')).toBeInTheDocument();
+    expect(within(metrics).getByText(weekPurchases())).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '공급업체 관리' })).toBeInTheDocument();
   });
 
@@ -64,7 +70,7 @@ describe('구매 화면 영어(i18n 5)', () => {
     loginAs('MM_USER'); // 승인과 반려는 MM 과 ALL_ADMIN 에게만 보인다
     renderWithProviders(<PurchaseRequestListTab />, { locale: 'en' });
     expect(await screen.findByRole('columnheader', { name: 'Request no.' })).toBeInTheDocument();
-    expect(await screen.findByText('PR-2026-001')).toBeInTheDocument();
+    expect(await screen.findByText('PR-2026-015')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Reject' }).length).toBeGreaterThan(0);
     await userEvent.click(screen.getByRole('button', { name: 'New purchase request' }));
     const dialog = await screen.findByRole('dialog', { name: 'New purchase request' });

@@ -3,17 +3,26 @@ import {
   PURCHASE_BASE_PATH,
   PURCHASE_ENDPOINTS,
 } from '@/app/(private)/purchase/api/purchase.endpoints';
-import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { monthlyMetric } from './financeAnalytics.handlers';
+import {
+  ACTIVE_SUPPLIERS,
+  EMPLOYEES,
+  MATERIALS,
+  SUPPLIERS,
+  addDays,
+  departmentIdOf,
+  todayKey,
+} from './seed';
 import {
   ok,
   error,
   notFound,
   shouldError,
   pathSegment,
-  makePage,
+  paged,
+  newestFirst,
   flow,
   statResponse,
 } from './utils';
@@ -65,13 +74,21 @@ export const purchaseState = mockState<{
 }));
 type PurchaseState = ReturnType<typeof purchaseState>;
 
+/** 요청자(직원 목록의 사람)로 구매 요청 행의 요청자 칸을 채운다 */
+const requester = (name: string) => {
+  const person = EMPLOYEES.find((row) => row.name === name) ?? EMPLOYEES[0];
+  return {
+    requesterId: person.employeeId,
+    requesterName: person.name,
+    departmentId: departmentIdOf(person.department),
+    departmentName: person.department,
+  };
+};
+
 const SEED_REQUISITION: Requisition = {
   purchaseRequisitionId: 'pr-001',
   purchaseRequisitionNumber: 'PR-2026-001',
-  requesterId: 'emp-001',
-  requesterName: '홍길동',
-  departmentId: 'dept-001',
-  departmentName: '구매팀',
+  ...requester('홍길동'),
   statusCode: 'PENDING',
   requestDate: '2026-01-10',
   totalAmount: 4200000,
@@ -107,6 +124,99 @@ export const PURCHASE_ORDER_LINES = [
     totalPrice: 300000,
   },
 ];
+type PurchaseOrder = Schema<'PurchaseOrderListItem'>;
+type OrderLine = (typeof PURCHASE_ORDER_LINES)[number];
+/**
+ * 발주서 씨앗(카드 "데모 데이터 채우기"). po-001 은 예전 값 그대로(입고 대기 목록, 매입 전표가 같은 거래를 쓴다).
+ * po-002~015 는 2026-09-29 부터 사흘 간격, 공급사는 공급사 목록의 활성 공급사, 품목은 품목표의 자재 2~3줄.
+ * 오래된 발주는 입고 완료와 배송중, 최근은 승인과 대기가 많고 반려가 섞인다. 가장 최근(po-015)은 대기
+ */
+const PO_STATUSES: Array<PurchaseOrder['statusCode']> = [
+  'DELIVERED',
+  'DELIVERED',
+  'DELIVERED',
+  'REJECTED',
+  'DELIVERED',
+  'DELIVERING',
+  'DELIVERING',
+  'APPROVAL',
+  'REJECTED',
+  'APPROVAL',
+  'APPROVAL',
+  'PENDING',
+  'PENDING',
+  'PENDING',
+];
+const SEED_PURCHASE_ORDERS: Array<{ row: PurchaseOrder; supplierId: string; lines: OrderLine[] }> =
+  [
+    {
+      row: {
+        purchaseOrderId: 'po-001',
+        purchaseOrderNumber: 'PO-2026-001',
+        supplierName: '대양상사',
+        itemsSummary: '원자재 A 외 2건',
+        orderDate: '2026-01-08',
+        dueDate: '2026-01-30',
+        totalAmount: 4200000,
+        statusCode: 'PENDING',
+      },
+      supplierId: 'sup-001',
+      lines: PURCHASE_ORDER_LINES,
+    },
+    ...PO_STATUSES.map((statusCode, i) => {
+      const serial = String(i + 2).padStart(3, '0');
+      const supplier = ACTIVE_SUPPLIERS[i % ACTIVE_SUPPLIERS.length].supplierInfo;
+      const orderDate = addDays('2026-09-29', i * 3);
+      // 목록의 "외 N건" 이 늘 맞게 두세 줄
+      const lines = Array.from({ length: ((i + 1) % 2) + 2 }, (_, k) => {
+        const item = MATERIALS[(i * 3 + k + 5) % MATERIALS.length];
+        const quantity = 100 + ((i * 5 + k * 7) % 9) * 50;
+        return {
+          itemId: item.itemId,
+          itemName: item.itemName,
+          quantity,
+          uomName: 'EA',
+          unitPrice: item.unitPrice,
+          totalPrice: quantity * item.unitPrice,
+        };
+      });
+      return {
+        row: {
+          purchaseOrderId: `po-${serial}`,
+          purchaseOrderNumber: `PO-2026-${serial}`,
+          supplierName: supplier.supplierName,
+          itemsSummary: `${lines[0].itemName} 외 ${lines.length - 1}건`,
+          orderDate,
+          dueDate: addDays(orderDate, supplier.deliveryLeadTime + 7),
+          totalAmount: lines.reduce((sum, item) => sum + item.totalPrice, 0),
+          statusCode,
+        },
+        supplierId: supplier.supplierId,
+        lines,
+      };
+    }),
+  ];
+
+/** 발주서 목록. 바뀐 상태를 덮고 발주일 최신순 */
+const purchaseOrdersOf = (request: Request) => {
+  const { orderStatus } = purchaseState(request);
+  return SEED_PURCHASE_ORDERS.map(({ row }) => ({
+    ...row,
+    statusCode: orderStatus.get(row.purchaseOrderId) ?? row.statusCode,
+  })).sort(
+    newestFirst(
+      (row) => row.orderDate,
+      (row) => row.purchaseOrderId,
+    ),
+  );
+};
+
+/** 공급사 목록. 기본 공급사와 그 로그인이 등록한 공급사 */
+const suppliersOf = (request: Request) => [
+  ...SUPPLIERS,
+  ...purchaseState(request).createdSuppliers,
+];
+
 const SEED_REQUISITION_LINES: RequisitionLine[] = PURCHASE_ORDER_LINES.map((item, i) => ({
   itemId: i + 1,
   itemName: item.itemName,
@@ -116,6 +226,44 @@ const SEED_REQUISITION_LINES: RequisitionLine[] = PURCHASE_ORDER_LINES.map((item
   unitPrice: item.unitPrice,
   amount: item.totalPrice,
 }));
+
+/**
+ * 구매 요청 씨앗 pr-002~015(카드 "데모 데이터 채우기"). 2026-10-01 부터 사흘 간격, 요청자는 직원 목록, 품목은 품목표의 자재
+ * 1~3줄. 상태는 대기, 승인, 반려가 섞이고 가장 최근(pr-015)은 대기
+ */
+const PR_REQUESTERS = ['윤지호', '장하은', '권태호', '황민서', '임준서', '우진혁', '안재원'];
+const PR_STATUSES = ['APPROVAL', 'APPROVAL', 'REJECTED', 'PENDING', 'APPROVAL'];
+const SEED_REQUISITIONS: Array<{ row: Requisition; lines: RequisitionLine[] }> = [
+  { row: SEED_REQUISITION, lines: SEED_REQUISITION_LINES },
+  ...Array.from({ length: 14 }, (_, i) => {
+    const serial = String(i + 2).padStart(3, '0');
+    const requestDate = addDays('2026-10-01', i * 3);
+    const lines = Array.from({ length: (i % 3) + 1 }, (_, k) => {
+      const item = MATERIALS[(i * 2 + k) % MATERIALS.length];
+      const quantity = 50 + ((i * 7 + k * 3) % 10) * 25;
+      return {
+        itemId: k + 1,
+        itemName: item.itemName,
+        dueDate: addDays(requestDate, 14),
+        quantity,
+        uomCode: 'EA',
+        unitPrice: item.unitPrice,
+        amount: quantity * item.unitPrice,
+      };
+    });
+    return {
+      row: {
+        purchaseRequisitionId: `pr-${serial}`,
+        purchaseRequisitionNumber: `PR-2026-${serial}`,
+        ...requester(PR_REQUESTERS[i % PR_REQUESTERS.length]),
+        statusCode: i === 13 ? 'PENDING' : PR_STATUSES[i % PR_STATUSES.length],
+        requestDate,
+        totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
+      },
+      lines,
+    };
+  }),
+];
 
 /** 새 구매 요청 행. 요청자는 게이트웨이가 로그인에서 정하므로 목은 기본 행의 사람을 쓴다. 총액은 줄 금액 합 */
 const addRequisition = (state: PurchaseState, lines: RequisitionLine[]) => {
@@ -127,41 +275,30 @@ const addRequisition = (state: PurchaseState, lines: RequisitionLine[]) => {
         ...SEED_REQUISITION,
         purchaseRequisitionId: `pr-${serial}`,
         purchaseRequisitionNumber: `PR-2026-${serial}`,
-        requestDate: toDateKey(new Date()),
+        requestDate: todayKey(),
         totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
       };
     },
-    2,
+    SEED_REQUISITIONS.length + 1,
     // 상한으로 밀려난 요청의 줄도 같이 지운다(리뷰 A2)
     (dropped) => state.requisitionLines.delete(dropped.purchaseRequisitionId),
   );
 };
 
-/** 구매 요청 목록. 기본 행과 새 행에 바뀐 상태를 덮는다 */
+/** 구매 요청 목록. 기본 행과 새 행에 바뀐 상태를 덮는다. 요청일 최신순(새 요청은 오늘이라 맨 위) */
 const requisitionsOf = (request: Request) => {
   const state = purchaseState(request);
-  return [SEED_REQUISITION, ...state.createdRequisitions].map((row) => ({
-    ...row,
-    statusCode: state.requisitionStatus.get(row.purchaseRequisitionId) ?? row.statusCode,
-  }));
-};
-
-const SEED_SUPPLIER: SupplierInfo = {
-  supplierId: 'sup-001',
-  supplierName: '대양상사',
-  supplierNumber: 'SUP-001',
-  supplierEmail: 'supplier@everp.co.kr',
-  supplierPhone: '02-999-0000',
-  supplierBaseAddress: '부산광역시 사상구',
-  supplierDetailAddress: '2층',
-  supplierStatusCode: 'ACTIVE',
-  category: 'MATERIAL',
-  deliveryLeadTime: 5,
-};
-const SEED_MANAGER: ManagerInfo = {
-  managerName: '정공급',
-  managerPhone: '010-9999-0000',
-  managerEmail: 'manager@supplier.co.kr',
+  return [...SEED_REQUISITIONS.map(({ row }) => row), ...state.createdRequisitions]
+    .map((row) => ({
+      ...row,
+      statusCode: state.requisitionStatus.get(row.purchaseRequisitionId) ?? row.statusCode,
+    }))
+    .sort(
+      newestFirst(
+        (row) => row.requestDate,
+        (row) => row.purchaseRequisitionId,
+      ),
+    );
 };
 
 /** 수정 요청(평평한 본문)을 공급사 정보에 덮는다. 본문의 deliverLeadTime 은 계약의 철자 그대로다 */
@@ -190,8 +327,8 @@ const supplierManager = (state: PurchaseState, supplierId: string): ManagerInfo 
       managerEmail: edit.managerEmail,
     };
   return (
-    state.createdSuppliers.find((s) => s.supplierInfo.supplierId === supplierId)?.managerInfo ??
-    SEED_MANAGER
+    [...SUPPLIERS, ...state.createdSuppliers].find((s) => s.supplierInfo.supplierId === supplierId)
+      ?.managerInfo ?? SUPPLIERS[0].managerInfo
   );
 };
 
@@ -208,13 +345,12 @@ export const purchaseHandlers = [
   }),
   http.get(PURCHASE_ENDPOINTS.SUPPLIER_ORDERS_STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load supplier orders stats', 500);
-    // 주 값은 발주서 목록 행 수(목록은 늘 1행이고 쓰기로 행이 늘지 않는다)
-    return ok(statResponse({ orderCount: flow(1) }));
+    // 주 값은 발주서 목록 행 수(쓰기로 행이 늘지 않는다)
+    return ok(statResponse({ orderCount: flow(SEED_PURCHASE_ORDERS.length) }));
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase requisitions', 500);
-    const content = requisitionsOf(request);
-    return ok({ content, page: makePage(0, 10, content.length) });
+    return ok(paged(request, requisitionsOf(request)));
   }),
   http.post<PathParams, Schema<'CreatePurchaseRequestBody'>>(
     PURCHASE_ENDPOINTS.PURCHASE_REQUESTS,
@@ -276,7 +412,10 @@ export const purchaseHandlers = [
         departmentName: row.departmentName,
         requestDate: row.requestDate,
         statusCode: row.statusCode,
-        items: purchaseState(request).requisitionLines.get(prId) ?? SEED_REQUISITION_LINES,
+        items:
+          purchaseState(request).requisitionLines.get(prId) ??
+          SEED_REQUISITIONS.find(({ row: seed }) => seed.purchaseRequisitionId === prId)?.lines ??
+          SEED_REQUISITION_LINES,
         totalAmount: row.totalAmount,
       });
     },
@@ -308,21 +447,7 @@ export const purchaseHandlers = [
   ),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase orders', 500);
-    return ok({
-      content: [
-        {
-          purchaseOrderId: 'po-001',
-          purchaseOrderNumber: 'PO-2026-001',
-          supplierName: '대양상사',
-          itemsSummary: '원자재 A 외 2건',
-          orderDate: '2026-01-08',
-          dueDate: '2026-01-30',
-          totalAmount: 4200000,
-          statusCode: purchaseState(request).orderStatus.get('po-001') ?? 'PENDING',
-        },
-      ],
-      page: makePage(0, 10, 1),
-    });
+    return ok(paged(request, purchaseOrdersOf(request)));
   }),
   http.post<{ poId: string }>(
     `${PURCHASE_BASE_PATH}/purchase-orders/:poId/approve`,
@@ -359,22 +484,32 @@ export const purchaseHandlers = [
     `${PURCHASE_BASE_PATH}/purchase-orders/:purchaseId`,
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load purchase order detail', 500);
-      // 발주 목록은 po-001 한 행이다
-      if (params.purchaseId !== 'po-001') return notFound('발주서 상세 조회');
+      // 목록의 그 행에서 만든다. 목록에 없으면 404
+      const row = purchaseOrdersOf(request).find(
+        (order) => order.purchaseOrderId === params.purchaseId,
+      );
+      const seed = SEED_PURCHASE_ORDERS.find(
+        (order) => order.row.purchaseOrderId === params.purchaseId,
+      );
+      if (!row || !seed) return notFound('발주서 상세 조회');
+      const supplier = suppliersOf(request).find(
+        (s) => s.supplierInfo.supplierId === seed.supplierId,
+      );
+      // 공급사 상세와 같은 담당자
+      const manager = supplierManager(purchaseState(request), seed.supplierId);
       return ok({
-        statusCode: purchaseState(request).orderStatus.get(params.purchaseId) ?? 'PENDING',
-        dueDate: '2026-01-30',
+        statusCode: row.statusCode,
+        dueDate: row.dueDate,
         purchaseOrderId: params.purchaseId,
-        purchaseOrderNumber: 'PO-2026-001',
-        orderDate: '2026-01-08',
-        supplierId: 'sup-001',
-        supplierNumber: 'SUP-001',
-        supplierName: '대양상사',
-        // 공급사 상세와 같은 담당자
-        managerPhone: supplierManager(purchaseState(request), 'sup-001').managerPhone,
-        managerEmail: supplierManager(purchaseState(request), 'sup-001').managerEmail,
-        items: PURCHASE_ORDER_LINES,
-        totalAmount: 4200000,
+        purchaseOrderNumber: row.purchaseOrderNumber,
+        orderDate: row.orderDate,
+        supplierId: seed.supplierId,
+        supplierNumber: supplier?.supplierInfo.supplierNumber ?? '',
+        supplierName: row.supplierName,
+        managerPhone: manager.managerPhone,
+        managerEmail: manager.managerEmail,
+        items: seed.lines,
+        totalAmount: row.totalAmount,
         note: '납기 준수 요청',
       });
     },
@@ -382,13 +517,11 @@ export const purchaseHandlers = [
   http.get(PURCHASE_ENDPOINTS.SUPPLIER, ({ request }) => {
     if (shouldError(request)) return error('Failed to load suppliers', 500);
     const state = purchaseState(request);
-    const content = [SEED_SUPPLIER, ...state.createdSuppliers.map((s) => s.supplierInfo)].map(
-      (info) => {
-        const supplierInfo = editedSupplier(info, state.supplierEdits.get(info.supplierId));
-        return { statusCode: supplierInfo.supplierStatusCode, supplierInfo };
-      },
-    );
-    return ok({ content, page: makePage(0, 10, content.length) });
+    const content = suppliersOf(request).map(({ supplierInfo: info }) => {
+      const supplierInfo = editedSupplier(info, state.supplierEdits.get(info.supplierId));
+      return { statusCode: supplierInfo.supplierStatusCode, supplierInfo };
+    });
+    return ok(paged(request, content));
   }),
   http.get<{ supplierId: string }>(
     `${PURCHASE_BASE_PATH}/supplier/:supplierId`,
@@ -396,8 +529,9 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to load supplier detail', 500);
       const state = purchaseState(request);
       const { supplierId } = params;
-      const created = state.createdSuppliers.find((s) => s.supplierInfo.supplierId === supplierId);
-      const info = supplierId === SEED_SUPPLIER.supplierId ? SEED_SUPPLIER : created?.supplierInfo;
+      const info = suppliersOf(request).find(
+        (s) => s.supplierInfo.supplierId === supplierId,
+      )?.supplierInfo;
       // 목록(기본 공급사와 그 로그인이 등록한 공급사)에 없으면 404
       if (!info) return notFound('공급업체 상세 조회');
       return ok({
@@ -412,16 +546,20 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to create supplier', 500);
       const state = purchaseState(request);
       const { supplierInfo, managerInfo } = await request.json();
-      addCreated(state.createdSuppliers, (serial) => ({
-        supplierInfo: {
-          ...supplierInfo,
-          supplierDetailAddress: supplierInfo.supplierDetailAddress ?? null,
-          supplierId: `sup-${serial}`,
-          supplierNumber: `SUP-${serial}`,
-          supplierStatusCode: 'ACTIVE',
-        },
-        managerInfo,
-      }));
+      addCreated(
+        state.createdSuppliers,
+        (serial) => ({
+          supplierInfo: {
+            ...supplierInfo,
+            supplierDetailAddress: supplierInfo.supplierDetailAddress ?? null,
+            supplierId: `sup-${serial}`,
+            supplierNumber: `SUP-${serial}`,
+            supplierStatusCode: 'ACTIVE',
+          },
+          managerInfo,
+        }),
+        SUPPLIERS.length + 1,
+      );
       return ok(null);
     },
   ),

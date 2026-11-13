@@ -3,6 +3,7 @@ import { INVENTORY_BASE_PATH, INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/
 import type { Schema } from '@/lib/api/contract';
 import { mockState } from '../state';
 import { BEARING, MOTOR, WAREHOUSE_ITEMS, catalogItem, type CatalogItem } from './catalog';
+import { WAREHOUSES } from './seed';
 import {
   ok,
   okNoData,
@@ -349,9 +350,14 @@ export const inventoryHandlers = [
   http.get(INVENTORY_ENDPOINTS.WAREHOUSE_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load warehouse toggle', 500);
     return ok({
-      warehouses: [
-        { warehouseId: 'wh-001', warehouseName: '1공장 창고', warehouseNumber: 'WH-001' },
-      ],
+      // 창고 목록과 같은 표의 운영중 창고(`seed.ts`)
+      warehouses: WAREHOUSES.filter((row) => row.statusCode === 'ACTIVE').map(
+        ({ warehouseId, warehouseName, warehouseNumber }) => ({
+          warehouseId,
+          warehouseName,
+          warehouseNumber,
+        }),
+      ),
     });
   }),
   http.post(INVENTORY_ENDPOINTS.ADD_MATERIALS, ({ request }) => {

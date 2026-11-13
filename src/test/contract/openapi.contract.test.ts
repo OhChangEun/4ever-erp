@@ -242,9 +242,9 @@ describe('OpenAPI 계약: 전 도메인', () => {
   it('쓰기를 전부 한 뒤에도 계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
     const sent = await applyAllMockWrites();
     expect(sent.filter((write) => !write.ok)).toEqual([]);
-    // 쓰기가 실제로 반영됐는지부터 본다(구매 요청 2건 생성). 안 그러면 처음 상태를 또 검사할 뿐이다
+    // 쓰기가 실제로 반영됐는지부터 본다(기본 15건에 구매 요청 2건 생성). 안 그러면 처음 상태를 또 검사할 뿐이다
     expect(await mockJson(`${API_BASE_URL}/scm-pp/mm/purchase-requisitions`)).toMatchObject({
-      data: { page: { totalElements: 3 } },
+      data: { page: { totalElements: 17 } },
     });
     // 출고 준비 목록의 유일한 행(so-002)은 배송 시작 쓰기로 목록에서 빠진다
     expect(await getFailures(['/scm-pp/sales-orders/ready-to-ship/{itemId}'])).toEqual([]);

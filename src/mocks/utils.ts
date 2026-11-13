@@ -75,6 +75,26 @@ export const makePage = (page = 0, size = 10, totalElements = 2) => {
   };
 };
 
+/**
+ * 목록 한 쪽(카드 "데모 데이터 채우기"). 요청의 page(0부터), size(기본 10)로 자른다.
+ * 예전 목은 자르지 않아 총 건수만 늘고 2쪽이 1쪽과 같은 행을 보였다
+ */
+export const paged = <T>(request: Request, rows: T[]) => {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page') ?? 0);
+  const size = Number(url.searchParams.get('size') ?? 10);
+  return {
+    content: rows.slice(page * size, page * size + size),
+    page: makePage(page, size, rows.length),
+  };
+};
+
+/** 거래 목록 정렬: 날짜 최신순, 같은 날이면 id 내림차순. 오늘 만든 행이 1쪽 맨 위에 온다 */
+export const newestFirst =
+  <T>(date: (row: T) => string, id: (row: T) => string) =>
+  (a: T, b: T) =>
+    date(b).localeCompare(date(a)) || id(b).localeCompare(id(a));
+
 export const ok = <T>(data: T) =>
   HttpResponse.json({ status: 200, success: true, message: 'OK', data });
 export const okNoData = () => HttpResponse.json({ status: 200, success: true, message: 'OK' });

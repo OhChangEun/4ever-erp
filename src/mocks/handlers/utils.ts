@@ -14,6 +14,8 @@ import {
   periodStat,
   statResponse,
   makePage,
+  paged,
+  newestFirst,
 } from '../utils';
 
 export type { Metric } from '../utils';
@@ -90,6 +92,8 @@ export {
   periodStat,
   statResponse,
   makePage,
+  paged,
+  newestFirst,
   ok,
   okNoData,
   error,

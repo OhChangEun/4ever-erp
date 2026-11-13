@@ -13,11 +13,24 @@ interface CustomerPatchBody {
   note: string;
 }
 import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
-import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { BEARING, MOTOR, line } from './catalog';
-import { monthlyMetric } from './financeAnalytics.handlers';
+import { MOTOR, catalogItem, type line } from './catalog';
+import { stockOf } from './inventory.handlers';
+import {
+  CUSTOMERS,
+  QUOTES,
+  addDays,
+  monthStart,
+  mondayOf,
+  orderTotals,
+  seedOrders,
+  todayKey,
+  type Customer,
+  type CustomerExtra,
+  type Order,
+  type Quote,
+} from './seed';
 import {
   ok,
   okNoData,
@@ -25,27 +38,14 @@ import {
   notFound,
   shouldError,
   isoNow,
-  makePage,
+  paged,
+  newestFirst,
   flow,
-  hashUnit,
   statResponse,
+  type Metric,
 } from './utils';
 
-type Quote = Schema<'Quote'>;
-type Order = Schema<'Order'>;
-type Customer = Schema<'SalesCustomer'>;
 type Line = ReturnType<typeof line>;
-/** 고객 상세에만 있는 칸. 목록 행(Customer)에 없다 */
-type CustomerExtra = Pick<
-  CustomerPatchBody,
-  | 'ceoName'
-  | 'businessNumber'
-  | 'customerPhone'
-  | 'customerEmail'
-  | 'baseAddress'
-  | 'detailAddress'
-  | 'note'
->;
 
 /**
  * 영업 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`).
@@ -75,78 +75,11 @@ const salesState = mockState<{
   customerExtras: new Map(),
 }));
 
-const mockOrders: Order[] = [
-  {
-    salesOrderId: 'so-001',
-    salesOrderNumber: 'SO-2026-001',
-    customerName: '한빛전자',
-    manager: {
-      managerName: '김영업',
-      managerPhone: '010-1111-2222',
-      managerEmail: 'sales@everp.co.kr',
-    },
-    orderDate: '2026-01-12',
-    dueDate: '2026-02-05',
-    totalAmount: 8600000,
-    statusCode: 'IN_PRODUCTION',
-  },
-];
+/** 기본 견적(qt-001~016)과 기본 주문의 품목 줄. 줄 금액 합이 목록의 총액이다 */
+const seedLines = (rowId: string) =>
+  QUOTES.find(({ quote }) => quote.quotationId === rowId)?.lines ??
+  seedOrders().find(({ order }) => order.salesOrderId === rowId)?.lines;
 
-// 계약 견적 목록 status enum 의 상태마다 한 행. 데모에서 어느 필터를 골라도 표가 비지 않는다
-const mockQuotes: Quote[] = [
-  {
-    quotationId: 'qt-001',
-    quotationNumber: 'QT-2026-001',
-    customerName: '한빛전자',
-    managerName: '김영업',
-    quotationDate: '2026-01-10',
-    dueDate: '2026-02-01',
-    totalAmount: 12500000,
-    statusCode: 'APPROVAL',
-  },
-  {
-    quotationId: 'qt-002',
-    quotationNumber: 'QT-2026-002',
-    customerName: '대성기계',
-    managerName: '이영업',
-    quotationDate: '2026-01-14',
-    dueDate: '2026-02-10',
-    totalAmount: 4300000,
-    statusCode: 'PENDING',
-  },
-  {
-    quotationId: 'qt-003',
-    quotationNumber: 'QT-2026-003',
-    customerName: '서진산업',
-    managerName: '김영업',
-    quotationDate: '2026-01-18',
-    dueDate: '2026-02-15',
-    totalAmount: 7800000,
-    statusCode: 'REVIEW',
-  },
-  {
-    quotationId: 'qt-004',
-    quotationNumber: 'QT-2026-004',
-    customerName: '한빛전자',
-    managerName: '박영업',
-    quotationDate: '2026-01-20',
-    dueDate: '2026-02-20',
-    totalAmount: 2100000,
-    statusCode: 'REJECTED',
-  },
-];
-
-/**
- * 기본 견적과 주문의 품목 줄. 줄 금액 합이 목록의 총액이다(카드 "목 데이터 현실성").
- * 단가는 품목표 값이고 총액을 바꾸지 않으려고 수량을 맞췄다
- */
-const SEED_LINES: Partial<Record<string, Line[]>> = {
-  'qt-001': [line(MOTOR, 875), line(BEARING, 250)],
-  'qt-002': [line(MOTOR, 225), line(BEARING, 200)],
-  'qt-003': [line(MOTOR, 450), line(BEARING, 300)],
-  'qt-004': [line(MOTOR, 125), line(BEARING, 75)],
-  'so-001': [line(MOTOR, 550), line(BEARING, 250)],
-};
 /**
  * 목록에서 찾은 견적이나 주문의 줄. 행을 못 찾았으면(모르는 id, 상한으로 밀려난 새 행) 저장된 줄을 쓰지 않고
  * fallback(기본 행)의 줄을 준다. 그 상세는 기본 행의 총액을 쓰므로 줄과 총액이 같은 행에서 나온다(리뷰 A2)
@@ -158,93 +91,98 @@ const linesOf = (
 ): Line[] =>
   (rowId === undefined
     ? undefined
-    : (salesState(request).createdLines.get(rowId) ?? SEED_LINES[rowId])) ??
-  SEED_LINES[fallback] ??
+    : (salesState(request).createdLines.get(rowId) ?? seedLines(rowId))) ??
+  seedLines(fallback) ??
   [];
 
-/** 견적 상세의 대표자. 고객 목록에 있는 한빛전자 말고는 견적에만 나오는 고객이다 */
-const CEO_BY_CUSTOMER: Partial<Record<string, string>> = {
-  한빛전자: '박대표',
-  대성기계: '김대표',
-  서진산업: '정대표',
-};
+const byQuoteDate = newestFirst<Quote>(
+  (quote) => quote.quotationDate,
+  (quote) => quote.quotationId,
+);
+const byOrderDate = newestFirst<Order>(
+  (order) => order.orderDate,
+  (order) => order.salesOrderId,
+);
 
-/** 기본 견적과 새로 만든 견적에 바뀐 상태를 덮은 목록 */
+/** 기본 견적과 새로 만든 견적에 바뀐 상태를 덮은 목록. 견적일 최신순(새 견적은 오늘이라 맨 위) */
 const quotesOf = (request: Request) => {
   const state = salesState(request);
-  return [...mockQuotes, ...state.createdQuotes].map((quote) => ({
-    ...quote,
-    statusCode: state.quoteStatus.get(quote.quotationId) ?? quote.statusCode,
-  }));
+  return [...QUOTES.map(({ quote }) => quote), ...state.createdQuotes]
+    .map((quote) => ({
+      ...quote,
+      statusCode: state.quoteStatus.get(quote.quotationId) ?? quote.statusCode,
+    }))
+    .sort(byQuoteDate);
 };
 
-const ordersOf = (request: Request) => [...mockOrders, ...salesState(request).createdOrders];
+/** 기본 주문(주마다 만든 것)과 즉시 납품으로 만든 주문. 주문일 최신순 */
+const ordersOf = (request: Request) =>
+  [...seedOrders().map(({ order }) => order), ...salesState(request).createdOrders].sort(
+    byOrderDate,
+  );
 
-const SEED_CUSTOMER: Customer = {
-  customerId: 'cus-001',
-  customerNumber: 'CUS-001',
-  customerName: '한빛전자',
-  manager: {
-    managerName: '김영업',
-    managerPhone: '010-1111-2222',
-    managerEmail: 'sales@everp.co.kr',
-  },
-  address: '서울특별시 강서구 공항대로 10',
-  totalTransactionAmount: 25000000,
-  orderCount: 14,
-  lastOrderDate: '2026-01-20',
-  statusCode: 'ACTIVE',
-};
-const SEED_CUSTOMER_EXTRA: CustomerExtra = {
-  ceoName: '박대표',
-  businessNumber: '123-45-67890',
-  customerPhone: '02-222-3333',
-  customerEmail: 'contact@hanbit.co.kr',
-  baseAddress: '서울특별시 강서구 공항대로 10',
-  detailAddress: '5층',
-  note: '중요 고객',
-};
-
-/** 고객 목록. 기본 고객과 새 고객에 수정한 이름, 상태, 담당자를 덮는다 */
-const customersOf = (request: Request) => {
-  const state = salesState(request);
-  return [SEED_CUSTOMER, ...state.createdCustomers].map((customer) => {
-    const edit = state.customerEdits.get(customer.customerId);
-    return {
-      ...customer,
-      customerName: edit?.customerName ?? customer.customerName,
-      statusCode: edit?.statusCode ?? customer.statusCode,
-      manager: {
-        managerName: edit?.manager?.name ?? customer.manager.managerName,
-        managerPhone: edit?.manager?.mobile ?? customer.manager.managerPhone,
-        managerEmail: edit?.manager?.email ?? customer.manager.managerEmail,
-      },
-    };
-  });
-};
+/** 기본 고객의 상세 칸(씨앗) */
+const seedExtra = (customerId: string) =>
+  CUSTOMERS.find(({ customer }) => customer.customerId === customerId)?.extra;
 
 /**
- * 매출 분석(카드 "목 데이터 현실성"). 요청 기간의 주(월요일 시작)마다 한 점이다. 점의 연, 월은 그 주 월요일과 시작일 중
- * 늦은 날의 것이고 주 번호는 그 달 안에서 센다. 값은 주의 날짜로 정해져(난수 없음) 같은 요청에 늘 같다.
- * 제품 비중과 주요 고객은 추이 매출 합을 나눈다. 기간이 없으면 끝은 오늘, 시작은 그 달 1일(verified=false, 서버 기본값 모름)
+ * 고객 목록. 기본 고객과 새 고객에 수정한 이름, 상태, 담당자를 덮는다.
+ * 주문 수, 거래 금액, 마지막 주문일은 그 로그인의 주문 목록에서 원래 이름으로 센다
  */
-const ANALYTICS_PRODUCTS = [
-  { productCode: MOTOR.itemNumber, productName: MOTOR.itemName, weight: 5 },
-  { productCode: BEARING.itemNumber, productName: BEARING.itemName, weight: 3 },
-  { productCode: 'PRD-003', productName: '밸브 C', weight: 2 },
-];
-const ANALYTICS_CUSTOMERS = [
-  {
-    customerNumber: SEED_CUSTOMER.customerNumber,
-    customerName: SEED_CUSTOMER.customerName,
-    weight: 5,
-  },
-  { customerNumber: 'CUS-002', customerName: '대성기계', weight: 3 },
-  { customerNumber: 'CUS-003', customerName: '서진산업', weight: 2 },
-];
-const DAY = 86_400_000;
-const utcDate = (key: string) => new Date(`${key}T00:00:00Z`);
-const dateKey = (date: Date) => date.toISOString().slice(0, 10);
+const customersOf = (request: Request) => {
+  const state = salesState(request);
+  const orders = ordersOf(request);
+  return [...CUSTOMERS.map(({ customer }) => customer), ...state.createdCustomers].map(
+    (customer) => {
+      const edit = state.customerEdits.get(customer.customerId);
+      const own = orders.filter((order) => order.customerName === customer.customerName);
+      return {
+        ...customer,
+        customerName: edit?.customerName ?? customer.customerName,
+        statusCode: edit?.statusCode ?? customer.statusCode,
+        manager: {
+          managerName: edit?.manager?.name ?? customer.manager.managerName,
+          managerPhone: edit?.manager?.mobile ?? customer.manager.managerPhone,
+          managerEmail: edit?.manager?.email ?? customer.manager.managerEmail,
+        },
+        orderCount: own.length,
+        totalTransactionAmount: own.reduce((sum, order) => sum + order.totalAmount, 0),
+        // 최신순이라 첫 주문이 마지막 주문
+        lastOrderDate: own[0]?.orderDate ?? '',
+      };
+    },
+  );
+};
+
+/** 고객 상세 칸. 새 고객은 등록할 때 적은 값, 기본 고객은 씨앗 */
+const extraOf = (request: Request, customerId: string) =>
+  salesState(request).customerExtras.get(customerId) ?? seedExtra(customerId);
+
+/**
+ * 영업 통계(카드 "데모 데이터 채우기" 결정 5). 신규 주문과 매출은 그 로그인의 주문 목록에서 센다.
+ * 주는 이번 주 월요일~오늘(매출 분석의 마지막 점과 같은 창), 월은 이번 달, 분기는 최근 3달, 연은 최근 12달
+ * (재무 월별 손익의 분기, 연 규칙과 같다)
+ */
+const salesStats = (request: Request) => {
+  const today = todayKey();
+  const orders = ordersOf(request);
+  const windows = {
+    week: orderTotals(orders, mondayOf(today), today),
+    month: orderTotals(orders, monthStart(today), today),
+    quarter: orderTotals(orders, monthStart(today, 2), today),
+    year: orderTotals(orders, monthStart(today, 11), today),
+  };
+  const metric = (pick: (totals: { count: number; amount: number }) => number): Metric => ({
+    week: pick(windows.week),
+    month: pick(windows.month),
+    quarter: pick(windows.quarter),
+    year: pick(windows.year),
+  });
+  return statResponse({
+    sales_amount: metric((totals) => totals.amount),
+    new_orders_count: metric((totals) => totals.count),
+  });
+};
 
 /** 합 total 을 가중치대로 나눈다. 반올림 나머지는 첫 칸에 몰아 합이 total 과 같다 */
 const split = (total: number, weights: number[]) => {
@@ -254,58 +192,76 @@ const split = (total: number, weights: number[]) => {
   return parts;
 };
 
-const salesAnalytics = (startDate: string | null, endDate: string | null) => {
-  const end = endDate ?? dateKey(new Date());
-  const start = startDate ?? `${end.slice(0, 8)}01`;
+/**
+ * 매출 분석(카드 "목 데이터 현실성", "데모 데이터 채우기"). 요청 기간의 주(월요일 시작)마다 한 점이고 값은 그 로그인의
+ * 주문 목록에서 그 주와 기간이 겹치는 날의 주문을 센다. 점의 연, 월은 그 주 월요일과 시작일 중 늦은 날의 것이고
+ * 주 번호는 그 달 안에서 센다. 제품 비중과 주요 고객은 같은 주문의 품목 줄과 고객을 나눈다.
+ * 기간이 없으면 끝은 오늘, 시작은 그 달 1일(verified=false, 서버 기본값 모름)
+ */
+const salesAnalytics = (request: Request, startDate: string | null, endDate: string | null) => {
+  const end = endDate ?? todayKey();
+  const start = startDate ?? monthStart(end);
+  const orders = ordersOf(request).filter(
+    (order) => order.orderDate >= start && order.orderDate <= end,
+  );
   // 시작이 끝보다 늦으면 같은 주여도 점이 없다(리뷰 A1. 카드 결정 5)
-  const last = start > end ? Number.NEGATIVE_INFINITY : utcDate(end).getTime();
-  const firstMonday = utcDate(start).getTime() - ((utcDate(start).getUTCDay() + 6) % 7) * DAY;
   const weekInMonth = new Map<string, number>();
   const trend = [];
-  for (let monday = firstMonday; monday <= last; monday += 7 * DAY) {
-    const at = new Date(Math.max(monday, utcDate(start).getTime()));
-    const month = dateKey(at).slice(0, 7);
+  const firstMonday = mondayOf(start);
+  for (let monday = firstMonday; start <= end && monday <= end; monday = addDays(monday, 7)) {
+    const at = monday > start ? monday : start;
+    const month = at.slice(0, 7);
     const week = (weekInMonth.get(month) ?? 0) + 1;
     weekInMonth.set(month, week);
-    const seed = hashUnit(dateKey(new Date(monday)));
+    const totals = orderTotals(orders, at, addDays(monday, 6));
     trend.push({
-      year: at.getUTCFullYear(),
-      month: at.getUTCMonth() + 1,
+      year: Number(at.slice(0, 4)),
+      month: Number(at.slice(5, 7)),
       week,
-      sale: Math.round((150_000_000 + seed * 110_000_000) / 10_000) * 10_000,
-      orderCount: 8 + Math.floor(seed * 13),
+      sale: totals.amount,
+      orderCount: totals.count,
     });
   }
   const totalSale = trend.reduce((sum, point) => sum + point.sale, 0);
-  const totalOrders = trend.reduce((sum, point) => sum + point.orderCount, 0);
-  const productSales = split(
-    totalSale,
-    ANALYTICS_PRODUCTS.map((product) => product.weight),
-  );
-  const shares = split(
-    100,
-    ANALYTICS_PRODUCTS.map((product) => product.weight),
-  );
-  const customerSales = split(
-    totalSale,
-    ANALYTICS_CUSTOMERS.map((customer) => customer.weight),
-  );
-  const customerOrders = split(
-    totalOrders,
-    ANALYTICS_CUSTOMERS.map((customer) => customer.weight),
-  );
   const range = (values: number[]) => ({
     min: values.length ? Math.min(...values) : 0,
     max: values.length ? Math.max(...values) : 0,
   });
-  const lastMonday = firstMonday + (trend.length - 1) * 7 * DAY;
+  const lastMonday = addDays(firstMonday, (trend.length - 1) * 7);
+  // 제품별 금액(품목 줄 합)과 고객별 건수, 금액
+  const products = new Map<string, { productCode: string; productName: string; sale: number }>();
+  const customers = new Map<string, { orderCount: number; sale: number }>();
+  for (const order of orders) {
+    for (const item of linesOf(request, order.salesOrderId, 'so-001')) {
+      const code = catalogItem(item.itemId)?.itemNumber ?? item.itemId;
+      const product = products.get(code) ?? {
+        productCode: code,
+        productName: item.itemName,
+        sale: 0,
+      };
+      products.set(code, { ...product, sale: product.sale + item.amount });
+    }
+    const customer = customers.get(order.customerName) ?? { orderCount: 0, sale: 0 };
+    customers.set(order.customerName, {
+      orderCount: customer.orderCount + 1,
+      sale: customer.sale + order.totalAmount,
+    });
+  }
+  const productList = [...products.values()].sort((a, b) => b.sale - a.sale);
+  const shares =
+    totalSale > 0
+      ? split(
+          100,
+          productList.map((product) => product.sale),
+        )
+      : [];
   return {
     period: {
       start,
       end,
       // 점이 없으면 주 범위도 요청 기간 그대로
-      weekStart: trend.length ? dateKey(new Date(firstMonday)) : start,
-      weekEnd: trend.length ? dateKey(new Date(lastMonday + 6 * DAY)) : end,
+      weekStart: trend.length ? firstMonday : start,
+      weekEnd: trend.length ? addDays(lastMonday, 6) : end,
       weekCount: trend.length,
     },
     trend,
@@ -313,37 +269,32 @@ const salesAnalytics = (startDate: string | null, endDate: string | null) => {
       sale: range(trend.map((point) => point.sale)),
       orderCount: range(trend.map((point) => point.orderCount)),
     },
-    // 기간에 점이 없으면 나눌 매출이 없어 비중과 고객도 비운다
-    productShare: trend.length
-      ? ANALYTICS_PRODUCTS.map(({ productCode, productName }, i) => ({
-          productCode,
-          productName,
-          sale: productSales[i],
-          saleShare: shares[i],
-        }))
-      : [],
-    topCustomers: trend.length
-      ? ANALYTICS_CUSTOMERS.map(({ customerNumber, customerName }, i) => ({
-          customerNumber,
-          customerName,
-          orderCount: customerOrders[i],
-          sale: customerSales[i],
-          active: true,
-        }))
-      : [],
+    // 기간에 매출이 없으면 나눌 것이 없어 비중과 고객도 비운다
+    productShare:
+      totalSale > 0 ? productList.map((product, i) => ({ ...product, saleShare: shares[i] })) : [],
+    topCustomers:
+      totalSale > 0
+        ? [...customers.entries()]
+            .map(([customerName, totals]) => {
+              const customer = CUSTOMERS.find((row) => row.customer.customerName === customerName);
+              return {
+                customerNumber: customer?.customer.customerNumber ?? '',
+                customerName,
+                orderCount: totals.orderCount,
+                sale: totals.sale,
+                active: customer?.customer.statusCode !== 'INACTIVE',
+              };
+            })
+            .sort((a, b) => b.sale - a.sale)
+        : [],
   };
 };
 
 export const salesHandlers = [
   http.get(SALES_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load sales stats', 500);
-    // 매출은 재무 월별 손익과 같은 값, 신규 주문 건수의 주 값은 그 로그인의 주문 목록 행 수(리뷰 관찰 1)
-    return ok(
-      statResponse({
-        sales_amount: monthlyMetric('sales'),
-        new_orders_count: flow(ordersOf(request).length),
-      }),
-    );
+    // 신규 주문과 매출은 그 로그인의 주문 목록에서 센다. 주 값 = 매출 분석의 이번 주 점(카드 "데모 데이터 채우기")
+    return ok(salesStats(request));
   }),
   http.get(SALES_ENDPOINTS.CSUTOMER_STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load customer stats', 500);
@@ -353,8 +304,6 @@ export const salesHandlers = [
   http.get(SALES_ENDPOINTS.QUOTES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load quotes', 500);
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
     // 게이트웨이 목록 상태 값은 APPROVAL(SdController.java:101, QuotationListItemDto.java:20).
     // status 가 있으면 같은 상태만 준다. 옛 값 APPROVED 를 받으면 목은 빈 목록이다.
     // 실서버는 QuotationStatus.from 이 예외를 던질 수 있어 어떻게 답하는지 미확인
@@ -362,7 +311,7 @@ export const salesHandlers = [
     const content = quotesOf(request).filter(
       (quote) => !status || status === 'ALL' || quote.statusCode === status,
     );
-    return ok({ content, page: makePage(page, size, content.length) });
+    return ok(paged(request, content));
   }),
   http.get<{ quotationId: string }>(
     `${SALES_BASE_PATH}/quotations/:quotationId`,
@@ -380,7 +329,10 @@ export const salesHandlers = [
         // 게이트웨이 견적 상태 enum 은 APPROVAL(QuotationStatus.java:13). 목록과 같은 상태(검토 요청이나 즉시 납품의 결과 포함)
         statusCode: quote.statusCode,
         customerName: quote.customerName,
-        ceoName: CEO_BY_CUSTOMER[quote.customerName] ?? '',
+        // 고객 목록의 대표자. 목록에 없는 이름이면 빈칸
+        ceoName:
+          CUSTOMERS.find(({ customer }) => customer.customerName === quote.customerName)?.extra
+            .ceoName ?? '',
         items: linesOf(request, quotationId, 'qt-001').map((item) => ({
           ...item,
           uomName: 'EA',
@@ -408,15 +360,15 @@ export const salesHandlers = [
         (serial) => {
           state.createdLines.set(`qt-${serial}`, lines);
           return {
-            ...mockQuotes[0],
+            ...QUOTES[0].quote,
             quotationId: `qt-${serial}`,
             quotationNumber: `QT-2026-${serial}`,
-            quotationDate: toDateKey(new Date()),
+            quotationDate: todayKey(),
             totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
             statusCode: 'PENDING',
           };
         },
-        mockQuotes.length + 1,
+        QUOTES.length + 1,
         // 상한으로 밀려난 견적의 줄도 같이 지운다
         (dropped) => state.createdLines.delete(dropped.quotationId),
       );
@@ -426,8 +378,6 @@ export const salesHandlers = [
   http.get(SALES_ENDPOINTS.ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load orders', 500);
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
     // 게이트웨이와 같은 이름(startDate, endDate)으로만 주문일을 거른다. 모르는 이름은 서버처럼 무시한다
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
@@ -435,7 +385,7 @@ export const salesHandlers = [
       (order) =>
         (!startDate || order.orderDate >= startDate) && (!endDate || order.orderDate <= endDate),
     );
-    return ok({ content, page: makePage(page, size, content.length) });
+    return ok(paged(request, content));
   }),
   http.get(`${SALES_BASE_PATH}/orders/:salesOrderId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load order detail', 500);
@@ -445,9 +395,7 @@ export const salesHandlers = [
     if (!order) return notFound('주문서 상세 조회');
     // 고객 목록에 있는 고객이면 그 정보, 견적에만 나오는 고객(즉시 납품으로 만든 주문)은 이름만 안다
     const customer = customersOf(request).find((row) => row.customerName === order.customerName);
-    const extra =
-      customer &&
-      (salesState(request).customerExtras.get(customer.customerId) ?? SEED_CUSTOMER_EXTRA);
+    const extra = customer && extraOf(request, customer.customerId);
     return ok({
       order: {
         salesOrderId,
@@ -486,23 +434,32 @@ export const salesHandlers = [
       return okNoData();
     },
   ),
-  http.post(SALES_ENDPOINTS.INVENTORY_CHECK, ({ request }) => {
-    if (shouldError(request)) return error('Failed to check inventory', 500);
-    return ok({
-      items: [
-        {
-          itemId: 'item-1001',
-          itemName: '모터 A',
-          requiredQuantity: 100,
-          inventoryQuantity: 120,
-          shortageQuantity: 0,
-          statusCode: 'AVAILABLE',
-          productionRequired: false,
-          inventoryCheckTime: isoNow,
-        },
-      ],
-    });
-  }),
+  http.post<PathParams, { items: Array<Schema<'Inventories'>> }>(
+    SALES_ENDPOINTS.INVENTORY_CHECK,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to check inventory', 500);
+      // 요청 품목마다 품목표 재고(재고 이동 결과 포함)와 견준다. 품목표에 없는 품목은 재고 0.
+      // 부족 상태 값 INSUFFICIENT 는 verified=false(화면은 productionRequired 만 본다)
+      const { items } = await request.json();
+      return ok({
+        items: items.map(({ itemId, requiredQuantity }) => {
+          const item = catalogItem(itemId);
+          const inventoryQuantity = item ? stockOf(request, item).currentStock : 0;
+          const shortageQuantity = Math.max(0, requiredQuantity - inventoryQuantity);
+          return {
+            itemId,
+            itemName: item?.itemName ?? itemId,
+            requiredQuantity,
+            inventoryQuantity,
+            shortageQuantity,
+            statusCode: shortageQuantity > 0 ? 'INSUFFICIENT' : 'AVAILABLE',
+            productionRequired: shortageQuantity > 0,
+            inventoryCheckTime: isoNow,
+          };
+        }),
+      });
+    },
+  ),
   http.post<{ quotationId: string }>(
     `${SALES_BASE_PATH}/quotations/:quotationId/approve-order`,
     ({ request, params }) => {
@@ -511,7 +468,7 @@ export const salesHandlers = [
       const { quotationId } = params;
       // 모르는 id 는 상세 목처럼 첫 견적의 본문으로 답한다
       const found = quotesOf(request).find((q) => q.quotationId === quotationId);
-      const quote = found ?? mockQuotes[0];
+      const quote = found ?? QUOTES[0].quote;
       state.quoteStatus.set(quotationId, 'APPROVAL');
       // 같은 견적을 또 눌러도 주문은 하나만 만든다
       const salesOrderId = `so-${quotationId}`;
@@ -520,11 +477,15 @@ export const salesHandlers = [
         addCreated(
           state.createdOrders,
           () => ({
-            ...mockOrders[0],
             salesOrderId,
             salesOrderNumber: `SO-${quote.quotationNumber}`,
             customerName: quote.customerName,
-            orderDate: toDateKey(new Date()),
+            // 담당자는 고객 목록의 담당 영업 직원
+            manager: (
+              CUSTOMERS.find(({ customer }) => customer.customerName === quote.customerName) ??
+              CUSTOMERS[0]
+            ).customer.manager,
+            orderDate: todayKey(),
             dueDate: quote.dueDate,
             totalAmount: quote.totalAmount,
             statusCode: 'READY_FOR_SHIPMENT',
@@ -538,11 +499,8 @@ export const salesHandlers = [
   ),
   http.get(SALES_ENDPOINTS.CUSTOMERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load customers', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    const customers = customersOf(request);
-    return ok({ customers, page: makePage(page, size, customers.length) });
+    const { content, page } = paged(request, customersOf(request));
+    return ok({ customers: content, page });
   }),
   http.get<{ customerId: string }>(
     `${SALES_BASE_PATH}/customers/:customerId`,
@@ -554,7 +512,7 @@ export const salesHandlers = [
       const customer = customersOf(request).find((row) => row.customerId === customerId);
       if (!customer) return notFound('고객사 상세 조회');
       const edit = state.customerEdits.get(customerId);
-      const extra = state.customerExtras.get(customerId) ?? SEED_CUSTOMER_EXTRA;
+      const extra = extraOf(request, customerId) ?? CUSTOMERS[0].extra;
       return ok({
         customerId,
         customerNumber: customer.customerNumber,
@@ -580,32 +538,37 @@ export const salesHandlers = [
       if (shouldError(request)) return error('Failed to create customer', 500);
       const state = salesState(request);
       const body = await request.json();
-      addCreated(state.createdCustomers, (serial) => {
-        state.customerExtras.set(`cus-${serial}`, {
-          ceoName: body.ceoName ?? '',
-          businessNumber: body.businessNumber ?? '',
-          customerPhone: body.contactPhone ?? '',
-          customerEmail: body.contactEmail ?? '',
-          baseAddress: body.address ?? '',
-          detailAddress: body.detailAddress ?? '',
-          note: body.note ?? '',
-        });
-        return {
-          customerId: `cus-${serial}`,
-          customerNumber: `CUS-${serial}`,
-          customerName: body.companyName ?? '',
-          manager: {
-            managerName: body.manager?.name ?? '',
-            managerPhone: body.manager?.mobile ?? '',
-            managerEmail: body.manager?.email ?? '',
-          },
-          address: [body.address, body.detailAddress].filter(Boolean).join(' '),
-          totalTransactionAmount: 0,
-          orderCount: 0,
-          lastOrderDate: '',
-          statusCode: 'ACTIVE',
-        };
-      });
+      addCreated(
+        state.createdCustomers,
+        (serial) => {
+          state.customerExtras.set(`cus-${serial}`, {
+            ceoName: body.ceoName ?? '',
+            businessNumber: body.businessNumber ?? '',
+            customerPhone: body.contactPhone ?? '',
+            customerEmail: body.contactEmail ?? '',
+            baseAddress: body.address ?? '',
+            detailAddress: body.detailAddress ?? '',
+            note: body.note ?? '',
+          });
+          return {
+            customerId: `cus-${serial}`,
+            customerNumber: `CUS-${serial}`,
+            customerName: body.companyName ?? '',
+            manager: {
+              managerName: body.manager?.name ?? '',
+              managerPhone: body.manager?.mobile ?? '',
+              managerEmail: body.manager?.email ?? '',
+            },
+            address: [body.address, body.detailAddress].filter(Boolean).join(' '),
+            totalTransactionAmount: 0,
+            orderCount: 0,
+            lastOrderDate: '',
+            statusCode: 'ACTIVE',
+          };
+          // 기본 고객 다음 번호부터
+        },
+        CUSTOMERS.length + 1,
+      );
       return ok({
         eventId: 'evt-customer-100',
         transactionId: 'tx-customer-100',
@@ -646,7 +609,9 @@ export const salesHandlers = [
   http.get(SALES_ENDPOINTS.ANALYTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load analytics', 500);
     const url = new URL(request.url);
-    return ok(salesAnalytics(url.searchParams.get('startDate'), url.searchParams.get('endDate')));
+    return ok(
+      salesAnalytics(request, url.searchParams.get('startDate'), url.searchParams.get('endDate')),
+    );
   }),
   http.get(SALES_ENDPOINTS.NEW_QUOTE_ITEM_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load items', 500);

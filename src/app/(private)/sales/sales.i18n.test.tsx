@@ -7,7 +7,10 @@ import { NextIntlClientProvider } from 'next-intl';
 import en from '@/i18n/messages/en.json';
 import ko from '@/i18n/messages/ko.json';
 import { http } from 'msw';
+import * as z from 'zod';
 import { ok } from '@/mocks/utils';
+import { mockApi } from '@/test/mockApi';
+import { formatNumber } from '@/app/utils/number';
 import { SALES_ENDPOINTS } from '@/app/types/api';
 import { server } from '@/test/msw-server';
 import { createTestQueryClient, renderWithProviders } from '@/test/render';
@@ -59,6 +62,26 @@ const rowButton = (cell: HTMLElement, name: string) => {
   return within(row).getByRole('button', { name });
 };
 
+/** 영업 통계 목의 이번 주 매출과 신규 주문 */
+const salesWeek = async () => {
+  const week = z
+    .object({
+      data: z.object({
+        week: z.object({
+          sales_amount: z.object({ value: z.number() }),
+          new_orders_count: z.object({ value: z.number() }),
+        }),
+      }),
+    })
+    .parse(await mockApi('GET', '/business/sd/statistics')).data.week;
+  return { sale: week.sales_amount.value, count: week.new_orders_count.value };
+};
+/** 고객 목록 목의 한빛전자(cus-001) 주문 수 */
+const hanbitOrderCount = async () =>
+  z
+    .object({ data: z.object({ customers: z.array(z.object({ orderCount: z.number() })) }) })
+    .parse(await mockApi('GET', '/business/sd/customers')).data.customers[0].orderCount;
+
 const loginAs = (role: string) =>
   useAuthStore.getState().setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role });
 
@@ -73,22 +96,24 @@ describe('영업 화면 영어(i18n 8)', () => {
     const metrics = await screen.findByRole('region', { name: 'Metrics' });
     expect(within(metrics).getByText('Sales')).toBeInTheDocument();
     expect(within(metrics).getByText('New orders')).toBeInTheDocument();
-    // 매출은 재무 월별 손익의 이번 달 8억의 7/30, 신규 주문은 주문 목록 1건(카드 "목 데이터 현실성")
-    expect(within(metrics).getByText('₩186,670,000')).toBeInTheDocument();
-    expect(within(metrics).getByText('1')).toBeInTheDocument();
+    // 매출과 신규 주문은 이번 주(월요일~오늘) 주문의 합과 건수라 날마다 달라 목에서 꺼낸다(카드 "데모 데이터 채우기")
+    const week = await salesWeek();
+    expect(within(metrics).getByText(`₩${formatNumber(week.sale)}`)).toBeInTheDocument();
+    expect(within(metrics).getByText(formatNumber(week.count))).toBeInTheDocument();
     expect(within(metrics).queryByText(/건/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Quotes' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Customers' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sales analytics' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(신규 주문 1건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(신규 주문 N건)', async () => {
     loginAs('ALL_ADMIN');
     renderWithProviders(<SalesClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(within(metrics).getByText('매출')).toBeInTheDocument();
-    expect(within(metrics).getByText('1건')).toBeInTheDocument();
-    expect(within(metrics).getByText('₩186,670,000')).toBeInTheDocument();
+    const week = await salesWeek();
+    expect(within(metrics).getByText(`${formatNumber(week.count)}건`)).toBeInTheDocument();
+    expect(within(metrics).getByText(`₩${formatNumber(week.sale)}`)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '견적 관리' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '매출 분석' })).toBeInTheDocument();
   });
@@ -106,14 +131,15 @@ describe('영업 화면 영어(i18n 8)', () => {
     renderWithProviders(<SalesQuoteList />, { locale: 'en' });
     expect(await screen.findByRole('columnheader', { name: 'Quote no.' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Due date' })).toBeInTheDocument();
-    const checkbox = screen.getByRole('checkbox', { name: 'Select QT-2026-001' });
+    // 첫 쪽 맨 위(가장 최근 견적). 기본 16건, 최신순(카드 "데모 데이터 채우기")
+    const checkbox = screen.getByRole('checkbox', { name: 'Select QT-2026-016' });
     expect(checkbox).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Request quote review' })).toBeDisabled();
     await userEvent.click(screen.getByRole('combobox', { name: 'All statuses' }));
     expect(screen.getByRole('option', { name: 'In review' })).toBeInTheDocument();
-    // 목 견적 목록이 상태마다 한 행이라(서버 계약 2 리뷰) QT-2026-001 행의 버튼을 누른다
+    // 견적이 여러 행이라(서버 계약 2 리뷰) QT-2026-016 행의 버튼을 누른다
     await userEvent.click(rowButton(checkbox, 'Details'));
-    const dialog = await screen.findByRole('dialog', { name: 'Quote details - QT-2026-001' });
+    const dialog = await screen.findByRole('dialog', { name: 'Quote details - QT-2026-016' });
     expect(await within(dialog).findByText('Quote items')).toBeInTheDocument();
     expect(within(dialog).getByRole('columnheader', { name: 'Unit price' })).toBeInTheDocument();
   });
@@ -121,22 +147,25 @@ describe('영업 화면 영어(i18n 8)', () => {
   it('한국어 견적 목록은 예전과 같다', async () => {
     renderWithProviders(<SalesQuoteList />);
     expect(await screen.findByRole('columnheader', { name: '견적번호' })).toBeInTheDocument();
-    const checkbox = screen.getByRole('checkbox', { name: 'QT-2026-001 선택' });
+    const checkbox = screen.getByRole('checkbox', { name: 'QT-2026-016 선택' });
     expect(checkbox).toBeInTheDocument();
     await userEvent.click(rowButton(checkbox, '상세'));
     expect(
-      await screen.findByRole('dialog', { name: '견적서 상세보기-QT-2026-001' }),
+      await screen.findByRole('dialog', { name: '견적서 상세보기-QT-2026-016' }),
     ).toBeInTheDocument();
   });
 
   it('고객 목록의 거래 건수는 영어 복수형, 한국어는 예전과 같다', async () => {
+    // 한빛전자의 주문 수는 주문 목록에서 세어 날마다 늘 수 있어 목에서 꺼낸다(카드 "데모 데이터 채우기")
+    const orders = await hanbitOrderCount();
+    const hanbit = async () => within(await screen.findByRole('row', { name: /한빛전자/ }));
     const { unmount } = renderWithProviders(<SalesCustomerList />, { locale: 'en' });
-    expect(await screen.findByText('14 orders')).toBeInTheDocument();
+    expect((await hanbit()).getByText(`${formatNumber(orders)} orders`)).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Sales total' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add customer' })).toBeInTheDocument();
     unmount();
     renderWithProviders(<SalesCustomerList />);
-    expect(await screen.findByText('14건')).toBeInTheDocument();
+    expect((await hanbit()).getByText(`${formatNumber(orders)}건`)).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: '거래액' })).toBeInTheDocument();
   });
 
@@ -191,8 +220,9 @@ describe('영업 레이아웃과 대시보드에서 여는 영업 모달(i18n 8)
         <SalesCustomerList />
       </SalesLayout>,
     );
-    // 영어 메시지는 받은 뒤에 바뀐다
-    await userEvent.click(await screen.findByRole('button', { name: 'Details' }));
+    // 영어 메시지는 받은 뒤에 바뀐다. 고객이 여러 행이라 한빛전자 행의 버튼을 누른다
+    const row = within(await screen.findByRole('row', { name: /한빛전자/ }));
+    await userEvent.click(await row.findByRole('button', { name: 'Details' }));
     const dialog = await screen.findByRole('dialog', { name: 'Customer details' });
     expect(await within(dialog).findByText('Contact info')).toBeInTheDocument();
   });

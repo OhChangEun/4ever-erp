@@ -20,7 +20,12 @@ describe('구매 요청 확인 창과 반려 사유', () => {
     vi.restoreAllMocks();
   });
 
-  /** 구매 담당으로 대기 요청 한 건(기본 목)을 띄우고 행 버튼을 누른다. 브라우저 기본 창은 쓰지 않아야 한다 */
+  /**
+   * 기본 목의 첫 쪽 맨 위 대기 요청(PR-2026-015) 행. 첫 쪽에 대기 요청이 둘이라 행으로 좁힌다(카드 "데모 데이터 채우기")
+   */
+  const pendingRow = () => within(screen.getByRole('row', { name: /PR-2026-015/ }));
+
+  /** 구매 담당으로 대기 요청(기본 목)을 띄우고 그 행 버튼을 누른다. 브라우저 기본 창은 쓰지 않아야 한다 */
   const openFromRow = async (button: string) => {
     // 승인과 반려는 MM 과 ALL_ADMIN 에게만 보인다
     useAuthStore
@@ -29,7 +34,8 @@ describe('구매 요청 확인 창과 반려 사유', () => {
     const nativeConfirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     const user = userEvent.setup();
     renderWithProviders(<PurchaseRequestListTab />);
-    await user.click(await screen.findByRole('button', { name: button }, { timeout: 3000 }));
+    await screen.findByRole('row', { name: /PR-2026-015/ }, { timeout: 3000 });
+    await user.click(pendingRow().getByRole('button', { name: button }));
     expect(nativeConfirm).not.toHaveBeenCalled();
     return user;
   };
@@ -74,12 +80,12 @@ describe('구매 요청 확인 창과 반려 사유', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    expect(screen.getByRole('button', { name: '승인' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '반려' })).toBeDisabled();
+    expect(pendingRow().getByRole('button', { name: '승인' })).toBeDisabled();
+    expect(pendingRow().getByRole('button', { name: '반려' })).toBeDisabled();
 
     release();
-    await waitFor(() => expect(screen.getByRole('button', { name: '반려' })).toBeEnabled());
-    expect(screen.getByRole('button', { name: '승인' })).toBeEnabled();
+    await waitFor(() => expect(pendingRow().getByRole('button', { name: '반려' })).toBeEnabled());
+    expect(pendingRow().getByRole('button', { name: '승인' })).toBeEnabled();
     expect(calls).toBe(1);
   });
 

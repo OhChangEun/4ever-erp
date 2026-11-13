@@ -32,10 +32,11 @@ test('서버 목은 목록에 없는 id 의 상세에 404, 있는 id 에 200 을
 });
 
 test('견적 상세가 404 면 오류 안내만 보이고 견적 목록을 다시 받는다', async ({ page }) => {
-  await redirectDetailToMissing(page, '/business/sd/quotations', 'qt-002');
+  // 첫 쪽의 견적(성원오토). 기본 16건, 최신순(카드 "데모 데이터 채우기")
+  await redirectDetailToMissing(page, '/business/sd/quotations', 'qt-014');
   await page.goto('/sales?tab=quotes');
   await waitForListLoaded(page);
-  const row = page.getByRole('row', { name: /QT-2026-002/ });
+  const row = page.getByRole('row', { name: /QT-2026-014/ });
   await expect(row).toBeVisible();
 
   const listRefetch = page.waitForRequest(
@@ -47,7 +48,7 @@ test('견적 상세가 404 면 오류 안내만 보이고 견적 목록을 다�
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('견적서를 불러오는 중 오류가 발생했습니다.')).toBeVisible();
-  await expect(dialog.getByText('대성기계')).toHaveCount(0);
+  await expect(dialog.getByText('성원오토')).toHaveCount(0);
   await expect(dialog.getByText('한빛전자')).toHaveCount(0);
   await listRefetch;
 });

@@ -12,8 +12,9 @@ import QuoteReviewModal from '../modals/QuoteReviewModal';
 import { postQuotationConfirm } from '../../sales.api';
 
 /**
- * 이미 처리된 건의 버튼 카드. 기본 목 견적: QT-2026-001 승인, 002 대기, 003 검토중, 004 반려.
- * 처리(검토 요청, 즉시 납품)는 대기(PENDING) 견적만 한다(카드 결정 2, verified=false).
+ * 이미 처리된 건의 버튼 카드. 처리(검토 요청, 즉시 납품)는 대기(PENDING) 견적만 한다(카드 결정 2, verified=false).
+ * 기본 목 견적 16건(카드 "데모 데이터 채우기"). 첫 쪽: QT-2026-016 대기(재고 충분), 015 승인, 014 대기(재고 부족),
+ * 013 검토중, 012 반려. 2쪽: 002 대기(모터 A 225 > 재고 120), 001 승인, 003 검토중, 004 반려.
  */
 const REVIEW = '견적 검토 요청';
 const DELIVER = '즉시 납품 처리';
@@ -39,10 +40,11 @@ const useQuotes = (rows: ReturnType<typeof quote>[]) =>
 describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', () => {
   it('대기 견적만 고를 수 있다', async () => {
     renderWithProviders(<SalesQuoteList />);
-    expect(await checkbox('QT-2026-002')).toBeEnabled();
-    expect(await checkbox('QT-2026-001')).toBeDisabled();
-    expect(await checkbox('QT-2026-003')).toBeDisabled();
-    expect(await checkbox('QT-2026-004')).toBeDisabled();
+    expect(await checkbox('QT-2026-016')).toBeEnabled();
+    expect(await checkbox('QT-2026-014')).toBeEnabled();
+    expect(await checkbox('QT-2026-015')).toBeDisabled();
+    expect(await checkbox('QT-2026-013')).toBeDisabled();
+    expect(await checkbox('QT-2026-012')).toBeDisabled();
   });
 
   it('모르는 상태 값의 견적은 고를 수 없다', async () => {
@@ -52,11 +54,11 @@ describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', (
   });
 
   it('즉시 납품 뒤 모달 버튼이 사라지고 두 번째 요청이 없으며, 목록에서 그 견적을 다시 고를 수 없다', async () => {
-    const posts = countRequests('POST', SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-002'));
+    const posts = countRequests('POST', SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-016'));
     const user = userEvent.setup();
     renderWithProviders(<SalesQuoteList />);
 
-    await user.click(await checkbox('QT-2026-002'));
+    await user.click(await checkbox('QT-2026-016'));
     await user.click(screen.getByRole('button', { name: REVIEW }));
     const dialog = within(await screen.findByRole('dialog', { name: REVIEW }));
     await user.click(await dialog.findByRole('button', { name: '재고 확인' }));
@@ -68,7 +70,7 @@ describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', (
     expect(posts()).toBe(1);
 
     await user.keyboard('{Escape}');
-    const box = await checkbox('QT-2026-002');
+    const box = await checkbox('QT-2026-016');
     expect(box).toBeDisabled();
     expect(box).not.toBeChecked();
     expect(screen.getByRole('button', { name: REVIEW })).toBeDisabled();
@@ -102,8 +104,16 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
   };
 
   it('대기 견적이면 재고가 충분할 때 즉시 납품이 보인다', async () => {
-    await openAndCheck('qt-002');
+    // 모터 A 40, 베어링 B 10. 기본 재고(120, 20) 안이다
+    await openAndCheck('qt-016');
     expect(screen.getByRole('button', { name: DELIVER })).toBeInTheDocument();
+  });
+
+  it('기본 목의 재고 확인이 요청 수량을 보고 부족하면 생산에서 검토가 보인다', async () => {
+    // QT-2026-002: 모터 A 225(재고 120), 베어링 B 200(재고 20). 덮어쓰기 없이 기본 목으로 본다
+    await openAndCheck('qt-002');
+    expect(screen.getByRole('link', { name: '생산관리에서 검토' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: DELIVER })).not.toBeInTheDocument();
   });
 
   it('대기 견적이면 재고가 부족할 때 생산에서 검토가 보인다', async () => {
@@ -140,10 +150,10 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
   });
 
   it('모달이 열린 동안 다른 곳에서 검토 요청을 보내면 상세를 다시 받은 뒤 버튼이 사라진다', async () => {
-    const queryClient = await openAndCheck('qt-002');
+    const queryClient = await openAndCheck('qt-016');
     expect(screen.getByRole('button', { name: DELIVER })).toBeInTheDocument();
     // 다른 화면(같은 로그인)에서 같은 견적을 검토 요청했고, 이 모달의 상세 쿼리가 다시 받는다(포커스 복귀 등)
-    await postQuotationConfirm('qt-002');
+    await postQuotationConfirm('qt-016');
     await act(() => queryClient.invalidateQueries());
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: DELIVER })).not.toBeInTheDocument(),
@@ -153,17 +163,17 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
 
 describe('견적 검토 모달 리뷰 반영', () => {
   it('즉시 납품 뒤 상세를 다시 못 받으면 오류 창을 닫아도 즉시 납품이 다시 보이지 않는다', async () => {
-    const posts = countRequests('POST', SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-002'));
+    const posts = countRequests('POST', SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-016'));
     const user = userEvent.setup();
     renderWithProviders(
-      <QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="qt-002" />,
+      <QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="qt-016" />,
     );
     await user.click(await screen.findByRole('button', { name: '재고 확인' }));
     const deliver = await screen.findByRole('button', { name: DELIVER });
 
     // 납품은 성공하지만 그 뒤 상세 재조회가 실패한다. 캐시에는 납품 전(대기) 상세가 남는다
     server.use(
-      http.get(SALES_ENDPOINTS.QUOTE_DETAIL('qt-002'), () => error('Failed to load', 500)),
+      http.get(SALES_ENDPOINTS.QUOTE_DETAIL('qt-016'), () => error('Failed to load', 500)),
     );
     await user.click(deliver);
     await user.click(await screen.findByRole('button', { name: '닫기' }));

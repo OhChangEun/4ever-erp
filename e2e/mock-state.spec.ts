@@ -24,7 +24,8 @@ test('관리자가 구매 요청을 반려하면 그 행이 반려로 바뀌고,
   await loginAs(page, 'ADMIN');
   await page.goto('/purchase');
 
-  const row = page.getByRole('row', { name: /PR-2026-001/ });
+  // 첫 쪽 맨 위의 대기 요청(기본 15건, 최신순. 카드 "데모 데이터 채우기")
+  const row = page.getByRole('row', { name: /PR-2026-015/ });
   await expect(row.getByText('대기', { exact: true })).toBeVisible({ timeout: 30_000 });
 
   await row.getByRole('button', { name: '반려' }).click();

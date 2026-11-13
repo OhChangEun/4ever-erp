@@ -16,6 +16,7 @@ import { HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import { PRODUCTION_ENDPOINTS } from '@/app/(private)/production/api/production.endpoints';
 import { PURCHASE_ENDPOINTS } from '@/app/(private)/purchase/api/purchase.endpoints';
 import { financeMonthlyPoints } from './financeAnalytics.handlers';
+import { mondayOf, seedOrders, todayKey } from './seed';
 
 /**
  * 카드 "목 데이터 현실성". 목록에서 고른 건의 상세가 그 행이고, 같은 품목은 어디서나 같은 값이며,
@@ -36,6 +37,9 @@ const dataOf = async (url: string): Promise<unknown> =>
   z.object({ data: z.unknown() }).parse(await get(url)).data;
 const recordOf = async (url: string) => RecordSchema.parse(await dataOf(url));
 const rowsOf = async (url: string, key = 'content') => RowsSchema.parse((await recordOf(url))[key]);
+/** 목록 전부(한 쪽에). 목이 쪽을 자르고 기본 행이 12~42건이다(카드 "데모 데이터 채우기") */
+const ALL = 'page=0&size=1000';
+const allOf = (url: string) => `${url}${url.includes('?') ? '&' : '?'}${ALL}`;
 const field = (row: Row, key: string) => RecordSchema.parse(row[key]);
 const str = (value: unknown) => z.string().parse(value);
 const num = (value: unknown) => z.number().parse(value);
@@ -61,8 +65,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
       items: [{ itemId: 'item-1001', quantity: 5, unitPrice: 12000 }],
       note: '신규',
     });
-    const rows = await rowsOf(SALES_ENDPOINTS.QUOTES_LIST);
-    expect(rows).toHaveLength(5);
+    // 기본 견적 16건 + 새 견적 1건
+    const rows = await rowsOf(allOf(SALES_ENDPOINTS.QUOTES_LIST));
+    expect(rows).toHaveLength(17);
     const keys = [
       'quotationId',
       'quotationNumber',
@@ -81,8 +86,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
 
   it('영업 주문(즉시 납품으로 만든 주문 포함). 품목 금액 합이 총액이다', async () => {
     await post(SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-002'));
-    const rows = await rowsOf(SALES_ENDPOINTS.ORDERS_LIST);
-    expect(rows).toHaveLength(2);
+    // 기본 주문(주마다 만든 것) + 즉시 납품으로 만든 주문 1건
+    const rows = await rowsOf(`${SALES_ENDPOINTS.ORDERS_LIST}?page=0&size=5000`);
+    expect(rows).toHaveLength(seedOrders().length + 1);
     const keys = [
       'salesOrderId',
       'salesOrderNumber',
@@ -110,8 +116,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
       detailAddress: '2층',
       manager: { name: '박담당', mobile: '010-5555-4444', email: 'park@new.co.kr' },
     });
-    const rows = await rowsOf(SALES_ENDPOINTS.CUSTOMERS_LIST, 'customers');
-    expect(rows).toHaveLength(2);
+    // 기본 고객 15곳 + 새 고객 1곳
+    const rows = await rowsOf(allOf(SALES_ENDPOINTS.CUSTOMERS_LIST), 'customers');
+    expect(rows).toHaveLength(16);
     const keys = ['customerId', 'customerNumber', 'customerName', 'statusCode', 'manager'];
     for (const row of rows) {
       const detail = await recordOf(`${SALES_ENDPOINTS.CUSTOMERS_LIST}/${str(row.customerId)}`);
@@ -135,8 +142,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
         },
       ],
     });
-    const rows = await rowsOf(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS);
-    expect(rows).toHaveLength(2);
+    // 기본 요청 15건 + 새 요청 1건
+    const rows = await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS));
+    expect(rows).toHaveLength(16);
     for (const row of rows) {
       const id = str(row.purchaseRequisitionId);
       const detail = await recordOf(`${PURCHASE_ENDPOINTS.PURCHASE_REQUESTS}/${id}`);
@@ -155,7 +163,8 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
   });
 
   it('발주. 품목 수가 목록의 "외 N건" 과 맞고 금액 합이 총액이다', async () => {
-    const rows = await rowsOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS);
+    const rows = await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS));
+    expect(rows).toHaveLength(15);
     const keys = [
       'purchaseOrderId',
       'purchaseOrderNumber',
@@ -179,7 +188,8 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
   });
 
   it('공급사', async () => {
-    const rows = await rowsOf(PURCHASE_ENDPOINTS.SUPPLIER);
+    const rows = await rowsOf(allOf(PURCHASE_ENDPOINTS.SUPPLIER));
+    expect(rows).toHaveLength(6);
     for (const row of rows) {
       const info = field(row, 'supplierInfo');
       const detail = await recordOf(`${PURCHASE_ENDPOINTS.SUPPLIER}/${str(info.supplierId)}`);
@@ -306,8 +316,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
       managerId: 'mgr-001',
       note: '',
     });
-    const rows = await rowsOf(WAREHOUSE_ENDPOINTS.WAREHOUSE_LIST);
-    expect(rows).toHaveLength(2);
+    // 기본 창고 12곳 + 새 창고 1곳
+    const rows = await rowsOf(allOf(WAREHOUSE_ENDPOINTS.WAREHOUSE_LIST));
+    expect(rows).toHaveLength(13);
     const keys = ['warehouseName', 'warehouseNumber', 'warehouseType', 'statusCode', 'location'];
     for (const row of rows) {
       const detail = await recordOf(WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL(str(row.warehouseId)));
@@ -331,8 +342,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
 
   it('생산 BOM(새 BOM 포함)', async () => {
     await post(PRODUCTION_ENDPOINTS.BOMS, { productName: '펌프 B', unit: 'EA', items: [] });
-    const rows = await rowsOf(PRODUCTION_ENDPOINTS.BOMS);
-    expect(rows).toHaveLength(2);
+    // 기본 BOM 12개 + 새 BOM 1개
+    const rows = await rowsOf(allOf(PRODUCTION_ENDPOINTS.BOMS));
+    expect(rows).toHaveLength(13);
     const keys = [
       'bomId',
       'bomNumber',
@@ -496,11 +508,12 @@ describe('없는 건은 404(카드 "없는 건은 404")', () => {
   ])(
     '%s: 만든 로그인에서는 새 행의 상세가 200, 다른 로그인에서는 404',
     async (_, createUrl, body, listUrl, idsOf) => {
-      const before = idsOf(await recordOf(listUrl));
+      // 마스터 목록은 새 행이 끝에 붙어 첫 쪽 밖이라 전부 받는다
+      const before = idsOf(await recordOf(allOf(listUrl)));
       await mockApi('POST', rel(createUrl), { body, auth: MAKER });
       const listed = z
         .object({ data: RecordSchema })
-        .parse(await mockApi('GET', rel(listUrl), { auth: MAKER })).data;
+        .parse(await mockApi('GET', rel(allOf(listUrl)), { auth: MAKER })).data;
       const [created] = idsOf(listed).filter((id) => !before.includes(id));
       const detail = `${rel(listUrl)}/${str(created)}`;
       expect((await mockCall('GET', detail, { auth: MAKER })).status).toBe(200);
@@ -521,9 +534,11 @@ describe('목록에서 밀려난 행과 없는 id 에 보낸 쓰기(리뷰 A2, A
         items: [{ itemId: 'item-1001', quantity: i, unitPrice: 12000 }],
         note: '',
       });
-    const ids = (await rowsOf(SALES_ENDPOINTS.QUOTES_LIST)).map((row) => row.quotationId);
-    expect(ids).not.toContain('qt-005');
-    expect((await mockCall('GET', `${rel(SALES_ENDPOINTS.QUOTES_LIST)}/qt-005`)).status).toBe(404);
+    // 첫 새 견적은 기본 16건 다음 번호
+    const ids = (await rowsOf(allOf(SALES_ENDPOINTS.QUOTES_LIST))).map((row) => row.quotationId);
+    expect(ids).toHaveLength(16 + 50);
+    expect(ids).not.toContain('qt-017');
+    expect((await mockCall('GET', `${rel(SALES_ENDPOINTS.QUOTES_LIST)}/qt-017`)).status).toBe(404);
   });
 
   it('구매 요청을 51건 만들어 첫 새 요청이 밀려나면 그 상세는 404 다', async () => {
@@ -541,11 +556,13 @@ describe('목록에서 밀려난 행과 없는 id 에 보낸 쓰기(리뷰 A2, A
           },
         ],
       });
-    const ids = (await rowsOf(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS)).map(
+    // 첫 새 요청은 기본 15건 다음 번호
+    const ids = (await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS))).map(
       (row) => row.purchaseRequisitionId,
     );
-    expect(ids).not.toContain('pr-002');
-    const detail = `${rel(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS)}/pr-002`;
+    expect(ids).toHaveLength(15 + 50);
+    expect(ids).not.toContain('pr-016');
+    const detail = `${rel(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS)}/pr-016`;
     expect((await mockCall('GET', detail)).status).toBe(404);
   });
 });
@@ -646,7 +663,11 @@ describe('같은 품목과 거래처는 응답끼리 같은 값이다', () => {
   });
 
   it('PO-2026-001 의 날짜와 금액이 발주 목록과 입고 대기 목록에서 같다', async () => {
-    const order = (await rowsOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS))[0];
+    // 발주 목록은 최신순이라 po-001 은 첫 쪽이 아니다
+    const order =
+      (await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS))).find(
+        (row) => row.purchaseOrderId === 'po-001',
+      ) ?? {};
     const pending = (await rowsOf(INVENTORY_ENDPOINTS.PENDING_LIST)).find(
       (row) => row.purchaseOrderId === order.purchaseOrderId,
     );
@@ -803,10 +824,14 @@ describe('통계 띠', () => {
     },
   );
 
-  /** 건수 지표의 주 값 = 그 로그인의 지금 목록 총 건수 */
+  /**
+   * 건수 지표의 주 값 = 그 로그인의 지금 목록 총 건수. 신규 주문만 이번 주(월요일~오늘) 주문 수다
+   * (카드 "데모 데이터 채우기" 결정 5, 매출 분석의 이번 주 점과 같은 값)
+   */
   const expectCountsMatchLists = async () => {
+    const today = todayKey();
     expect(await week(SALES_ENDPOINTS.STATS, 'new_orders_count')).toBe(
-      await total(SALES_ENDPOINTS.ORDERS_LIST),
+      await total(`${SALES_ENDPOINTS.ORDERS_LIST}?startDate=${mondayOf(today)}&endDate=${today}`),
     );
     expect(await week(SALES_ENDPOINTS.CSUTOMER_STATISTICS, 'quotation_count')).toBe(
       await total(SALES_ENDPOINTS.QUOTES_LIST),
@@ -847,6 +872,7 @@ describe('통계 띠', () => {
   });
 
   it('쓰기(생성, 시작, 배송) 뒤에도 건수 지표의 주 값은 그 로그인의 목록 총 건수다(리뷰 관찰 1)', async () => {
+    const ordersThisWeek = await week(SALES_ENDPOINTS.STATS, 'new_orders_count');
     await post(SALES_ENDPOINTS.NEW_ORDER, {
       items: [{ itemId: 'item-1001', quantity: 5, unitPrice: 12000 }],
       note: '',
@@ -877,8 +903,9 @@ describe('통계 띠', () => {
     await patch(`${INVENTORY_ENDPOINTS.PRODUCTION_LIST.replace('/production', '')}/so-002/status`, {
       itemIds: ['item-1002'],
     });
-    expect(await week(SALES_ENDPOINTS.CSUTOMER_STATISTICS, 'quotation_count')).toBe(5);
-    expect(await week(SALES_ENDPOINTS.STATS, 'new_orders_count')).toBe(2);
+    // 기본 견적 16건 + 1, 이번 주 주문 + 즉시 납품 1
+    expect(await week(SALES_ENDPOINTS.CSUTOMER_STATISTICS, 'quotation_count')).toBe(17);
+    expect(await week(SALES_ENDPOINTS.STATS, 'new_orders_count')).toBe(ordersThisWeek + 1);
     expect(await week(INVENTORY_ENDPOINTS.STATS, 'delivery_pending')).toBe(0);
     await expectCountsMatchLists();
   });
