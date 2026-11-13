@@ -77,7 +77,17 @@ const inspectBorders = (root: string): BorderReport => {
       const innerTop = r.top + p.clientTop;
       const innerLeft = r.left + p.clientLeft;
       if (scrolls(s.overflowY)) {
-        if (p.scrollTop > 0) cutY.push(innerTop);
+        if (p.scrollTop > 0) {
+          cutY.push(innerTop);
+          // 위에 붙은 sticky 머리(표 thead) 아래로 지나가는 내용은 머리에 가려진다. 머리 아래 끝이 보이는 위 끝이다
+          for (const sticky of p.querySelectorAll('thead')) {
+            if (sticky.contains(el) || getComputedStyle(sticky).position !== 'sticky') continue;
+            const sr = sticky.getBoundingClientRect();
+            if (Math.abs(sr.top - innerTop) > 1) continue;
+            top = Math.max(top, sr.bottom);
+            cutY.push(sr.bottom);
+          }
+        }
         if (p.scrollTop + p.clientHeight < p.scrollHeight - 1) cutY.push(innerTop + p.clientHeight);
       }
       if (scrolls(s.overflowX)) {
@@ -378,6 +388,24 @@ test('판정 함수는 맞붙은 두 테두리와 표를 감싼 상자를 잡고
   const scrolled = await page.evaluate(inspectBorders, 'body');
   expect(scrolled.doubles).toHaveLength(5);
   expect(scrolled.doubles.filter((d) => d.sides === 'Bottom/Bottom')).toHaveLength(2);
+});
+
+test('sticky 표 머리 아래로 스크롤되어 가려진 행의 선은 머리 선과 같은 줄이어도 잡지 않는다', async ({
+  page,
+}) => {
+  // 행 높이 40, 머리 높이 40. 40px 내리면 첫 행이 머리 밑에 완전히 가려지고 그 행의 아래 선이 머리 아래 선과 같은 y 다
+  await page.setContent(`
+    <div id="scroller" style="margin:20px;width:300px;height:160px;overflow:auto">
+      <table style="width:100%;border-collapse:separate;border-spacing:0">
+        <thead style="position:sticky;top:0;background:#f9fafb">
+          <tr><th style="height:39px;border-bottom:1px solid #e5e7eb">머리</th></tr>
+        </thead>
+        <tbody>${'<tr><td style="height:39px;border-bottom:1px solid #f3f4f6">행</td></tr>'.repeat(10)}</tbody>
+      </table>
+    </div>`);
+  await page.evaluate(() => document.getElementById('scroller')?.scrollTo({ top: 40 }));
+  const { doubles } = await page.evaluate(inspectBorders, 'body');
+  expect(doubles).toEqual([]);
 });
 
 for (const viewport of [
