@@ -46,6 +46,15 @@ for (const path of PAGES) {
   });
 }
 
+test('axe 없는 주소 화면(404)', async ({ page }) => {
+  const res = await page.goto('/no-such-page');
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole('link', { name: '대시보드로 가기' })).toBeVisible();
+  await animationsDone(page);
+  const result = await scan(page);
+  expect(summarize(result.violations)).toEqual([]);
+});
+
 test('axe 로그인 화면', async ({ browser }) => {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const page = await context.newPage();

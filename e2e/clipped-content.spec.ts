@@ -65,7 +65,6 @@ const SCREENS: Record<string, Screen[]> = {
     { name: '교육 프로그램', url: '/hrm?tab=training-management&subTab=programs' },
   ],
   '/profile': [{ name: '프로필', url: '/profile', views: ['신청 가능한 교육', '수료한 교육'] }],
-  '/alarm': [{ name: '알림', url: '/alarm' }],
 };
 
 interface ModalCase {

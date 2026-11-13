@@ -70,13 +70,6 @@
     "packages": []
   },
   {
-    "route": "/alarm",
-    "chunks": 16,
-    "raw": 741261,
-    "gzip": 237035,
-    "packages": []
-  },
-  {
     "route": "/login",
     "chunks": 10,
     "raw": 612214,

@@ -8,6 +8,15 @@ test('로그인 세션으로 대시보드가 뜨고 통계 띠가 보인다', as
   await expect(visibleAlerts(page)).toHaveCount(0);
 });
 
+test('지운 /alarm 디버그 화면은 앱의 404 화면을 보인다(Next 기본 404 아님)', async ({ page }) => {
+  const res = await page.goto('/alarm');
+  expect(res?.status()).toBe(404);
+  // src/app/not-found.tsx 의 글자(메시지 notFound). Next 기본 화면은 "This page could not be found."
+  await expect(page.getByRole('heading', { name: '페이지를 찾을 수 없어요' })).toBeVisible();
+  await page.getByRole('link', { name: '대시보드로 가기' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+});
+
 test('매출 분석 탭은 열 때 차트 코드를 받아 그린다(성능 3, dynamic import)', async ({ page }) => {
   const chartChunks: string[] = [];
   page.on('response', (res) => {

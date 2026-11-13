@@ -110,7 +110,6 @@
     "salesAmount": "매출액",
     "orderCount": "주문건수",
     "week": "{month}월 {week}주차",
-    "money": "₩{eok}억",
     "trendEmpty": "표시할 매출 추이 데이터가 없습니다.",
     "productShareTitle": "제품별 매출 비중",
     "share": "비중",
@@ -269,33 +268,5 @@
     "success": "고객이 성공적으로 등록되었습니다.",
     "error": "고객 등록 중 오류가 발생했습니다. {message}",
     "accountError": "고객사는 이미 등록됐을 수 있습니다. 고객 목록을 확인한 뒤 담당자 계정을 확인해 주세요."
-  },
-  "newQuote": {
-    "title": "견적서 작성",
-    "customerTitle": "고객 정보",
-    "customerName": "고객명 *",
-    "customerNamePlaceholder": "고객명을 입력하세요",
-    "manager": "담당자",
-    "managerPlaceholder": "담당자명을 입력하세요",
-    "email": "이메일",
-    "emailPlaceholder": "이메일을 입력하세요",
-    "quoteTitle": "견적 정보",
-    "quoteDate": "견적일자 *",
-    "dueDate": "요청 납기 일자",
-    "itemsTitle": "견적 품목",
-    "addItem": "품목 추가",
-    "columns": {
-      "product": "제품명",
-      "spec": "사양",
-      "quantity": "수량",
-      "unitPrice": "단가",
-      "amount": "금액",
-      "action": "작업"
-    },
-    "productPlaceholder": "제품명",
-    "specPlaceholder": "사양",
-    "total": "총 견적금액",
-    "submit": "견적서 작성",
-    "success": "견적번호 {number} 신규 견적서가 작성되었습니다."
   }
 }

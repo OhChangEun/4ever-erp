@@ -5,8 +5,6 @@ export interface InventoryDetailModalProps extends ModalProps {
   selectedItemId: string;
 }
 
-export type StockMovement = Schema<'StockMovement'>;
-
 export type InventoryDetailResponse = Schema<'InventoryDetailResponse'>;
 
 export type StockMovementRequest = Schema<'StockMovementRequest'>;

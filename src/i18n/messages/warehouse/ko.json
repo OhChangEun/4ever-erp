@@ -22,11 +22,6 @@
     "view3dModalTitle": "창고 3D 뷰 - {name}",
     "viewerLoading": "3D 뷰어를 준비하는 중..."
   },
-  "warehouseType": {
-    "MATERIAL": "원자재",
-    "ITEM": "부품",
-    "ETC": "기타"
-  },
   "statusOption": {
     "ACTIVE": "운영중",
     "INACTIVE": "비활성"

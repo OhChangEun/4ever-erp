@@ -1,10 +1,6 @@
 import type { Schema } from '@/lib/api/contract';
 import { type PageRequest } from '@/app/types/Page';
 
-export type EmployeeInfo = Schema<'EmployeeInfo'>;
-
-export type AttendanceListData = Schema<'AttendanceListData'>;
-
 export type AttendanceListResponse = Schema<'AttendanceListResponse'>;
 
 export interface AttendanceRequestParams extends PageRequest {

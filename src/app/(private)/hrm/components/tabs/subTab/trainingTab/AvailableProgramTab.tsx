@@ -8,7 +8,7 @@ import {
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDetailModal';
 import AddTrainingModal from '@/app/(private)/hrm/components/modals/AddProgramModal';

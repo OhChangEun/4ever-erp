@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ACCESS_AREAS,
   API_RULES,
   ROLES,
   canAccessApi,
@@ -222,5 +223,10 @@ describe('인가 표 하나', () => {
     expect(canAccessApi('SD_USER', 'business/hrm/leave/request')).toBe(true);
     expect(canAccessApi('SD_USER', 'business/hrm/leave/request/1/release')).toBe(false);
     expect(canAccessApi('SD_USER', 'business/hrm/leave/request/1/reject')).toBe(false);
+  });
+
+  it('지운 /alarm 디버그 화면은 페이지 표와 메뉴에 없다(알림은 사이드바, API 규칙 alarm/notifications 는 남는다)', () => {
+    expect(ACCESS_AREAS.map((area) => area.page)).not.toContain('/alarm');
+    expect(API_RULES.map((rule) => rule.prefix)).toContain('alarm/notifications');
   });
 });

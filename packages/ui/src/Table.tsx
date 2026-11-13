@@ -1,6 +1,6 @@
 'use client';
 
-import React, { type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useUiText } from './UiText';
 
 export interface TableColumn<T = Record<string, unknown>> {

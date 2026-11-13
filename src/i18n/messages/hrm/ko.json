@@ -84,11 +84,6 @@
     "updated": "부서 정보가 수정되었습니다.",
     "updateError": "수정 중 오류가 발생했습니다. {message}"
   },
-  "positions": {
-    "headcount": "현재 인원",
-    "salary": "연봉",
-    "employees": "해당 직급 직원 목록"
-  },
   "payroll": {
     "allYears": "전체 연도",
     "allMonths": "전체 월",
@@ -119,10 +114,7 @@
     "selectDate": "날짜 선택",
     "loading": "근태 목록을 불러오는 중입니다...",
     "loadError": "근태 목록을 불러오는 중 오류가 발생했습니다.",
-    "empty": "근태 기록이 없습니다.",
-    "employeeName": "직원명",
-    "updated": "출결 정보가 수정되었습니다.",
-    "updateError": "출결 정보 수정에 실패했습니다. {message}"
+    "empty": "근태 기록이 없습니다."
   },
   "heatmap": {
     "region": "근태 잔디",

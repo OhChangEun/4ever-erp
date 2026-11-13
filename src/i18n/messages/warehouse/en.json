@@ -22,11 +22,6 @@
     "view3dModalTitle": "Warehouse 3D view - {name}",
     "viewerLoading": "Preparing 3D viewer..."
   },
-  "warehouseType": {
-    "MATERIAL": "Raw materials",
-    "ITEM": "Parts",
-    "ETC": "Other"
-  },
   "statusOption": {
     "ACTIVE": "Active",
     "INACTIVE": "Inactive"

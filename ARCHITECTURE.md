@@ -207,14 +207,14 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 화면 틀과 스크롤(2026-11-12 화면 아래가 잘리는 곳):
 
-1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:37` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고, 알림)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
+1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:37` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
 2. 탭이 있는 화면(영업, 생산, 구매, 재고, 재무, 인사)은 화면 높이를 꽉 채우고 `TabNavigation` 의 내용 칸 하나가 스크롤 칸이다(`src/app/components/common/TabNavigation.tsx:78`, `overflow-auto`). 제목과 탭, 통계 띠는 고정이다.
 3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:82`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다.
 4. 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 줄지 않고 내용 칸에서 스크롤된다. 탭 컴포넌트가 따로 `overflow-auto` 를 달지 않는다(재무 현황에 있던 것은 지웠다). 내용 칸과 그 조상에 `overflow-hidden` 을 다시 넣으면 넘친 내용을 볼 방법이 없어진다.
 5. 내용 칸은 `role="region"`, 이름은 활성 탭 이름, `tabIndex={0}` 이다(`?tab=` 이 없는 값이면 내용이 없어 이름과 `tabIndex` 를 빼서 빈 Tab 정지가 안 생긴다). 안에 포커스 받을 요소가 없는 탭도 키보드(방향키, PageDown, End)로 스크롤된다. 탭 화면마다 Tab 정지가 하나 는다.
 6. 하위 탭(`SubNavigation`, 인사)의 내용 칸은 스크롤 칸이 아니다. 넘치면 하위 탭 버튼 줄과 같이 2번 칸에서 스크롤된다.
 7. 모달은 본문이 스크롤 칸이다(`src/app/components/common/modal/ModalContainer.tsx:101`, 높이는 화면의 90% 까지).
-8. 회귀 테스트는 `e2e/clipped-content.spec.ts`. 비공개 화면과 탭, 하위 탭 31개, 화면 안 전환 8개, 모달과 팝업 34개를 1280x720 과 1512x772 에서 열어 잘린 곳(`e2e/clipped.ts` 의 `findClipped`)과 이중 스크롤이 0 인지 본다. 허용 목록은 없다. 새 탭이나 모달을 만들면 이 스펙의 목록에 더한다.
+8. 회귀 테스트는 `e2e/clipped-content.spec.ts`. 비공개 화면과 탭, 하위 탭 30개, 화면 안 전환 8개, 모달과 팝업 34개를 1280x720 과 1512x772 에서 열어 잘린 곳(`e2e/clipped.ts` 의 `findClipped`)과 이중 스크롤이 0 인지 본다. 허용 목록은 없다. 새 탭이나 모달을 만들면 이 스펙의 목록에 더한다.
 
 ## 7. 환경 변수
 
@@ -238,7 +238,7 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 - Storybook: `packages/ui/.storybook`(react-vite, a11y 애드온). `pnpm --filter @everp/ui storybook` 으로 띄운다. 스토리는 `packages/ui/src/*.stories.tsx`, `stories.test.tsx` 가 모든 스토리를 그리고 play 를 돌리고 axe(색 대비 제외) 위반 0 을 본다. `pnpm verify` 가 Storybook 빌드까지 한다.
 - 디자인 토큰: `packages/ui/tokens.css` 가 원본(색 `@theme static`, z-index 변수와 `@utility z-modal` 등, 애니메이션). 앱 `src/styles/globals.css` 와 Storybook `preview.css` 가 가져온다. 층 순서는 local 10 < header 30 < sidebar 40 < overlay 50 < modal 1000 < toast 1100 < popover 9999.
 - CI: PR 과 main push 에서 `pnpm verify`(lint, 타입, 단위 테스트, Storybook) → build → 번들 크기 비교(라우트당 +5KB) → e2e(next start) → Lighthouse(`perf/lighthouse.sh`: 로그인과 로그인 뒤 3화면, 데스크톱 1회, 접근성 0.9 미만이면 실패, 성능은 경고). 번들과 Lighthouse 표는 job summary 와 PR 코멘트 하나(다음 실행은 같은 코멘트를 고친다). Lighthouse 보고서는 밖으로 올리지 않고 artifact 로만. Vercel 은 GitHub 연동으로 main 머지 때 Production 배포만 한다. PR 브랜치의 preview 는 `vercel.json` 의 `git.deploymentEnabled` 로 껐다(2026-11-10, 무료 플랜 하루 배포 한도를 PR preview 가 다 써서 운영 배포가 밀렸다. 머지 판단은 CI 의 같은 빌드 e2e 가 한다). 화면을 미리 보여 줄 일이 있으면 `vercel deploy` 로 한 번 올린다.
-- 언어(i18n): next-intl 4.14.9. 메시지는 `src/i18n/messages/{ko,en}.json`. URL 에 언어를 넣지 않고 쿠키(`NEXT_LOCALE`)로 고른다. 서버는 늘 한국어로 정적 렌더하고 브라우저가 쿠키를 읽어 바꾼다(`src/i18n/IntlProvider.tsx`, 레이아웃이 쿠키를 읽으면 모든 페이지가 동적 렌더로 바뀐다). 플러그인 `precompile` 로 ICU 해석기를 빌드 때 빼서 첫 로드 증가가 14.5KB → 5.7KB. 남은 한국어 문자열 수는 `node scripts/count-hangul.mjs`. 재고 분류와 창고 유형의 표시용 별칭은 `src/app/(private)/inventory/inventory.labels.ts`에서 `src/i18n/messages/inventory/{ko,en}.json`의 `inventory.labels` 메시지에 연결한다. 미확인 코드는 원문을 보이고 서버 값은 바꾸지 않는다. 수량과 금액 글자는 `src/app/utils/number.ts` 의 `formatNumber`, `formatCurrency` 로 낸다(쉼표 고정, 언어를 넘기지 않은(인자 없음, `undefined`) `toLocaleString()`, `toLocaleDateString()`, `toLocaleTimeString()` 은 브라우저 언어를 따라 쓰지 않는다. `eslint.config.mjs` 의 `no-restricted-syntax` 가 error 로 막고 테스트 파일만 뺀다). 차트 축과 라벨의 짧은 금액은 `compactWon` 하나다(재무, 자재 흐름, 영업 차트). 화면 언어(`useLocale()`)를 인자로 받는다(`src/app/utils/number.ts:25`). 툴팁은 `formatCurrency`.
+- 언어(i18n): next-intl 4.14.9. 메시지는 `src/i18n/messages/{ko,en}.json`. URL 에 언어를 넣지 않고 쿠키(`NEXT_LOCALE`)로 고른다. 서버는 늘 한국어로 정적 렌더하고 브라우저가 쿠키를 읽어 바꾼다(`src/i18n/IntlProvider.tsx`, 레이아웃이 쿠키를 읽으면 모든 페이지가 동적 렌더로 바뀐다). 플러그인 `precompile` 로 ICU 해석기를 빌드 때 빼서 첫 로드 증가가 14.5KB → 5.7KB. 남은 한국어 문자열 수는 `node scripts/count-hangul.mjs`. 코드에서 안 쓰는 메시지 키는 `node scripts/unused-messages.mjs` 가 찾고 `src/i18n/unusedMessages.test.ts` 가 0 을 건다(2026-11-12 죽은 코드 정리). 키 조각이 같은 파일의 리터럴이면(``t(`process.${key}`)`` 와 `key: 'startMesSuccess'`) 스크립트가 찾는다. 조각이 서버 값이거나 다른 파일에서 오면 스크립트의 `DYNAMIC_PREFIXES` 에 접두사와 그 키를 만드는 파일을 적는다. 그 파일이 없어지거나 접두사로 키를 만드는 곳이 사라지면(낡은 접두사), 또는 접두사 없이도 찾을 수 있으면(필요 없는 접두사) 테스트가 실패한다. 없는 주소 화면(`src/app/not-found.tsx`)은 기본 메시지 `notFound` 를 쓴다. 재고 분류와 창고 유형의 표시용 별칭은 `src/app/(private)/inventory/inventory.labels.ts`에서 `src/i18n/messages/inventory/{ko,en}.json`의 `inventory.labels` 메시지에 연결한다. 미확인 코드는 원문을 보이고 서버 값은 바꾸지 않는다. 수량과 금액 글자는 `src/app/utils/number.ts` 의 `formatNumber`, `formatCurrency` 로 낸다(쉼표 고정, 언어를 넘기지 않은(인자 없음, `undefined`) `toLocaleString()`, `toLocaleDateString()`, `toLocaleTimeString()` 은 브라우저 언어를 따라 쓰지 않는다. `eslint.config.mjs` 의 `no-restricted-syntax` 가 error 로 막고 테스트 파일만 뺀다). 차트 축과 라벨의 짧은 금액은 `compactWon` 하나다(재무, 자재 흐름, 영업 차트). 화면 언어(`useLocale()`)를 인자로 받는다(`src/app/utils/number.ts:25`). 툴팁은 `formatCurrency`.
   패키지 UI 문구는 `packages/ui/src/UiText.tsx:13` 의 `UiText` 타입과 한국어 `defaultUiText` 가 정한다. `UiTextProvider` 로 앱 번역을 받는다. `src/i18n/UiTextBridge.tsx:15` 가 `src/i18n/messages/{ko,en}.json` 의 `ui` 를 연결한다. 새 문구는 타입, 기본값, 브리지, ko/en 메시지 네 곳을 함께 고친다.
   입력 아이콘 버튼 이름과 `InputList` 입력칸, 삭제 버튼 이름(화면 순번을 받는 함수 `inputList.item`, `inputList.remove`)도 이 경로를 쓴다(`UiText.tsx:43`, `UiTextBridge.tsx:50`). 충돌 설명의 한국어 목적격 조사는 `packages/ui/src/koreanObjectParticle.ts:2` 를 기본값과 브리지가 함께 쓰며, 한글 받침에 따라 을/를을 고른다. 비한글은 기존 을을 유지하므로 현재 호출부의 BOM 문구는 같다.
 - 로컬 훅: commit-msg 는 commitlint(타입 `feat|fix|refac|test|chore|docs`), pre-commit 은 lint-staged.
@@ -263,7 +263,7 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 | /dashboard    |      14 |                357.8 |   1228.2 | framer-motion, zod                                                |
 | /warehouse    |      14 |                274.2 |    864.9 | framer-motion                                                     |
 | /profile      |      12 |                269.9 |    851.0 | framer-motion                                                     |
-| /alarm        |      13 |                263.9 |    824.8 | framer-motion                                                     |
+| /alarm        |      13 |                263.9 |    824.8 | framer-motion(2026-11-12 디버그 화면과 같이 지움)                 |
 | /login        |       9 |                176.5 |    570.3 |                                                                   |
 | /unauthorized |       9 |                176.1 |    568.6 |                                                                   |
 | /callback     |       9 |                172.6 |    559.7 |                                                                   |

@@ -1,10 +1,4 @@
 import type { QueryOf, Schema } from '@/lib/api/contract';
-export interface OrderItem {
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
 
 export type OrderStatus =
   | 'ALL'

@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/render';
 import { useAuthStore } from '@/store/authStore';
 import SidebarNavigation from '@/app/components/sidebar/SidebarNavigation';
-import { getRoleLabel } from '@/app/components/header/ProfileDropdown';
+import { getRoleLabel } from '@/app/components/header/roleLabel';
 import QuickActions from './dashboard/components/QuickActions';
 
 vi.mock('next/navigation', () => ({

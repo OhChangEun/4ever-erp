@@ -84,11 +84,6 @@
     "updated": "Department updated.",
     "updateError": "Failed to update. {message}"
   },
-  "positions": {
-    "headcount": "Current headcount",
-    "salary": "Annual salary",
-    "employees": "Employees in this position"
-  },
   "payroll": {
     "allYears": "All years",
     "allMonths": "All months",
@@ -119,10 +114,7 @@
     "selectDate": "Select date",
     "loading": "Loading attendance...",
     "loadError": "Couldn't load attendance.",
-    "empty": "No attendance records.",
-    "employeeName": "Employee",
-    "updated": "Attendance updated.",
-    "updateError": "Failed to update attendance. {message}"
+    "empty": "No attendance records."
   },
   "heatmap": {
     "region": "Attendance heatmap",

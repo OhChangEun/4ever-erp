@@ -11,18 +11,6 @@ export const VOUCHER_STATUS_OPTIONS: readonly InvoiceStatus[] = [
   'PAID',
 ];
 
-// 전표 리스트 테이블 헤더. 글자는 invoiceList.columns.<키>
-export const VOUCHER_LIST_TABLE_HEADERS = [
-  'invoiceNumber',
-  'connection',
-  'totalAmount',
-  'issueDate',
-  'dueDate',
-  'statusCode',
-  'referenceNumber',
-  'action',
-] as const satisfies readonly (keyof typeof financeKo.invoiceList.columns)[];
-
 // 전표 상세 모달 테이블 헤더. 글자는 invoiceDetail.columns.<키> -----------------------
 export const VOUCHER_DETAIL_TABLE_HEADERS = [
   'itemName',

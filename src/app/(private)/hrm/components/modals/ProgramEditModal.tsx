@@ -3,7 +3,7 @@
 import { Button } from '@everp/ui';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import { useQuery } from '@tanstack/react-query';
-import React, { type FormEvent, useState, useId } from 'react';
+import { type FormEvent, useState, useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchProgramStatusDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { type UpdateProgramRequest } from '@/app/(private)/hrm/types/HrmProgramApiType';

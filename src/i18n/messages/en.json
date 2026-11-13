@@ -83,8 +83,7 @@
     "logout": "Log out",
     "language": "Language",
     "korean": "한국어",
-    "english": "English",
-    "menu": "Profile menu"
+    "english": "English"
   },
   "common": {
     "all": "All",
@@ -335,5 +334,10 @@
     "invalidShape": "The server response has an unexpected format. Please contact your administrator.",
     "unknown": "An unknown error occurred.",
     "requestId": "Request ID {requestId}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The address may have changed or the page was removed. Start again from the dashboard.",
+    "home": "Go to dashboard"
   }
 }

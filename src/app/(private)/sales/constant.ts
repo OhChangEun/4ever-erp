@@ -61,16 +61,6 @@ export const CUSTOMER_STATUS_OPTIONS = [
   'INACTIVE',
 ] as const satisfies readonly (CustomerStatus & keyof typeof salesKo.customerList.statusFilter)[];
 
-// 견적서 신규 등록용 제품 표 머리. 글자는 sales.newQuote.columns.<키>
-export const NEW_QUOTE_PRODUCT_TABLE_HEADERS = [
-  'product',
-  'spec',
-  'quantity',
-  'unitPrice',
-  'amount',
-  'action',
-] as const satisfies readonly (keyof typeof salesKo.newQuote.columns)[];
-
 // 견적서 상세, 주문 상세 모달의 품목 표 머리. 글자는 sales.common.itemColumns.<키>
 export const ITEM_TABLE_HEADERS = [
   'itemName',
