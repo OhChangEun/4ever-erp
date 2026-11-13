@@ -15,16 +15,21 @@ describe('견적 검토 모달 재고 확인 시각', () => {
 
   it('영어 화면이면 영어 시각(AM, PM)', async () => {
     mockBrowserLocale('de-DE');
-    renderWithProviders(<QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="q-1" />, {
-      locale: 'en',
-    });
+    renderWithProviders(
+      <QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="qt-001" />,
+      {
+        locale: 'en',
+      },
+    );
     await userEvent.click(await screen.findByRole('button', { name: 'Check stock' }));
     expect(await screen.findByText(/^Checked at: \d{2}:\d{2} (AM|PM)$/)).toBeInTheDocument();
   });
 
   it('한국어 화면은 예전과 같다(오전, 오후)', async () => {
     mockBrowserLocale('de-DE');
-    renderWithProviders(<QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="q-1" />);
+    renderWithProviders(
+      <QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="qt-001" />,
+    );
     await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
     expect(
       await screen.findByText(/^재고 확인 일시: (오전|오후) \d{2}:\d{2}$/),
@@ -52,7 +57,9 @@ describe('견적 검토 모달 재고 확인 표', () => {
         }),
       ),
     );
-    renderWithProviders(<QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="q-1" />);
+    renderWithProviders(
+      <QuoteReviewModal id="m" onClose={() => {}} selectedQuotationId="qt-001" />,
+    );
     await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
     expect(await screen.findByRole('cell', { name: '1,200' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '15,000' })).toBeInTheDocument();

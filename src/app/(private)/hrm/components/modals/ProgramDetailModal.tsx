@@ -18,6 +18,7 @@ export default function ProgramDetailModal({ programId }: ProgramDetailModalProp
     isError,
   } = useQuery({
     queryKey: programKeys.detail(programId),
+    meta: { listOnNotFound: programKeys.lists() },
     queryFn: () => fetchProgramDetail(programId),
   });
 

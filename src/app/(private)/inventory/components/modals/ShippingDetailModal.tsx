@@ -39,9 +39,15 @@ const ShippingDetailModal = ({
     isLoading,
     isError,
   } = useQuery<ShippingDetailResponse>({
-    queryKey: shippingKeys.detail(selectedOrderId),
+    queryKey: shippingKeys.detail(selectedSubTab, selectedOrderId),
     queryFn: () => getShippingDetailBySubTab(selectedSubTab, selectedOrderId),
     enabled: !!selectedOrderId,
+    meta: {
+      listOnNotFound:
+        selectedSubTab === 'readyToShip'
+          ? shippingKeys.readyToShipLists()
+          : shippingKeys.productionLists(),
+    },
   });
 
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다

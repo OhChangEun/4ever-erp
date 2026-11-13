@@ -12,6 +12,7 @@ import {
   ok,
   okNoData,
   error,
+  notFound,
   shouldError,
   isoNow,
   makePage,
@@ -328,10 +329,10 @@ const mesRow = (request: Request, mesId: string, idx: number) => {
     statuses,
   };
 };
-/** 목록에 있는 MES 의 순번. 목록 밖이면 1(첫 건의 제품과 수량) */
+/** 목록에 있는 MES(mes-001 ~ mes-050)의 순번. 목록 밖이면 undefined */
 const mesIndex = (mesId: string) => {
-  const serial = Number(/^mes-(\d+)$/.exec(mesId)?.[1]);
-  return Number.isInteger(serial) && serial >= 1 && serial <= MES_TOTAL ? serial : 1;
+  const serial = Number(/^mes-(\d{3})$/.exec(mesId)?.[1]);
+  return Number.isInteger(serial) && serial >= 1 && serial <= MES_TOTAL ? serial : undefined;
 };
 
 /** MES 목록 50건(그 로그인의 시작, 완료 결과 반영) */
@@ -524,8 +525,9 @@ export const productionHandlers = [
   }),
   http.get(`${PRODUCTION_BASE_PATH}/products/:productId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load product detail', 500);
-    // 제품 표에서 찾는다. 모르는 id 는 계약에 404 가 없어 모터 A 본문에 그 id 를 싣는다
-    const product = PRODUCTS.find((p) => p.productId === params.productId) ?? PRODUCTS[0];
+    // 제품 표에서 찾는다. 없으면 404(카드 "없는 건은 404")
+    const product = PRODUCTS.find((p) => p.productId === params.productId);
+    if (!product) return notFound('제품 상세 조회');
     return ok({
       productId: params.productId,
       productName: product.productName,
@@ -547,9 +549,10 @@ export const productionHandlers = [
     if (shouldError(request)) return error('Failed to load BOM detail', 500);
     const { bomId } = params;
     const state = productionState(request);
-    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 BOM 본문에 그 id 를 싣는다
+    // 목록(기본 BOM 과 그 로그인이 만든 BOM)의 그 행에서 만든다. 없으면 404
     const created = state.createdBoms.find((bom) => bom.bomId === bomId);
-    const bom = created ?? SEED_BOM;
+    const bom = bomId === SEED_BOM.bomId ? SEED_BOM : created;
+    if (!bom) return notFound('BOM 상세 조회');
     // 새로 등록한 BOM 은 구성품을 모른다(등록 본문의 자재를 기억하지 않는다). 기본 BOM 의 구성을 빌려 보이지 않고 비운다
     const structure = created
       ? {
@@ -798,8 +801,10 @@ export const productionHandlers = [
   http.get<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load MES detail', 500);
     const { mesId } = params;
-    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 첫 건의 제품과 수량에 그 id 의 상태를 싣는다
-    const row = mesRow(request, mesId, mesIndex(mesId));
+    // 목록의 그 행에서 만든다. 목록(mes-001 ~ mes-050)에 없으면 404
+    const index = mesIndex(mesId);
+    if (index === undefined) return notFound('MES 상세 조회');
+    const row = mesRow(request, mesId, index);
     const mes = row.status;
     const running = mes === 'IN_PROGRESS';
     const { statuses } = row;

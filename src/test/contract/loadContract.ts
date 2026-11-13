@@ -25,6 +25,7 @@ export const loadContract = () => {
       components: z.object({
         schemas: z.record(z.string(), z.unknown()),
         parameters: z.record(z.string(), parameterSchema).default({}),
+        responses: z.record(z.string(), z.unknown()).default({}),
       }),
     })
     .parse(parse(readFileSync(CONTRACT, 'utf8')));

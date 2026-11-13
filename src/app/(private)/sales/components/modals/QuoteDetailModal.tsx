@@ -19,6 +19,7 @@ const QuoteDetailModal = ({ selectedQuotationId }: QuoteDetailModalProps) => {
   const { uomLabel } = useSalesLabels();
   const { data, isLoading, isError } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.detail(selectedQuotationId),
+    meta: { listOnNotFound: quoteKeys.lists() },
     queryFn: () => getQuoteDetail(selectedQuotationId),
     enabled: !!selectedQuotationId,
   });

@@ -32,7 +32,7 @@ interface GuardedRead {
   guarded: Path;
 }
 
-const ID = 'id-1';
+// 상세는 목록 기본 행의 id 로 부른다. 목록에 없는 id 는 404 다(카드 "없는 건은 404")
 
 const READS: Record<string, GuardedRead> = {
   '대시보드 워크플로우': {
@@ -51,13 +51,13 @@ const READS: Record<string, GuardedRead> = {
     guarded: ['month'],
   },
   '매출 전표 상세': {
-    url: FINANCE_ENDPOINTS.SALES_INVOICE_DETAIL(ID),
-    read: () => finance.getSalesInvoiceDetail(ID),
+    url: FINANCE_ENDPOINTS.SALES_INVOICE_DETAIL('inv-ar-001'),
+    read: () => finance.getSalesInvoiceDetail('inv-ar-001'),
     guarded: ['items', 0],
   },
   '매입 전표 상세': {
-    url: FINANCE_ENDPOINTS.PURCHASE_INVOICE_DETAIL(ID),
-    read: () => finance.getPurchaseInvoiceDetail(ID),
+    url: FINANCE_ENDPOINTS.PURCHASE_INVOICE_DETAIL('inv-ap-001'),
+    read: () => finance.getPurchaseInvoiceDetail('inv-ap-001'),
     guarded: ['items', 0],
   },
   '부서 목록': {
@@ -66,13 +66,13 @@ const READS: Record<string, GuardedRead> = {
     guarded: ['content', 0, 'employees'],
   },
   '급여 상세': {
-    url: HRM_ENDPOINTS.PAYROLL_DETAIL(ID),
-    read: () => hrm.fetchPayRollDetail(ID),
+    url: HRM_ENDPOINTS.PAYROLL_DETAIL('pay-001'),
+    read: () => hrm.fetchPayRollDetail('pay-001'),
     guarded: ['pay', 'basePayItem'],
   },
   '교육 프로그램 상세': {
-    url: HRM_ENDPOINTS.PROGRAM_DETAIL(ID),
-    read: () => hrm.fetchProgramDetail(ID),
+    url: HRM_ENDPOINTS.PROGRAM_DETAIL('prog-001'),
+    read: () => hrm.fetchProgramDetail('prog-001'),
     guarded: ['designatedEmployee'],
   },
   '출퇴근 목록': {
@@ -91,8 +91,8 @@ const READS: Record<string, GuardedRead> = {
     guarded: [0, 'unitPrice'],
   },
   '재고 상세': {
-    url: INVENTORY_ENDPOINTS.INVENTORY_DETAIL(ID),
-    read: () => inventory.getInventoryDetail(ID),
+    url: INVENTORY_ENDPOINTS.INVENTORY_DETAIL('item-1001'),
+    read: () => inventory.getInventoryDetail('item-1001'),
     guarded: ['itemId'],
   },
   '재고 목록': {
@@ -101,8 +101,8 @@ const READS: Record<string, GuardedRead> = {
     guarded: ['content', 0, 'itemId'],
   },
   '창고 상세': {
-    url: WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL(ID),
-    read: () => warehouse.getWarehouseDetail(ID),
+    url: WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL('wh-001'),
+    read: () => warehouse.getWarehouseDetail('wh-001'),
     guarded: ['warehouseInfo', 'statusCode'],
   },
   '창고 담당자 목록': {

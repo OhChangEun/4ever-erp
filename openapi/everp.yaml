@@ -100,6 +100,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/WarehouseDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
     put:
@@ -379,6 +381,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/InvoicetDetailRes'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/fcm/invoice/ap/receivable/request:
@@ -490,6 +494,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/InvoicetDetailRes'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/hrm/statistics:
@@ -586,6 +592,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/PositionDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/hrm/departments:
@@ -692,6 +700,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/PayRollDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/hrm/training-status:
@@ -742,6 +752,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/TrainingDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/hrm/program:
@@ -819,6 +831,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/ProgramDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
     patch:
@@ -1416,6 +1430,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/InventoryDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/iv/shortage/preview:
@@ -1633,6 +1649,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/ShippingDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/sales-orders/ready-to-ship/{itemId}:
@@ -1661,6 +1679,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/ShippingDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/sales-orders/{orderId}/status:
@@ -2096,6 +2116,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/MaterialResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/pp/operations:
@@ -2148,6 +2170,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/BomDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
     patch:
@@ -2331,6 +2355,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/MesDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/pp/mes/{mesId}/start:
@@ -2829,6 +2855,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/PurchaseRequestDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/mm/stock-purchase-requisitions:
@@ -3002,6 +3030,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/PurchaseOrderDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /scm-pp/mm/supplier:
@@ -3079,6 +3109,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/SupplierDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
     patch:
@@ -3456,6 +3488,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/QuoteDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/sd/orders:
@@ -3550,6 +3584,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/OrderDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
   /business/sd/quotations/confirm:
@@ -3719,6 +3755,8 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/CustomerDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Error'
     patch:
@@ -3974,6 +4012,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiEnvelope'
+    NotFound:
+      description: |
+        목록에 없는 건(지워졌거나 잘못된 id). 목록과 짝인 상세 GET 19개가 쓴다(카드 "없는 건은 404").
+        게이트웨이는 업스트림 4xx 의 상태 코드를 그대로 돌려준다. 영업, 재무, 인사 상세는 본문이
+        `{ status, success: false, message }` 이다(SdHttpServiceImpl.java:704-715, ApiResponse.java:15 NON_NULL 이라 data 없음).
+        SCM 상세는 업스트림 본문을 그대로 넘긴다(PpController.java:188-208). 업스트림이 실제로 404 를 주는지는 확인 전(verified=false)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
     Error:
       description: 실패. AppError 가 message 를 꺼낸다(src/lib/AppError.ts)
       content:

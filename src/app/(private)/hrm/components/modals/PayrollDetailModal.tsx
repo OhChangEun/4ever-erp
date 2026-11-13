@@ -48,6 +48,7 @@ export function PayrollDetailModal({ payrollId, onClose }: PayrollDetailModalPro
     isError,
   } = useQuery({
     queryKey: payrollKeys.detail(payrollId),
+    meta: { listOnNotFound: payrollKeys.lists() },
     queryFn: () => fetchPayRollDetail(payrollId),
   });
 

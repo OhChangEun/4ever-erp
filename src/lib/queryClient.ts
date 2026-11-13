@@ -1,6 +1,24 @@
-import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  type QueryKey,
+  type QueryMeta,
+} from '@tanstack/react-query';
 import { cache } from 'react';
 import { type AppError, isAppError } from '@/lib/AppError';
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    queryMeta: {
+      /**
+       * 이 쿼리가 404 면 다시 받을 목록 키. 상세 쿼리가 적는다(카드 "없는 건은 404").
+       * 그 건이 서버에서 사라졌으니 목록에 남은 행을 걷어 낸다
+       */
+      listOnNotFound?: QueryKey;
+    };
+  }
+}
 
 /**
  * 다중 사용자 ERP 기준 캐시 기본값. 결정: ai/decisions.md 2026-11-09 "queryClient 기본값".
@@ -42,8 +60,20 @@ export const createQueryClient = ({
     onUnauthorized(error);
   };
 
-  return new QueryClient({
-    queryCache: new QueryCache({ onError: handleError }),
+  // 상세가 404 면 그 건이 목록에서 사라졌다(다른 사용자가 지웠거나 잘못된 id). 그 상세 쿼리가 meta 에 적은 목록만
+  // 다시 받는다. 키 모양에 기대지 않는다(카드 "없는 건은 404" 결정 4, 리뷰 A1). meta 가 없으면 아무것도 안 한다
+  const refetchListOfMissingDetail = (error: unknown, meta: QueryMeta | undefined) => {
+    if (!isAppError(error) || error.kind !== 'notFound' || !meta?.listOnNotFound) return;
+    void client.invalidateQueries({ queryKey: meta.listOnNotFound });
+  };
+
+  const client: QueryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        handleError(error);
+        refetchListOfMissingDetail(error, query.meta);
+      },
+    }),
     mutationCache: new MutationCache({ onError: handleError }),
     defaultOptions: {
       queries: {
@@ -57,6 +87,7 @@ export const createQueryClient = ({
       },
     },
   });
+  return client;
 };
 
 /** 서버 컴포넌트에서 요청 한 번에 하나. prefetch 뒤 dehydrate 해서 넘긴다. */

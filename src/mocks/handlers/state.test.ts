@@ -433,8 +433,8 @@ describe('재고와 창고 목 상태', () => {
     expect(await get(`${SCM}/iv/inventory-items`)).toMatchObject(
       content({ itemId: 'item-1001', safetyStock: 777 }),
     );
-    // 다른 품목은 그대로다
-    expect(await get(`${SCM}/iv/items/item-9999`)).toMatchObject({ data: { safetyStock: 50 } });
+    // 다른 품목(베어링 B, 처음 안전재고 50)은 그대로다. 목록에 없는 id 는 404 라 목록의 다른 품목으로 본다(카드 "없는 건은 404")
+    expect(await get(`${SCM}/iv/items/item-1002`)).toMatchObject({ data: { safetyStock: 50 } });
   });
 
   it('창고 3D 가 쓰는 창고별 재고 조회도 같은 품목은 같은 수량이고, 안전재고 수정과 재고 이동을 따른다', async () => {

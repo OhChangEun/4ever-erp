@@ -12,7 +12,7 @@ type Method = 'GET' | 'POST' | 'PUT' | 'PATCH';
 type CallOptions = { body?: unknown; auth?: string };
 
 /** 응답 본문과 함께 HTTP 상태를 돌려준다 */
-const mockCall = async (
+export const mockCall = async (
   method: Method,
   path: string,
   options: CallOptions = {},

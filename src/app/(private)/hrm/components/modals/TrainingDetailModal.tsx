@@ -18,6 +18,7 @@ export default function TrainingDetailModal({ employeeId }: TrainingDetailModalP
   const tStatus = useTranslations('status');
   const { data, isLoading, isError } = useQuery<TrainingDetailResponse>({
     queryKey: trainingKeys.detail(employeeId),
+    meta: { listOnNotFound: trainingKeys.lists() },
     queryFn: () => fetchTrainingDetail(employeeId),
     enabled: !!employeeId,
   });

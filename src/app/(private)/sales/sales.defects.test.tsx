@@ -101,7 +101,7 @@ describe('영업 화면 결함', () => {
         }),
       ),
     );
-    renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+    renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="qt-001" />);
     await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
     const motor = (await screen.findByRole('cell', { name: '모터 A' })).closest('tr');
     const gear = screen.getByRole('cell', { name: '기어 B' }).closest('tr');
@@ -111,7 +111,7 @@ describe('영업 화면 결함', () => {
   });
 
   it('견적 상세와 검토의 대표자 칸은 "대표이사"로 적힌다(값은 ceoName)', async () => {
-    renderWithProviders(<QuoteDetailModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+    renderWithProviders(<QuoteDetailModal id="m" onClose={vi.fn()} selectedQuotationId="qt-001" />);
     expect(await screen.findByText('대표이사:')).toBeInTheDocument();
     expect(screen.queryByText('담당자:')).not.toBeInTheDocument();
   });
@@ -157,7 +157,9 @@ describe('영업 화면 결함', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date('2026-11-11T09:30:00'));
     try {
-      renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+      renderWithProviders(
+        <QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="qt-001" />,
+      );
       await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
       expect(await screen.findByText('재고 확인 일시: 오후 03:05')).toBeInTheDocument();
     } finally {
@@ -187,7 +189,9 @@ describe('영업 화면 결함', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date('2026-11-11T14:20:00'));
     try {
-      renderWithProviders(<QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="q-1" />);
+      renderWithProviders(
+        <QuoteReviewModal id="m" onClose={vi.fn()} selectedQuotationId="qt-001" />,
+      );
       await userEvent.click(await screen.findByRole('button', { name: '재고 확인' }));
       expect(await screen.findByText('재고 확인 일시: 오후 02:20')).toBeInTheDocument();
       expect(screen.queryByText(/Invalid Date/)).not.toBeInTheDocument();

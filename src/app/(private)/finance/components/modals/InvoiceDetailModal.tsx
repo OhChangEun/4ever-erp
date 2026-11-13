@@ -46,6 +46,7 @@ const InvoiceDetailModal = ({ onClose, selectedInvoiceId }: InvoiceDetailModalPr
     isError,
   } = useQuery<InvoicetDetailRes>({
     queryKey: invoiceKeys.detail(selectedInvoiceId),
+    meta: { listOnNotFound: invoiceKeys.lists() },
     queryFn: queryFn,
     enabled: !!selectedInvoiceId,
   });

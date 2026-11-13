@@ -3,7 +3,17 @@ import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoi
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { HEADCOUNT } from './attendanceSummary.handlers';
-import { ok, okNoData, error, shouldError, isoNow, makePage, level, statResponse } from './utils';
+import {
+  ok,
+  okNoData,
+  error,
+  notFound,
+  shouldError,
+  isoNow,
+  makePage,
+  level,
+  statResponse,
+} from './utils';
 
 type Employee = Schema<'EmployeeData'>;
 type Program = Schema<'ProgramListData'>;
@@ -137,6 +147,8 @@ export const hrmHandlers = [
   }),
   http.get(`${HRM_BASE_PATH}/positions/:positionId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load position detail', 500);
+    // 직급 목록은 pos-001 한 행이다(카드 "없는 건은 404")
+    if (params.positionId !== 'pos-001') return notFound('직급 상세 조회');
     return ok({
       positionId: params.positionId,
       positionName: '팀장',
@@ -221,6 +233,8 @@ export const hrmHandlers = [
   }),
   http.get<{ payrollId: string }>(`${HRM_BASE_PATH}/payroll/:payrollId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load payroll detail', 500);
+    // 급여 목록은 pay-001 한 행이다
+    if (params.payrollId !== 'pay-001') return notFound('급여 명세서 상세 조회');
     return ok({
       payrollId: params.payrollId,
       employee: {
@@ -266,6 +280,8 @@ export const hrmHandlers = [
     `${HRM_BASE_PATH}/training/employee/:employeeId`,
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load training detail', 500);
+      // 교육 현황 목록은 emp-001 한 행이다
+      if (params.employeeId !== 'emp-001') return notFound('직원 교육 이력 조회');
       const assigned = hrmState(request).assignedPrograms.get(params.employeeId) ?? [];
       return ok({
         employeeId: params.employeeId,
@@ -299,11 +315,9 @@ export const hrmHandlers = [
   }),
   http.get<{ programId: string }>(`${HRM_BASE_PATH}/program/:programId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load program detail', 500);
-    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 프로그램 본문에 그 id 와 수정한 값을 싣는다
-    const program = programsOf(request).find((row) => row.programId === params.programId) ?? {
-      ...SEED_PROGRAM,
-      ...hrmState(request).programEdits.get(params.programId),
-    };
+    // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404
+    const program = programsOf(request).find((row) => row.programId === params.programId);
+    if (!program) return notFound('교육 프로그램 상세 조회');
     return ok({
       programId: params.programId,
       programName: program.programName,

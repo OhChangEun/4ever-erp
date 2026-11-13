@@ -5,6 +5,7 @@ import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { ok } from '@/mocks/utils';
 import { SALES_ENDPOINTS } from '@/app/types/api';
+import salesKo from '@/i18n/messages/sales/ko.json';
 import QuoteDetailModal from './QuoteDetailModal';
 
 /**
@@ -61,5 +62,18 @@ describe('견적 상세 품목 행', () => {
     expect(quantities).toEqual(['3', '7']);
     expect(screen.getByText('펌프 B')).toBeInTheDocument();
     expect(consoleError).not.toHaveBeenCalled();
+  });
+});
+
+describe('목록에 없는 견적(카드 "없는 건은 404")', () => {
+  it('없는 id 를 열면 오류 안내가 보이고 다른 견적의 내용은 안 보인다', async () => {
+    // 기본 목 핸들러 그대로. 목록에 없는 id 라 404 다
+    renderWithProviders(
+      <QuoteDetailModal id="m" onClose={() => {}} selectedQuotationId="nope-1" />,
+    );
+
+    expect(await screen.findByText(salesKo.quote.loadError)).toBeInTheDocument();
+    expect(screen.queryByText('한빛전자')).not.toBeInTheDocument();
+    expect(screen.queryByText(/QT-2026-/)).not.toBeInTheDocument();
   });
 });

@@ -9,6 +9,7 @@ import { handlers } from '@/mocks/handlers';
 import { API_BASE_URL, WAREHOUSE_ENDPOINTS } from '@/app/types/api';
 import { applyAllMockWrites } from '@/test/mockApi';
 import { loadContract, type Contract } from './loadContract';
+import { DETAIL_PAIRS, detailPath } from './detailPairs';
 
 /**
  * OpenAPI 계약(`openapi/everp.yaml`)이 원본이다(OpenAPI 계약 1 카드).
@@ -35,33 +36,39 @@ const jsonSchema = z.custom<z.core.JSONSchema.JSONSchema>(
   (value) => typeof value === 'object' && value !== null,
 );
 
-/** 계약의 200 응답 스키마를 zod 로. `#/components/schemas/X` 참조는 `$defs` 로 옮긴다 */
-const responseSchema = (contract: Contract, path: string, method: Method) => {
-  const operation = z
-    .object({
-      responses: z.object({
-        '200': z.object({
-          content: z.object({ 'application/json': z.object({ schema: z.unknown() }) }),
-        }),
-      }),
-    })
-    .parse(contract.paths[path][method]);
+const ResponseSchema = z.object({
+  content: z.object({ 'application/json': z.object({ schema: z.unknown() }) }),
+});
+
+/**
+ * 계약의 응답 스키마(기본 200)를 zod 로. `#/components/schemas/X` 참조는 `$defs` 로 옮긴다.
+ * `#/components/responses/X` 참조(404 의 NotFound 등)는 그 응답으로 따라간다
+ */
+const responseSchema = (contract: Contract, path: string, method: Method, status = '200') => {
+  const declared = z
+    .object({ responses: z.record(z.string(), z.unknown()) })
+    .parse(contract.paths[path][method]).responses[status];
+  const ref = z.object({ $ref: z.string() }).safeParse(declared);
+  const response = ResponseSchema.parse(
+    ref.success
+      ? contract.components.responses[ref.data.$ref.replace('#/components/responses/', '')]
+      : declared,
+  );
   const relink = (value: unknown): unknown =>
     JSON.parse(JSON.stringify(value).replaceAll('#/components/schemas/', '#/$defs/'));
-  const root = jsonSchema.parse(
-    relink(operation.responses['200'].content['application/json'].schema),
-  );
+  const root = jsonSchema.parse(relink(response.content['application/json'].schema));
   const defs = z.record(z.string(), jsonSchema).parse(relink(contract.components.schemas));
   return z.fromJSONSchema({ ...root, $defs: defs });
 };
 
-const mockJson = async (url: string) => {
+const mockResponse = async (url: string) => {
   const response = await getResponse(handlers, new Request(new URL(url, ORIGIN)), {
     baseUrl: ORIGIN,
   });
   if (!response) throw new Error(`목 핸들러 없음: ${url}`);
-  return response.json();
+  return response;
 };
+const mockJson = async (url: string) => (await mockResponse(url)).json();
 
 // 창고 화면이 부르는 요청(warehouse.api.ts)
 const WAREHOUSE_CALLS: [Method, string][] = [
@@ -175,15 +182,26 @@ describe('OpenAPI 계약: 전 도메인', () => {
     expect(missing).toEqual([]);
   });
 
-  /** 계약의 GET 전부를 목에 물어 스키마와 안 맞는 것을 모은다 */
-  const getFailures = async () => {
+  /**
+   * 계약의 GET 전부를 목에 물어 스키마와 안 맞는 것을 모은다. 목록과 짝인 상세는 목록에 있는 id 로 묻는다
+   * (없는 id 는 404, 카드 "없는 건은 404"). `gone` 은 쓰기로 목록에서 빠져 404 가 맞는 상세다
+   */
+  const getFailures = async (gone: string[] = []) => {
     const contract = loadContract();
     const gets = Object.keys(contract.paths).filter((p) => contract.paths[p].get);
     expect(gets.length).toBeGreaterThan(60);
     const failures: string[] = [];
     for (const template of gets) {
-      const url = `${API_BASE_URL}${template.replace(/\{[^}]+\}/g, 'id-1')}`;
-      const result = responseSchema(contract, template, 'get').safeParse(await mockJson(url));
+      const id = DETAIL_PAIRS[template] ?? 'id-1';
+      const url = `${API_BASE_URL}${template.replace(/\{[^}]+\}/g, id)}`;
+      const expected = gone.includes(template) ? 404 : 200;
+      const response = await mockResponse(url);
+      if (response.status !== expected) {
+        failures.push(`${template}: 상태 ${response.status}, 기대 ${expected}`);
+        continue;
+      }
+      const schema = responseSchema(contract, template, 'get', String(expected));
+      const result = schema.safeParse(await response.json());
       if (!result.success) failures.push(`${template}: ${z.prettifyError(result.error)}`);
     }
     return failures;
@@ -191,6 +209,33 @@ describe('OpenAPI 계약: 전 도메인', () => {
 
   it('계약의 GET 응답 전부가 MSW 응답과 맞는다', async () => {
     expect(await getFailures()).toEqual([]);
+  });
+
+  it('목록과 짝인 상세 GET 19개만 404 를 선언한다', () => {
+    const contract = loadContract();
+    const declared = Object.keys(contract.paths).filter((p) => {
+      const get = z
+        .object({ responses: z.record(z.string(), z.unknown()) })
+        .safeParse(contract.paths[p].get);
+      return get.success && '404' in get.data.responses;
+    });
+    expect(declared.sort()).toEqual(Object.keys(DETAIL_PAIRS).sort());
+  });
+
+  it('없는 id 의 상세 응답(MSW)이 404 이고 계약의 404 스키마에 맞는다', async () => {
+    const contract = loadContract();
+    const failures: string[] = [];
+    for (const template of Object.keys(DETAIL_PAIRS)) {
+      const response = await mockResponse(`${API_BASE_URL}${detailPath(template, 'id-1')}`);
+      if (response.status !== 404) {
+        failures.push(`${template}: 상태 ${response.status}`);
+        continue;
+      }
+      const schema = responseSchema(contract, template, 'get', '404');
+      const result = schema.safeParse(await response.json());
+      if (!result.success) failures.push(`${template}: ${z.prettifyError(result.error)}`);
+    }
+    expect(failures).toEqual([]);
   });
 
   // 목이 쓰기 결과를 따르게 카드. 새 행, 바뀐 상태, 수정한 필드가 든 응답도 계약 모양이어야 한다
@@ -201,7 +246,8 @@ describe('OpenAPI 계약: 전 도메인', () => {
     expect(await mockJson(`${API_BASE_URL}/scm-pp/mm/purchase-requisitions`)).toMatchObject({
       data: { page: { totalElements: 3 } },
     });
-    expect(await getFailures()).toEqual([]);
+    // 출고 준비 목록의 유일한 행(so-002)은 배송 시작 쓰기로 목록에서 빠진다
+    expect(await getFailures(['/scm-pp/sales-orders/ready-to-ship/{itemId}'])).toEqual([]);
   });
 });
 

@@ -60,6 +60,7 @@ export default function BomDetailModal({ bomId, showStatusActions }: BomDetailMo
     isError,
   } = useQuery<BomDetailResponse>({
     queryKey: bomKeys.detail(bomId),
+    meta: { listOnNotFound: bomKeys.lists() },
     queryFn: () => fetchBomDetail(bomId),
     enabled: !!bomId,
   });

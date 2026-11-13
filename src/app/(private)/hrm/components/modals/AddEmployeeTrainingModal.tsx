@@ -42,6 +42,7 @@ export default function AddEmployeeTrainingModal({
     refetch: refetchHistory,
   } = useQuery({
     queryKey: trainingKeys.detail(employeeId),
+    meta: { listOnNotFound: trainingKeys.lists() },
     queryFn: () => fetchTrainingDetail(employeeId),
     enabled: !!employeeId,
     select: (detail) => detail.programHistory.map((record) => record.programId),

@@ -7,6 +7,7 @@ import {
   ok,
   okNoData,
   error,
+  notFound,
   shouldError,
   pathSegment,
   isoNow,
@@ -143,8 +144,9 @@ export const inventoryHandlers = [
   }),
   http.get<{ itemId: string }>(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load inventory detail', 500);
-    // 목록에 있는 품목은 품목표에서 찾는다. 모르는 id 는 계약에 404 가 없어 모터 A 본문에 그 id 를 싣는다
-    const item = catalogItem(params.itemId) ?? { ...MOTOR, itemId: params.itemId };
+    // 목록(일반, 안전재고, 창고별)의 품목은 품목표에서 찾는다. 품목표에 없으면 404(카드 "없는 건은 404")
+    const item = catalogItem(params.itemId);
+    if (!item) return notFound('재고 상세 조회');
     return ok({
       ...itemRow(request, item),
       supplierCompanyName: '대양상사',
@@ -253,6 +255,8 @@ export const inventoryHandlers = [
   }),
   http.get(`${INVENTORY_BASE_PATH}/sales-orders/production/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load production detail', 500);
+    // 생산중 주문 목록은 so-001 한 행이다
+    if (params.itemId !== 'so-001') return notFound('생산중 주문 상세 조회');
     return ok({
       salesOrderId: params.itemId,
       salesOrderNumber: 'SO-2026-001',
@@ -264,6 +268,9 @@ export const inventoryHandlers = [
   }),
   http.get(`${INVENTORY_BASE_PATH}/sales-orders/ready-to-ship/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load shipping detail', 500);
+    // 출고 준비 목록(배송을 시작하면 빠진다)에 없으면 404
+    if (!readyToShipOf(request).some((order) => order.salesOrderId === params.itemId))
+      return notFound('출고 준비 주문 상세 조회');
     return ok({
       salesOrderId: params.itemId,
       salesOrderNumber: 'SO-2026-002',

@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod';
-import { mockApi } from '@/test/mockApi';
+import { mockApi, mockCall } from '@/test/mockApi';
+import { DETAIL_PAIRS, detailPath } from '@/test/contract/detailPairs';
 import {
   API_BASE_URL,
   DASHBOARD_ENDPOINTS,
@@ -374,36 +375,147 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('없는 id: 계약에 404 가 없어 200 이고 그 id 를 그대로 싣는다', () => {
-  it.each([
-    [`${SALES_ENDPOINTS.QUOTES_LIST}/nope-1`, ['quotationId']],
-    [`${SALES_ENDPOINTS.ORDERS_LIST}/nope-1`, ['order', 'salesOrderId']],
-    [`${SALES_ENDPOINTS.CUSTOMERS_LIST}/nope-1`, ['customerId']],
-    [`${PURCHASE_ENDPOINTS.PURCHASE_REQUESTS}/nope-1`, ['id']],
-    [`${PURCHASE_ENDPOINTS.PURCHASE_ORDERS}/nope-1`, ['purchaseOrderId']],
-    [`${FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST}/nope-1`, ['invoiceId']],
-    [`${HRM_ENDPOINTS.PROGRAM}/nope-1`, ['programId']],
-    [
-      `${INVENTORY_ENDPOINTS.INVENTORY_LIST.replace('inventory-items', 'items')}/nope-1`,
-      ['itemId'],
-    ],
-    [`${PRODUCTION_ENDPOINTS.PRODUCTS}/nope-1`, ['productId']],
-    [`${PRODUCTION_ENDPOINTS.BOMS}/nope-1`, ['bomId']],
-    [`${PRODUCTION_ENDPOINTS.MES_LIST}/nope-1`, ['mesId']],
-  ])('%s', async (url, path) => {
-    let node: unknown = await dataOf(url);
-    for (const key of path) node = RecordSchema.parse(node)[key];
-    expect(node).toBe('nope-1');
+describe('없는 건은 404(카드 "없는 건은 404")', () => {
+  it.each(Object.keys(DETAIL_PAIRS))(
+    '%s: 목록에 없는 id 는 404 이고 data 가 없다',
+    async (template) => {
+      const { status, body } = await mockCall('GET', detailPath(template, 'nope-1'));
+      expect(status).toBe(404);
+      // 게이트웨이 ApiResponse.fail 은 data 가 null 이고 NON_NULL 이라 키가 빠진다(카드 근거 1)
+      expect(body).toEqual({ status: 404, success: false, message: expect.any(String) });
+    },
+  );
+
+  it.each(Object.entries(DETAIL_PAIRS))('%s: 목록의 기본 행 %s 는 200', async (template, id) => {
+    const { status, body } = await mockCall('GET', detailPath(template, id));
+    expect(status).toBe(200);
+    expect(body).toMatchObject({ success: true, data: expect.anything() });
   });
+
+  // 목 상태는 로그인(Authorization)별이다. 한 로그인이 만든 행은 다른 로그인의 목록에 없다
+  const MAKER = 'Bearer maker';
+  const OTHER = 'Bearer other';
+  it.each([
+    [
+      '견적',
+      SALES_ENDPOINTS.NEW_ORDER,
+      { items: [{ itemId: 'item-1001', quantity: 5, unitPrice: 12000 }], note: '' },
+      SALES_ENDPOINTS.QUOTES_LIST,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.quotationId),
+    ],
+    [
+      '주문(즉시 납품)',
+      SALES_ENDPOINTS.QUOTE_DELIVERY_PROCESS('qt-002'),
+      undefined,
+      SALES_ENDPOINTS.ORDERS_LIST,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.salesOrderId),
+    ],
+    [
+      '고객',
+      SALES_ENDPOINTS.CUSTOMERS_LIST,
+      { companyName: '신규상사', manager: { name: '박담당', mobile: '010-1', email: 'a@b.c' } },
+      SALES_ENDPOINTS.CUSTOMERS_LIST,
+      (data: Row) => RowsSchema.parse(data.customers).map((row) => row.customerId),
+    ],
+    [
+      '구매 요청',
+      PURCHASE_ENDPOINTS.PURCHASE_REQUESTS,
+      {
+        items: [
+          {
+            itemName: '볼트 M8',
+            quantity: 10,
+            uomName: 'EA',
+            expectedUnitPrice: 500,
+            preferredSupplierName: '대양상사',
+            dueDate: '2026-12-01',
+            purpose: '보충',
+          },
+        ],
+      },
+      PURCHASE_ENDPOINTS.PURCHASE_REQUESTS,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.purchaseRequisitionId),
+    ],
+    [
+      '공급사',
+      PURCHASE_ENDPOINTS.SUPPLIER,
+      {
+        supplierInfo: {
+          supplierName: '새 공급사',
+          supplierEmail: 'hello@new-supplier.co.kr',
+          supplierPhone: '031-123-4567',
+          supplierBaseAddress: '경기도 화성시',
+          supplierDetailAddress: null,
+          category: 'MATERIAL',
+          deliveryLeadTime: 7,
+        },
+        managerInfo: { managerName: '김담당', managerPhone: '010-2', managerEmail: 'k@n.co.kr' },
+        materialList: [],
+      },
+      PURCHASE_ENDPOINTS.SUPPLIER,
+      (data: Row) =>
+        RowsSchema.parse(data.content).map((row) => field(row, 'supplierInfo').supplierId),
+    ],
+    [
+      '교육 프로그램',
+      HRM_ENDPOINTS.PROGRAM,
+      {
+        programName: '품질 교육',
+        category: 'QUALITY',
+        trainingHour: 8,
+        isOnline: false,
+        startDate: '2026-12-01',
+        capacity: 20,
+        requiredDepartments: [],
+        requiredPositions: [],
+        description: '',
+      },
+      HRM_ENDPOINTS.PROGRAM,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.programId),
+    ],
+    [
+      '창고',
+      WAREHOUSE_ENDPOINTS.ADD_WAREHOUSE,
+      {
+        warehouseName: '3공장 창고',
+        warehouseType: 'RAW',
+        location: '부산',
+        managerId: 'mgr-001',
+        note: '',
+      },
+      WAREHOUSE_ENDPOINTS.WAREHOUSE_LIST,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.warehouseId),
+    ],
+    [
+      'BOM',
+      PRODUCTION_ENDPOINTS.BOMS,
+      { productName: '펌프 B', unit: 'EA', items: [] },
+      PRODUCTION_ENDPOINTS.BOMS,
+      (data: Row) => RowsSchema.parse(data.content).map((row) => row.bomId),
+    ],
+  ])(
+    '%s: 만든 로그인에서는 새 행의 상세가 200, 다른 로그인에서는 404',
+    async (_, createUrl, body, listUrl, idsOf) => {
+      const before = idsOf(await recordOf(listUrl));
+      await mockApi('POST', rel(createUrl), { body, auth: MAKER });
+      const listed = z
+        .object({ data: RecordSchema })
+        .parse(await mockApi('GET', rel(listUrl), { auth: MAKER })).data;
+      const [created] = idsOf(listed).filter((id) => !before.includes(id));
+      const detail = `${rel(listUrl)}/${str(created)}`;
+      expect((await mockCall('GET', detail, { auth: MAKER })).status).toBe(200);
+      expect((await mockCall('GET', detail, { auth: OTHER })).status).toBe(404);
+    },
+  );
 });
 
-describe('없는 id 와 밀려난 행(리뷰 A2, A3)', () => {
-  it('목록에 없는 견적 id 에 검토 요청을 보내면 그 상세도 REVIEW 다', async () => {
+describe('목록에서 밀려난 행과 없는 id 에 보낸 쓰기(리뷰 A2, A3)', () => {
+  it('목록에 없는 견적 id 에 검토 요청을 보내도 그 상세는 404 다(쓰기가 없는 건을 만들지 않는다)', async () => {
     await post(SALES_ENDPOINTS.QUOTE_CONFIRM, { quotationId: 'nope-9' });
-    expect((await recordOf(`${SALES_ENDPOINTS.QUOTES_LIST}/nope-9`)).statusCode).toBe('REVIEW');
+    expect((await mockCall('GET', `${rel(SALES_ENDPOINTS.QUOTES_LIST)}/nope-9`)).status).toBe(404);
   });
 
-  it('견적을 51건 만들어 첫 새 견적이 목록에서 밀려나도 그 상세의 품목 합은 총액이다', async () => {
+  it('견적을 51건 만들어 첫 새 견적이 목록에서 밀려나면 그 상세는 404 다', async () => {
     for (let i = 1; i <= 51; i++)
       await post(SALES_ENDPOINTS.NEW_ORDER, {
         items: [{ itemId: 'item-1001', quantity: i, unitPrice: 12000 }],
@@ -411,11 +523,10 @@ describe('없는 id 와 밀려난 행(리뷰 A2, A3)', () => {
       });
     const ids = (await rowsOf(SALES_ENDPOINTS.QUOTES_LIST)).map((row) => row.quotationId);
     expect(ids).not.toContain('qt-005');
-    const detail = await recordOf(`${SALES_ENDPOINTS.QUOTES_LIST}/qt-005`);
-    expectLinesAddUp(detail, 'amount', detail.totalAmount);
+    expect((await mockCall('GET', `${rel(SALES_ENDPOINTS.QUOTES_LIST)}/qt-005`)).status).toBe(404);
   });
 
-  it('구매 요청을 51건 만들어 첫 새 요청이 밀려나도 그 상세의 품목 합은 총액이다', async () => {
+  it('구매 요청을 51건 만들어 첫 새 요청이 밀려나면 그 상세는 404 다', async () => {
     for (let i = 1; i <= 51; i++)
       await post(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, {
         items: [
@@ -434,8 +545,8 @@ describe('없는 id 와 밀려난 행(리뷰 A2, A3)', () => {
       (row) => row.purchaseRequisitionId,
     );
     expect(ids).not.toContain('pr-002');
-    const detail = await recordOf(`${PURCHASE_ENDPOINTS.PURCHASE_REQUESTS}/pr-002`);
-    expectLinesAddUp(detail, 'amount', detail.totalAmount);
+    const detail = `${rel(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS)}/pr-002`;
+    expect((await mockCall('GET', detail)).status).toBe(404);
   });
 });
 

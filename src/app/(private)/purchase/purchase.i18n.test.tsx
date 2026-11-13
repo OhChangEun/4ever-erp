@@ -99,7 +99,7 @@ describe('구매 화면 영어(i18n 5)', () => {
   });
 
   it('발주서 상세의 라벨과 품목 표 머리가 영어', async () => {
-    renderWithProviders(<PurchaseOrderDetailModal purchaseOrderId="po-1" onClose={() => {}} />, {
+    renderWithProviders(<PurchaseOrderDetailModal purchaseOrderId="po-001" onClose={() => {}} />, {
       locale: 'en',
     });
     expect(await screen.findByText('PO no.')).toBeInTheDocument();

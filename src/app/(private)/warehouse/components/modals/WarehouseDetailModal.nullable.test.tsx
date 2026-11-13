@@ -12,7 +12,7 @@ describe('창고 상세 모달의 빈 값(응답 null 허용 카드)', () => {
   ])(
     '설명과 주소, 담당자 연락처가 %s 이어도 창고 정보를 그리고 빈 칸은 - 로 보인다',
     async (_, edit) => {
-      const data = await serveEdited(WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL('wh-1'), (d) => {
+      const data = await serveEdited(WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL('wh-001'), (d) => {
         edit(d, ['warehouseInfo', 'description']);
         edit(d, ['warehouseInfo', 'location']);
         edit(d, ['manager', 'managerPhoneNumber']);
@@ -23,7 +23,7 @@ describe('창고 상세 모달의 빈 값(응답 null 허용 카드)', () => {
           id="m"
           onClose={() => undefined}
           handleWarehouseManage={() => undefined}
-          selectedWarehouseId="wh-1"
+          selectedWarehouseId="wh-001"
           selectedWarehouseName="창고"
         />,
       );
