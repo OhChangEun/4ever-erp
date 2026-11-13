@@ -30,7 +30,7 @@ export default function Sidebar() {
       {/* 모바일 햄버거 버튼 (플로팅) */}
       <button
         onClick={toggleSidebar}
-        className={`fixed top-4 left-4 z-overlay lg:hidden p-3 bg-white rounded-lg shadow-lg border border-gray-200 transition-opacity ${
+        className={`fixed top-4 left-4 z-overlay lg:hidden p-3 bg-white rounded-lg border border-gray-200 transition-opacity ${
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
         aria-label={t('openMenu')}

@@ -212,7 +212,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:82`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다.
 4. 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 줄지 않고 내용 칸에서 스크롤된다. 탭 컴포넌트가 따로 `overflow-auto` 를 달지 않는다(재무 현황에 있던 것은 지웠다). 내용 칸과 그 조상에 `overflow-hidden` 을 다시 넣으면 넘친 내용을 볼 방법이 없어진다.
 5. 내용 칸은 `role="region"`, 이름은 활성 탭 이름, `tabIndex={0}` 이다(`?tab=` 이 없는 값이면 내용이 없어 이름과 `tabIndex` 를 빼서 빈 Tab 정지가 안 생긴다). 안에 포커스 받을 요소가 없는 탭도 키보드(방향키, PageDown, End)로 스크롤된다. 탭 화면마다 Tab 정지가 하나 는다.
-6. 하위 탭(`SubNavigation`, 인사)의 내용 칸은 스크롤 칸이 아니다. 넘치면 하위 탭 버튼 줄과 같이 2번 칸에서 스크롤된다.
+6. 하위 탭(`SubNavigation`, 인사와 생산 MRP)은 2단 탭 줄이 없다. 활성 화면에 세그먼트(`TabButtons`)를 `tabButtons` 로 넘기고 화면이 자기 툴바 왼쪽에 둔다(`src/app/components/common/SubNavigation.tsx:37`). 고른 탭은 `?subTab=`, 모르는 id 는 첫 탭. 하위 화면은 따로 스크롤 칸을 두지 않는다. 넘치면 세그먼트 줄과 같이 2번 칸에서 스크롤된다.
 7. 모달은 본문이 스크롤 칸이다(`src/app/components/common/modal/ModalContainer.tsx:101`, 높이는 화면의 90% 까지).
 8. 회귀 테스트는 `e2e/clipped-content.spec.ts`. 비공개 화면과 탭, 하위 탭 30개, 화면 안 전환 8개, 모달과 팝업 34개를 1280x720 과 1512x772 에서 열어 잘린 곳(`e2e/clipped.ts` 의 `findClipped`)과 이중 스크롤이 0 인지 본다. 허용 목록은 없다. 새 탭이나 모달을 만들면 이 스펙의 목록에 더한다.
 

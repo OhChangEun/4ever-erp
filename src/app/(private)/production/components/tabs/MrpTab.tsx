@@ -1,38 +1,17 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MRP_TABS } from '@/app/(private)/production/constants';
-import { TabButtons } from '@everp/ui';
+import SubNavigation from '@/app/components/common/SubNavigation';
 import { useTranslations } from 'next-intl';
 
 export default function MrpTab() {
   const t = useTranslations('production.tabs');
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathName = usePathname();
-
-  const currentSubTab = searchParams.get('subTab') || MRP_TABS[0]?.id;
-
-  const handleSubTabChange = (tabId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('subTab', tabId);
-    router.replace(`${pathName}?${params}`);
-  };
-
-  const activeTab = MRP_TABS.find((tab) => tab.id === currentSubTab);
-  const ActiveComponent = activeTab?.component;
-
-  const tabButtons = (
-    <TabButtons
-      tabs={MRP_TABS.map(({ id, name, icon }) => ({ id, name: t(name), icon }))}
-      activeTab={currentSubTab}
-      onTabChange={handleSubTabChange}
-    />
-  );
-
+  const tNav = useTranslations('nav');
+  // 하위 탭 처리(?subTab=, 모르는 id 는 첫 탭)는 인사와 같은 공통 SubNavigation
   return (
-    <div className="flex flex-col h-full">
-      {ActiveComponent && <ActiveComponent tabButtons={tabButtons} />}
-    </div>
+    <SubNavigation
+      label={tNav('tabsLabel', { title: t('mrp') })}
+      tabs={MRP_TABS.map((tab) => ({ ...tab, name: t(tab.name) }))}
+    />
   );
 }

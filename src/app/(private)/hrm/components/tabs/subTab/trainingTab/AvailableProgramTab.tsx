@@ -8,7 +8,7 @@ import {
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import ProgramDetailModal from '@/app/(private)/hrm/components/modals/ProgramDetailModal';
 import AddTrainingModal from '@/app/(private)/hrm/components/modals/AddProgramModal';
@@ -17,7 +17,8 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { programKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
-export default function AvailableProgramTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function AvailableProgramTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -66,7 +67,8 @@ export default function AvailableProgramTab() {
   };
   return (
     <div>
-      <div className="flex items-center justify-end mb-4">
+      <div className="flex items-center justify-between mb-4">
+        {tabButtons}
         <Button label={t('programs.add')} onClick={handleViewProgramRegister} />
       </div>
 

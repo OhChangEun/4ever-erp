@@ -47,6 +47,7 @@ import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function MesTab() {
   const t = useTranslations('production');
+  const tNav = useTranslations('nav');
   const optionLabels = useOptionLabels();
   const [selectedMesQuote, setSelectedMesQuote] = useState('');
   const [selectedMesStatus, setSelectedMesStatus] = useState('');
@@ -222,9 +223,7 @@ export default function MesTab() {
                       className={`w-4 h-0.5 mx-0.5 -mt-3 ${
                         getStepState(index + 1, currentOpNum, row.status) !== 'pending'
                           ? 'bg-blue-400'
-                          : state === 'active'
-                            ? 'bg-linear-to-r from-blue-400 to-gray-200'
-                            : 'bg-gray-200'
+                          : 'bg-gray-200'
                       }`}
                     />
                   )}
@@ -258,6 +257,7 @@ export default function MesTab() {
         {/* 보기 전환(DESIGN_GUIDELINES: 툴바 왼쪽 세그먼트, 아이콘 없음) */}
         <div className="mr-auto">
           <TabButtons
+            label={tNav('tabsLabel', { title: t('tabs.mes') })}
             tabs={VIEWS.map(({ id, name }) => ({ id, name: t(`mes.views.${name}`) }))}
             activeTab={view}
             onTabChange={setView}
@@ -286,7 +286,7 @@ export default function MesTab() {
         />
       </div>
 
-      <div className="flex flex-col flex-1 min-h-0 bg-white rounded-xl overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 bg-white rounded-lg overflow-hidden">
         {isLoading ? (
           <TableStatusBox type="loading" message={t('mes.loading')} />
         ) : isError ? (

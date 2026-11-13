@@ -262,6 +262,7 @@ UI 생성 및 수정 요청을 받으면 다음 순서로 작업한다.
 ```
 
 - 서브탭(hrm 직원·부서, production MRP 등)은 2단 탭으로 쌓지 않고 **툴바 왼쪽 세그먼트 버튼**으로 둔다. `TabButtons`를 쓰되 `icon`은 넘기지 않는다.
+- 세그먼트(서브탭, 기간 선택)는 한 모양이다: 회색 바탕 칸에 흰 활성 칸, 그림자 없음. 활성 칸을 브랜드 블루로 채우지 않는다(옆의 primary 버튼과 헷갈린다). 클래스는 `packages/ui/src/segment.ts` 하나를 `TabButtons` 와 `SlidingNavBar` 가 같이 쓴다.
 - 대시보드도 같은 뼈대를 따른다. "빠른 작업"은 링크 목록, "워크플로우 현황"은 테이블. 아이콘 타일·카드 안의 카드를 두지 않는다.
 - 스크롤: 목록 탭은 표 안에서 스크롤한다(표 머리 고정, 페이지네이션은 바닥). 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 탭 내용 칸(`TabNavigation`)에서 세로로 스크롤된다. 탭마다 `overflow-auto` 나 `overflow-hidden` 을 따로 달지 않는다. 이유와 구조는 `ARCHITECTURE.md` 6절 "화면 틀과 스크롤".
 
@@ -346,8 +347,8 @@ UI 생성 및 수정 요청을 받으면 다음 순서로 작업한다.
 1. `createStatCard` 변화율 단위 → `%`
 2. 금액·날짜 유틸 추가 후 전 도메인 테이블 컬럼에 적용 (sales, inventory, low-stock, finance, hrm 급여, purchase)
 3. 작업 열 아이콘 버튼 → 텍스트 링크 (12개 테이블)
-4. 서브탭 세그먼트화 + 탭 아이콘 제거 (hrm, production)
-5. 카드 래퍼·그림자 제거 (dashboard, warehouse 목록, production 모달). 표를 감싼 카드는 2026-11-12 카드 `ai/cards/2026-11-12_표_테두리_한_겹.md` 로 끝냈다(sales, inventory, low-stock)
+4. 서브탭 세그먼트화 + 탭 아이콘 제거 (hrm, production). 2026-11-13 카드 `ai/cards/2026-11-13_디자인_지침_위반_정리.md` 로 끝냈다(재고 출고, 입고와 대시보드 워크플로우 세그먼트도 `TabButtons`, 모든 탭 상수의 `icon` 제거)
+5. 카드 래퍼·그림자 제거 (dashboard, warehouse 목록, production 모달). 표를 감싼 카드는 2026-11-12 카드 `ai/cards/2026-11-12_표_테두리_한_겹.md` 로 끝냈다(sales, inventory, low-stock). warehouse 목록, 재고 목록 위 두 요약, 프로필, 모달 밖 그림자와 그라데이션은 2026-11-13 카드 `ai/cards/2026-11-13_디자인_지침_위반_정리.md` 로 끝냈다. 남은 것: dashboard 카드(7번과 같이), 모달 안(모달 규칙 대기). 다시 생기지 않는지는 `src/test/designRules.test.ts`(그림자, 그라데이션, 보라색, 탭 아이콘의 허용 목록)와 `e2e/design-rules.spec.ts` 가 본다
 6. 모달 푸터 통일, `ModalStatusBox` 인라인화
 7. 대시보드 재구성
 8. `Logo` 사이드바 48px 안에 맞추기

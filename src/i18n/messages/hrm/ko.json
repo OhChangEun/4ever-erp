@@ -69,7 +69,6 @@
     }
   },
   "departments": {
-    "title": "부서별 조직 구조",
     "headcount": "인원 수",
     "manager": "부서장",
     "detailTitle": "부서 상세보기",

@@ -19,7 +19,7 @@ export default function IconButton({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-1.5 rounded-md font-medium whitespace-nowrap cursor-pointer transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+    'inline-flex items-center justify-center gap-1.5 rounded-md font-medium whitespace-nowrap cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50';
 
   const variants = {
     primary: 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700',

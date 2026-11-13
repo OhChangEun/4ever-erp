@@ -17,28 +17,24 @@ export const SALES_TABS: SalesTab[] = [
   {
     id: 'quotes',
     name: 'quotes',
-    icon: 'ri-file-text-line',
     component: SalesQuoteList,
     roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
   {
     id: 'orders',
     name: 'orders',
-    icon: 'ri-shopping-cart-line',
     component: SalesOrderList,
     roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
   {
     id: 'customers',
     name: 'customers',
-    icon: 'ri-user-3-line',
     component: SalesCustomerList,
     roles: [...INTERNAL_ROLES],
   },
   {
     id: 'analytics',
     name: 'analytics',
-    icon: 'ri-bar-chart-line',
     component: SalesChart,
     roles: [...INTERNAL_ROLES],
   },

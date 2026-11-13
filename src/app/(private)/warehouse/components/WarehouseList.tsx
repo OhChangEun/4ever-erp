@@ -96,19 +96,18 @@ const WarehouseList = () => {
   const totalPages = pageInfo?.totalPages ?? 1;
 
   return (
-    <div className="bg-white rounded-lg  border border-gray-200 mt-8">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
-          {canAdd && (
-            <Button
-              label={t('add')}
-              onClick={() => {
-                openModal(AddWarehouseModal, { width: '700px', title: t('addModalTitle') });
-              }}
-            />
-          )}
-        </div>
+    <div className="flex flex-col gap-6 mt-8">
+      {/* 툴바. 탭이 없는 화면이라 제목을 툴바 왼쪽에 둔다(안전재고 화면과 같다) */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+        {canAdd && (
+          <Button
+            label={t('add')}
+            onClick={() => {
+              openModal(AddWarehouseModal, { width: '700px', title: t('addModalTitle') });
+            }}
+          />
+        )}
       </div>
       {isLoading ? (
         <TableStatusBox type="loading" message={t('loading')} />
@@ -119,12 +118,12 @@ const WarehouseList = () => {
       ) : (
         <div
           aria-busy={isPlaceholderData || undefined}
-          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
         >
           {warehouses.map((warehouse) => (
             <div
               key={warehouse.warehouseId}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="bg-white border border-gray-200 rounded-lg p-4"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>

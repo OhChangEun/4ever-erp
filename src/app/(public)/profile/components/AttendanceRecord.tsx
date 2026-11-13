@@ -15,6 +15,7 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { profileKeys } from '../profile.keys';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
+import { Button } from '@everp/ui';
 
 export default function AttendanceRecord() {
   const t = useTranslations('myProfile');
@@ -104,31 +105,25 @@ export default function AttendanceRecord() {
 
   return (
     <>
-      <div className="card-base min-h-188">
-        <div className="p-6 border-b border-gray-200 ">
+      <section>
+        <div className="pb-4 border-b border-gray-200">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center space-x-3">
-              {/* <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i className="ri-time-line text-purple-600 text-lg"></i>
-              </div> */}
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">{t('attendance.title')}</h2>
-                <p className="text-sm text-gray-500">{t('attendance.subtitle')}</p>
-              </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">{t('attendance.title')}</h2>
+              <p className="text-sm text-gray-500">{t('attendance.subtitle')}</p>
             </div>
-            <button
+            {/* 이 칸의 주 동작은 출퇴근(primary). 휴가 신청은 보조 */}
+            <Button
+              variant="secondary"
+              label={t('leave.request')}
               onClick={() => setIsLeaveModalOpen(true)}
-              className="inline-flex items-center justify-center space-x-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-purple-700"
-            >
-              <i className="ri-flight-takeoff-line"></i>
-              <span>{t('leave.request')}</span>
-            </button>
+            />
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="pt-6">
           {/* 오늘 근태 현황 */}
-          <div className="mb-6 rounded-lg bg-gray-50 p-4 ">
+          <div className="mb-8">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-900">{t('attendance.today')}</h3>
               <span className="text-xs text-gray-500">
@@ -169,25 +164,19 @@ export default function AttendanceRecord() {
                   </div>
                 </div>
 
-                <button
+                <Button
+                  size="lg"
+                  className="w-full"
                   onClick={handleCheckInOut}
                   disabled={!todayAttendanceRes || isCheckedOut || isCheckingIn || isCheckingOut}
-                  className={`w-full whitespace-nowrap rounded-lg py-3 px-4 font-medium transition-colors duration-200
-    ${
-      isCheckedOut
-        ? 'bg-gray-400 text-white cursor-not-allowed'
-        : isBeforeCheckIn
-          ? 'bg-green-600 text-white hover:bg-green-700'
-          : 'bg-red-600 text-white hover:bg-red-700'
-    }
-  `}
-                >
-                  {isCheckedOut
-                    ? t('attendance.checkedOut')
-                    : isBeforeCheckIn
-                      ? t('attendance.checkIn')
-                      : t('attendance.checkOut')}
-                </button>
+                  label={
+                    isCheckedOut
+                      ? t('attendance.checkedOut')
+                      : isBeforeCheckIn
+                        ? t('attendance.checkIn')
+                        : t('attendance.checkOut')
+                  }
+                />
               </>
             )}
           </div>
@@ -195,7 +184,7 @@ export default function AttendanceRecord() {
           {/* 최근 근태 기록 */}
           <div>
             <h3 className="mb-3 text-sm font-medium text-gray-900">{t('attendance.recent')}</h3>
-            <div className="space-y-2">
+            <div className="divide-y divide-gray-200">
               {isRecordsError ? (
                 <TableStatusBox
                   type="error"
@@ -204,10 +193,7 @@ export default function AttendanceRecord() {
                 />
               ) : AttendanceRecordsRes && AttendanceRecordsRes.length > 0 ? (
                 AttendanceRecordsRes.map((record, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
-                  >
+                  <div key={index} className="flex items-center justify-between py-3">
                     <div className="flex items-center space-x-3">
                       <span className="text-sm font-medium text-gray-900">{record.date}</span>
                       <StatusLabel statusCode={record.status} />
@@ -226,7 +212,7 @@ export default function AttendanceRecord() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {isLeaveModalOpen && (
         <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 px-4">

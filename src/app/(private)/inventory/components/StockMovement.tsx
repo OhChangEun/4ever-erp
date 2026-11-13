@@ -22,15 +22,14 @@ export default function StockMovement() {
   const stockMovementCount = stockMovementRes?.length ?? 0;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">{t('stockMovement.title')}</h3>
-        </div>
+    // 표 위 요약. 카드로 감싸지 않고 소제목 줄 + 목록(디자인 지침 12장 "카드 래퍼를 두지 않는다")
+    <section>
+      <div className="pb-2 border-b border-gray-200">
+        <h3 className="text-sm font-semibold text-gray-900">{t('stockMovement.title')}</h3>
       </div>
 
-      <div className="p-4">
-        <div className="space-y-3">
+      <div>
+        <div className="divide-y divide-gray-200">
           {isLoading && (
             <div className="flex items-center justify-center py-8 text-sm text-gray-500">
               {t('stockMovement.loading')}
@@ -58,10 +57,7 @@ export default function StockMovement() {
           {!isLoading &&
             !isError &&
             stockMovementRes?.map((movement) => (
-              <div
-                key={movement.itemName}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-              >
+              <div key={movement.itemName} className="flex items-center gap-3 py-3">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center ${getMovementColor(movement.type)}`}
                 >
@@ -84,6 +80,6 @@ export default function StockMovement() {
             ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

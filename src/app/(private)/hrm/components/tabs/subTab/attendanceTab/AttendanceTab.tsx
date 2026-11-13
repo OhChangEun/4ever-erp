@@ -11,7 +11,7 @@ import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { formatTime } from '@/app/utils/date';
 import { useDropdown } from '@/app/hooks/useDropdown';
@@ -24,7 +24,8 @@ import { toKeyValueItems } from '@/lib/api/options';
 import { toDateKey } from '@/app/utils/date';
 import AttendanceHeatmap from '@/app/(private)/hrm/components/heatmap/AttendanceHeatmap';
 
-export default function AttendanceTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function AttendanceTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   // 분 → "8시간 30분"(en: 8h 30m). 예전 글자는 "8시 30분"(시각처럼 읽혀 고침)
   const duration = (minutes: number | null | undefined) =>
@@ -132,19 +133,16 @@ export default function AttendanceTab() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <AttendanceHeatmap
-        selectedDate={selectedDate}
-        onSelect={(date) => {
-          setSelectedDate(date);
-          setCurrentPage(1);
-        }}
-      />
+      {/* 툴바를 잔디 위에 둔다. 휴가 관리(잔디 없음)와 세그먼트 자리가 같다 */}
       <div className="flex justify-between items-center shrink-0">
-        <CalendarButton
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-          placeholder={t('attendance.selectDate')}
-        />
+        <div className="flex items-center gap-3">
+          {tabButtons}
+          <CalendarButton
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            placeholder={t('attendance.selectDate')}
+          />
+        </div>
 
         <div className="flex items-center gap-3">
           <Dropdown
@@ -175,6 +173,13 @@ export default function AttendanceTab() {
         </div>
       </div>
 
+      <AttendanceHeatmap
+        selectedDate={selectedDate}
+        onSelect={(date) => {
+          setSelectedDate(date);
+          setCurrentPage(1);
+        }}
+      />
       {isLoading ? (
         <TableStatusBox type="loading" message={t('attendance.loading')} />
       ) : isError ? (
