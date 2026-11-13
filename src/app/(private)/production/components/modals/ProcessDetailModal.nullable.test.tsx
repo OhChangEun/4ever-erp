@@ -5,7 +5,7 @@ import { dropAt, nullAt, serveEdited, valueAt } from '@/test/contract/mockData';
 import { PRODUCTION_ENDPOINTS } from '@/app/(private)/production/api/production.endpoints';
 import MesDetail from './ProcessDetailModal';
 
-const URL = PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL('mes-1');
+const URL = PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL('mes-001');
 
 /** 첫 공정 카드에서 label 칸 옆 값 */
 const firstValueOf = (label: string) =>
@@ -23,7 +23,7 @@ describe('MES 상세 모달의 빈 값(응답 null 허용 카드)', () => {
         edit(d, ['operations', 0, 'finishedAt']);
         edit(d, ['operations', 0, 'manager']);
       });
-      renderWithProviders(<MesDetail id="m" onClose={() => undefined} mesId="mes-1" />);
+      renderWithProviders(<MesDetail id="m" onClose={() => undefined} mesId="mes-001" />);
 
       expect(await screen.findByText(String(valueAt(data, ['productName'])))).toBeInTheDocument();
       expect(
@@ -37,7 +37,7 @@ describe('MES 상세 모달의 빈 값(응답 null 허용 카드)', () => {
 
   it('담당자는 있는데 이름만 null 이면 담당자 칸이 - 로 보인다', async () => {
     const data = await serveEdited(URL, (d) => nullAt(d, ['operations', 0, 'manager', 'name']));
-    renderWithProviders(<MesDetail id="m" onClose={() => undefined} mesId="mes-1" />);
+    renderWithProviders(<MesDetail id="m" onClose={() => undefined} mesId="mes-001" />);
 
     expect(await screen.findByText(String(valueAt(data, ['productName'])))).toBeInTheDocument();
     expect(firstValueOf('담당자')).toBe('-');

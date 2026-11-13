@@ -11,7 +11,7 @@ import {
 } from '@/app/(private)/production/api/production.mutations';
 import { type ModalProps } from '@/app/components/common/modal/types';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Button } from '@everp/ui';
+import { Button, ModalStatusBox } from '@everp/ui';
 import { mesKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
 
@@ -30,7 +30,7 @@ type ResultMessageKey =
   | 'completeOperationSuccess'
   | 'completeOperationError';
 
-export default function MesDetail({ mesId }: MesDetailProps) {
+export default function MesDetail({ mesId, onClose }: MesDetailProps) {
   const t = useTranslations('production');
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
@@ -44,6 +44,7 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     isError,
   } = useQuery({
     queryKey: mesKeys.detail(mesId),
+    meta: { listOnNotFound: mesKeys.lists() },
     queryFn: () => fetchMesDetail(mesId),
     enabled: !!mesId,
   });
@@ -88,14 +89,9 @@ export default function MesDetail({ mesId }: MesDetailProps) {
     );
   }
 
-  // 에러 발생
+  // 조회 실패(목록에 없는 건의 404 포함). 보일 상세가 없어 닫기는 모달을 닫는다
   if (isError || !mesDetail) {
-    return (
-      <div className="text-center py-12">
-        <i className="ri-error-warning-line text-3xl text-red-400"></i>
-        <p className="mt-3 text-red-500">{t('common.loadFailed')}</p>
-      </div>
-    );
+    return <ModalStatusBox type="error" message={t('common.loadFailed')} onClose={onClose} />;
   }
 
   // 현재 진행 중인 Mutation이 있는지 확인

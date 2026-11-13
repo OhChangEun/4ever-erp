@@ -10,11 +10,11 @@ describe('주문 상세 모달의 빈 값(응답 null 허용 카드)', () => {
     ['null', nullAt],
     ['키 누락', dropAt],
   ])('특이사항이 %s 이어도 주문과 고객 정보를 그린다', async (_, edit) => {
-    const data = await serveEdited(SALES_ENDPOINTS.ORDER_DETAIL('so-1'), (d) => {
+    const data = await serveEdited(SALES_ENDPOINTS.ORDER_DETAIL('so-001'), (d) => {
       edit(d, ['note']);
     });
     renderWithProviders(
-      <SalesOrderDetailModal id="m" onClose={() => undefined} selectedSalesOrderId="so-1" />,
+      <SalesOrderDetailModal id="m" onClose={() => undefined} selectedSalesOrderId="so-001" />,
     );
 
     expect(

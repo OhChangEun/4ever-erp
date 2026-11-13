@@ -3713,6 +3713,20 @@ export interface components {
                 "application/json": components["schemas"]["ApiEnvelope"];
             };
         };
+        /**
+         * @description 목록에 없는 건(지워졌거나 잘못된 id). 목록과 짝인 상세 GET 19개가 쓴다(카드 "없는 건은 404").
+         *     게이트웨이는 업스트림 4xx 의 상태 코드를 그대로 돌려준다. 영업, 재무, 인사 상세는 본문이
+         *     `{ status, success: false, message }` 이다(SdHttpServiceImpl.java:704-715, ApiResponse.java:15 NON_NULL 이라 data 없음).
+         *     SCM 상세는 업스트림 본문을 그대로 넘긴다(PpController.java:188-208). 업스트림이 실제로 404 를 주는지는 확인 전(verified=false)
+         */
+        NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
         /** @description 실패. AppError 가 message 를 꺼낸다(src/lib/AppError.ts) */
         Error: {
             headers: {
@@ -3823,6 +3837,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4100,6 +4115,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4196,6 +4212,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4290,6 +4307,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4390,6 +4408,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4438,6 +4457,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -4513,6 +4533,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5062,6 +5083,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5247,6 +5269,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5272,6 +5295,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5669,6 +5693,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5717,6 +5742,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -5891,6 +5917,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -6354,6 +6381,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -6510,6 +6538,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -6585,6 +6614,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -6918,6 +6948,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -6984,6 +7015,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };
@@ -7129,6 +7161,7 @@ export interface operations {
                     };
                 };
             };
+            404: components["responses"]["NotFound"];
             default: components["responses"]["Error"];
         };
     };

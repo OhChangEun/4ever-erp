@@ -8,6 +8,7 @@ import {
   ok,
   okNoData,
   error,
+  notFound,
   shouldError,
   pathSegment,
   makePage,
@@ -79,6 +80,8 @@ export const financeHandlers = [
     invoiceId: string;
   }>(`${FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST}/:invoiceId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load purchase invoice detail', 500);
+    // 매입 전표 목록은 inv-ap-001 한 행이다(카드 "없는 건은 404")
+    if (params.invoiceId !== 'inv-ap-001') return notFound('AP 전표 상세 조회');
     return ok({
       invoiceId: params.invoiceId,
       invoiceNumber: 'AP-2026-001',
@@ -143,6 +146,8 @@ export const financeHandlers = [
     invoiceId: string;
   }>(`${FINANCE_ENDPOINTS.SALES_INVOICES_LIST}/:invoiceId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load sales invoice detail', 500);
+    // 매출 전표 목록은 inv-ar-001 한 행이다
+    if (params.invoiceId !== 'inv-ar-001') return notFound('AR 전표 상세 조회');
     return ok({
       invoiceId: params.invoiceId,
       invoiceNumber: 'AR-2026-001',

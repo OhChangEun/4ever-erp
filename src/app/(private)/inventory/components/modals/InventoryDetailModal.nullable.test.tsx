@@ -10,11 +10,11 @@ describe('재고 상세 모달의 빈 값(응답 null 허용 카드)', () => {
     ['null', nullAt],
     ['키 누락', dropAt],
   ])('최종 수정일이 %s 이어도 품목 정보를 그리고 수정일은 - 로 보인다', async (_, edit) => {
-    const data = await serveEdited(INVENTORY_ENDPOINTS.INVENTORY_DETAIL('inv-1'), (d) => {
+    const data = await serveEdited(INVENTORY_ENDPOINTS.INVENTORY_DETAIL('item-1001'), (d) => {
       edit(d, ['lastModified']);
     });
     renderWithProviders(
-      <InventoryDetailModal id="m" onClose={() => undefined} selectedItemId="inv-1" />,
+      <InventoryDetailModal id="m" onClose={() => undefined} selectedItemId="item-1001" />,
     );
 
     expect(await screen.findByText(String(valueAt(data, ['itemName'])))).toBeInTheDocument();

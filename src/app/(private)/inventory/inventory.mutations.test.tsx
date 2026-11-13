@@ -126,7 +126,8 @@ describe('출하 준비', () => {
       invalidates: [
         shippingKeys.productionList({ page: 0, size: 10 }),
         shippingKeys.readyToShipList({ page: 0, size: 10 }),
-        shippingKeys.detail('so-1'),
+        shippingKeys.detail('producing', 'so-1'),
+        shippingKeys.detail('readyToShip', 'so-1'),
         inventoryStatsKeys.all,
         salesOrderKeys.lists(),
         salesOrderKeys.detail('so-1'),

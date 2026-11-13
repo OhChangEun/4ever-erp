@@ -7,7 +7,16 @@ import { toDateKey } from '@/app/utils/date';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { monthlyMetric } from './financeAnalytics.handlers';
-import { ok, error, shouldError, pathSegment, makePage, flow, statResponse } from './utils';
+import {
+  ok,
+  error,
+  notFound,
+  shouldError,
+  pathSegment,
+  makePage,
+  flow,
+  statResponse,
+} from './utils';
 
 type Requisition = Schema<'PurchaseRequestListItem'>;
 // 수정과 등록 본문은 상태와 분류를 글자로 보낸다. 목은 받은 값을 그대로 돌려주므로 enum 으로 좁히지 않는다
@@ -255,14 +264,9 @@ export const purchaseHandlers = [
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load requisition detail', 500);
       const { prId } = params;
-      // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 행의 본문에 그 id 를 싣는다.
-      // 행을 못 찾았으면 저장된 줄도 쓰지 않는다(기본 행의 총액과 줄이 짝이다, 리뷰 A2)
-      const found = requisitionsOf(request).find((r) => r.purchaseRequisitionId === prId);
-      const row = found ?? {
-        ...SEED_REQUISITION,
-        statusCode:
-          purchaseState(request).requisitionStatus.get(prId) ?? SEED_REQUISITION.statusCode,
-      };
+      // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404(카드 "없는 건은 404")
+      const row = requisitionsOf(request).find((r) => r.purchaseRequisitionId === prId);
+      if (!row) return notFound('구매요청서 상세 조회');
       return ok({
         id: prId,
         purchaseRequisitionNumber: row.purchaseRequisitionNumber,
@@ -272,8 +276,7 @@ export const purchaseHandlers = [
         departmentName: row.departmentName,
         requestDate: row.requestDate,
         statusCode: row.statusCode,
-        items:
-          (found && purchaseState(request).requisitionLines.get(prId)) ?? SEED_REQUISITION_LINES,
+        items: purchaseState(request).requisitionLines.get(prId) ?? SEED_REQUISITION_LINES,
         totalAmount: row.totalAmount,
       });
     },
@@ -356,6 +359,8 @@ export const purchaseHandlers = [
     `${PURCHASE_BASE_PATH}/purchase-orders/:purchaseId`,
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load purchase order detail', 500);
+      // 발주 목록은 po-001 한 행이다
+      if (params.purchaseId !== 'po-001') return notFound('발주서 상세 조회');
       return ok({
         statusCode: purchaseState(request).orderStatus.get(params.purchaseId) ?? 'PENDING',
         dueDate: '2026-01-30',
@@ -392,12 +397,11 @@ export const purchaseHandlers = [
       const state = purchaseState(request);
       const { supplierId } = params;
       const created = state.createdSuppliers.find((s) => s.supplierInfo.supplierId === supplierId);
+      const info = supplierId === SEED_SUPPLIER.supplierId ? SEED_SUPPLIER : created?.supplierInfo;
+      // 목록(기본 공급사와 그 로그인이 등록한 공급사)에 없으면 404
+      if (!info) return notFound('공급업체 상세 조회');
       return ok({
-        // 모르는 id 는 예전처럼 기본 공급사 본문에 id 만 바꿔 준다
-        supplierInfo: editedSupplier(
-          created?.supplierInfo ?? { ...SEED_SUPPLIER, supplierId },
-          state.supplierEdits.get(supplierId),
-        ),
+        supplierInfo: editedSupplier(info, state.supplierEdits.get(supplierId)),
         managerInfo: supplierManager(state, supplierId),
       });
     },

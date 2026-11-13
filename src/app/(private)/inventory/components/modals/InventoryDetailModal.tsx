@@ -83,6 +83,7 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
     isError,
   } = useQuery<InventoryDetailResponse>({
     queryKey: inventoryKeys.detail(selectedItemId),
+    meta: { listOnNotFound: inventoryKeys.lists() },
     queryFn: () => getInventoryDetail(selectedItemId),
     enabled: !!selectedItemId,
   });

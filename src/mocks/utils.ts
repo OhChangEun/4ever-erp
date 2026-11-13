@@ -81,6 +81,14 @@ export const okNoData = () => HttpResponse.json({ status: 200, success: true, me
 export const error = (message = 'Mock error', status = 500) =>
   HttpResponse.json({ status, success: false, message }, { status });
 /**
+ * 목록에 없는 건의 상세(카드 "없는 건은 404"). 게이트웨이 상세 실패와 같은 모양이다. 상태 코드는 업스트림 그대로,
+ * 본문은 data 없이 "<작업> 중 오류가 발생했습니다."(SdHttpServiceImpl.java:704-715, ApiResponse.java:15 NON_NULL)
+ */
+export const notFoundBody = (operation: string) =>
+  ({ status: 404, success: false, message: `${operation} 중 오류가 발생했습니다.` }) as const;
+export const notFound = (operation: string) =>
+  HttpResponse.json(notFoundBody(operation), { status: 404 });
+/**
  * 주소 경로를 뒤에서 센 조각(1 이 마지막). RegExp 로 등록한 핸들러는 params 가 없어 주소에서 id 를 꺼낸다.
  * 끝 슬래시는 세지 않고 인코딩된 글자는 푼다(이름 붙은 경로 params 와 같게). 잘못된 인코딩이면 받은 글자 그대로
  */

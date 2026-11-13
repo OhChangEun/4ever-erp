@@ -24,6 +24,7 @@ const SalesOrderDetailModal = ({ selectedSalesOrderId }: SalesOrderDetailProps) 
     isError,
   } = useQuery<OrderDetail>({
     queryKey: salesOrderKeys.detail(selectedSalesOrderId),
+    meta: { listOnNotFound: salesOrderKeys.lists() },
     queryFn: () => getOrderDetail(selectedSalesOrderId),
     enabled: !!selectedSalesOrderId,
   });

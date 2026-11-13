@@ -68,5 +68,7 @@ export const shippingKeys = {
 
   details: () => [...shippingKeys.all, 'detail'] as const,
 
-  detail: (orderId: string) => [...shippingKeys.details(), orderId] as const,
+  // 생산중 상세와 출고 준비 상세는 다른 API 라 하위 탭을 키에 넣는다. 같은 주문이 두 탭에 걸쳐도 서로의 캐시를 안 본다
+  detail: (subTab: string, orderId: string) =>
+    [...shippingKeys.details(), subTab, orderId] as const,
 };

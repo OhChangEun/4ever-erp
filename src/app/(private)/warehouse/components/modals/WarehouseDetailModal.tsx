@@ -26,6 +26,7 @@ const WarehouseDetailModal = ({
     isError,
   } = useQuery<WarehouseDetailResponse>({
     queryKey: warehouseKeys.detail(selectedWarehouseId),
+    meta: { listOnNotFound: warehouseKeys.lists() },
     queryFn: () => getWarehouseDetail(selectedWarehouseId),
     enabled: !!selectedWarehouseId,
   });

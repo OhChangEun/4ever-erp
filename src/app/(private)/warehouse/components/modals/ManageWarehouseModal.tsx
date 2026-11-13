@@ -69,6 +69,7 @@ const ManageWarehouseModal = ({ onClose, selectedWarehouseId }: ManageWarehouseM
     isError: isWarehouseInfoError,
   } = useQuery<WarehouseDetailResponse>({
     queryKey: warehouseKeys.detail(selectedWarehouseId),
+    meta: { listOnNotFound: warehouseKeys.lists() },
     queryFn: () => getWarehouseDetail(selectedWarehouseId),
     enabled: !!selectedWarehouseId,
   });

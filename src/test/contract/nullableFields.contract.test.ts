@@ -25,12 +25,12 @@ interface NullableRead {
   id: Path;
 }
 
-const ID = 'id-1';
+// 상세는 목록 기본 행의 id 로 부른다. 목록에 없는 id 는 404 다(카드 "없는 건은 404")
 
 const READS: Record<string, NullableRead> = {
   'MES 상세': {
-    url: PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL(ID),
-    read: () => production.fetchMesDetail(ID),
+    url: PRODUCTION_ENDPOINTS.MES_WORK_ORDER_DETAIL('mes-001'),
+    read: () => production.fetchMesDetail('mes-001'),
     nullable: [
       ['operations', 0, 'startedAt'],
       ['operations', 0, 'finishedAt'],
@@ -80,8 +80,8 @@ const READS: Record<string, NullableRead> = {
     id: ['bomId'],
   },
   '주문 상세': {
-    url: SALES_ENDPOINTS.ORDER_DETAIL(ID),
-    read: () => sales.getOrderDetail(ID),
+    url: SALES_ENDPOINTS.ORDER_DETAIL('so-001'),
+    read: () => sales.getOrderDetail('so-001'),
     nullable: [['note']],
     id: ['order', 'salesOrderId'],
   },
@@ -118,14 +118,14 @@ const READS: Record<string, NullableRead> = {
     id: ['content', 0, 'itemId'],
   },
   '재고 상세': {
-    url: INVENTORY_ENDPOINTS.INVENTORY_DETAIL(ID),
-    read: () => inventory.getInventoryDetail(ID),
+    url: INVENTORY_ENDPOINTS.INVENTORY_DETAIL('item-1001'),
+    read: () => inventory.getInventoryDetail('item-1001'),
     nullable: [['lastModified']],
     id: ['itemId'],
   },
   '창고 상세': {
-    url: WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL(ID),
-    read: () => warehouse.getWarehouseDetail(ID),
+    url: WAREHOUSE_ENDPOINTS.WAREHOUSE_DETAIL('wh-001'),
+    read: () => warehouse.getWarehouseDetail('wh-001'),
     nullable: [
       ['warehouseInfo', 'warehouseName'],
       ['warehouseInfo', 'location'],

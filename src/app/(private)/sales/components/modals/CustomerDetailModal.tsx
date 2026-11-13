@@ -24,6 +24,7 @@ const CustomerDetailModal = ({ selectedCustomerId }: CustomerDetailModalProps) =
     isError,
   } = useQuery<CustomerDetail>({
     queryKey: customerKeys.detail(selectedCustomerId),
+    meta: { listOnNotFound: customerKeys.lists() },
     queryFn: () => getCustomerDetail(selectedCustomerId),
     enabled: !!selectedCustomerId,
   });

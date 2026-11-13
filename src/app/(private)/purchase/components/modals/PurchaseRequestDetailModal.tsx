@@ -28,6 +28,7 @@ export default function PurchaseRequestDetailModal({
     isError,
   } = useQuery<PurchaseRequestDetail>({
     queryKey: purchaseRequestKeys.detail(purchaseRequestId),
+    meta: { listOnNotFound: purchaseRequestKeys.lists() },
     queryFn: () => fetchPurchaseRequestDetail(purchaseRequestId),
   });
 

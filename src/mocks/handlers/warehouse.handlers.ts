@@ -3,7 +3,7 @@ import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
 import { addCreated, mockState } from '../state';
-import { level, makePage, periodStat, shouldError } from './utils';
+import { level, makePage, notFoundBody, periodStat, shouldError } from './utils';
 
 /**
  * 창고 목. OpenAPI 계약(`openapi/everp.yaml`)에 묶인 `http` 로 쓴다(OpenAPI 계약 1 카드).
@@ -99,11 +99,9 @@ export const warehouseHandlers = [
     if (shouldError(request))
       return response('default').json(failure('Failed to load warehouse detail'), { status: 500 });
     const edit = warehouseState(request).edits.get(params.warehouseId);
-    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 창고 본문에 수정한 값을 덮어 준다
-    const row = warehousesOf(request).find((w) => w.warehouseId === params.warehouseId) ?? {
-      ...SEED_WAREHOUSE,
-      ...editedFields(edit),
-    };
+    // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404(카드 "없는 건은 404")
+    const row = warehousesOf(request).find((w) => w.warehouseId === params.warehouseId);
+    if (!row) return response(404).json(notFoundBody('창고 상세 조회'));
     return response(200).json({
       ...OK,
       data: {

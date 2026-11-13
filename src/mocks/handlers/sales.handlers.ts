@@ -22,6 +22,7 @@ import {
   ok,
   okNoData,
   error,
+  notFound,
   shouldError,
   isoNow,
   makePage,
@@ -368,14 +369,9 @@ export const salesHandlers = [
     ({ request, params }) => {
       if (shouldError(request)) return error('Failed to load quote detail', 500);
       const { quotationId } = params;
-      // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 첫 견적의 본문에 그 id 와
-      // 그 id 에 저장된 처리 상태(검토 요청, 즉시 납품)를 싣는다(리뷰 A3)
-      const found = quotesOf(request).find((row) => row.quotationId === quotationId);
-      const quote = found ?? {
-        ...mockQuotes[0],
-        quotationId,
-        statusCode: salesState(request).quoteStatus.get(quotationId) ?? mockQuotes[0].statusCode,
-      };
+      // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404(카드 "없는 건은 404")
+      const quote = quotesOf(request).find((row) => row.quotationId === quotationId);
+      if (!quote) return notFound('견적 상세 조회');
       return ok({
         quotationId,
         quotationNumber: quote.quotationNumber,
@@ -385,7 +381,7 @@ export const salesHandlers = [
         statusCode: quote.statusCode,
         customerName: quote.customerName,
         ceoName: CEO_BY_CUSTOMER[quote.customerName] ?? '',
-        items: linesOf(request, found?.quotationId, 'qt-001').map((item) => ({
+        items: linesOf(request, quotationId, 'qt-001').map((item) => ({
           ...item,
           uomName: 'EA',
         })),
@@ -444,9 +440,9 @@ export const salesHandlers = [
   http.get(`${SALES_BASE_PATH}/orders/:salesOrderId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load order detail', 500);
     const salesOrderId = String(params.salesOrderId);
-    // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 첫 주문의 본문에 그 id 를 싣는다
-    const found = ordersOf(request).find((row) => row.salesOrderId === salesOrderId);
-    const order = found ?? { ...mockOrders[0], salesOrderId };
+    // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404
+    const order = ordersOf(request).find((row) => row.salesOrderId === salesOrderId);
+    if (!order) return notFound('주문서 상세 조회');
     // 고객 목록에 있는 고객이면 그 정보, 견적에만 나오는 고객(즉시 납품으로 만든 주문)은 이름만 안다
     const customer = customersOf(request).find((row) => row.customerName === order.customerName);
     const extra =
@@ -469,7 +465,7 @@ export const salesHandlers = [
         customerDetailAddress: extra?.detailAddress ?? '',
         manager: customer?.manager ?? { managerName: '', managerPhone: '', managerEmail: '' },
       },
-      items: linesOf(request, found?.salesOrderId, 'so-001').map(
+      items: linesOf(request, salesOrderId, 'so-001').map(
         ({ itemId, itemName, quantity, unitPrice, amount }) => ({
           itemId,
           itemName,
@@ -554,11 +550,9 @@ export const salesHandlers = [
       if (shouldError(request)) return error('Failed to load customer detail', 500);
       const { customerId } = params;
       const state = salesState(request);
-      // 목록의 그 행에서 만든다. 모르는 id 는 계약에 404 가 없어 기본 고객 본문에 그 id 를 싣는다
-      const customer = customersOf(request).find((row) => row.customerId === customerId) ?? {
-        ...customersOf(request)[0],
-        customerId,
-      };
+      // 목록의 그 행에서 만든다. 그 로그인의 목록에 없으면 404
+      const customer = customersOf(request).find((row) => row.customerId === customerId);
+      if (!customer) return notFound('고객사 상세 조회');
       const edit = state.customerEdits.get(customerId);
       const extra = state.customerExtras.get(customerId) ?? SEED_CUSTOMER_EXTRA;
       return ok({

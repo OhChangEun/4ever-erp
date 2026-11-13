@@ -30,6 +30,7 @@ export default function SupplierDetailModal({ supplierId, onClose }: SupplierDet
     isError,
   } = useQuery<SupplierDetail>({
     queryKey: supplierKeys.detail(supplierId),
+    meta: { listOnNotFound: supplierKeys.lists() },
     queryFn: () => fetchSupplierDetail(supplierId),
   });
 

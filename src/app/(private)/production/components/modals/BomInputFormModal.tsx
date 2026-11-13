@@ -36,6 +36,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { bomKeys } from '@/app/(private)/production/api/production.keys';
+import { dropdownKeys } from '@/app/hooks/dropdown.keys';
 import { useTranslations } from 'next-intl';
 import { formatNumber } from '@/app/utils/number';
 
@@ -151,6 +152,7 @@ function SortableRow({ item, onMaterialChange, onItemChange, onRemove }: Sortabl
   // 자재를 고르면 itemId 가 바뀌어 이 쿼리가 다시 가져온다(따로 부르던 mutation 은 중복이라 지움)
   const { data: materialInfo, isError: isMaterialError } = useQuery({
     queryKey: bomKeys.materialInfo(item.itemId),
+    meta: { listOnNotFound: dropdownKeys.options('productsDropdown') },
     queryFn: () => fetchProduction(item.itemId),
     enabled: !!item.itemId, // 선택된 자재가 있을 때만 호출
   });

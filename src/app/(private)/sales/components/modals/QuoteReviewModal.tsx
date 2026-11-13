@@ -49,6 +49,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     isError,
   } = useQuery<QuoteDetail>({
     queryKey: quoteKeys.reviewDetail(selectedQuotationId),
+    meta: { listOnNotFound: quoteKeys.lists() },
     queryFn: () => getQuoteDetail(selectedQuotationId),
     enabled: !!selectedQuotationId,
   });
