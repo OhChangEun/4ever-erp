@@ -43,6 +43,8 @@ export default function PurchaseOrderListTab() {
   const { options: purchaseOrderStatusOptions } = useDropdown(
     'purchaseOrderStatusDropdown',
     fetchPurchaseOrderStatusOptions,
+    // 전체 항목(공통 common.all, 값 '')을 붙인다. 없으면 한 번 고른 필터를 되돌릴 수 없다(카드 "목 필터와 검색")
+    'with-all',
   );
   // 발주서 검색 타입 드롭다운
   const { options: purchaseOrderSearchTypeOptions } = useDropdown(

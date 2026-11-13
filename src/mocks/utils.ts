@@ -89,6 +89,45 @@ export const paged = <T>(request: Request, rows: T[]) => {
   };
 };
 
+/**
+ * 목록 거르기 규칙(카드 "목 필터와 검색"). 칸 이름은 요청 파라미터 이름이고 값은 행에서 견줄 글자를 꺼내는 함수다.
+ * - equals: 파라미터 값과 같은 행만. 값이 비었거나 ALL 이면 거르지 않는다
+ * - date: startDate 이상, endDate 이하(양 끝 포함, 앞 열 글자 YYYY-MM-DD 로 견준다)
+ * - search: 검색 타입(type 파라미터 값) → 찾을 칸. 검색어 파라미터는 keyword(hrm 은 name 이라 keywordParam 으로 바꾼다)
+ */
+export interface FilterRules<T> {
+  equals?: Record<string, (row: T) => string>;
+  date?: (row: T) => string;
+  search?: Record<string, (row: T) => string>;
+  keywordParam?: string;
+}
+
+/**
+ * 규칙대로 거른다. 쓰기 결과를 덮은 목록을 받아 거르고, 쪽은 그 뒤에 `paged` 가 자른다(총 건수 = 거른 수).
+ * 검색은 부분 일치, 대소문자 무시. 검색 타입이 비었거나 모르는 값이면 그 목록의 모든 검색 칸에서 찾는다
+ * (verified=false, 서버의 검색 규칙을 모른다. 재고 목록 화면의 첫 검색 타입이 모르는 값이라 무시하면 검색이 안 먹는다)
+ */
+export const filterBy = <T>(request: Request, rows: T[], rules: FilterRules<T>): T[] => {
+  const params = new URL(request.url).searchParams;
+  const value = (name: string) => params.get(name)?.trim() ?? '';
+  const equals = Object.entries(rules.equals ?? {})
+    .map(([name, field]) => ({ field, wanted: value(name) }))
+    .filter(({ wanted }) => wanted !== '' && wanted !== 'ALL');
+  const [from, to] = [value('startDate'), value('endDate')];
+  const keyword = value(rules.keywordParam ?? 'keyword').toLowerCase();
+  const fields = rules.search ?? {};
+  const type = value('type');
+  const searchIn = Object.hasOwn(fields, type) ? [fields[type]] : Object.values(fields);
+  const { date } = rules;
+  return rows.filter(
+    (row) =>
+      equals.every(({ field, wanted }) => field(row) === wanted) &&
+      (!date || !from || date(row).slice(0, 10) >= from) &&
+      (!date || !to || date(row).slice(0, 10) <= to) &&
+      (!keyword || searchIn.some((field) => field(row).toLowerCase().includes(keyword))),
+  );
+};
+
 /** 거래 목록 정렬: 날짜 최신순, 같은 날이면 id 내림차순. 오늘 만든 행이 1쪽 맨 위에 온다 */
 export const newestFirst =
   <T>(date: (row: T) => string, id: (row: T) => string) =>

@@ -39,9 +39,11 @@ import {
   shouldError,
   isoNow,
   paged,
+  filterBy,
   newestFirst,
   flow,
   statResponse,
+  type FilterRules,
   type Metric,
 } from './utils';
 
@@ -103,6 +105,39 @@ const byOrderDate = newestFirst<Order>(
   (order) => order.orderDate,
   (order) => order.salesOrderId,
 );
+
+/**
+ * 목록 필터(카드 "목 필터와 검색"). 이름과 검색 타입은 게이트웨이와 같다(SdController.java:97-106, :273-278, :335-344).
+ * 견적 상태 값은 APPROVAL(SdController.java:101). 옛 값 APPROVED 를 받으면 빈 목록이다(실서버는 QuotationStatus.from 이
+ * 예외를 던질 수 있어 어떻게 답하는지 미확인). 견적의 sort 는 화면이 보내지 않아 늘 최신순이다
+ */
+const QUOTE_FILTER: FilterRules<Quote> = {
+  equals: { status: (quote) => quote.statusCode },
+  date: (quote) => quote.quotationDate,
+  search: {
+    quotationNumber: (quote) => quote.quotationNumber,
+    customerName: (quote) => quote.customerName,
+    managerName: (quote) => quote.managerName,
+  },
+};
+const ORDER_FILTER: FilterRules<Order> = {
+  equals: { status: (order) => order.statusCode },
+  date: (order) => order.orderDate,
+  search: {
+    salesOrderNumber: (order) => order.salesOrderNumber,
+    customerName: (order) => order.customerName,
+    managerName: (order) => order.manager.managerName,
+  },
+};
+/** 고객 상태는 화면이 INACTIVE 를 보낸다. 게이트웨이 설명은 DEACTIVE(SdController.java:273, 카드 별도 보고) */
+const CUSTOMER_FILTER: FilterRules<Customer> = {
+  equals: { status: (customer) => customer.statusCode },
+  search: {
+    customerName: (customer) => customer.customerName,
+    managerName: (customer) => customer.manager.managerName,
+    customerNumber: (customer) => customer.customerNumber,
+  },
+};
 
 /** 기본 견적과 새로 만든 견적에 바뀐 상태를 덮은 목록. 견적일 최신순(새 견적은 오늘이라 맨 위) */
 const quotesOf = (request: Request) => {
@@ -303,15 +338,7 @@ export const salesHandlers = [
   }),
   http.get(SALES_ENDPOINTS.QUOTES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load quotes', 500);
-    const url = new URL(request.url);
-    // 게이트웨이 목록 상태 값은 APPROVAL(SdController.java:101, QuotationListItemDto.java:20).
-    // status 가 있으면 같은 상태만 준다. 옛 값 APPROVED 를 받으면 목은 빈 목록이다.
-    // 실서버는 QuotationStatus.from 이 예외를 던질 수 있어 어떻게 답하는지 미확인
-    const status = url.searchParams.get('status');
-    const content = quotesOf(request).filter(
-      (quote) => !status || status === 'ALL' || quote.statusCode === status,
-    );
-    return ok(paged(request, content));
+    return ok(paged(request, filterBy(request, quotesOf(request), QUOTE_FILTER)));
   }),
   http.get<{ quotationId: string }>(
     `${SALES_BASE_PATH}/quotations/:quotationId`,
@@ -377,15 +404,8 @@ export const salesHandlers = [
   ),
   http.get(SALES_ENDPOINTS.ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load orders', 500);
-    const url = new URL(request.url);
-    // 게이트웨이와 같은 이름(startDate, endDate)으로만 주문일을 거른다. 모르는 이름은 서버처럼 무시한다
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
-    const content = ordersOf(request).filter(
-      (order) =>
-        (!startDate || order.orderDate >= startDate) && (!endDate || order.orderDate <= endDate),
-    );
-    return ok(paged(request, content));
+    // 게이트웨이와 같은 이름만 거른다. 모르는 이름은 서버처럼 무시한다
+    return ok(paged(request, filterBy(request, ordersOf(request), ORDER_FILTER)));
   }),
   http.get(`${SALES_BASE_PATH}/orders/:salesOrderId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load order detail', 500);
@@ -499,7 +519,10 @@ export const salesHandlers = [
   ),
   http.get(SALES_ENDPOINTS.CUSTOMERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load customers', 500);
-    const { content, page } = paged(request, customersOf(request));
+    const { content, page } = paged(
+      request,
+      filterBy(request, customersOf(request), CUSTOMER_FILTER),
+    );
     return ok({ customers: content, page });
   }),
   http.get<{ customerId: string }>(

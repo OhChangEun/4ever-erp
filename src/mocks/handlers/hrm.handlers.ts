@@ -3,7 +3,7 @@ import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoi
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { HEADCOUNT } from './attendanceSummary.handlers';
-import { DEPARTMENTS, EMPLOYEES } from './seed';
+import { DEPARTMENTS, EMPLOYEES, departmentIdOf } from './seed';
 import {
   ok,
   okNoData,
@@ -12,8 +12,10 @@ import {
   shouldError,
   makePage,
   paged,
+  filterBy,
   level,
   statResponse,
+  type FilterRules,
 } from './utils';
 
 type Employee = Schema<'EmployeeData'>;
@@ -97,6 +99,30 @@ const programsOf = (request: Request) => {
   }));
 };
 
+/**
+ * 목록 필터(카드 "목 필터와 검색"). 이름은 게이트웨이와 같다(HrmController.java:120-125, :345-356, 출퇴근 :43-52,
+ * 휴가 :111-118, 교육 현황 :246-251). 부서는 부서 id(dept-001~006)로 오고 행에는 부서 이름이 있어 id 로 바꿔 견준다.
+ * 이름 검색은 name 파라미터, 부분 일치. 급여 year, month 와 출퇴근 date 는 거르지 않는다. 한 줄 목록의 행이 1월 날짜라
+ * 거르면 기본 화면(이번 달, 오늘)이 늘 빈 목록이 된다(카드 결정 4, 한 줄 목록 채우기 때 같이)
+ */
+type Person = { department: string; name: string };
+const personFilter = <T>(person: (row: T) => Person, statusCode?: (row: T) => string) =>
+  ({
+    equals: {
+      department: (row: T) => departmentIdOf(person(row).department),
+      departmentId: (row: T) => departmentIdOf(person(row).department),
+      ...(statusCode && { statusCode }),
+    },
+    search: { name: (row: T) => person(row).name },
+    keywordParam: 'name',
+  }) satisfies FilterRules<T>;
+const EMPLOYEE_FILTER = personFilter<Employee>((row) => row);
+type HrmRow = { employee: { department: string; employeeName: string } };
+const employeeOf = (row: HrmRow): Person => ({
+  department: row.employee.department,
+  name: row.employee.employeeName,
+});
+
 export const hrmHandlers = [
   http.get(HRM_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load HRM stats', 500);
@@ -116,7 +142,7 @@ export const hrmHandlers = [
           }
         : employee;
     });
-    return ok(paged(request, content));
+    return ok(paged(request, filterBy(request, content, EMPLOYEE_FILTER)));
   }),
   http.get(HRM_ENDPOINTS.POSITIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load positions', 500);
@@ -191,29 +217,36 @@ export const hrmHandlers = [
   ),
   http.get(HRM_ENDPOINTS.PAYROLL, ({ request }) => {
     if (shouldError(request)) return error('Failed to load payroll list', 500);
-    return ok({
-      content: [
-        {
-          payrollId: 'pay-001',
-          employee: {
-            employeeId: 'emp-001',
-            employeeName: '홍길동',
-            departmentId: 'dept-001',
-            department: '영업팀',
-            positionId: 'pos-001',
-            position: '팀장',
-          },
-          pay: {
-            basePay: 3000000,
-            overtimePay: 200000,
-            deduction: 150000,
-            netPay: 3050000,
-            statusCode: payrollStatus(request, 'pay-001'),
-          },
+    const rows = [
+      {
+        payrollId: 'pay-001',
+        employee: {
+          employeeId: 'emp-001',
+          employeeName: '홍길동',
+          departmentId: 'dept-001',
+          department: '영업팀',
+          positionId: 'pos-001',
+          position: '팀장',
         },
-      ],
-      page: makePage(0, 10, 1),
-    });
+        pay: {
+          basePay: 3000000,
+          overtimePay: 200000,
+          deduction: 150000,
+          netPay: 3050000,
+          statusCode: payrollStatus(request, 'pay-001'),
+        },
+      },
+    ];
+    return ok(
+      paged(
+        request,
+        filterBy(
+          request,
+          rows,
+          personFilter<(typeof rows)[number]>(employeeOf, (row) => row.pay.statusCode),
+        ),
+      ),
+    );
   }),
   http.get<{ payrollId: string }>(`${HRM_BASE_PATH}/payroll/:payrollId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load payroll detail', 500);
@@ -244,21 +277,27 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.TRAINING_STATUS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load training list', 500);
-    return ok({
-      items: [
-        {
-          employeeId: 'emp-001',
-          name: '홍길동',
-          department: '영업팀',
-          position: '팀장',
-          completedCount: 2,
-          inProgressCount: 1 + (hrmState(request).assignedPrograms.get('emp-001')?.length ?? 0),
-          requiredMissingCount: 0,
-          lastTrainingDate: '2026-01-05',
-        },
-      ],
-      page: makePage(0, 10, 1),
-    });
+    const rows = [
+      {
+        employeeId: 'emp-001',
+        name: '홍길동',
+        department: '영업팀',
+        position: '팀장',
+        completedCount: 2,
+        inProgressCount: 1 + (hrmState(request).assignedPrograms.get('emp-001')?.length ?? 0),
+        requiredMissingCount: 0,
+        lastTrainingDate: '2026-01-05',
+      },
+    ];
+    const { content, page } = paged(
+      request,
+      filterBy(
+        request,
+        rows,
+        personFilter<(typeof rows)[number]>((row) => row),
+      ),
+    );
+    return ok({ items: content, page });
   }),
   http.get<{ employeeId: string }>(
     `${HRM_BASE_PATH}/training/employee/:employeeId`,
@@ -329,53 +368,60 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.TIME_RECORD, ({ request }) => {
     if (shouldError(request)) return error('Failed to load attendance list', 500);
-    return ok({
-      content: [
-        {
-          timerecordId: 'time-001',
-          employee: {
-            employeeId: 'emp-001',
-            employeeName: '홍길동',
-            departmentId: 'dept-001',
-            department: '영업팀',
-            positionId: 'pos-001',
-            position: '팀장',
-          },
-          workDate: '2026-01-28',
-          checkInTime: '2026-01-28T09:00:00',
-          checkOutTime: '2026-01-28T18:00:00',
-          // 근무 시간과 지각 여부는 다시 계산하지 않는다(서버 규칙을 모른다)
-          ...hrmState(request).timeRecordEdits.get('time-001'),
-          totalWorkMinutes: 540,
-          overtimeMinutes: 30,
-          statusCode: 'ON_TIME',
+    const rows = [
+      {
+        timerecordId: 'time-001',
+        employee: {
+          employeeId: 'emp-001',
+          employeeName: '홍길동',
+          departmentId: 'dept-001',
+          department: '영업팀',
+          positionId: 'pos-001',
+          position: '팀장',
         },
-      ],
-      page: makePage(0, 10, 1),
-    });
+        workDate: '2026-01-28',
+        checkInTime: '2026-01-28T09:00:00',
+        checkOutTime: '2026-01-28T18:00:00',
+        // 근무 시간과 지각 여부는 다시 계산하지 않는다(서버 규칙을 모른다)
+        ...hrmState(request).timeRecordEdits.get('time-001'),
+        totalWorkMinutes: 540,
+        overtimeMinutes: 30,
+        statusCode: 'ON_TIME',
+      },
+    ];
+    return ok(
+      paged(
+        request,
+        filterBy(
+          request,
+          rows,
+          personFilter<(typeof rows)[number]>(employeeOf, (row) => row.statusCode),
+        ),
+      ),
+    );
   }),
   http.get(HRM_ENDPOINTS.LEAVE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load leave list', 500);
-    return ok({
-      content: [
-        {
-          leaveRequestId: 'leave-001',
-          employee: {
-            employeeId: 'emp-001',
-            employeeName: '홍길동',
-            department: '영업팀',
-            position: '팀장',
-          },
-          leaveType: 'ANNUAL',
-          startDate: '2026-02-05',
-          endDate: '2026-02-06',
-          numberOfLeaveDays: 2,
-          remainingLeaveDays: 8,
-          status: hrmState(request).leaveStatus.get('leave-001') ?? 'PENDING',
+    const rows = [
+      {
+        leaveRequestId: 'leave-001',
+        employee: {
+          employeeId: 'emp-001',
+          employeeName: '홍길동',
+          department: '영업팀',
+          position: '팀장',
         },
-      ],
-      page: makePage(0, 10, 1),
-    });
+        leaveType: 'ANNUAL',
+        startDate: '2026-02-05',
+        endDate: '2026-02-06',
+        numberOfLeaveDays: 2,
+        remainingLeaveDays: 8,
+        status: hrmState(request).leaveStatus.get('leave-001') ?? 'PENDING',
+      },
+    ];
+    return ok(
+      paged(request, filterBy(request, rows, personFilter<(typeof rows)[number]>(employeeOf))),
+    );
   }),
   http.patch<{ employeeId: string }, Schema<'EmployeeUpdateRequest'>>(
     `${HRM_BASE_PATH}/employee/:employeeId`,

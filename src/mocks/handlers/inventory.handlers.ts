@@ -13,6 +13,8 @@ import {
   pathSegment,
   isoNow,
   makePage,
+  paged,
+  filterBy,
   flow,
   level,
   statResponse,
@@ -132,16 +134,26 @@ export const inventoryHandlers = [
   http.get(INVENTORY_ENDPOINTS.INVENTORY_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load inventory list', 500);
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    // 창고 3D(시각화 8)는 창고 이름으로 거른다. 그 창고의 품목 14개(재고율 4단계와 기준 없음이 다 나온다)
-    const keyword = url.searchParams.get('keyword');
-    if (url.searchParams.get('type') === 'WAREHOUSE_NAME' && keyword) {
-      const content = warehouseStock(request, keyword);
-      return ok({ content: content.slice(0, size), page: makePage(page, size, content.length) });
-    }
-    const content = inventoryRows(request);
-    return ok({ content, page: makePage(page, size, content.length) });
+    // 창고 3D(시각화 8)는 창고 목록의 이름 그대로 찾는다. 그 창고의 품목 14개(재고율 4단계와 기준 없음이 다 나온다).
+    // 이름 일부나 다른 검색은 일반 재고 행에서 거른다(카드 "목 필터와 검색" 결정 7)
+    const keyword = (url.searchParams.get('keyword') ?? '').trim();
+    const byWarehouse =
+      url.searchParams.get('type') === 'WAREHOUSE_NAME' &&
+      WAREHOUSES.some((warehouse) => warehouse.warehouseName === keyword);
+    const rows = byWarehouse ? warehouseStock(request, keyword) : inventoryRows(request);
+    // 이름은 게이트웨이와 같다(ImController.java:36-41)
+    return ok(
+      paged(
+        request,
+        filterBy(request, rows, {
+          equals: { statusCode: (row) => row.statusCode },
+          search: {
+            WAREHOUSE_NAME: (row) => row.warehouseName,
+            ITEM_NAME: (row) => row.itemName,
+          },
+        }),
+      ),
+    );
   }),
   http.get<{ itemId: string }>(`${INVENTORY_BASE_PATH}/iv/items/:itemId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load inventory detail', 500);
@@ -316,23 +328,19 @@ export const inventoryHandlers = [
   }),
   http.get(INVENTORY_ENDPOINTS.RECEIVED_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load received list', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          purchaseOrderId: 'po-002',
-          purchaseOrderNumber: 'PO-2026-002',
-          supplierCompanyName: '대한금속',
-          orderDate: '2026-01-05',
-          dueDate: '2026-01-20',
-          totalAmount: 2800000,
-          statusCode: 'RECEIVED',
-        },
-      ],
-      page: makePage(page, size, 1),
-    });
+    const rows = [
+      {
+        purchaseOrderId: 'po-002',
+        purchaseOrderNumber: 'PO-2026-002',
+        supplierCompanyName: '대한금속',
+        orderDate: '2026-01-05',
+        dueDate: '2026-01-20',
+        totalAmount: 2800000,
+        statusCode: 'RECEIVED',
+      },
+    ];
+    // 행에 입고일이 없어 납기로 거른다(verified=false, 카드 결정 6)
+    return ok(paged(request, filterBy(request, rows, { date: (row) => row.dueDate })));
   }),
   http.get(INVENTORY_ENDPOINTS.ITEM_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load item toggle', 500);
@@ -384,14 +392,13 @@ export const inventoryHandlers = [
   }),
   http.get(LOWSTOCK_ENDPOINTS.LOW_STOCK_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load low stock list', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    const content = LOW_STOCK_ITEMS.map((item) => ({
+    const rows = LOW_STOCK_ITEMS.map((item) => ({
       ...itemRow(request, item),
       warehouseName: '1공장 창고',
       warehouseNumber: 'WH-001',
     }));
-    return ok({ content, page: makePage(page, size, content.length) });
+    return ok(
+      paged(request, filterBy(request, rows, { equals: { statusCode: (row) => row.statusCode } })),
+    );
   }),
 ];

@@ -15,10 +15,11 @@ import {
   statResponse,
   makePage,
   paged,
+  filterBy,
   newestFirst,
 } from '../utils';
 
-export type { Metric } from '../utils';
+export type { Metric, FilterRules } from '../utils';
 
 const mockUserInfo = {
   id: 1,
@@ -93,6 +94,7 @@ export {
   statResponse,
   makePage,
   paged,
+  filterBy,
   newestFirst,
   ok,
   okNoData,
