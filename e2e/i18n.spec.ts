@@ -110,7 +110,7 @@ test('영어로 바꾸면 비공개 화면과 탭 전부에서 화면이 그린 
     const names = await tabs.allTextContents();
     for (const name of names.slice(1)) {
       await tabs.filter({ hasText: name }).first().click();
-      await expect(page.getByRole('region', { name })).toBeVisible();
+      await expect(page.getByRole('region', { name, exact: true })).toBeVisible();
       await collect(`${route} > ${name}`);
     }
   }
