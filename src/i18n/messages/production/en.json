@@ -140,7 +140,8 @@
     "endDate": "End date",
     "sequence": "Operations",
     "loading": "Loading MES data...",
-    "empty": "No work orders match the selected filters."
+    "empty": "No work orders match the selected filters.",
+    "tableLabel": "Work orders"
   },
   "gantt": {
     "listLabel": "MES work order schedule (Gantt)",

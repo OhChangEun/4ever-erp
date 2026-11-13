@@ -51,9 +51,8 @@ export default function WarehousePage() {
         <div className="w-full flex justify-end">
           <Link
             href="/inventory"
-            className="px-4 py-2  text-gray-600 hover:text-gray-900 cursor-pointer"
+            className="px-4 py-2 text-blue-600 hover:text-blue-700 cursor-pointer"
           >
-            <i className="ri-arrow-go-back-line mr-2" />
             {t('page.backToInventory')}
           </Link>
         </div>

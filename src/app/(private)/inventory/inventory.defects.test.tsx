@@ -93,18 +93,29 @@ describe('재고 코드 표시 결함', () => {
     { locale: 'ko', labels: ['입고', '출고', '이동'] },
     { locale: 'en', labels: ['Inbound', 'Outbound', 'Transfer'] },
   ] satisfies { locale: 'ko' | 'en'; labels: string[] }[])(
-    '$locale 최근 이동은 코드와 한국어 응답 모두 같은 라벨과 아이콘을 쓴다',
+    // 남은 접근성과 디자인 카드: 이동 방향은 아이콘 대신 상태 글자 하나로 본다(지침 12장 아이콘 세 곳).
+    // 예전엔 아이콘 개수(입고 2, 출고 2, 이동 3)를 셌다. 지금은 행마다 같은 글자가 붙는지 본다
+    '$locale 최근 이동은 코드와 한국어 응답 모두 같은 라벨을 쓰고 아이콘이 없다',
     async ({ locale, labels }) => {
       server.use(
         http.get(INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT, () => ok({ content: movements })),
       );
       const { container } = renderWithProviders(<StockMovement />, { locale });
       await screen.findAllByText('Manager', { exact: false });
-      for (const label of labels)
-        expect(screen.getAllByText(label).length).toBeGreaterThanOrEqual(2);
-      expect(container.querySelectorAll('.ri-arrow-down-line')).toHaveLength(2);
-      expect(container.querySelectorAll('.ri-arrow-up-line')).toHaveLength(2);
-      expect(container.querySelectorAll('.ri-arrow-left-right-line')).toHaveLength(3);
+      const [inbound, outbound, transfer] = labels;
+      const label = new RegExp(`^(${labels.join('|')})$`);
+      // 행의 첫 글자 칸이 이동 종류(품목 이름이 '입고' 인 한국어 응답 행도 종류가 먼저)
+      const rows = screen.getAllByRole('listitem');
+      expect(rows.map((row) => within(row).getAllByText(label)[0]?.textContent)).toEqual([
+        inbound,
+        outbound,
+        transfer,
+        transfer,
+        inbound,
+        outbound,
+        transfer,
+      ]);
+      expect(container.querySelectorAll('[class*="ri-"]')).toHaveLength(0);
     },
   );
 

@@ -19,8 +19,6 @@ interface Screen {
   /** 카드 래퍼가 없어야 하는 칸의 제목. 'h2' 면 main 안의 h2 전부 */
   cardFree?: string[] | 'h2';
   brandButtonsOnly?: boolean;
-  /** 세그먼트마다 돌리는 axe 에서 뺄 규칙. 이 카드 밖의 알려진 위반만(카드 별도 보고) */
-  axeDisable?: string[];
 }
 
 const SCREENS: Screen[] = [
@@ -33,12 +31,7 @@ const SCREENS: Screen[] = [
   { path: '/hrm?tab=attendance-management', segments: ['출퇴근 기록', '휴가 관리'] },
   { path: '/hrm?tab=training-management', segments: ['직원별 교육 상태', '교육 프로그램 목록'] },
   { path: '/production?tab=mrp', segments: ['순소요', '계획 주문'] },
-  // MES 표 보기: 단계 글자 대비와 단계 가로 스크롤 칸 포커스(카드 별도 보고 5)
-  {
-    path: '/production?tab=mes',
-    segments: ['표', '간트'],
-    axeDisable: ['color-contrast', 'scrollable-region-focusable'],
-  },
+  { path: '/production?tab=mes', segments: ['표', '간트'] },
   { path: '/profile', cardFree: 'h2', brandButtonsOnly: true },
 ];
 
@@ -104,10 +97,9 @@ const wrapperOf = (heading: Locator) =>
     return found;
   });
 
-const axeSerious = async (page: Page, disable: string[] = []) => {
+const axeSerious = async (page: Page) => {
   const result = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .disableRules(disable)
     .analyze();
   return result.violations
     .filter((v) => v.impact === 'critical' || v.impact === 'serious')
@@ -186,9 +178,7 @@ for (const screen of SCREENS) {
       if (look.bg !== 'rgb(255, 255, 255)')
         problems.push(`활성 세그먼트 색(${String(name)}): ${look.bg}`);
       if (!look.inGroup) problems.push(`세그먼트 묶음(group) 없음: ${String(name)}`);
-      problems.push(
-        ...(await axeSerious(page, screen.axeDisable)).map((v) => `axe(${String(name)}): ${v}`),
-      );
+      problems.push(...(await axeSerious(page)).map((v) => `axe(${String(name)}): ${v}`));
     }
 
     expect(problems).toEqual([]);
@@ -240,3 +230,88 @@ test('키보드로 간 세그먼트, 공통 Button, 드롭다운에 포커스 �
   }
   expect(missing).toEqual([]);
 });
+
+// 남은 접근성과 디자인 카드. 상태만 이름 옆에 붙어 "상태● 정상" 으로 보였다
+test('프로필 오늘 근태 현황은 칸마다 이름 줄 아래 값 줄이다', async ({ page }) => {
+  await page.setViewportSize({ width: 1512, height: 772 });
+  await page.goto('/profile');
+  await settle(page);
+  const today = page
+    .getByRole('heading', { name: '오늘 근태 현황', exact: true })
+    .locator('xpath=../..');
+  const sameLine: string[] = [];
+  for (const name of ['출근시간', '퇴근시간', '근무시간', '상태']) {
+    const label = today.getByText(name, { exact: true });
+    const value = label.locator('xpath=following-sibling::*[1]');
+    await expect(value).toBeVisible();
+    const [l, v] = [await label.boundingBox(), await value.boundingBox()];
+    if (!l || !v || v.y < l.y + l.height - 1) sameLine.push(name);
+  }
+  expect(sameLine, '이름과 같은 줄에 값이 붙은 칸').toEqual([]);
+});
+
+// 남은 접근성과 디자인 리뷰 진1(P2). 스크롤 칸은 부모 overflow-hidden 을 꽉 채워 바깥 링(offset 2px)이 잘린다
+test('MES 표 스크롤 칸에 Tab 으로 가면 포커스 링이 칸 안쪽에 그려진다', async ({ page }) => {
+  await page.setViewportSize({ width: 1512, height: 772 });
+  await page.goto('/production?tab=mes');
+  await settle(page);
+  const region = page.getByRole('region', { name: '작업지시 목록' });
+  await tabTo(page, region);
+  const ring = await region.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      style: s.outlineStyle,
+      width: parseFloat(s.outlineWidth),
+      offset: parseFloat(s.outlineOffset),
+    };
+  });
+  expect(ring.style).not.toBe('none');
+  expect(ring.width).toBeGreaterThan(0);
+  // 링 바깥 끝이 칸 테두리 안: offset + width <= 0
+  expect(ring.offset + ring.width, `outline-offset ${ring.offset}px`).toBeLessThanOrEqual(0);
+});
+
+// 리뷰 진2(P3). ghost 버튼 안쪽 여백만큼 버튼 글자가 위 이름 글자보다 들어가 있었다
+for (const { path, card } of [
+  { path: '/warehouse', card: 'li' },
+  { path: '/hrm?tab=training-management&subTab=programs', card: 'li' },
+]) {
+  test(`${path} 카드의 첫 동작 글자는 위 이름 글자와 왼쪽 선이 같다`, async ({ page }) => {
+    await page.setViewportSize({ width: 1512, height: 772 });
+    await page.goto(path);
+    await settle(page);
+    const first = page.locator('main').first().locator(`${card}:has(dl)`).first();
+    await expect(first).toBeVisible();
+    const [termLeft, actionLeft] = await first.evaluate((el) => {
+      const textLeft = (node: Element | null) => {
+        if (!node) return NaN;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return range.getBoundingClientRect().left;
+      };
+      return [textLeft(el.querySelector('dt')), textLeft(el.querySelector('button'))];
+    });
+    expect(
+      Math.abs(actionLeft - termLeft),
+      `이름 ${termLeft}px, 동작 ${actionLeft}px`,
+    ).toBeLessThan(1);
+  });
+}
+
+// 리뷰 진3(P3). 지침 "브랜드 블루는 primary 버튼, 활성 탭, 텍스트 링크". 회색 바탕 위라 배경 없이 글자색만
+for (const path of ['/warehouse', '/low-stock']) {
+  test(`${path} 돌아가기 링크는 브랜드 블루 글자다`, async ({ page }) => {
+    await page.goto(path);
+    await settle(page);
+    const link = page.getByRole('link', { name: '재고관리로 돌아가기' });
+    const [color, brand] = await link.evaluate((el) => {
+      const probe = document.createElement('span');
+      probe.className = 'text-blue-600';
+      document.body.append(probe);
+      const want = getComputedStyle(probe).color;
+      probe.remove();
+      return [getComputedStyle(el).color, want];
+    });
+    expect(color).toBe(brand);
+  });
+}

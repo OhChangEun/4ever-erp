@@ -193,7 +193,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 타입 단언(`as`)과 non-null(`!`)은 0건이고 ESLint error 다(2026-11-10 타입 1차). 남긴 예외 1곳과 대신 쓰는 방식:
 
 1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:91`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
-2. `Table<T>` 는 열 key 가 행 필드가 아닐 수 있어(`actions` 같은 가상 열) `keyof T` 로 묶지 않았다. 값은 `Reflect.get` 으로 꺼낸다 (`src/app/components/common/Table.tsx:65`).
+2. `Table<T>` 는 열 key 가 행 필드가 아닐 수 있어(`actions` 같은 가상 열) `keyof T` 로 묶지 않았다. 값은 `Reflect.get` 으로 꺼낸다 (`packages/ui/src/Table.tsx:76`).
 3. 서버 응답을 믿는 자리는 타입 가드로 읽는다. 로그인과 세션 `readUserResponse`(`src/app/(public)/callback/userInfoType.ts`), FormData `formText`(`src/lib/formData.ts`). `ApiResponse` 판별 유니온과 zod 는 타입 2차 카드.
 
 모달과 팝업 층(2026-11-10 접근성 2):
@@ -209,7 +209,7 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:37` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
 2. 탭이 있는 화면(영업, 생산, 구매, 재고, 재무, 인사)은 화면 높이를 꽉 채우고 `TabNavigation` 의 내용 칸 하나가 스크롤 칸이다(`src/app/components/common/TabNavigation.tsx:78`, `overflow-auto`). 제목과 탭, 통계 띠는 고정이다.
-3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:82`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다.
+3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:92`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다. 행 안에 버튼이나 링크가 없는 표는 키보드로 이 칸에 못 가므로 `scrollLabel` 을 넘겨 이름 있는 region(`tabIndex=0`)으로 만든다(MES 표, 남은 접근성과 디자인 카드). 이 칸은 부모 `overflow-hidden` 을 꽉 채워 링을 안쪽(`outline-offset: -2px`)에 그린다.
 4. 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 줄지 않고 내용 칸에서 스크롤된다. 탭 컴포넌트가 따로 `overflow-auto` 를 달지 않는다(재무 현황에 있던 것은 지웠다). 내용 칸과 그 조상에 `overflow-hidden` 을 다시 넣으면 넘친 내용을 볼 방법이 없어진다.
 5. 내용 칸은 `role="region"`, 이름은 활성 탭 이름, `tabIndex={0}` 이다(`?tab=` 이 없는 값이면 내용이 없어 이름과 `tabIndex` 를 빼서 빈 Tab 정지가 안 생긴다). 안에 포커스 받을 요소가 없는 탭도 키보드(방향키, PageDown, End)로 스크롤된다. 탭 화면마다 Tab 정지가 하나 는다.
 6. 하위 탭(`SubNavigation`, 인사와 생산 MRP)은 2단 탭 줄이 없다. 활성 화면에 세그먼트(`TabButtons`)를 `tabButtons` 로 넘기고 화면이 자기 툴바 왼쪽에 둔다(`src/app/components/common/SubNavigation.tsx:37`). 고른 탭은 `?subTab=`, 모르는 id 는 첫 탭. 하위 화면은 따로 스크롤 칸을 두지 않는다. 넘치면 세그먼트 줄과 같이 2번 칸에서 스크롤된다.

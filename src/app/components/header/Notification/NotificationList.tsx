@@ -9,35 +9,12 @@ interface NotificationListProps {
 }
 
 /** 화면이 아는 출처. 이름은 메시지 notification.source 에 있다 */
-type KnownSource = 'PR' | 'SD' | 'IM' | 'FCM' | 'HRM' | 'PP' | 'CUS' | 'SUP';
+const KNOWN_SOURCES = ['PR', 'SD', 'IM', 'FCM', 'HRM', 'PP', 'CUS', 'SUP'] as const;
+type KnownSource = (typeof KNOWN_SOURCES)[number];
 
-interface SourceConfig {
-  color: string;
-  icon: string;
-  /** 메시지 notification.source 의 키 */
-  labelKey: KnownSource | 'unknown';
-}
-
-const UNKNOWN_CONFIG: SourceConfig = {
-  color: 'bg-green-500',
-  icon: 'ri-shopping-cart-line',
-  labelKey: 'unknown',
-};
-
-/** 알림 출처 표시. 서버가 모르는 출처를 보내면 undefined 라 Partial 로 두고 기본값을 쓴다 */
-const getSourceConfig = (source: string): SourceConfig => {
-  const configs: Partial<Record<string, SourceConfig>> = {
-    PR: { color: 'bg-blue-500', icon: 'ri-file-list-3-line', labelKey: 'PR' },
-    SD: { color: 'bg-green-500', icon: 'ri-shopping-cart-line', labelKey: 'SD' },
-    IM: { color: 'bg-yellow-500', icon: 'ri-inbox-line', labelKey: 'IM' },
-    FCM: { color: 'bg-purple-500', icon: 'ri-building-line', labelKey: 'FCM' },
-    HRM: { color: 'bg-pink-500', icon: 'ri-user-line', labelKey: 'HRM' },
-    PP: { color: 'bg-indigo-500', icon: 'ri-box-3-line', labelKey: 'PP' },
-    CUS: { color: 'bg-cyan-500', icon: 'ri-customer-service-2-line', labelKey: 'CUS' },
-    SUP: { color: 'bg-orange-500', icon: 'ri-truck-line', labelKey: 'SUP' },
-  };
-  return configs[source] ?? UNKNOWN_CONFIG;
-};
+/** 서버가 모르는 출처를 보내면 '알 수 없음' */
+const sourceKey = (source: string): KnownSource | 'unknown' =>
+  KNOWN_SOURCES.find((known) => known === source) ?? 'unknown';
 
 const formatDateTime = (dateString: string) => {
   const date = new Date(dateString);
@@ -74,17 +51,10 @@ export default function NotificationList({
   return (
     <ul role="list" className="max-h-96 overflow-y-auto divide-y divide-gray-100">
       {notifications.map((notification) => {
-        const config = getSourceConfig(notification.source);
         const unread = !notification.isRead;
         // 버튼 안에도 들어가므로 span 만 쓴다
         const body = (
           <>
-            <span
-              aria-hidden="true"
-              className={`${config.color} w-9 h-9 rounded-md flex items-center justify-center shrink-0`}
-            >
-              <i className={`${config.icon} text-white text-base`}></i>
-            </span>
             <span className="flex-1 min-w-0">
               <span
                 className={`block text-sm truncate ${
@@ -97,10 +67,10 @@ export default function NotificationList({
               <span className="block text-xs text-gray-600 truncate">
                 {notification.notificationMessage}
               </span>
-              {/* 출처는 회색 글자. 색 배경 흰 글자는 노랑, 청록, 주황에서 대비가 모자랐다 */}
+              {/* 출처는 회색 글자 하나. 색 아이콘 타일은 지웠다(지침 12장 아이콘 세 곳, 같은 뜻을 두 번 말하지 않는다) */}
               <span className="flex items-center justify-between gap-2 mt-1 text-xs text-gray-500">
                 <span>{formatDateTime(notification.createdAt)}</span>
-                <span>{t(`source.${config.labelKey}`)}</span>
+                <span>{t(`source.${sourceKey(notification.source)}`)}</span>
               </span>
             </span>
             {unread && (

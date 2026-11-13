@@ -194,6 +194,7 @@
     "mode": "교육 방식",
     "online": "온라인",
     "offline": "오프라인",
+    "capacity": "정원",
     "startDate": "시작일",
     "assignedEmployees": "지정된 직원 목록 ({count}명)",
     "noAssigned": "지정된 직원이 없습니다.",

@@ -130,7 +130,7 @@ export default function MesTab() {
         // 모르는 상태는 코드 그대로(예전과 같음)
         const config = style
           ? { label: t(`mes.status.${style.key}`), dot: style.dot, class: style.class }
-          : { label: row.status, dot: 'bg-gray-400', class: 'text-gray-400' };
+          : { label: row.status, dot: 'bg-gray-400', class: 'text-gray-500' };
         return (
           <span className={`flex items-center justify-center gap-1.5 ${config.class}`}>
             <span className={`w-1 h-1 rounded-full shrink-0 ${config.dot}`} />
@@ -153,19 +153,19 @@ export default function MesTab() {
       label: t('common.quantity'),
       render: (_, row) => (
         <span className="text-gray-600">
-          {row.quantity} <span className="text-gray-400">{row.uomName}</span>
+          {row.quantity} <span className="text-gray-500">{row.uomName}</span>
         </span>
       ),
     },
     {
       key: 'startDate',
       label: t('mes.startDate'),
-      render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.startDate}</span>,
+      render: (_, row) => <span className="text-gray-500 whitespace-nowrap">{row.startDate}</span>,
     },
     {
       key: 'endDate',
       label: t('mes.endDate'),
-      render: (_, row) => <span className="text-gray-400 whitespace-nowrap">{row.endDate}</span>,
+      render: (_, row) => <span className="text-gray-500 whitespace-nowrap">{row.endDate}</span>,
     },
     {
       key: 'sequence',
@@ -206,13 +206,14 @@ export default function MesTab() {
                         <span className="w-1 h-1 rounded-full bg-gray-400" />
                       )}
                     </div>
+                    {/* 글자는 표 머리와 같은 12px, 회색은 흰 바탕 4.5:1 이상인 gray-500 부터(tokens.css) */}
                     <span
-                      className={`text-[9px] leading-tight text-center max-w-10 truncate ${
+                      className={`text-xs leading-tight text-center max-w-10 truncate ${
                         state === 'active'
                           ? 'text-blue-700 font-bold'
                           : state === 'done'
                             ? 'text-gray-600'
-                            : 'text-gray-400'
+                            : 'text-gray-500'
                       }`}
                     >
                       {operation}
@@ -306,6 +307,7 @@ export default function MesTab() {
             keyExtractor={(row) => row.mesId}
             onRowClick={(row) => handleShowProcessDetail(row.mesId)}
             emptyMessage={t('mes.empty')}
+            scrollLabel={t('mes.tableLabel')}
           />
         )}
       </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { IconButton } from '@everp/ui';
+import { Button } from '@everp/ui';
 import { Flex } from '@everp/ui';
 import { devErrorDetail } from '@/lib/devErrorDetail';
 
@@ -62,18 +62,8 @@ export default function AppError({
           <p className="text-sm text-gray-600 text-center">{t('unknown')}</p>
 
           <div className="w-full flex items-center justify-center gap-3 mt-4">
-            <IconButton
-              icon="ri-refresh-line"
-              label={t('retry')}
-              variant="secondary"
-              onClick={handleRetry}
-            />
-            <IconButton
-              icon="ri-home-4-line"
-              label={t('home')}
-              variant="primary"
-              onClick={() => router.push('/')}
-            />
+            <Button label={t('retry')} variant="secondary" onClick={handleRetry} />
+            <Button label={t('home')} variant="primary" onClick={() => router.push('/')} />
           </div>
 
           <div className="w-full mt-3">
@@ -84,8 +74,7 @@ export default function AppError({
               {copyStatus === 'error' && (
                 <span className="text-xs text-red-600">{t('copyFailed')}</span>
               )}
-              <IconButton
-                icon="ri-file-copy-line"
+              <Button
                 label={t('copy')}
                 variant="ghost"
                 size="sm"

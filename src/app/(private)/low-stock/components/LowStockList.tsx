@@ -210,9 +210,8 @@ export default function LowStockList() {
     <div className="">
       <Link
         href="/inventory"
-        className="px-3 text-sm text-gray-600 hover:text-gray-800 cursor-pointer flex items-center justify-end my-5"
+        className="px-3 text-sm text-blue-600 hover:text-blue-700 cursor-pointer flex items-center justify-end my-5"
       >
-        <i className="ri-arrow-left-line mr-1"></i>
         {t('back')}
       </Link>
       <div className="flex flex-col gap-6">

@@ -3,7 +3,7 @@
 import { type StockMovementResponse } from '../types/StockMovement';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentStockMovement } from '../inventory.api';
-import { FormatDate, getMovementColor, getMovementIcon, getMovementType } from '../inventory.utils';
+import { FormatDate, getMovementType } from '../inventory.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { stockMovementKeys } from '@/app/(private)/inventory/inventory.keys';
 import { useTranslations } from 'next-intl';
@@ -54,17 +54,11 @@ export default function StockMovement() {
             </div>
           )}
 
-          {!isLoading &&
-            !isError &&
-            stockMovementRes?.map((movement) => (
-              <div key={movement.itemName} className="flex items-center gap-3 py-3">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${getMovementColor(movement.type)}`}
-                >
-                  <i className={`${getMovementIcon(movement.type)} text-sm`}></i>
-                </div>
-
-                <div className="flex-1 min-w-0">
+          {!isLoading && !isError && stockMovementCount > 0 && (
+            // 이동 종류는 아이콘 대신 상태 글자 하나(지침 12장 아이콘 세 곳)
+            <ul role="list" className="divide-y divide-gray-200">
+              {stockMovementRes?.map((movement) => (
+                <li key={movement.itemName} className="py-3 min-w-0">
                   <div className="flex items-center gap-2">
                     <StatusLabel statusCode={getMovementType(movement.type)} />
                     <span className="text-sm font-medium text-gray-900">
@@ -75,9 +69,10 @@ export default function StockMovement() {
                   <div className="text-xs text-gray-500">
                     {FormatDate(movement.workDate)} · {movement.managerName}
                   </div>
-                </div>
-              </div>
-            ))}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </section>

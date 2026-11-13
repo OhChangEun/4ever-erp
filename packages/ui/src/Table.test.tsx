@@ -58,4 +58,20 @@ describe('Table', () => {
     rerender(<Table columns={columns} data={rows} keyExtractor={(r) => r.id} isStale />);
     expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
   });
+
+  // 행에 누를 것이 없는 표는 스크롤 칸이 키보드로 닿아야 화살표로 내려 읽는다(axe scrollable-region-focusable)
+  it('scrollLabel 을 주면 스크롤 칸이 이름 있는 region 이고 Tab 으로 간다', async () => {
+    const { rerender } = render(<Table columns={columns} data={rows} keyExtractor={(r) => r.id} />);
+    expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    rerender(
+      <Table
+        columns={columns}
+        data={rows}
+        keyExtractor={(r) => r.id}
+        scrollLabel="작업지시 목록"
+      />,
+    );
+    await userEvent.tab();
+    expect(screen.getByRole('region', { name: '작업지시 목록' })).toHaveFocus();
+  });
 });

@@ -33,6 +33,11 @@ export interface TableProps<T = Record<string, unknown>> {
    * 목록 쿼리에 keepPreviousData 를 쓸 때 isPlaceholderData 를 넘긴다.
    */
   isStale?: boolean;
+  /**
+   * 스크롤 칸 이름. 주면 칸이 이름 있는 region 이 되고 Tab 으로 닿는다(화살표로 내려 읽기).
+   * 행 안에 버튼이나 링크가 없어 키보드로 스크롤 칸에 못 가는 표만 넘긴다(axe scrollable-region-focusable)
+   */
+  scrollLabel?: string;
 }
 
 /**
@@ -50,6 +55,7 @@ export default function Table<T = Record<string, unknown>>({
   maxHeight,
   height,
   isStale = false,
+  scrollLabel,
 }: TableProps<T>) {
   const defaultEmpty = useUiText().table.empty;
   const getAlignClass = (align?: string) => {
@@ -79,7 +85,11 @@ export default function Table<T = Record<string, unknown>>({
       className={`bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col ${className}`}
     >
       <div
-        className="overflow-auto custom-scroll w-full"
+        role={scrollLabel ? 'region' : undefined}
+        aria-label={scrollLabel}
+        tabIndex={scrollLabel ? 0 : undefined}
+        // 부모가 overflow-hidden 이고 이 칸이 꽉 채워 바깥 링(전역 offset 2px)이 잘린다. 링을 칸 안쪽에 그린다
+        className="overflow-auto custom-scroll w-full focus-visible:outline-offset-[-2px]"
         style={{
           maxHeight: maxHeight ?? height ?? '100%',
           height: height,

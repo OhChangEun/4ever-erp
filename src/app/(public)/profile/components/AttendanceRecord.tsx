@@ -160,7 +160,10 @@ export default function AttendanceRecord() {
                   </div>
                   <div>
                     <span className="text-xs text-gray-500">{t('attendance.status')}</span>
-                    <StatusLabel statusCode={todayAttendanceRes?.status} />
+                    {/* 다른 칸처럼 값은 이름 아래 줄. StatusLabel 은 inline 이라 블록으로 감싼다 */}
+                    <p>
+                      <StatusLabel statusCode={todayAttendanceRes?.status} />
+                    </p>
                   </div>
                 </div>
 

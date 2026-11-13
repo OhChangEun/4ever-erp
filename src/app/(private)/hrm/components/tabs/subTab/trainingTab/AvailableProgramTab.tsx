@@ -72,12 +72,14 @@ export default function AvailableProgramTab({ tabButtons }: { tabButtons?: React
         <Button label={t('programs.add')} onClick={handleViewProgramRegister} />
       </div>
 
-      <div
+      {/* 프로그램 카드는 독립 정보 단위. 행 이름은 아이콘 대신 글자(지침 12장 아이콘 세 곳) */}
+      <ul
+        role="list"
         aria-busy={isPlaceholderData || undefined}
         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
       >
         {programList.map((program) => (
-          <div key={program.programId} className="border border-gray-200 rounded-lg p-6">
+          <li key={program.programId} className="border border-gray-200 rounded-lg p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-1">{program.programName}</h4>
@@ -87,33 +89,38 @@ export default function AvailableProgramTab({ tabButtons }: { tabButtons?: React
                 <StatusLabel statusCode={program.statusCode} />
               </span>
             </div>
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center text-sm text-gray-600">
-                <i className="ri-time-line mr-2"></i>
-                <span className="pt-1">{t('common.hours', { count: program.trainingHour })}</span>
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <i className="ri-computer-line mr-2"></i>
-                <span className="pt-1">
-                  {program.isOnline ? t('programs.online') : t('programs.offline')}
-                </span>
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <i className="ri-team-line mr-2"></i>
-                <span className="pt-1">{t('common.people', { count: program.capacity })}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 mb-4 text-sm">
+              <dt className="text-gray-500">{t('programs.hours')}</dt>
+              <dd className="text-gray-800">
+                {t('common.hours', { count: program.trainingHour })}
+              </dd>
+              <dt className="text-gray-500">{t('programs.mode')}</dt>
+              <dd className="text-gray-800">
+                {program.isOnline ? t('programs.online') : t('programs.offline')}
+              </dd>
+              <dt className="text-gray-500">{t('programs.capacity')}</dt>
+              <dd className="text-gray-800">{t('common.people', { count: program.capacity })}</dd>
+            </dl>
+            {/* 카드 동작은 텍스트 링크. 툴바의 프로그램 추가가 이 화면의 primary 하나 */}
+            <div className="flex gap-1 pt-3 border-t border-gray-200">
+              {/* 첫 링크 글자를 위 이름 글자와 같은 선에(ghost 안쪽 여백 px-3 만큼 당긴다) */}
               <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-3"
                 label={t('common.viewDetail')}
-                variant="secondary"
                 onClick={() => handleViewProgramDetail(program)}
               />
-              <Button label={t('programs.manage')} onClick={() => handleEditProgram(program)} />
+              <Button
+                variant="ghost"
+                size="sm"
+                label={t('programs.manage')}
+                onClick={() => handleEditProgram(program)}
+              />
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
 
       <Pagination
         currentPage={currentPage}

@@ -140,7 +140,8 @@
     "endDate": "종료일",
     "sequence": "공정 진행",
     "loading": "MES 데이터를 불러오는 중입니다...",
-    "empty": "선택한 조건에 해당하는 작업지시가 없습니다."
+    "empty": "선택한 조건에 해당하는 작업지시가 없습니다.",
+    "tableLabel": "작업지시 목록"
   },
   "gantt": {
     "listLabel": "MES 작업 일정(간트)",
