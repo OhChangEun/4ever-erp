@@ -107,7 +107,8 @@ describe('인사 화면 결함', () => {
     try {
       renderWithProviders(<TrainingManagement />);
       const first = await screen.findByRole('button', { name: '직원별 교육 상태' });
-      expect(first).toHaveClass('border-blue-500');
+      // 선택 표시는 세그먼트의 aria-pressed(예전 밑줄 탭은 border-blue-500 클래스를 봤다)
+      expect(first).toHaveAttribute('aria-pressed', 'true');
     } finally {
       search.value = new URLSearchParams();
     }

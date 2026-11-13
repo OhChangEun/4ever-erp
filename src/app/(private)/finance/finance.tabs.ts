@@ -18,14 +18,12 @@ export const FINANCE_TABS: FinanceTab[] = [
   {
     id: 'sales',
     name: 'sales',
-    icon: 'ri-money-dollar-circle-line',
     component: InvoiceList,
     roles: [...INTERNAL_ROLES, 'SUPPLIER_ADMIN'],
   },
   {
     id: 'purchase',
     name: 'purchase',
-    icon: 'ri-shopping-cart-line',
     component: InvoiceList,
     roles: [...INTERNAL_ROLES, 'CUSTOMER_ADMIN'],
   },
@@ -33,7 +31,6 @@ export const FINANCE_TABS: FinanceTab[] = [
     // 회사 전체 손익이라 사내 재무 역할만(시각화 4 결정 1). API 도 같은 표로 막는다. 맨 뒤라 기본 탭은 그대로
     id: 'overview',
     name: 'overview',
-    icon: 'ri-bar-chart-2-line',
     component: FinanceOverview,
     roles: [...FINANCE_ANALYTICS_ROLES],
   },

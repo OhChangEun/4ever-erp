@@ -87,7 +87,7 @@ export default function NotificationBell({ isExpanded }: NotificationBellProps) 
         aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((prev) => !prev)}
         title={!isExpanded ? t('title') : undefined}
-        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors cursor-pointer focus:outline-none focus-visible:outline-2 focus-visible:outline-blue-500"
+        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors cursor-pointer"
       >
         <i aria-hidden="true" className="ri-notification-3-line text-base shrink-0 text-gray-400" />
         <span

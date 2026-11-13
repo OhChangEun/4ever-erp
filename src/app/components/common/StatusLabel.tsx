@@ -11,7 +11,6 @@ const DOT_CLASS_BY_HUE: Record<string, string> = {
   orange: 'bg-orange-500',
   red: 'bg-red-500',
   blue: 'bg-blue-500',
-  purple: 'bg-purple-500',
   gray: 'bg-gray-400',
 };
 

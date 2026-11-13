@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { fetchDepartmentsList } from '@/app/(private)/hrm/api/hrm.api';
 import { type DepartmentsData } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -8,7 +9,8 @@ import { DepartmentEditModal } from '../../../modals/DepartmentEditModal';
 import { departmentKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
-export default function DepartmentsTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function DepartmentsTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   const { openModal, removeAllModals } = useModal();
 
@@ -39,9 +41,7 @@ export default function DepartmentsTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{t('departments.title')}</h3>
-      </div>
+      <div className="flex items-center mb-4">{tabButtons}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {departmentList.map((dept) => (
           <div key={dept.departmentId} className="border border-gray-200 rounded-lg p-6">

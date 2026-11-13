@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Button } from '@everp/ui';
 
 export default function UnauthorizedPage() {
   const t = useTranslations('auth.unauthorized');
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 flex items-center justify-center px-4 py-12 text-center">
-      <div className="max-w-lg w-full rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-10 space-y-8">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12 text-center">
+      <div className="max-w-lg w-full rounded-lg border border-gray-200 bg-white p-10 space-y-8">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-500 text-3xl">
           <i className="ri-error-warning-line text-3xl text-red-500" aria-hidden="true"></i>
         </div>
@@ -18,7 +19,7 @@ export default function UnauthorizedPage() {
           <h1 className="text-3xl font-semibold text-slate-900">{t('title')}</h1>
           <p className="text-slate-600 leading-relaxed">{t('body')}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-left text-sm text-slate-600 space-y-3">
+        <div className="border-t border-gray-200 pt-6 text-left text-sm text-slate-600 space-y-3">
           <p className="font-medium text-slate-900">{t('checkTitle')}</p>
           <ul className="space-y-2">
             <li className="flex items-start gap-3">
@@ -32,16 +33,16 @@ export default function UnauthorizedPage() {
           </ul>
         </div>
         <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            label={t('back')}
             onClick={() => router.back()}
-            className="w-full sm:w-auto rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-          >
-            {t('back')}
-          </button>
+            className="w-full sm:w-auto"
+          />
+          {/* shortcut: 공통 Button primary 클래스를 옮겨 적었다. Button 이 링크(href, asChild)를 받게 되면 그것으로 바꾼다 */}
           <Link
             href="/"
-            className="w-full sm:w-auto rounded-full bg-red-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/30 transition hover:bg-red-600"
+            className="inline-flex h-9 w-full sm:w-auto items-center justify-center rounded-md bg-blue-500 px-3.5 text-sm font-medium text-white transition-colors hover:bg-blue-600"
           >
             {t('home')}
           </Link>

@@ -6,7 +6,7 @@ import { Dropdown } from '@everp/ui';
 import { useModal } from '@/app/components/common/modal/useModal';
 import { Pagination } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import TrainingDetailModal from '@/app/(private)/hrm/components/modals/TrainingDetailModal';
 import AddEmployeeTrainingModal from '@/app/(private)/hrm/components/modals/AddEmployeeTrainingModal';
@@ -17,7 +17,8 @@ import { Table, type TableColumn } from '@everp/ui';
 import { trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
-export default function EmployeeTrainingTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function EmployeeTrainingTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -150,7 +151,8 @@ export default function EmployeeTrainingTab() {
   return (
     <div className="flex flex-col h-full gap-6">
       {/* 필터링 및 검색 */}
-      <div className="flex items-center justify-end gap-3 shrink-0">
+      <div className="flex items-center justify-between gap-3 shrink-0">
+        {tabButtons}
         <div className="flex items-center gap-3">
           <Dropdown
             placeholder={t('common.allDepartments')}

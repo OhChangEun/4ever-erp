@@ -130,7 +130,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
           aria-label={t('plannedOrders.selectAll')}
           checked={allSelected}
           onChange={handleSelectAllOrders}
-          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+          className="rounded border-gray-300 cursor-pointer"
         />
       ),
       render: (_, order) => {

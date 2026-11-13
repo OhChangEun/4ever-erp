@@ -26,7 +26,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
     queryKey: profileKeys.info(),
     queryFn: getProfile,
   });
-  const summaryItems: Array<{ label: EmploymentLabelKey; value?: string; highlight?: boolean }> = [
+  const summaryItems: Array<{ label: EmploymentLabelKey; value?: string }> = [
     {
       label: 'department',
       value: profileInfo?.department,
@@ -42,7 +42,6 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
     {
       label: 'serviceYears',
       value: profileInfo?.serviceYears,
-      highlight: true,
     },
   ];
 
@@ -71,47 +70,30 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
   });
 
   return (
-    <div className="card-base overflow-hidden">
-      <div className="bg-linear-to-r from-blue-600 via-blue-500 to-blue-400 px-6 py-8 text-white">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-white/15 flex items-center justify-center">
-              <i className="ri-user-3-line text-2xl"></i>
-            </div>
-            <div>
-              <p className="text-sm text-white/80">{profileInfo?.employeeNumber}</p>
-              <h2 translate="no" className="text-2xl font-semibold">
-                {profileInfo?.name}
-              </h2>
-              <p className="text-sm text-white/80">
-                {profileInfo?.department} · {profileInfo?.position}
-              </p>
-            </div>
-          </div>
+    // 그라데이션 배너와 카드 대신 제목 줄 + key-value(디자인 지침 12장 색, 카드 래퍼)
+    <section>
+      <div className="flex flex-col gap-6 pb-6 border-b border-gray-200 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{profileInfo?.employeeNumber}</p>
+          <h2 translate="no" className="text-2xl font-semibold text-gray-900">
+            {profileInfo?.name}
+          </h2>
+          <p className="text-sm text-gray-500">
+            {profileInfo?.department} · {profileInfo?.position}
+          </p>
+        </div>
 
-          <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4 lg:w-auto">
-            {summaryItems.map((item) => (
-              <div
-                key={item.label}
-                className={`rounded-xl px-4 py-3 ${item.highlight ? 'bg-white text-blue-600' : 'bg-white/10'}`}
-              >
-                <span
-                  className={`text-xs font-medium ${item.highlight ? 'text-blue-500' : 'text-white/70'}`}
-                >
-                  {t(item.label)}
-                </span>
-                <p
-                  className={`mt-1 text-sm font-semibold ${item.highlight ? 'text-blue-700' : 'text-white'}`}
-                >
-                  {item.value}
-                </p>
-              </div>
-            ))}
-          </div>
+        <div className="grid w-full grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4 lg:w-auto">
+          {summaryItems.map((item) => (
+            <div key={item.label}>
+              <span className="text-xs font-medium text-gray-500">{t(item.label)}</span>
+              <p className="mt-1 text-sm font-semibold text-gray-900">{item.value}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="bg-white px-6 py-6">
+      <div className="pt-6">
         {isEditing && profileInfo ? (
           // 편집을 시작할 때 한 번 마운트되고, 그때의 값으로 폼을 채운다.
           // 저장이 실패해 낙관적 값이 롤백되거나 재조회가 와도 입력은 그대로 남는다(우선순위 2)
@@ -128,10 +110,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {detailItems.map((item) => (
-              <div
-                key={item.label}
-                className={`rounded-xl border border-gray-100 bg-gray-50 px-4 py-4`}
-              >
+              <div key={item.label}>
                 <span className="text-xs font-medium text-gray-500">{t(item.label)}</span>
                 <p className="mt-1 text-sm font-medium text-gray-900">{item.value}</p>
               </div>
@@ -139,7 +118,7 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -192,7 +171,7 @@ function ProfileEditForm({ initial, isSaving, onSubmit, onCancel }: ProfileEditF
           }`;
 
           return (
-            <div key={field.key} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-4">
+            <div key={field.key}>
               <label htmlFor={field.key} className="mb-2 block text-xs font-medium text-gray-500">
                 {t(field.label)}
               </label>

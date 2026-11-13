@@ -87,7 +87,6 @@ export const DYNAMIC_PREFIXES = [
     files: [`${P}hrm/components/modals/AddProgramModal.tsx`],
   },
   { prefix: 'inventory.stats.', files: [`${P}inventory/InventoryClient.tsx`] },
-  { prefix: 'inventory.tabs.', files: [`${P}inventory/InventoryClient.tsx`] },
   {
     prefix: 'inventory.list.statusFilter.',
     files: [`${P}inventory/components/tabs/InventoryList.tsx`],

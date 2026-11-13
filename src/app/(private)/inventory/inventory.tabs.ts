@@ -9,12 +9,11 @@ export type InventoryTab = Omit<Tab, 'name'> & { name: keyof typeof inventoryKo.
 
 // 재고 관리 탭 전환
 export const INVENTORY_TABS: InventoryTab[] = [
-  { id: 'inventory', name: 'inventory', icon: 'ri-list-check-3', component: InventoryList },
-  { id: 'shipping', name: 'shipping', icon: 'ri-truck-line', component: ShippingManagementList },
+  { id: 'inventory', name: 'inventory', component: InventoryList },
+  { id: 'shipping', name: 'shipping', component: ShippingManagementList },
   {
     id: 'receiving',
     name: 'receiving',
-    icon: 'ri-inbox-archive-line',
     component: ReceivingManagementList,
   },
 ];

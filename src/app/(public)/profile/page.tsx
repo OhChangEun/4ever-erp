@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Button } from '@everp/ui';
 
 import AttendanceRecord from './components/AttendanceRecord';
 import TrainingStatus from './components/TrainingStatus';
@@ -21,25 +22,21 @@ export default function ProfilePage() {
               <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
               <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
             </div>
-            <button
+            <Button
+              // primary 는 근태 칸의 출퇴근 하나(지침 "한 화면에 primary 는 하나")
+              variant="secondary"
+              label={isEditing ? t('cancelEdit') : t('edit')}
               onClick={() => {
                 setIsEditing(!isEditing);
               }}
-              className={`px-4 py-2 font-medium rounded-lg transition-colors duration-200 cursor-pointer whitespace-nowrap flex items-center space-x-2 ${
-                isEditing
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              <i className={isEditing ? 'ri-close-line' : 'ri-edit-line'}></i>
-              <span>{isEditing ? t('cancelEdit') : t('edit')}</span>
-            </button>
+            />
           </div>
         </div>
 
-        <div className="space-y-6">
+        {/* 칸을 카드로 감싸지 않고 여백과 구분선으로 나눈다(디자인 지침 12장) */}
+        <div className="space-y-10">
           <EmploymentInfo isEditing={isEditing} setIsEditing={setIsEditing} />
-          <div className="grid grid-cols-1 gap-6 items-start lg:grid-cols-[22rem_1fr]">
+          <div className="grid grid-cols-1 gap-10 items-start lg:grid-cols-[22rem_1fr]">
             <div className="lg:sticky lg:top-24 lg:h-fit">
               <AttendanceRecord />
             </div>

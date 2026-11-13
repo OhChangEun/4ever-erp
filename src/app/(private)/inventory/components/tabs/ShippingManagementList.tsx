@@ -16,9 +16,10 @@ import { Table } from '@everp/ui';
 import { shippingKeys } from '@/app/(private)/inventory/inventory.keys';
 import { formatCurrency } from '@/app/utils/number';
 import { useTranslations } from 'next-intl';
-import { Button } from '@everp/ui';
+import { Button, TabButtons } from '@everp/ui';
 const ShippingManagementList = () => {
   const t = useTranslations('inventory');
+  const tNav = useTranslations('nav');
   const { openModal } = useModal();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubTab, setSelectedSubTab] = useState('producing');
@@ -63,35 +64,27 @@ const ShippingManagementList = () => {
   const shippingStatusTabs = [
     {
       id: 'producing',
-      name: t('shipping.subTabs.producing'),
-      count: ProductionRes?.pageData.totalElements,
+      // 건수는 받기 전이면 빈 괄호(예전 글자 그대로)
+      name: `${t('shipping.subTabs.producing')} (${ProductionRes?.pageData.totalElements ?? ''})`,
     },
     {
       id: 'readyToShip',
-      name: t('shipping.subTabs.readyToShip'),
-      count: ReadyToShipRes?.pageData.totalElements,
+      name: `${t('shipping.subTabs.readyToShip')} (${ReadyToShipRes?.pageData.totalElements ?? ''})`,
     },
   ];
 
   return (
     <div className="flex flex-col h-full gap-6 overflow-hidden">
-      <div className="flex self-start space-x-1 bg-gray-100 rounded-lg p-1 shrink-0">
-        {shippingStatusTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setSelectedSubTab(tab.id);
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
-              selectedSubTab === tab.id
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            {tab.name} ({tab.count})
-          </button>
-        ))}
+      <div className="flex shrink-0">
+        <TabButtons
+          label={tNav('tabsLabel', { title: t('tabs.shipping') })}
+          tabs={shippingStatusTabs}
+          activeTab={selectedSubTab}
+          onTabChange={(tabId) => {
+            setSelectedSubTab(tabId);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">

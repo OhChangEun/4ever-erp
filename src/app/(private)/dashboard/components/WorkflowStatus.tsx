@@ -6,9 +6,11 @@ import { type DashboardProps } from '../types/DashboardWorkflowType';
 import { workflowTabKey } from '../dashboard.utils';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { formatDateTime } from '@/app/utils/date';
+import { TabButtons } from '@everp/ui';
 
 const WorkflowStatus = ({ workflowData }: DashboardProps) => {
   const t = useTranslations('dashboard.workflow');
+  const tNav = useTranslations('nav');
   const [activeTab, setActiveTab] = useState('first');
 
   const tabs = workflowData?.tabs ?? [];
@@ -32,26 +34,15 @@ const WorkflowStatus = ({ workflowData }: DashboardProps) => {
           <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
         </div>
 
-        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-          <button
-            onClick={() => setActiveTab('first')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
-              activeTab === 'first' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 '
-            }`}
-          >
-            {t(`tabs.${workflowTabKey(firstTabCode)}`)}
-          </button>
-          <button
-            onClick={() => setActiveTab('second')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
-              activeTab === 'second'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            {t(`tabs.${workflowTabKey(secondTabCode)}`)}
-          </button>
-        </div>
+        <TabButtons
+          label={tNav('tabsLabel', { title: t('title') })}
+          tabs={[
+            { id: 'first', name: t(`tabs.${workflowTabKey(firstTabCode)}`) },
+            { id: 'second', name: t(`tabs.${workflowTabKey(secondTabCode)}`) },
+          ]}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
 
       <div className="space-y-3">

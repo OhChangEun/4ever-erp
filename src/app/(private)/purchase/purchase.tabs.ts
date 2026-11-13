@@ -12,19 +12,16 @@ export const PURCHASE_TABS: PurchaseTab[] = [
   {
     id: 'requests',
     name: 'requests',
-    icon: 'ri-file-add-line',
     component: PurchaseRequestListTab,
   },
   {
     id: 'orders',
     name: 'orders',
-    icon: 'ri-shopping-bag-3-line',
     component: PurchaseOrderListTab,
   },
   {
     id: 'suppliers',
     name: 'suppliers',
-    icon: 'ri-building-line',
     component: SupplierListTab,
   },
 ];
@@ -34,7 +31,6 @@ export const SUPPLIER_PURCHASE_TABS: PurchaseTab[] = [
   {
     id: 'orders',
     name: 'orders',
-    icon: 'ri-shopping-bag-3-line',
     component: PurchaseOrderListTab,
   },
 ];

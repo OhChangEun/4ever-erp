@@ -146,7 +146,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
           aria-label={t('requirements.selectAll')}
           checked={allSelected}
           onChange={handleSelectAllRequirements}
-          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+          className="rounded border-gray-300 cursor-pointer"
         />
       ),
       render: (_, item) =>

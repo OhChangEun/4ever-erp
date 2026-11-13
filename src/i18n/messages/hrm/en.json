@@ -69,7 +69,6 @@
     }
   },
   "departments": {
-    "title": "Organization by department",
     "headcount": "Headcount",
     "manager": "Manager",
     "detailTitle": "Department details",

@@ -119,7 +119,7 @@ export default function NotificationList({
                 onClick={() => {
                   if (!disabled) onNotificationClick(notification.notificationId);
                 }}
-                className={`${ROW} cursor-pointer hover:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 ${
+                className={`${ROW} cursor-pointer hover:bg-gray-50 focus-visible:-outline-offset-2 ${
                   disabled ? 'opacity-60' : ''
                 }`}
               >

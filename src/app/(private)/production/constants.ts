@@ -18,31 +18,26 @@ export const PRODUCTION_TABS: ProductionTab[] = [
   {
     id: 'quotations',
     name: 'quotations',
-    icon: 'ri-file-text-line',
     component: QuotationTab,
   },
   {
     id: 'mps',
     name: 'mps',
-    icon: 'ri-calendar-schedule-line',
     component: MpsTab,
   },
   {
     id: 'mrp',
     name: 'mrp',
-    icon: 'ri-settings-3-line',
     component: MrpTab,
   },
   {
     id: 'mes',
     name: 'mes',
-    icon: 'ri-settings-3-line',
     component: MesTab,
   },
   {
     id: 'bom',
     name: 'bom',
-    icon: 'ri-file-list-3-line',
     component: BomTab,
   },
 ];
@@ -57,13 +52,11 @@ export const MRP_TABS: MrpSubTab[] = [
   {
     id: 'requirements',
     name: 'requirements',
-    icon: 'ri-file-list-3-line',
     component: OrdersTab,
   },
   {
     id: 'orders',
     name: 'plannedOrders',
-    icon: 'ri-shopping-cart-line',
     component: PlannedOrdersTab,
   },
 ];

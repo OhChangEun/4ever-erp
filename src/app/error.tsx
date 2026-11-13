@@ -51,7 +51,7 @@ export default function AppError({
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-xl w-full bg-white rounded-xl shadow-md p-12">
+      <div className="max-w-xl w-full bg-white rounded-lg border border-gray-200 p-12">
         <Flex direction="col" align="center" gap={4}>
           <div className="text-red-500 text-5xl">
             <i className="ri-error-warning-line" />

@@ -11,7 +11,7 @@ import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { useDebouncedKeyword } from '@/app/hooks/useDebouncedKeyword';
 import { useDropdown } from '@/app/hooks/useDropdown';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -21,7 +21,8 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { leaveKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
 import { Button } from '@everp/ui';
-export default function LeaveTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function LeaveTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   // --- 모달 출력 ---
   const { openModal } = useModal();
@@ -165,7 +166,8 @@ export default function LeaveTab() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <div className="flex items-center justify-end shrink-0">
+      <div className="flex items-center justify-between shrink-0">
+        {tabButtons}
         <div className="flex items-center gap-3">
           <Dropdown
             placeholder={t('common.allDepartments')}

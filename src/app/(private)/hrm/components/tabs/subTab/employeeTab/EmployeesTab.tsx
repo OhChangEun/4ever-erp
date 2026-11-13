@@ -11,7 +11,7 @@ import { Pagination } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Table, type TableColumn } from '@everp/ui';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { EmployeeDetailModal } from '@/app/(private)/hrm/components/modals/EmployeeDetailModal';
 import { EmployeeEditModal } from '@/app/(private)/hrm/components/modals/EmployeeEditModal';
@@ -22,7 +22,8 @@ import { Input } from '@everp/ui';
 import { Button } from '@everp/ui';
 import { employeeKeys } from '@/app/(private)/hrm/api/hrm.keys';
 
-export default function EmployeesTab() {
+/** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
+export default function EmployeesTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
 
@@ -137,26 +138,29 @@ export default function EmployeesTab() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <div className="flex justify-end items-center gap-4 p-2 rounded-lg shrink-0">
-        <Dropdown
-          placeholder={t('common.allDepartments')}
-          items={departmentsOptions}
-          value={selectedDepartment}
-          onChange={(dept: string) => {
-            setSelectedDepartment(dept);
-            handleFilterChange();
-          }}
-        />
-        <Input
-          value={keyword}
-          onChange={(event) => {
-            handleKeywordChange(event);
-            handleFilterChange();
-          }}
-          icon="ri-search-line"
-          placeholder={t('common.searchName')}
-        />
-        <Button label={t('employees.register')} onClick={handleViewEmployeeRegister} />
+      <div className="flex justify-between items-center gap-4 shrink-0">
+        {tabButtons}
+        <div className="flex items-center gap-4">
+          <Dropdown
+            placeholder={t('common.allDepartments')}
+            items={departmentsOptions}
+            value={selectedDepartment}
+            onChange={(dept: string) => {
+              setSelectedDepartment(dept);
+              handleFilterChange();
+            }}
+          />
+          <Input
+            value={keyword}
+            onChange={(event) => {
+              handleKeywordChange(event);
+              handleFilterChange();
+            }}
+            icon="ri-search-line"
+            placeholder={t('common.searchName')}
+          />
+          <Button label={t('employees.register')} onClick={handleViewEmployeeRegister} />
+        </div>
       </div>
 
       {isLoading ? (

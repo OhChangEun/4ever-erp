@@ -138,7 +138,7 @@ export default function Dropdown<T extends string = string>({
         aria-label={placeholder}
         disabled={disabled}
         {...getReferenceProps({ onKeyDown: handleKeyDown })}
-        className={`inline-flex items-center border transition-colors whitespace-nowrap focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500
+        className={`inline-flex items-center border transition-colors whitespace-nowrap
                     ${buttonSizeClass}
                     ${
                       disabled

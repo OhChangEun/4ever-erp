@@ -10,6 +10,7 @@ import StatusLabel from '@/app/components/common/StatusLabel';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { profileKeys } from '../profile.keys';
+import { Button } from '@everp/ui';
 
 const TrainingStatus = () => {
   const t = useTranslations('myProfile.training');
@@ -42,23 +43,16 @@ const TrainingStatus = () => {
   };
 
   return (
-    <div className="card-base">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-            <i className="ri-graduation-cap-line text-orange-600 text-lg"></i>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
-            <p className="text-sm text-gray-500">{t('subtitle')}</p>
-          </div>
-        </div>
+    <section>
+      <div className="pb-4">
+        <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+        <p className="text-sm text-gray-500">{t('subtitle')}</p>
       </div>
 
       {/* 탭 메뉴 */}
       <div className="border-b border-gray-200">
         {/* -mb-px: 활성 탭 밑줄이 아래 회색 선 위에 겹쳐 한 겹으로 보이게(TabNavigation 과 같은 방식) */}
-        <nav className="flex space-x-8 px-6 -mb-px">
+        <nav className="flex space-x-8 -mb-px">
           <button
             onClick={() => setActiveTab('progress')}
             className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap ${
@@ -92,14 +86,17 @@ const TrainingStatus = () => {
         </nav>
       </div>
 
-      <div className="p-6 min-h-150 ">
+      <div className="pt-6 min-h-150">
         {/* 수강중인 교육 */}
         {activeTab === 'progress' && (
           <>
             {trainingRes && trainingRes.length > 0 ? (
               <div className="space-y-4">
                 {trainingRes.map((training) => (
-                  <div key={training.trainingId} className="border border-gray-200 rounded-lg p-4">
+                  <div
+                    key={training.trainingId}
+                    className="bg-white border border-gray-200 rounded-lg p-4"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-3">
@@ -130,7 +127,10 @@ const TrainingStatus = () => {
             {trainingRes && trainingRes.length > 0 ? (
               <div className="space-y-4">
                 {trainingRes.map((training) => (
-                  <div key={training.trainingId} className="border border-gray-200 rounded-lg p-4">
+                  <div
+                    key={training.trainingId}
+                    className="bg-white border border-gray-200 rounded-lg p-4"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
@@ -146,13 +146,13 @@ const TrainingStatus = () => {
                       </div>
                     </div>
 
-                    <button
+                    <Button
+                      variant="secondary"
+                      label={t('apply')}
                       onClick={() => handleApplyTraining(training.trainingId)}
                       disabled={isRegistering}
-                      className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                    >
-                      {t('apply')}
-                    </button>
+                      className="w-full mt-3"
+                    />
                   </div>
                 ))}
               </div>
@@ -168,7 +168,10 @@ const TrainingStatus = () => {
             {trainingRes && trainingRes.length > 0 ? (
               <div className="space-y-4">
                 {trainingRes.map((training) => (
-                  <div key={training.trainingId} className="border border-gray-200 rounded-lg p-4">
+                  <div
+                    key={training.trainingId}
+                    className="bg-white border border-gray-200 rounded-lg p-4"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="text-sm font-medium text-gray-900">
@@ -194,7 +197,7 @@ const TrainingStatus = () => {
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

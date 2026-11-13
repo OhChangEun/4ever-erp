@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { type KeyValueItem } from './types';
+import { SEGMENT_ACTIVE, SEGMENT_TRACK, segmentItem } from './segment';
 
 // 키 타입(T)이 onSelect 까지 이어진다. 받는 쪽이 string 을 다시 단언하지 않는다
 interface SlidingNavBarProps<T extends string = string> {
@@ -30,10 +31,10 @@ export default function SlidingNavBar<T extends string = string>({
   }, [selectedKey, items]);
 
   return (
-    <div role="group" className="relative inline-flex items-center bg-gray-100 rounded-md p-0.5">
+    <div role="group" className={`relative ${SEGMENT_TRACK}`}>
       {/* 슬라이딩 인디케이터 */}
       <div
-        className="absolute top-0.5 bottom-0.5 bg-white border border-gray-200 rounded transition-all duration-200 ease-out pointer-events-none"
+        className={`absolute top-0.5 bottom-0.5 ${SEGMENT_ACTIVE} rounded transition-all duration-200 ease-out pointer-events-none`}
         style={indicatorStyle}
       />
 
@@ -49,9 +50,7 @@ export default function SlidingNavBar<T extends string = string>({
               }}
               onClick={() => onSelect(item.key)}
               aria-pressed={isSelected}
-              className={`relative z-local whitespace-nowrap cursor-pointer rounded px-2.5 h-7 text-xs transition-colors ${
-                isSelected ? 'text-gray-900 font-medium' : 'text-gray-500 hover:text-gray-800'
-              }`}
+              className={`relative z-local ${segmentItem(isSelected)}`}
             >
               {item.value}
             </button>

@@ -6,10 +6,11 @@ const meta = {
   title: '내비게이션/TabButtons',
   component: TabButtons,
   args: {
+    label: '구매 화면 탭',
     tabs: [
-      { id: 'request', name: '구매 요청', icon: 'ri-file-list-line' },
-      { id: 'order', name: '발주', icon: 'ri-shopping-cart-line' },
-      { id: 'supplier', name: '공급사', icon: 'ri-building-line' },
+      { id: 'request', name: '구매 요청' },
+      { id: 'order', name: '발주' },
+      { id: 'supplier', name: '공급사' },
     ],
     activeTab: 'order',
     onTabChange: fn(),

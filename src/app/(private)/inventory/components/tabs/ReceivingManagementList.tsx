@@ -6,7 +6,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getPendingList, getReceivedList } from '../../inventory.api';
 import { type ManageMentCommonQueryParams } from '../../types/ShippingManagementListType';
 import StatusLabel from '@/app/components/common/StatusLabel';
-import { Pagination } from '@everp/ui';
+import { Pagination, TabButtons } from '@everp/ui';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import DateRangePicker from '@/app/components/common/DateRangePicker';
 import { Table } from '@everp/ui';
@@ -15,6 +15,7 @@ import { formatCurrency } from '@/app/utils/number';
 import { useTranslations } from 'next-intl';
 const ReceivingManagementList = () => {
   const t = useTranslations('inventory');
+  const tNav = useTranslations('nav');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,13 +72,12 @@ const ReceivingManagementList = () => {
   const receivingStatusTabs = [
     {
       id: 'pending',
-      name: t('receiving.subTabs.pending'),
-      count: PendingRes?.pageData.totalElements,
+      // 건수는 받기 전이면 빈 괄호(예전 글자 그대로)
+      name: `${t('receiving.subTabs.pending')} (${PendingRes?.pageData.totalElements ?? ''})`,
     },
     {
       id: 'received',
-      name: t('receiving.subTabs.received'),
-      count: ReceivedRes?.pageData.totalElements,
+      name: `${t('receiving.subTabs.received')} (${ReceivedRes?.pageData.totalElements ?? ''})`,
     },
   ];
 
@@ -85,24 +85,15 @@ const ReceivingManagementList = () => {
     <div className="flex flex-col h-full gap-6 overflow-hidden">
       {/* 툴바: 세그먼트 왼쪽, 필터 오른쪽 */}
       <div className="flex items-center justify-between shrink-0">
-        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-          {receivingStatusTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setSelectedSubTab(tab.id);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap ${
-                selectedSubTab === tab.id
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.name} ({tab.count})
-            </button>
-          ))}
-        </div>
+        <TabButtons
+          label={tNav('tabsLabel', { title: t('tabs.receiving') })}
+          tabs={receivingStatusTabs}
+          activeTab={selectedSubTab}
+          onTabChange={(tabId) => {
+            setSelectedSubTab(tabId);
+            setCurrentPage(1);
+          }}
+        />
         {selectedSubTab === 'received' && (
           <DateRangePicker
             startDate={startDate}
