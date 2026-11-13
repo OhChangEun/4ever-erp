@@ -1,6 +1,12 @@
 import { describe, it } from 'vitest';
 import { expectMatrix } from '@/test/mutationMatrix';
-import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
+import {
+  analyticsKeys,
+  customerKeys,
+  quoteKeys,
+  salesOrderKeys,
+  salesStatsKeys,
+} from './sales.keys';
 import {
   useConfirmQuotation,
   useCreateCustomer,
@@ -22,6 +28,8 @@ const ORDER_LIST = salesOrderKeys.list({
   status: 'ALL',
 });
 const CUSTOMER_LIST = customerKeys.list({ page: 0, size: 10 });
+const CUSTOMER_DETAIL = customerKeys.detail('cus-002');
+const ANALYTICS = analyticsKeys.byParams({ startDate: '2026-06-13', endDate: '2026-11-13' });
 
 describe('영업 mutation 훅', () => {
   it('견적 생성 → 견적 목록, 통계', () =>
@@ -30,7 +38,7 @@ describe('영업 mutation 훅', () => {
       useHook: useCreateQuote,
       variables: { items: [] },
       invalidates: [QUOTE_LIST, salesStatsKeys.byRole('ALL_ADMIN')],
-      keeps: [ORDER_LIST, CUSTOMER_LIST, FOREIGN],
+      keeps: [ORDER_LIST, CUSTOMER_LIST, ANALYTICS, FOREIGN],
     }));
 
   it('검토 요청 → 견적 목록, 상세, 검토 상세, 통계', () =>
@@ -47,7 +55,9 @@ describe('영업 mutation 훅', () => {
       keeps: [ORDER_LIST, CUSTOMER_LIST, FOREIGN],
     }));
 
-  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계', () =>
+  // 주문이 생기면 고객의 주문 수, 거래 금액, 마지막 주문일과 매출 분석이 바뀐다(데모 데이터 채우기 리뷰 A1).
+  // 어느 고객인지는 견적 id 만으로 몰라 고객 상세는 전부 다시 받는다
+  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계, 고객 목록과 상세, 매출 분석', () =>
     expectMatrix({
       name: '',
       useHook: useProcessDelivery,
@@ -58,8 +68,11 @@ describe('영업 mutation 훅', () => {
         quoteKeys.reviewDetail('q-1'),
         ORDER_LIST,
         salesStatsKeys.byRole('ALL_ADMIN'),
+        CUSTOMER_LIST,
+        CUSTOMER_DETAIL,
+        ANALYTICS,
       ],
-      keeps: [CUSTOMER_LIST, FOREIGN],
+      keeps: [FOREIGN],
     }));
 
   it('고객 등록(생성, 낙관적 없음) → 고객 목록만', () =>

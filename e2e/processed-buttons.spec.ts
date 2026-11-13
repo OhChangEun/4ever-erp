@@ -45,10 +45,11 @@ test('영업 견적을 즉시 납품하면 그 견적을 다시 고를 수 없�
   await loginAs(page, 'ADMIN');
   await page.goto('/sales');
 
-  const box = page.getByRole('checkbox', { name: 'QT-2026-002 선택' });
+  // 첫 쪽 맨 위의 대기 견적. 모터 A 40, 베어링 B 10 이라 재고(120, 20) 안이다(카드 "데모 데이터 채우기")
+  const box = page.getByRole('checkbox', { name: 'QT-2026-016 선택' });
   await expect(box).toBeEnabled({ timeout: 30_000 });
   // 이미 승인된 견적은 처음부터 고를 수 없다
-  await expect(page.getByRole('checkbox', { name: 'QT-2026-001 선택' })).toBeDisabled();
+  await expect(page.getByRole('checkbox', { name: 'QT-2026-015 선택' })).toBeDisabled();
   await box.check();
   await page.getByRole('button', { name: '견적 검토 요청' }).click();
 

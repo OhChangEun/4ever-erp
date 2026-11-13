@@ -14,7 +14,8 @@ describe('구매 요청 목록: 목이 쓰기 결과를 따른다', () => {
     useAuthStore.getState().clearUserInfo();
   });
 
-  const requestRow = () => screen.findByRole('row', { name: /PR-2026-001/ }, { timeout: 3000 });
+  // 첫 쪽 맨 위의 대기 요청(기본 15건, 최신순. 카드 "데모 데이터 채우기")
+  const requestRow = () => screen.findByRole('row', { name: /PR-2026-015/ }, { timeout: 3000 });
 
   it('반려하면 그 행의 상태가 반려로 바뀌고 승인과 반려 버튼이 사라진다', async () => {
     // 승인과 반려는 MM 과 ALL_ADMIN 에게만 보인다

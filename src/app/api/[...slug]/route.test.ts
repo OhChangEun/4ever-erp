@@ -98,13 +98,16 @@ describe('서버 목 = MSW 핸들러', () => {
  */
 describe('증명 없는 호출은 목 상태 저장소에 닿지 않는다', () => {
   const LIST = 'scm-pp/mm/purchase-requisitions';
-  const REJECT = `${LIST}/pr-001/reject`;
+  // 목록 첫 쪽 맨 위(가장 최근, 대기)의 요청. 기본 행이 15건이고 최신순이다(카드 "데모 데이터 채우기")
+  const REJECT = `${LIST}/pr-015/reject`;
   const json = { 'content-type': 'application/json' };
   const body = JSON.stringify({ comment: '예산 초과' });
   const firstStatus = async (authorization: string) => {
     const res = await callRoute('GET', LIST, { headers: { authorization } });
-    const parsed: { data: { content: { statusCode: string }[] } } = await res.json();
-    return parsed.data.content[0].statusCode;
+    const parsed: {
+      data: { content: { purchaseRequisitionId: string; statusCode: string }[] };
+    } = await res.json();
+    return parsed.data.content.find((row) => row.purchaseRequisitionId === 'pr-015')?.statusCode;
   };
 
   it('증명 없는 쓰기 요청은 401 이고, 그 뒤 맞는 증명으로 조회하면 처음 상태다', async () => {

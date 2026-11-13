@@ -111,7 +111,9 @@ describe('생산 화면 영어(i18n 9)', () => {
       { locale: 'en' },
     );
     expect(await screen.findByRole('columnheader', { name: 'BOM no.' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'View details' }));
+    // BOM 이 12개라 모터 A 의 BOM(BOM-2026-001, 3단 원가 트리) 행 버튼을 누른다(카드 "데모 데이터 채우기")
+    const row = within(screen.getByRole('row', { name: /BOM-2026-001/ }));
+    await userEvent.click(row.getByRole('button', { name: 'View details' }));
     const dialog = await screen.findByRole('dialog', { name: 'BOM details' });
     expect(await within(dialog).findByText('Components')).toBeInTheDocument();
     // 서버 상태 값 '활성'은 그대로 보내고 버튼 글자만 바뀐다
@@ -224,7 +226,8 @@ describe('생산 레이아웃(i18n 9)', () => {
     );
     // 영어 메시지는 받은 뒤에 바뀐다
     expect(await screen.findByRole('columnheader', { name: 'Quote no.' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Select QT-2025-001' }));
+    // 생산 견적은 영업 견적과 같은 번호다(카드 "데모 데이터 채우기")
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select QT-2026-001' }));
     await userEvent.click(screen.getByRole('button', { name: 'Simulate' }));
     const dialog = await screen.findByRole('dialog', { name: 'Simulation results' });
     expect(await within(dialog).findByText('Production review')).toBeInTheDocument();

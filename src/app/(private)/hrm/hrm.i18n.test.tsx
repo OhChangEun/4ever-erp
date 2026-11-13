@@ -60,7 +60,9 @@ describe('인사 화면 영어(i18n 7)', () => {
     renderWithProviders(<EmployeesTab />, { locale: 'en' });
     expect(await screen.findByRole('columnheader', { name: 'Hire date' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Department / Position' })).toBeInTheDocument();
-    await userEvent.click(await screen.findByRole('button', { name: 'View details' }));
+    // 직원이 42명이라 첫 행(홍길동)의 버튼을 누른다(카드 "데모 데이터 채우기")
+    const row = within(await screen.findByRole('row', { name: /홍길동/ }));
+    await userEvent.click(row.getByRole('button', { name: 'View details' }));
     const dialog = await screen.findByRole('dialog', { name: 'Employee details' });
     expect(within(dialog).getByText('Date of birth')).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Edit' })).toBeInTheDocument();

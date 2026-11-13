@@ -154,7 +154,7 @@ const CREATES: MockWrite[] = [
   [
     'POST',
     '/scm-pp/mm/stock-purchase-requisitions',
-    { items: [{ productId: 'item-1003', quantity: 30, mrpRunId: 'mrp-003' }] },
+    { items: [{ productId: 'item-wh-004', quantity: 30, mrpRunId: 'mrp-003' }] },
   ],
   [
     'POST',
@@ -244,7 +244,7 @@ const CREATES: MockWrite[] = [
   [
     'POST',
     '/scm-pp/pp/mrp/convert',
-    { items: [{ quotationId: 'qt-004', itemId: 'item-1003', quantity: 40 }] },
+    { items: [{ quotationId: 'qt-004', itemId: 'item-wh-004', quantity: 40 }] },
   ],
 ];
 

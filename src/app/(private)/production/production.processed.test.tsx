@@ -32,7 +32,8 @@ afterEach(() => {
 });
 
 describe('MRP 순소요: 전환한 품목은 다시 전환하지 않는다', () => {
-  // 기본 목 첫 페이지: idx 3, 6, 9(item-1003, 1006, 1009)만 미전환이다
+  // 기본 목 첫 페이지: idx 3, 6, 9(품목표의 알루미늄 판 item-wh-004, 패킹 item-wh-008, 하우징 item-wh-011)만 미전환이다
+  // (카드 "데모 데이터 채우기", MRP 품목이 재고 품목표 번호를 쓴다)
   it('전체 선택은 미전환 품목만 넣는다', async () => {
     const bodies: unknown[] = [];
     server.use(
@@ -49,7 +50,11 @@ describe('MRP 순소요: 전환한 품목은 다시 전환하지 않는다', () 
 
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toMatchObject({
-      items: [{ itemId: 'item-1003' }, { itemId: 'item-1006' }, { itemId: 'item-1009' }],
+      items: [
+        { quotationId: 'qt-004', itemId: 'item-wh-004' },
+        { quotationId: 'qt-007', itemId: 'item-wh-008' },
+        { quotationId: 'qt-010', itemId: 'item-wh-011' },
+      ],
     });
     expect(bodies[0]).toHaveProperty('items.length', 3);
   });
@@ -59,10 +64,10 @@ describe('MRP 순소요: 전환한 품목은 다시 전환하지 않는다', () 
     const user = userEvent.setup();
     renderWithProviders(<OrdersTab />);
 
-    await user.click(await screen.findByRole('checkbox', { name: '너트 M10 선택' }));
+    await user.click(await screen.findByRole('checkbox', { name: '알루미늄 판 선택' }));
     await user.click(screen.getByRole('button', { name: '계획 주문 전환' }));
     expect(
-      await screen.findByRole('checkbox', { name: '너트 M10 계획 주문 전환됨(선택할 수 없음)' }),
+      await screen.findByRole('checkbox', { name: '알루미늄 판 계획 주문 전환됨(선택할 수 없음)' }),
     ).toBeDisabled();
 
     const button = screen.getByRole('button', { name: '계획 주문 전환' });
@@ -177,7 +182,7 @@ describe('생산 탭 리뷰 반영', () => {
     const user = userEvent.setup();
     renderWithProviders(<OrdersTab />);
 
-    await user.click(await screen.findByRole('checkbox', { name: '너트 M10 선택' }));
+    await user.click(await screen.findByRole('checkbox', { name: '알루미늄 판 선택' }));
     server.use(http.get(PRODUCTION_ENDPOINTS.MRP_ORDERS, () => error('Failed to load', 500)));
     await user.click(screen.getByRole('button', { name: '계획 주문 전환' }));
     expect(

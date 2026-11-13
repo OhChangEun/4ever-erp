@@ -3,14 +3,15 @@ import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoi
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { HEADCOUNT } from './attendanceSummary.handlers';
+import { DEPARTMENTS, EMPLOYEES } from './seed';
 import {
   ok,
   okNoData,
   error,
   notFound,
   shouldError,
-  isoNow,
   makePage,
+  paged,
   level,
   statResponse,
 } from './utils';
@@ -55,11 +56,7 @@ const hrmState = mockState<{
 const payrollStatus = (request: Request, payrollId: string) =>
   hrmState(request).paidPayrolls.has(payrollId) ? 'PAYROLL_PAID' : 'PAYROLL_UNPAID';
 
-// 드롭다운 목과 직원 수정, 등록이 같은 이름표를 쓴다
-const DEPARTMENTS = [
-  { key: 'dept-001', value: '영업팀' },
-  { key: 'dept-002', value: '구매팀' },
-];
+// 드롭다운 목과 직원 수정, 등록이 같은 이름표를 쓴다. 부서는 직원 씨앗과 같은 여섯(`seed.ts`)
 const POSITIONS = [
   { key: 'pos-001', value: '팀장' },
   { key: 'pos-002', value: '사원' },
@@ -69,21 +66,8 @@ const PROGRAMS = [{ key: 'prog-001', value: '안전 교육' }];
 const nameOf = (options: Array<{ key: string; value: string }>, id: string) =>
   options.find((option) => option.key === id)?.value ?? id;
 
-const SEED_EMPLOYEE: Employee = {
-  employeeId: 'emp-001',
-  employeeNumber: 'EMP-2026-001',
-  name: '홍길동',
-  email: 'user@everp.co.kr',
-  phone: '010-1234-5678',
-  position: '팀장',
-  department: '영업팀',
-  statusCode: 'ACTIVE',
-  hireDate: '2022-03-01',
-  birthDate: '1990-01-01',
-  address: '서울특별시 강남구',
-  createdAt: isoNow,
-  updatedAt: isoNow,
-};
+/** 직원 씨앗 42명(카드 "데모 데이터 채우기"). emp-001 홍길동은 예전 값 그대로다 */
+const SEED_EMPLOYEE: Employee = EMPLOYEES[0];
 
 const SEED_PROGRAM: Program = {
   programId: 'prog-001',
@@ -121,7 +105,7 @@ export const hrmHandlers = [
   http.get(HRM_ENDPOINTS.EMPLOYEE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load employees', 500);
     const state = hrmState(request);
-    const content = [SEED_EMPLOYEE, ...state.createdEmployees].map((employee) => {
+    const content = [...EMPLOYEES, ...state.createdEmployees].map((employee) => {
       const edit = state.employeeEdits.get(employee.employeeId);
       return edit
         ? {
@@ -132,7 +116,7 @@ export const hrmHandlers = [
           }
         : employee;
     });
-    return ok({ content, page: makePage(0, 10, content.length) });
+    return ok(paged(request, content));
   }),
   http.get(HRM_ENDPOINTS.POSITIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load positions', 500);
@@ -480,19 +464,23 @@ export const hrmHandlers = [
       if (shouldError(request)) return error('Failed to register employee', 500);
       const state = hrmState(request);
       const body = await request.json();
-      addCreated(state.createdEmployees, (serial) => ({
-        ...SEED_EMPLOYEE,
-        employeeId: `emp-${serial}`,
-        employeeNumber: `EMP-2026-${serial}`,
-        name: body.name,
-        email: body.email,
-        phone: body.phoneNumber,
-        position: nameOf(POSITIONS, body.positionId),
-        department: nameOf(DEPARTMENTS, body.departmentId),
-        hireDate: body.hireDate,
-        birthDate: body.birthDate,
-        address: `${body.baseAddress} ${body.detailAddress}`,
-      }));
+      addCreated(
+        state.createdEmployees,
+        (serial) => ({
+          ...SEED_EMPLOYEE,
+          employeeId: `emp-${serial}`,
+          employeeNumber: `EMP-2026-${serial}`,
+          name: body.name,
+          email: body.email,
+          phone: body.phoneNumber,
+          position: nameOf(POSITIONS, body.positionId),
+          department: nameOf(DEPARTMENTS, body.departmentId),
+          hireDate: body.hireDate,
+          birthDate: body.birthDate,
+          address: `${body.baseAddress} ${body.detailAddress}`,
+        }),
+        EMPLOYEES.length + 1,
+      );
       return ok(null);
     },
   ),

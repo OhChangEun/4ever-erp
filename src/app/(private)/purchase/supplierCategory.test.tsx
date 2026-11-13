@@ -36,7 +36,8 @@ describe.each(cases)(
   ({ locale, material, options, filter, pick }) => {
     it('목록의 카테고리 칸', async () => {
       renderWithProviders(<SupplierListTab />, { locale });
-      expect(await screen.findByRole('cell', { name: material })).toBeInTheDocument();
+      // 원자재 공급사는 대양상사, 하나금속, 동양소재 셋(카드 "데모 데이터 채우기")
+      expect(await screen.findAllByRole('cell', { name: material })).toHaveLength(3);
       expect(screen.queryByRole('cell', { name: 'MATERIAL' })).not.toBeInTheDocument();
     });
 

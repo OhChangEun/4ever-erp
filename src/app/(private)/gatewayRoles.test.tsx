@@ -50,14 +50,16 @@ const CASES: Case[] = [
   {
     name: '구매 요청 승인(MmController 335)',
     render: () => <PurchaseRequestListTab />,
-    ready: () => screen.findByText('PR-2026-001'),
+    // 목록 첫 쪽 맨 위의 대기 요청(기본 15건, 최신순. 카드 "데모 데이터 채우기")
+    ready: () => screen.findByText('PR-2026-015'),
     label: '승인',
     ...MM_ONLY,
   },
   {
     name: '구매 요청 반려(MmController 371)',
     render: () => <PurchaseRequestListTab />,
-    ready: () => screen.findByText('PR-2026-001'),
+    // 목록 첫 쪽 맨 위의 대기 요청(기본 15건, 최신순. 카드 "데모 데이터 채우기")
+    ready: () => screen.findByText('PR-2026-015'),
     label: '반려',
     ...MM_ONLY,
   },

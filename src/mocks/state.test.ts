@@ -82,14 +82,18 @@ describe('목 상태 저장소', () => {
   });
 
   it('핸들러의 쓰기 결과도 비우면 처음 상태다', async () => {
+    // 기본 구매 요청 15건 중 pr-001 을 본다(카드 "데모 데이터 채우기", 목이 쪽을 자른다)
     const LIST = '/scm-pp/mm/purchase-requisitions';
+    const pr001 = (statusCode: string) => ({
+      data: {
+        content: expect.arrayContaining([
+          expect.objectContaining({ purchaseRequisitionId: 'pr-001', statusCode }),
+        ]),
+      },
+    });
     await mockApi('POST', `${LIST}/pr-001/reject`, { body: { comment: '예산 초과' } });
-    expect(await mockApi('GET', LIST)).toMatchObject({
-      data: { content: [{ statusCode: 'REJECTED' }] },
-    });
+    expect(await mockApi('GET', `${LIST}?size=100`)).toMatchObject(pr001('REJECTED'));
     resetMockState();
-    expect(await mockApi('GET', LIST)).toMatchObject({
-      data: { content: [{ statusCode: 'PENDING' }] },
-    });
+    expect(await mockApi('GET', `${LIST}?size=100`)).toMatchObject(pr001('PENDING'));
   });
 });

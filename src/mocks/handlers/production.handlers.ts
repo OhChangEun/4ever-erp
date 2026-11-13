@@ -7,6 +7,7 @@ import {
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { BEARING, MOTOR } from './catalog';
+import { ACTIVE_SUPPLIERS, CUSTOMERS, MATERIALS, QUOTES, addDays as addDayKey } from './seed';
 import { purchaseState } from './purchase.handlers';
 import {
   ok,
@@ -16,6 +17,7 @@ import {
   shouldError,
   isoNow,
   makePage,
+  paged,
   flow,
   level,
   statResponse,
@@ -61,8 +63,8 @@ const bumpBomVersion = (request: Request, bomId: string): string => {
 };
 
 /**
- * 생산 제품. MES 목록의 제품(prod-001~005)과 제품 상세가 같은 표를 읽는다. 제품 드롭다운은 앞의 둘(예전과 같다).
- * 모터 A 단가는 품목표 값. 나머지 단가와 분류는 목이 정한 값이다(verified=false)
+ * 생산 제품. MES 목록의 제품(앞의 5개, prod-001~005)과 BOM 목록(12개), 제품 상세가 같은 표를 읽는다.
+ * 제품 드롭다운은 앞의 둘(예전과 같다). 모터 A 단가는 품목표 값. 나머지 단가와 분류는 목이 정한 값이다(verified=false)
  */
 const PRODUCTS = [
   {
@@ -75,33 +77,33 @@ const PRODUCTS = [
   { productId: 'prod-003', productName: '밸브 C', category: 'VALVE', unitPrice: 6000 },
   { productId: 'prod-004', productName: '센서 D', category: 'SENSOR', unitPrice: 9000 },
   { productId: 'prod-005', productName: '컨베이어 E', category: 'CONVEYOR', unitPrice: 48000 },
+  { productId: 'prod-006', productName: '감속기 F', category: 'GEAR', unitPrice: 21000 },
+  { productId: 'prod-007', productName: '실린더 G', category: 'CYLINDER', unitPrice: 17000 },
+  { productId: 'prod-008', productName: '유압 호스 H', category: 'HOSE', unitPrice: 3500 },
+  { productId: 'prod-009', productName: '제어반 I', category: 'PANEL', unitPrice: 64000 },
+  { productId: 'prod-010', productName: '팬 모터 J', category: 'MOTOR', unitPrice: 11000 },
+  { productId: 'prod-011', productName: '브레이크 K', category: 'BRAKE', unitPrice: 8500 },
+  { productId: 'prod-012', productName: '엔코더 L', category: 'SENSOR', unitPrice: 13000 },
 ];
+/** MES 가 쓰는 제품(예전 표 그대로 다섯) */
+const MES_PRODUCTS = PRODUCTS.slice(0, 5);
 
-/** 생산 견적 목록과 시뮬레이션이 같은 견적에 같은 고객, 제품을 쓴다(예전엔 배열이 따로라 qt-001 이 다른 회사였다) */
-const QUOTATION_CUSTOMERS = [
-  '한빛전자',
-  '대양상사',
-  '삼성전자',
-  '현대모비스',
-  '두산중공업',
-  'LG화학',
-  '포스코',
-  'SK하이닉스',
-  '론데케미칼',
-  'KT&G',
-];
-const QUOTATION_PRODUCTS = [
-  '모터 A',
-  '펌프 B',
-  '밸브 C',
-  '기어 D',
-  '베어링 E',
-  '실린더 F',
-  '피스톤 G',
-  'LCD Panel 32"',
-  '메모리칩 16GB',
-  '센서 H',
-];
+/**
+ * 생산 견적은 영업 견적 씨앗과 같은 견적이다(카드 "데모 데이터 채우기" 결정 8). 제품은 첫 품목 줄, 요청일은 견적일.
+ * 가용 상태는 순번이 홀수면 미확인(예전 규칙)
+ */
+const productionQuote = (index: number) => {
+  const { quote, lines } = QUOTES[index];
+  return {
+    quotationId: quote.quotationId,
+    quotationNumber: quote.quotationNumber,
+    customerName: quote.customerName,
+    productName: lines[0].itemName,
+    requestDate: quote.quotationDate,
+    dueDate: quote.dueDate,
+    availableStatus: (index + 1) % 2 === 1 ? 'UNCHECKED' : 'CHECKED',
+  };
+};
 
 const SEED_BOM: Bom = {
   bomId: 'bom-001',
@@ -234,6 +236,75 @@ const SEED_BOM_STRUCTURE = {
 };
 
 /**
+ * BOM 목록(카드 "데모 데이터 채우기"). bom-001 은 위 모터 A 그대로, 나머지 11개는 제품 prod-002~012 의 BOM 이다.
+ * 6번째와 10번째는 비활성. 수정일은 2026-10 에 퍼진 고정 날짜
+ */
+const SEED_BOMS: Bom[] = [
+  SEED_BOM,
+  ...PRODUCTS.slice(1).map((product, i) => {
+    const serial = String(i + 2).padStart(3, '0');
+    return {
+      bomId: `bom-${serial}`,
+      bomNumber: `BOM-2026-${serial}`,
+      productId: product.productId,
+      productNumber: product.productId.replace('prod-', 'PRD-'),
+      productName: product.productName,
+      version: 'v1',
+      statusCode: i === 4 || i === 8 ? '비활성' : '활성',
+      lastModifiedAt: `2026-10-${String(2 + i * 2).padStart(2, '0')}T09:00:00.000Z`,
+    };
+  }),
+];
+
+/**
+ * 기본 BOM 의 구성(bom-001 말고). 자재 셋(품목표의 번호, 이름, 단가)을 1단에 두고 공정 둘(절삭, 조립)을 거친다.
+ * 공급사는 공급사 목록의 활성 공급사
+ */
+const seedBomStructure = (bom: Bom, index: number) => {
+  const parts = [0, 1, 2].map((k) => MATERIALS[(index * 3 + k) % MATERIALS.length]);
+  return {
+    components: parts.map((item, k) => ({
+      itemId: item.itemId,
+      code: item.itemNumber,
+      name: item.itemName,
+      quantity: k + 1,
+      unit: 'EA',
+      level: 'Level 1',
+      supplierName:
+        ACTIVE_SUPPLIERS[(index + k) % ACTIVE_SUPPLIERS.length].supplierInfo.supplierName,
+      operationId: k === 0 ? 'OP10' : 'OP20',
+      operationName: k === 0 ? '절삭' : '조립',
+      componentType: '부품',
+    })),
+    levelStructure: [
+      {
+        id: 'node-0',
+        code: bom.productNumber,
+        name: bom.productName,
+        quantity: null,
+        unit: null,
+        level: 0,
+        parentId: null,
+      },
+      ...parts.map((item, k) => ({
+        id: `node-${k + 1}`,
+        code: item.itemNumber,
+        name: item.itemName,
+        quantity: k + 1,
+        unit: 'EA',
+        level: 1,
+        parentId: 'node-0',
+        unitCost: item.unitPrice,
+      })),
+    ],
+    routing: [
+      { itemName: bom.productName, sequence: 1, operationName: '절삭', runTime: 20 + index * 2 },
+      { itemName: bom.productName, sequence: 2, operationName: '조립', runTime: 30 + index },
+    ],
+  };
+};
+
+/**
  * MES 의 처음 상태. 목록과 상세가 같은 규칙을 쓴다. 예전 상세는 어떤 MES 를 열어도 진행중이라 "MES 시작"을 누를 수 없었다(리뷰 P2).
  * 값은 verified=false 다. 게이트웨이는 MES 응답을 Object 로 넘긴다(scm/pp/controller/PpController.java:133, :189).
  * - 목록의 시작 전 값 WAITING: 화면의 상태 글자표(MesTab.tsx:36)가 아는 값이다. 게이트웨이 옛 목 데이터는 PLANNED 였는데
@@ -293,6 +364,8 @@ const operationStatusOf = (
   productionState(request).operationStatus.get(`${mesId}/${operation.mesOperationLogId}`) ??
   (seedMesStatus(mesId) === 'WAITING' ? 'PENDING' : operation.running);
 
+/** MRP 순소요 행 수(견적 10 × 자재 13) */
+const MRP_TOTAL = 130;
 /** 목록의 MES 수 */
 const MES_TOTAL = 50;
 const MES_QUOTATIONS = ['qt-001', 'qt-002', 'qt-003', 'qt-004', 'qt-005'];
@@ -306,7 +379,7 @@ const mesRow = (request: Request, mesId: string, idx: number) => {
   const status = mesStatusOf(request, mesId);
   const statuses = OPERATIONS.map((operation) => operationStatusOf(request, mesId, operation));
   const done = statuses.filter((operationStatus) => operationStatus === 'COMPLETED').length;
-  const product = PRODUCTS[idx % PRODUCTS.length];
+  const product = MES_PRODUCTS[idx % MES_PRODUCTS.length];
   const quotationId = MES_QUOTATIONS[idx % MES_QUOTATIONS.length];
   const today = startOfDay(new Date());
   return {
@@ -356,7 +429,7 @@ const productionStats = (request: Request) => {
   return statResponse({
     production_in: level(count('IN_PROGRESS')),
     production_completed: flow(count('COMPLETED')),
-    bom_count: level(1 + productionState(request).createdBoms.length),
+    bom_count: level(SEED_BOMS.length + productionState(request).createdBoms.length),
   });
 };
 
@@ -368,31 +441,10 @@ export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.QUOTATIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load quotations', 500);
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
     const filterAvailable = url.searchParams.get('availableStatusCode') ?? '';
     const filterStartDate = url.searchParams.get('startDate') ?? '';
     const filterEndDate = url.searchParams.get('endDate') ?? '';
-    const customers = QUOTATION_CUSTOMERS;
-    const availableStatuses = ['CHECKED', 'UNCHECKED'];
-    const products = QUOTATION_PRODUCTS;
-    const baseTotal = 512;
-    const allData = Array.from({ length: baseTotal }, (_, i) => {
-      const idx = i + 1;
-      const year = 2025 + Math.floor(idx / 300);
-      const month = String((idx % 12) + 1).padStart(2, '0');
-      const day = String((idx % 28) + 1).padStart(2, '0');
-      const nextMonth = String((Number(month) % 12) + 1).padStart(2, '0');
-      return {
-        quotationId: `qt-${String(idx).padStart(3, '0')}`,
-        quotationNumber: `QT-${year}-${String(idx).padStart(3, '0')}`,
-        customerName: customers[idx % customers.length],
-        productName: products[idx % products.length],
-        requestDate: `${year}-${month}-${day}`,
-        dueDate: `${year}-${nextMonth}-${day}`,
-        availableStatus: availableStatuses[idx % availableStatuses.length],
-      };
-    }).map((quotation) =>
+    const allData = QUOTES.map((_, index) => productionQuote(index)).map((quotation) =>
       // 제안 납기를 확정한 견적은 확인됨으로 바뀐다
       productionState(request).confirmedQuotations.has(quotation.quotationId)
         ? { ...quotation, availableStatus: 'CHECKED' }
@@ -403,9 +455,7 @@ export const productionHandlers = [
       filtered = filtered.filter((d) => d.availableStatus === filterAvailable);
     if (filterStartDate) filtered = filtered.filter((d) => d.requestDate >= filterStartDate);
     if (filterEndDate) filtered = filtered.filter((d) => d.requestDate <= filterEndDate);
-    const total = filtered.length;
-    const start = page * size;
-    return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
+    return ok(paged(request, filtered));
   }),
   http.post<PathParams, { quotationIds?: string[] }>(
     PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE,
@@ -415,11 +465,13 @@ export const productionHandlers = [
       const body = await request.json();
       const quotationIds = body.quotationIds || [];
 
-      const customers = QUOTATION_CUSTOMERS;
-      const products = QUOTATION_PRODUCTS;
-      const selectedQuotations = quotationIds.map((quotationId) => {
-        const num = parseInt(quotationId.replace('qt-', ''), 10) || 1;
-        const requestQty = ((num % 10) + 1) * 1000;
+      // 영업 견적 씨앗에 있는 견적만 답한다. 고객, 제품, 요청 수량은 그 견적(첫 품목 줄)의 값
+      const selectedQuotations = quotationIds.flatMap((quotationId) => {
+        const index = QUOTES.findIndex(({ quote }) => quote.quotationId === quotationId);
+        if (index < 0) return [];
+        const { quote, lines } = QUOTES[index];
+        const num = index + 1;
+        const requestQty = lines[0].quantity;
         // 가용 수량은 요청 수량의 40~130% 범위에서 결정
         const availableRatio = [0.4, 0.6, 0.8, 1.0, 1.1, 1.3][num % 6];
         const availableQty = Math.floor(requestQty * availableRatio);
@@ -427,42 +479,43 @@ export const productionHandlers = [
         // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 경우 내부 사정으로 약 30% FAIL
         const isFail = shortageQty > 0 && (num * 7 + 3) % 10 < 2;
         const simulationStatus = shortageQty === 0 ? 'STOCK_SUFFICIENT' : isFail ? 'FAIL' : 'PASS';
-        const year = 2025 + Math.floor(num / 300);
-        const month = String((num % 12) + 1).padStart(2, '0');
-        const day = String((num % 28) + 1).padStart(2, '0');
-        const nextMonth = String((((num % 12) + 1) % 12) + 1).padStart(2, '0');
-
-        return {
-          quotationId,
-          quotationNumber: `QT-${year}-${String(num).padStart(3, '0')}`,
-          customerCompanyId: `cus-${String((num % customers.length) + 1).padStart(3, '0')}`,
-          customerCompanyName: customers[num % customers.length],
-          productId: `prod-${String((num % products.length) + 1).padStart(3, '0')}`,
-          productName: products[num % products.length],
-          requestQuantity: requestQty,
-          requestDueDate: new Date(`${year}-${month}-${day}`).getTime(),
-          simulation: {
-            status: simulationStatus,
-            availableQuantity: availableQty,
-            shortageQuantity: shortageQty,
-            shortageReason: isFail
-              ? [
-                  '주요 원자재(실리콘 웨이퍼) 입고 지연',
-                  '협력사 생산 차질',
-                  '공정 설비 점검으로 인한 생산 중단',
-                  '긴급 오더로 인한 재고 소진',
-                  '예상치 못한 불량률 증가',
-                  '납기일 내 입고 불가',
-                ][num % 6]
-              : '',
-            suggestedDueDate: `${year}-${nextMonth}-${day}`,
-            generatedAt: isoNow,
+        const customer = CUSTOMERS.find((row) => row.customer.customerName === quote.customerName);
+        return [
+          {
+            quotationId,
+            quotationNumber: quote.quotationNumber,
+            customerCompanyId: customer?.customer.customerId ?? '',
+            customerCompanyName: quote.customerName,
+            productId:
+              PRODUCTS.find((product) => product.productName === lines[0].itemName)?.productId ??
+              lines[0].itemId,
+            productName: lines[0].itemName,
+            requestQuantity: requestQty,
+            requestDueDate: new Date(quote.dueDate).getTime(),
+            simulation: {
+              status: simulationStatus,
+              availableQuantity: availableQty,
+              shortageQuantity: shortageQty,
+              shortageReason: isFail
+                ? [
+                    '주요 원자재(실리콘 웨이퍼) 입고 지연',
+                    '협력사 생산 차질',
+                    '공정 설비 점검으로 인한 생산 중단',
+                    '긴급 오더로 인한 재고 소진',
+                    '예상치 못한 불량률 증가',
+                    '납기일 내 입고 불가',
+                  ][num % 6]
+                : '',
+              suggestedDueDate: shortageQty > 0 ? addDayKey(quote.dueDate, 14) : quote.dueDate,
+              generatedAt: isoNow,
+            },
           },
-        };
+        ];
       });
 
       return ok({
-        page: makePage(0, selectedQuotations.length, selectedQuotations.length),
+        // 모르는 견적만 보내면 빈 결과. 쪽 크기는 1 이상(0 이면 totalPages 가 NaN)
+        page: makePage(0, Math.max(1, selectedQuotations.length), selectedQuotations.length),
         content: selectedQuotations,
       });
     },
@@ -516,12 +569,12 @@ export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.BOMS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load BOM list', 500);
     const state = productionState(request);
-    const content = [SEED_BOM, ...state.createdBoms].map((bom) => ({
+    const content = [...SEED_BOMS, ...state.createdBoms].map((bom) => ({
       ...bom,
       version: getBomVersion(request, bom.bomId),
       statusCode: state.bomStatus.get(bom.bomId) ?? bom.statusCode,
     }));
-    return ok({ page: makePage(0, 10, content.length), content });
+    return ok(paged(request, content));
   }),
   http.get(`${PRODUCTION_BASE_PATH}/products/:productId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load product detail', 500);
@@ -551,7 +604,8 @@ export const productionHandlers = [
     const state = productionState(request);
     // 목록(기본 BOM 과 그 로그인이 만든 BOM)의 그 행에서 만든다. 없으면 404
     const created = state.createdBoms.find((bom) => bom.bomId === bomId);
-    const bom = bomId === SEED_BOM.bomId ? SEED_BOM : created;
+    const seedIndex = SEED_BOMS.findIndex((bom) => bom.bomId === bomId);
+    const bom = seedIndex >= 0 ? SEED_BOMS[seedIndex] : created;
     if (!bom) return notFound('BOM 상세 조회');
     // 새로 등록한 BOM 은 구성품을 모른다(등록 본문의 자재를 기억하지 않는다). 기본 BOM 의 구성을 빌려 보이지 않고 비운다
     const structure = created
@@ -570,7 +624,9 @@ export const productionHandlers = [
           ],
           routing: [],
         }
-      : SEED_BOM_STRUCTURE;
+      : seedIndex === 0
+        ? SEED_BOM_STRUCTURE
+        : seedBomStructure(bom, seedIndex);
     return ok({
       bomId,
       bomNumber: bom.bomNumber,
@@ -630,101 +686,84 @@ export const productionHandlers = [
       if (shouldError(request)) return error('Failed to create BOM', 500);
       const { createdBoms } = productionState(request);
       const { productName } = await request.json();
-      addCreated(createdBoms, (serial) => ({
-        ...SEED_BOM,
-        bomId: `bom-${serial}`,
-        bomNumber: `BOM-2026-${serial}`,
-        productId: `prod-${serial}`,
-        productNumber: `PRD-${serial}`,
-        productName,
-      }));
+      // 기본 BOM 다음 번호부터
+      addCreated(
+        createdBoms,
+        (serial) => ({
+          ...SEED_BOM,
+          bomId: `bom-${serial}`,
+          bomNumber: `BOM-2026-${serial}`,
+          productId: `prod-${serial}`,
+          productNumber: `PRD-${serial}`,
+          productName,
+        }),
+        SEED_BOMS.length + 1,
+      );
       return okNoData();
     },
   ),
   http.get(PRODUCTION_ENDPOINTS.MRP_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP orders', 500);
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
     const filterQuotation = url.searchParams.get('quotationId') ?? '';
     const filterAvailable = url.searchParams.get('availableStatusCode') ?? '';
-    const itemNames = [
-      '베어링 B',
-      '스프링 C',
-      '볼트 M10',
-      '너트 M10',
-      '기어 A',
-      '샤프트 D',
-      '플랜지 E',
-      '커플링 F',
-      '실린더 G',
-      '피스톤 H',
-    ];
-    const suppliers = [
-      '대한금속',
-      '현대파스너',
-      '하나금속',
-      '삼성부품',
-      '두산소재',
-      'LG부품',
-      '포스코재료',
-      'SK소재',
-      '론데금속',
-      'KT부품',
-    ];
-    const itemTypes = ['MATERIAL', 'PRODUCT'];
     const convertStatuses = ['NOT_CONVERTED', 'CONVERTED', 'PENDING'];
-    const baseTotal = 500;
-    const allData = Array.from({ length: baseTotal }, (_, i) => {
+    const { convertedItems } = productionState(request);
+    // 견적 10건(qt-001~010) × 자재 13개 = 130행. 순번 1~130 은 (순번 % 10, 순번 % 13) 짝이 겹치지 않는다.
+    // 품목은 품목표의 자재(번호, 이름, 현재고, 안전재고). 날짜 규칙은 예전 그대로
+    const allData = Array.from({ length: MRP_TOTAL }, (_, i) => {
       const idx = i + 1;
+      const item = MATERIALS[idx % MATERIALS.length];
+      const quotationId = `qt-${String((idx % 10) + 1).padStart(3, '0')}`;
       const year = 2025 + Math.floor(idx / 300);
       const month = String((idx % 12) + 1).padStart(2, '0');
       const day = String((idx % 28) + 1).padStart(2, '0');
       const nextMonth = String((Number(month) % 12) + 1).padStart(2, '0');
       const requiredQty = ((idx % 50) + 1) * 10;
-      const availableStock = (idx % 30) * 5;
+      const reservedStock = Math.min(idx % 5, item.current);
+      const availableStock = item.current - reservedStock;
       const consumptionQty = Math.min(availableStock, requiredQty);
       const shortageQty = Math.max(0, requiredQty - availableStock);
       return {
-        quotationId: `qt-${String((idx % 10) + 1).padStart(3, '0')}`,
-        itemId: `item-${1000 + idx}`,
-        itemName: itemNames[idx % itemNames.length],
+        quotationId,
+        itemId: item.itemId,
+        itemName: item.itemName,
         requiredQuantity: requiredQty,
-        currentStock: availableStock + (idx % 10),
-        reservedStock: idx % 5,
+        currentStock: item.current,
+        reservedStock,
         actualAvailableStock: availableStock,
-        safetyStock: 30,
+        safetyStock: item.safety,
         availableStock,
         availableStatusCode: shortageQty > 0 ? 'INSUFFICIENT' : 'SUFFICIENT',
         shortageQuantity: shortageQty,
         consumptionQuantity: consumptionQty,
-        itemType: itemTypes[idx % itemTypes.length],
+        itemType: 'MATERIAL',
         procurementStartDate: `${year}-${month}-${day}`,
         expectedArrivalDate: `${year}-${nextMonth}-${day}`,
-        supplierCompanyName: suppliers[idx % suppliers.length],
-        convertStatus: convertStatuses[idx % convertStatuses.length],
+        supplierCompanyName:
+          ACTIVE_SUPPLIERS[idx % ACTIVE_SUPPLIERS.length].supplierInfo.supplierName,
+        // 전환은 견적과 품목의 짝으로 기억한다(같은 자재가 여러 견적에 나온다)
+        convertStatus: convertedItems.has(`${quotationId}/${item.itemId}`)
+          ? 'CONVERTED'
+          : convertStatuses[idx % convertStatuses.length],
       };
-    }).map((order) =>
-      productionState(request).convertedItems.has(order.itemId)
-        ? { ...order, convertStatus: 'CONVERTED' }
-        : order,
-    );
+    });
     let filtered = allData;
     if (filterQuotation && filterQuotation !== 'ALL')
       filtered = filtered.filter((d) => d.quotationId === filterQuotation);
     if (filterAvailable && filterAvailable !== 'ALL')
       filtered = filtered.filter((d) => d.availableStatusCode === filterAvailable);
-    const total = filtered.length;
-    const start = page * size;
-    return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
+    return ok(paged(request, filtered));
   }),
   http.post<PathParams, Schema<'MrpOrdersConvertReqeustBody'>>(
     PRODUCTION_ENDPOINTS.MRP_CONVERT,
     async ({ request }) => {
       if (shouldError(request)) return error('Failed to convert MRP orders', 500);
-      // 전환 상태만 따른다. 계획 주문 탭에 새 행을 만들지는 않는다(목이 순번으로 만든 500행이고 새 행의 번호 규칙을 모른다)
+      // 전환 상태만 따른다. 계획 주문 탭에 새 행을 만들지는 않는다(목이 순번으로 만든 500행이고 새 행의 번호 규칙을 모른다).
+      // 키는 견적과 품목의 짝이다
       const { convertedItems } = productionState(request);
-      for (const item of (await request.json()).items) convertedItems.add(item.itemId);
+      for (const item of (await request.json()).items)
+        convertedItems.add(`${item.quotationId}/${item.itemId}`);
       return ok({ converted: true });
     },
   ),
@@ -735,31 +774,21 @@ export const productionHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10);
     const filterStatus = url.searchParams.get('status') ?? '';
     const filterQuotation = url.searchParams.get('quotationId') ?? '';
-    const itemNames = [
-      '베어링 B',
-      '스프링 C',
-      '볼트 M10',
-      '너트 M10',
-      '기어 A',
-      '샤프트 D',
-      '플랜지 E',
-      '커플링 F',
-      '실린더 G',
-      '피스톤 H',
-    ];
     const statuses = ['PENDING', 'PLANNED', 'APPROVED', 'REJECTED'];
     const baseTotal = 500;
+    // 품목은 품목표의 자재, 견적 번호는 영업 견적 씨앗(카드 "데모 데이터 채우기")
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
+      const item = MATERIALS[idx % MATERIALS.length];
       const year = 2025 + Math.floor(idx / 300);
       const month = String((idx % 12) + 1).padStart(2, '0');
       const day = String((idx % 28) + 1).padStart(2, '0');
       const nextMonth = String((Number(month) % 12) + 1).padStart(2, '0');
       return {
         mrpRunId: `mrp-${String(idx).padStart(3, '0')}`,
-        quotationNumber: `QT-${year}-${String((idx % 20) + 1).padStart(3, '0')}`,
-        itemId: `item-${1000 + idx}`,
-        itemName: itemNames[idx % itemNames.length],
+        quotationNumber: QUOTES[idx % QUOTES.length].quote.quotationNumber,
+        itemId: item.itemId,
+        itemName: item.itemName,
         quantity: ((idx % 50) + 1) * 10,
         status: statuses[idx % statuses.length],
         procurementStartDate: `${year}-${month}-${day}`,

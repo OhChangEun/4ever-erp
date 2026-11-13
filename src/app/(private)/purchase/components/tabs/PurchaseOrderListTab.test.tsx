@@ -48,7 +48,8 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
       () => {
         // 로딩 표시(TableStatusBox). 토스트 알림 영역도 status 라 글자로 특정한다
         expect(screen.queryByText(/불러오는 중/)).not.toBeInTheDocument();
-        expect(screen.getByText('PO-2026-001')).toBeInTheDocument();
+        // 첫 쪽 맨 위(가장 최근) 발주. 기본 15건, 최신순(카드 "데모 데이터 채우기")
+        expect(screen.getByText('PO-2026-015')).toBeInTheDocument();
       },
       { timeout: 3000 },
     );

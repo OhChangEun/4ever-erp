@@ -105,14 +105,20 @@ describe('주문 날짜 필터 파라미터', () => {
   });
 
   it('기본 목은 startDate, endDate 로 주문일을 거른다(옛 이름이면 거르지 않아 실패)', async () => {
+    // 기본 주문은 주마다 만든 주문이라 3월에도 주문이 있다(카드 "데모 데이터 채우기"). 거르지 않으면 다른 달이 섞인다
     const { data } = await getOrderList(marchFilter);
-    expect(data).toEqual([]);
+    expect(data.length).toBeGreaterThan(0);
+    expect(data.every((order) => order.orderDate.startsWith('2026-03'))).toBe(true);
     const january = await getOrderList({
       ...marchFilter,
       startDate: '2026-01-01',
       endDate: '2026-01-31',
+      size: 1000,
     });
-    expect(january.data.map((order) => order.salesOrderNumber)).toEqual(['SO-2026-001']);
+    expect(january.data.every((order) => order.orderDate.startsWith('2026-01'))).toBe(true);
+    expect(january.data.map((order) => order.salesOrderNumber)).toEqual(
+      expect.arrayContaining(['SO-2026-001', 'SO-2026-002']),
+    );
   });
 });
 
@@ -284,12 +290,15 @@ describe('견적 목록 승인 필터', () => {
     server.events.on('request:start', record);
     try {
       renderWithProviders(<SalesQuoteList />);
-      expect(await screen.findByText('QT-2026-001')).toBeInTheDocument();
+      // 첫 쪽 맨 위는 가장 최근 견적(대기). 승인 견적 QT-2026-001 은 2쪽이다(카드 "데모 데이터 채우기")
+      expect(await screen.findByText('QT-2026-016')).toBeInTheDocument();
+      expect(screen.queryByText('QT-2026-001')).not.toBeInTheDocument();
       await userEvent.click(screen.getByRole('combobox', { name: salesKo.common.allStatuses }));
       await userEvent.click(screen.getByRole('option', { name: ko.status.APPROVAL }));
       await waitFor(() => expect(seen.at(-1)?.get('status')).toBe('APPROVAL'));
       expect(seen.some((params) => params.get('status') === 'APPROVED')).toBe(false);
       expect(await screen.findByText('QT-2026-001')).toBeInTheDocument();
+      expect(screen.queryByText('QT-2026-016')).not.toBeInTheDocument();
     } finally {
       server.events.removeListener('request:start', record);
     }
@@ -297,15 +306,26 @@ describe('견적 목록 승인 필터', () => {
 
   it('기본 목은 status 로 거른다(옛 값 APPROVED 면 승인 견적이 없다)', async () => {
     const approval = await getQuoteList({ status: 'APPROVAL', page: 0, size: 10 });
-    expect(approval.data.map((quote) => quote.quotationNumber)).toEqual(['QT-2026-001']);
+    // 승인 견적 다섯 건, 견적일 최신순
+    expect(approval.data.map((quote) => quote.quotationNumber)).toEqual([
+      'QT-2026-015',
+      'QT-2026-011',
+      'QT-2026-008',
+      'QT-2026-005',
+      'QT-2026-001',
+    ]);
     // 옛 값은 타입(QuoteStatusFilter)이 막으므로 axios 로 직접 보낸다
     const approved = await axios.get<ApiResponse<{ content: Quote[] }>>(
       SALES_ENDPOINTS.QUOTES_LIST,
       { params: { status: 'APPROVED', page: 0, size: 10 } },
     );
     expect(approved.data.data.content).toEqual([]);
-    const all = await getQuoteList({ status: 'ALL', page: 0, size: 10 });
-    expect(all.data).toHaveLength(QUOTE_STATUS_OPTIONS.length - 1);
+    // 전체는 기본 견적 16건이고 상태 넷이 다 있다(카드 "데모 데이터 채우기". 예전엔 상태마다 한 행)
+    const all = await getQuoteList({ status: 'ALL', page: 0, size: 100 });
+    expect(all.data).toHaveLength(16);
+    expect(new Set(all.data.map((quote) => quote.statusCode))).toEqual(
+      new Set(QUOTE_STATUS_OPTIONS.filter((code) => code !== 'ALL')),
+    );
   });
 
   it.each(QUOTE_STATUS_OPTIONS.filter((code) => code !== 'ALL'))(

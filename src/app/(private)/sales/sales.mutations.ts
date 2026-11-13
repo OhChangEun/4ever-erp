@@ -13,7 +13,13 @@ import {
   postNewQuote,
   postQuotationConfirm,
 } from './sales.api';
-import { customerKeys, quoteKeys, salesOrderKeys, salesStatsKeys } from './sales.keys';
+import {
+  analyticsKeys,
+  customerKeys,
+  quoteKeys,
+  salesOrderKeys,
+  salesStatsKeys,
+} from './sales.keys';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
 import type {
   CustomerEditData,
@@ -46,13 +52,17 @@ export const SALES_MUTATION_EFFECTS = {
     quoteKeys.reviewDetail(quotationId),
     salesStatsKeys.all,
   ],
-  // 즉시 납품은 견적 상태를 바꾸고 주문을 만든다
+  // 즉시 납품은 견적 상태를 바꾸고 주문을 만든다. 주문이 생기면 고객의 주문 수, 거래 금액, 마지막 주문일과
+  // 매출 분석도 바뀐다. 어느 고객인지는 견적 id 만으로 몰라 고객 상세는 전부(영업 안에서만) 다시 받는다
   processDelivery: (quotationId: string): readonly QueryKey[] => [
     quoteKeys.lists(),
     quoteKeys.detail(quotationId),
     quoteKeys.reviewDetail(quotationId),
     salesOrderKeys.lists(),
     salesStatsKeys.all,
+    customerKeys.lists(),
+    customerKeys.details(),
+    analyticsKeys.all,
   ],
 } as const;
 
