@@ -5,6 +5,7 @@ import {
 } from '@/app/(private)/purchase/api/purchase.endpoints';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
+import { catalogItem } from './catalog';
 import { monthlyMetric } from './financeAnalytics.handlers';
 import {
   ACTIVE_SUPPLIERS,
@@ -22,9 +23,11 @@ import {
   shouldError,
   pathSegment,
   paged,
+  filterBy,
   newestFirst,
   flow,
   statResponse,
+  type FilterRules,
 } from './utils';
 
 type Requisition = Schema<'PurchaseRequestListItem'>;
@@ -301,6 +304,37 @@ const requisitionsOf = (request: Request) => {
     );
 };
 
+/**
+ * 목록 필터(카드 "목 필터와 검색"). 파라미터 이름은 게이트웨이와 같다(MmController.java:42-49, :228-235, :414-418).
+ * 검색 타입 값(NUMBER, REQUESTER, SUPPLIER, NAME)은 이 목의 드롭다운 값이다. 게이트웨이 설명의 값은 다르다(카드 별도 보고)
+ */
+const REQUISITION_FILTER: FilterRules<Requisition> = {
+  equals: { statusCode: (row) => row.statusCode },
+  date: (row) => row.requestDate,
+  search: {
+    NUMBER: (row) => row.purchaseRequisitionNumber,
+    REQUESTER: (row) => row.requesterName,
+  },
+};
+const ORDER_FILTER: FilterRules<PurchaseOrder> = {
+  equals: { statusCode: (row) => row.statusCode },
+  date: (row) => row.orderDate,
+  search: {
+    NUMBER: (row) => row.purchaseOrderNumber,
+    SUPPLIER: (row) => row.supplierName,
+  },
+};
+const SUPPLIER_FILTER: FilterRules<{ supplierInfo: SupplierInfo }> = {
+  equals: {
+    category: (row) => row.supplierInfo.category,
+    statusCode: (row) => row.supplierInfo.supplierStatusCode,
+  },
+  search: {
+    NAME: (row) => row.supplierInfo.supplierName,
+    NUMBER: (row) => row.supplierInfo.supplierNumber,
+  },
+};
+
 /** 수정 요청(평평한 본문)을 공급사 정보에 덮는다. 본문의 deliverLeadTime 은 계약의 철자 그대로다 */
 const editedSupplier = (info: SupplierInfo, edit: SupplierEdit | undefined): SupplierInfo =>
   edit
@@ -350,7 +384,7 @@ export const purchaseHandlers = [
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUESTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase requisitions', 500);
-    return ok(paged(request, requisitionsOf(request)));
+    return ok(paged(request, filterBy(request, requisitionsOf(request), REQUISITION_FILTER)));
   }),
   http.post<PathParams, Schema<'CreatePurchaseRequestBody'>>(
     PURCHASE_ENDPOINTS.PURCHASE_REQUESTS,
@@ -378,12 +412,12 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to create stock purchase requisition', 500);
       const state = purchaseState(request);
       const { items } = await request.json();
-      // 본문에 단가와 품목 이름이 없어 이름은 품목 id, 금액은 0 이다
+      // 본문에 단가와 품목 이름이 없다. 이름은 품목표에서 찾고(없으면 품목 id), 금액은 0 이다
       addRequisition(
         state,
         items.map((item, i) => ({
           itemId: i + 1,
-          itemName: item.productId,
+          itemName: catalogItem(item.productId)?.itemName ?? item.productId,
           dueDate: '',
           quantity: item.quantity,
           uomCode: 'EA',
@@ -447,7 +481,7 @@ export const purchaseHandlers = [
   ),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase orders', 500);
-    return ok(paged(request, purchaseOrdersOf(request)));
+    return ok(paged(request, filterBy(request, purchaseOrdersOf(request), ORDER_FILTER)));
   }),
   http.post<{ poId: string }>(
     `${PURCHASE_BASE_PATH}/purchase-orders/:poId/approve`,
@@ -521,7 +555,7 @@ export const purchaseHandlers = [
       const supplierInfo = editedSupplier(info, state.supplierEdits.get(info.supplierId));
       return { statusCode: supplierInfo.supplierStatusCode, supplierInfo };
     });
-    return ok(paged(request, content));
+    return ok(paged(request, filterBy(request, content, SUPPLIER_FILTER)));
   }),
   http.get<{ supplierId: string }>(
     `${PURCHASE_BASE_PATH}/supplier/:supplierId`,
@@ -573,9 +607,11 @@ export const purchaseHandlers = [
   ),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUEST_STATUS_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PR status dropdown', 500);
+    // 코드는 행의 상태 값이다. 게이트웨이 옛 목(mockdata/scmpp/controller/MmController.java:1706)과 목록 파라미터 설명(:228)
     return ok([
       { key: 'PENDING', value: '대기' },
-      { key: 'APPROVED', value: '승인' },
+      { key: 'APPROVAL', value: '승인' },
+      { key: 'REJECTED', value: '반려' },
     ]);
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_REQUEST_SEARCH_TYPE_OPTIONS, ({ request }) => {
@@ -587,9 +623,10 @@ export const purchaseHandlers = [
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_STATUS_OPTIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load PO status dropdown', 500);
+    // 승인 코드는 행의 상태 값 APPROVAL(예전 APPROVED 는 어느 행에도 없어 고르면 빈 목록이었다)
     return ok([
       { key: 'PENDING', value: '대기' },
-      { key: 'APPROVED', value: '승인' },
+      { key: 'APPROVAL', value: '승인' },
     ]);
   }),
   http.get(PURCHASE_ENDPOINTS.PURCHASE_ORDER_SEARCH_TYPE_OPTIONS, ({ request }) => {

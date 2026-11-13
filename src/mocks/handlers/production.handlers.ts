@@ -7,7 +7,14 @@ import {
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { BEARING, MOTOR } from './catalog';
-import { ACTIVE_SUPPLIERS, CUSTOMERS, MATERIALS, QUOTES, addDays as addDayKey } from './seed';
+import {
+  ACTIVE_SUPPLIERS,
+  CUSTOMERS,
+  MATERIALS,
+  QUOTES,
+  addDays as addDayKey,
+  todayKey,
+} from './seed';
 import { purchaseState } from './purchase.handlers';
 import {
   ok,
@@ -18,6 +25,7 @@ import {
   isoNow,
   makePage,
   paged,
+  filterBy,
   flow,
   level,
   statResponse,
@@ -63,7 +71,7 @@ const bumpBomVersion = (request: Request, bomId: string): string => {
 };
 
 /**
- * 생산 제품. MES 목록의 제품(앞의 5개, prod-001~005)과 BOM 목록(12개), 제품 상세가 같은 표를 읽는다.
+ * 생산 제품. BOM 목록(12개)과 제품 상세가 같은 표를 읽는다. MES 의 제품은 그 MES 가 가리키는 견적의 첫 품목이다.
  * 제품 드롭다운은 앞의 둘(예전과 같다). 모터 A 단가는 품목표 값. 나머지 단가와 분류는 목이 정한 값이다(verified=false)
  */
 const PRODUCTS = [
@@ -85,8 +93,35 @@ const PRODUCTS = [
   { productId: 'prod-011', productName: '브레이크 K', category: 'BRAKE', unitPrice: 8500 },
   { productId: 'prod-012', productName: '엔코더 L', category: 'SENSOR', unitPrice: 13000 },
 ];
-/** MES 가 쓰는 제품(예전 표 그대로 다섯) */
-const MES_PRODUCTS = PRODUCTS.slice(0, 5);
+/** 견적의 첫 품목 줄과 그 제품 id(MES 행). 제품 표에 없는 품목이면 품목 id(시뮬레이션과 같은 규칙) */
+const quoteProduct = (quotationId: string) => {
+  const { quote, lines } = QUOTES.find((row) => row.quote.quotationId === quotationId) ?? QUOTES[0];
+  const first = lines[0];
+  return {
+    quote,
+    first,
+    productId:
+      PRODUCTS.find((product) => product.productName === first.itemName)?.productId ?? first.itemId,
+  };
+};
+
+/**
+ * 조달 날짜(카드 "목 필터와 검색"). 오늘(한국 날짜)에서 순번으로 -14~+13일에 시작하고 그 순번 공급사의 납기 일수 뒤에
+ * 도착한다(MRP 순소요의 공급사와 같다). 예전 순번 규칙은 2025년 날짜였다. 순번 규칙은 verified=false
+ */
+const procurementDates = (idx: number) => {
+  const supplier = ACTIVE_SUPPLIERS[idx % ACTIVE_SUPPLIERS.length].supplierInfo;
+  const start = addDayKey(todayKey(), (idx % 28) - 14);
+  return {
+    procurementStartDate: start,
+    expectedArrivalDate: addDayKey(start, supplier.deliveryLeadTime),
+    supplierCompanyName: supplier.supplierName,
+  };
+};
+
+/** 견적 번호의 견적 id. 계획 주문 행은 번호만 있어 견적 필터(id)를 번호로 견준다 */
+const quotationIdOf = (quotationNumber: string) =>
+  QUOTES.find(({ quote }) => quote.quotationNumber === quotationNumber)?.quote.quotationId ?? '';
 
 /**
  * 생산 견적은 영업 견적 씨앗과 같은 견적이다(카드 "데모 데이터 채우기" 결정 8). 제품은 첫 품목 줄, 요청일은 견적일.
@@ -379,18 +414,19 @@ const mesRow = (request: Request, mesId: string, idx: number) => {
   const status = mesStatusOf(request, mesId);
   const statuses = OPERATIONS.map((operation) => operationStatusOf(request, mesId, operation));
   const done = statuses.filter((operationStatus) => operationStatus === 'COMPLETED').length;
-  const product = MES_PRODUCTS[idx % MES_PRODUCTS.length];
   const quotationId = MES_QUOTATIONS[idx % MES_QUOTATIONS.length];
+  // 제품은 그 견적의 첫 품목(카드 "목 필터와 검색", 예전엔 순번으로 고른 제품이라 영업 견적과 달랐다)
+  const { quote, first, productId } = quoteProduct(quotationId);
   const today = startOfDay(new Date());
   return {
     mesId,
     mesNumber: `MES-2026-${String(idx).padStart(3, '0')}`,
-    productId: product.productId,
-    productName: product.productName,
+    productId,
+    productName: first.itemName,
     quantity: ((idx % 10) + 1) * 50,
     uomName: 'EA',
     quotationId,
-    quotationNumber: `QT-2026-${quotationId.slice(3)}`,
+    quotationNumber: quote.quotationNumber,
     status,
     currentOperation: Math.min(done + 1, OPERATIONS.length),
     // 오늘 기준 상대 날짜(시각화 3 간트). 시작은 오늘-14일~오늘, 기간 5~12일.
@@ -440,22 +476,21 @@ export const productionHandlers = [
   }),
   http.get(PRODUCTION_ENDPOINTS.QUOTATIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load quotations', 500);
-    const url = new URL(request.url);
-    const filterAvailable = url.searchParams.get('availableStatusCode') ?? '';
-    const filterStartDate = url.searchParams.get('startDate') ?? '';
-    const filterEndDate = url.searchParams.get('endDate') ?? '';
     const allData = QUOTES.map((_, index) => productionQuote(index)).map((quotation) =>
       // 제안 납기를 확정한 견적은 확인됨으로 바뀐다
       productionState(request).confirmedQuotations.has(quotation.quotationId)
         ? { ...quotation, availableStatus: 'CHECKED' }
         : quotation,
     );
-    let filtered = allData;
-    if (filterAvailable && filterAvailable !== 'ALL')
-      filtered = filtered.filter((d) => d.availableStatus === filterAvailable);
-    if (filterStartDate) filtered = filtered.filter((d) => d.requestDate >= filterStartDate);
-    if (filterEndDate) filtered = filtered.filter((d) => d.requestDate <= filterEndDate);
-    return ok(paged(request, filtered));
+    return ok(
+      paged(
+        request,
+        filterBy(request, allData, {
+          equals: { availableStatusCode: (row) => row.availableStatus },
+          date: (row) => row.requestDate,
+        }),
+      ),
+    );
   }),
   http.post<PathParams, { quotationIds?: string[] }>(
     PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE,
@@ -542,19 +577,25 @@ export const productionHandlers = [
   }),
   http.get(PRODUCTION_ENDPOINTS.MPS_PLANS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MPS', 500);
+    // 고른 BOM 의 제품을 준다. 계획 줄은 기본 BOM(bom-001)에만 있다(예전엔 어느 BOM 을 골라도 모터 A 계획이었다).
+    // 주 칸(2026-01-1W)은 날짜가 아니라 기간으로 거르지 않는다(카드 결정 8)
+    const bomId = new URL(request.url).searchParams.get('bomId') || SEED_BOM.bomId;
+    const bom = SEED_BOMS.find((row) => row.bomId === bomId);
+    const weeks = [
+      {
+        week: '2026-01-1W',
+        demand: 100,
+        requiredInventory: 20,
+        productionNeeded: 80,
+        plannedProduction: 90,
+      },
+    ];
+    const content = bomId === SEED_BOM.bomId ? weeks : [];
     return ok({
-      bomId: 'bom-001',
-      productName: '모터 A',
-      content: [
-        {
-          week: '2026-01-1W',
-          demand: 100,
-          requiredInventory: 20,
-          productionNeeded: 80,
-          plannedProduction: 90,
-        },
-      ],
-      page: makePage(0, 10, 1),
+      bomId,
+      productName: bom?.productName ?? '',
+      content,
+      page: makePage(0, 10, content.length),
     });
   }),
   http.post<PathParams, { quotationIds?: string[] }>(
@@ -704,21 +745,16 @@ export const productionHandlers = [
   ),
   http.get(PRODUCTION_ENDPOINTS.MRP_ORDERS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP orders', 500);
-    const url = new URL(request.url);
-    const filterQuotation = url.searchParams.get('quotationId') ?? '';
-    const filterAvailable = url.searchParams.get('availableStatusCode') ?? '';
     const convertStatuses = ['NOT_CONVERTED', 'CONVERTED', 'PENDING'];
     const { convertedItems } = productionState(request);
     // 견적 10건(qt-001~010) × 자재 13개 = 130행. 순번 1~130 은 (순번 % 10, 순번 % 13) 짝이 겹치지 않는다.
-    // 품목은 품목표의 자재(번호, 이름, 현재고, 안전재고). 날짜 규칙은 예전 그대로
+    // 품목은 품목표의 자재(번호, 이름, 현재고, 안전재고). 조달 날짜와 공급사는 procurementDates
     const allData = Array.from({ length: MRP_TOTAL }, (_, i) => {
       const idx = i + 1;
       const item = MATERIALS[idx % MATERIALS.length];
       const quotationId = `qt-${String((idx % 10) + 1).padStart(3, '0')}`;
-      const year = 2025 + Math.floor(idx / 300);
-      const month = String((idx % 12) + 1).padStart(2, '0');
-      const day = String((idx % 28) + 1).padStart(2, '0');
-      const nextMonth = String((Number(month) % 12) + 1).padStart(2, '0');
+      const { procurementStartDate, expectedArrivalDate, supplierCompanyName } =
+        procurementDates(idx);
       const requiredQty = ((idx % 50) + 1) * 10;
       const reservedStock = Math.min(idx % 5, item.current);
       const availableStock = item.current - reservedStock;
@@ -738,22 +774,26 @@ export const productionHandlers = [
         shortageQuantity: shortageQty,
         consumptionQuantity: consumptionQty,
         itemType: 'MATERIAL',
-        procurementStartDate: `${year}-${month}-${day}`,
-        expectedArrivalDate: `${year}-${nextMonth}-${day}`,
-        supplierCompanyName:
-          ACTIVE_SUPPLIERS[idx % ACTIVE_SUPPLIERS.length].supplierInfo.supplierName,
+        procurementStartDate,
+        expectedArrivalDate,
+        supplierCompanyName,
         // 전환은 견적과 품목의 짝으로 기억한다(같은 자재가 여러 견적에 나온다)
         convertStatus: convertedItems.has(`${quotationId}/${item.itemId}`)
           ? 'CONVERTED'
           : convertStatuses[idx % convertStatuses.length],
       };
     });
-    let filtered = allData;
-    if (filterQuotation && filterQuotation !== 'ALL')
-      filtered = filtered.filter((d) => d.quotationId === filterQuotation);
-    if (filterAvailable && filterAvailable !== 'ALL')
-      filtered = filtered.filter((d) => d.availableStatusCode === filterAvailable);
-    return ok(paged(request, filtered));
+    return ok(
+      paged(
+        request,
+        filterBy(request, allData, {
+          equals: {
+            quotationId: (row) => row.quotationId,
+            availableStatusCode: (row) => row.availableStatusCode,
+          },
+        }),
+      ),
+    );
   }),
   http.post<PathParams, Schema<'MrpOrdersConvertReqeustBody'>>(
     PRODUCTION_ENDPOINTS.MRP_CONVERT,
@@ -769,21 +809,13 @@ export const productionHandlers = [
   ),
   http.get(PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP planned orders', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    const filterStatus = url.searchParams.get('status') ?? '';
-    const filterQuotation = url.searchParams.get('quotationId') ?? '';
     const statuses = ['PENDING', 'PLANNED', 'APPROVED', 'REJECTED'];
     const baseTotal = 500;
     // 품목은 품목표의 자재, 견적 번호는 영업 견적 씨앗(카드 "데모 데이터 채우기")
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
       const item = MATERIALS[idx % MATERIALS.length];
-      const year = 2025 + Math.floor(idx / 300);
-      const month = String((idx % 12) + 1).padStart(2, '0');
-      const day = String((idx % 28) + 1).padStart(2, '0');
-      const nextMonth = String((Number(month) % 12) + 1).padStart(2, '0');
+      const { procurementStartDate, expectedArrivalDate } = procurementDates(idx);
       return {
         mrpRunId: `mrp-${String(idx).padStart(3, '0')}`,
         quotationNumber: QUOTES[idx % QUOTES.length].quote.quotationNumber,
@@ -791,8 +823,8 @@ export const productionHandlers = [
         itemName: item.itemName,
         quantity: ((idx % 50) + 1) * 10,
         status: statuses[idx % statuses.length],
-        procurementStartDate: `${year}-${month}-${day}`,
-        expectedArrivalDate: `${year}-${nextMonth}-${day}`,
+        procurementStartDate,
+        expectedArrivalDate,
       };
     }).map((order) =>
       // 자재 구매 요청(구매 목의 stock-purchase-requisitions)이 들어간 계획 주문은 승인 대기가 된다
@@ -800,32 +832,30 @@ export const productionHandlers = [
         ? { ...order, status: 'PENDING' }
         : order,
     );
-    let filtered = allData;
-    if (filterStatus && filterStatus !== 'ALL')
-      filtered = filtered.filter((d) => d.status === filterStatus);
-    if (filterQuotation && filterQuotation !== 'ALL')
-      filtered = filtered.filter((d) => d.quotationNumber.includes(filterQuotation));
-    const total = filtered.length;
-    const start = page * size;
-    return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
+    // 견적 필터는 견적 id(드롭다운 qt-001~005)로 온다. 예전엔 번호(QT-2026-001)에 id 를 부분 일치로 찾아 늘 빈 목록이었다
+    return ok(
+      paged(
+        request,
+        filterBy(request, allData, {
+          equals: {
+            status: (row) => row.status,
+            quotationId: (row) => quotationIdOf(row.quotationNumber),
+          },
+        }),
+      ),
+    );
   }),
   http.get(PRODUCTION_ENDPOINTS.MES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MES list', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    const filterStatus = url.searchParams.get('status') ?? '';
-    const filterQuotation = url.searchParams.get('quotationId') ?? '';
     // 시작이나 완료를 눌렀으면 그 결과, 아니면 상세와 같은 처음 상태
-    const allData = mesListOf(request);
-    let filtered = allData;
-    if (filterStatus && filterStatus !== 'ALL')
-      filtered = filtered.filter((d) => d.status === filterStatus);
-    if (filterQuotation && filterQuotation !== 'ALL')
-      filtered = filtered.filter((d) => d.quotationId === filterQuotation);
-    const total = filtered.length;
-    const start = page * size;
-    return ok({ content: filtered.slice(start, start + size), page: makePage(page, size, total) });
+    return ok(
+      paged(
+        request,
+        filterBy(request, mesListOf(request), {
+          equals: { status: (row) => row.status, quotationId: (row) => row.quotationId },
+        }),
+      ),
+    );
   }),
   http.get<{ mesId: string }>(`${PRODUCTION_BASE_PATH}/mes/:mesId`, ({ request, params }) => {
     if (shouldError(request)) return error('Failed to load MES detail', 500);

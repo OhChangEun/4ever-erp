@@ -11,7 +11,8 @@ import {
   notFound,
   shouldError,
   pathSegment,
-  makePage,
+  paged,
+  filterBy,
   flow,
   statResponse,
 } from './utils';
@@ -28,6 +29,9 @@ const AP_TOTAL = 4200000;
 const AR_TOTAL = 8200000;
 /** 매출 전표의 품목 줄. 단가는 품목표 값이고 합이 총액이다 */
 const AR_LINES = [line(MOTOR, 550), line(BEARING, 200)];
+
+/** 전표 목록 필터. 화면은 상태만 보낸다(게이트웨이의 company, startDate, endDate 는 안 보낸다, FcmController.java:62-65) */
+const INVOICE_FILTER = { equals: { status: (row: { statusCode: string }) => row.statusCode } };
 
 export const financeHandlers = [
   http.get(FINANCE_ENDPOINTS.STATISTICS, ({ request }) => {
@@ -53,28 +57,23 @@ export const financeHandlers = [
   }),
   http.get(FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase invoices', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          invoiceId: 'inv-ap-001',
-          invoiceNumber: 'AP-2026-001',
-          connection: {
-            connectionId: 'sup-001',
-            connectionCode: 'SUP-001',
-            connectionName: '대양상사',
-          },
-          totalAmount: AP_TOTAL,
-          issueDate: '2026-01-15',
-          dueDate: '2026-02-15',
-          statusCode: invoiceStatus(request).get('inv-ap-001') ?? 'UNPAID',
-          referenceNumber: 'REF-AP-001',
+    const rows = [
+      {
+        invoiceId: 'inv-ap-001',
+        invoiceNumber: 'AP-2026-001',
+        connection: {
+          connectionId: 'sup-001',
+          connectionCode: 'SUP-001',
+          connectionName: '대양상사',
         },
-      ],
-      page: makePage(page, size, 1),
-    });
+        totalAmount: AP_TOTAL,
+        issueDate: '2026-01-15',
+        dueDate: '2026-02-15',
+        statusCode: invoiceStatus(request).get('inv-ap-001') ?? 'UNPAID',
+        referenceNumber: 'REF-AP-001',
+      },
+    ];
+    return ok(paged(request, filterBy(request, rows, INVOICE_FILTER)));
   }),
   http.get<{
     invoiceId: string;
@@ -119,28 +118,23 @@ export const financeHandlers = [
   }),
   http.get(FINANCE_ENDPOINTS.SALES_INVOICES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load sales invoices', 500);
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 0);
-    const size = Number(url.searchParams.get('size') ?? 10);
-    return ok({
-      content: [
-        {
-          invoiceId: 'inv-ar-001',
-          invoiceNumber: 'AR-2026-001',
-          connection: {
-            connectionId: 'cus-001',
-            connectionCode: 'CUS-001',
-            connectionName: '한빛전자',
-          },
-          totalAmount: AR_TOTAL,
-          issueDate: '2026-01-20',
-          dueDate: '2026-02-20',
-          statusCode: invoiceStatus(request).get('inv-ar-001') ?? 'PENDING',
-          referenceNumber: 'REF-AR-001',
+    const rows = [
+      {
+        invoiceId: 'inv-ar-001',
+        invoiceNumber: 'AR-2026-001',
+        connection: {
+          connectionId: 'cus-001',
+          connectionCode: 'CUS-001',
+          connectionName: '한빛전자',
         },
-      ],
-      page: makePage(page, size, 1),
-    });
+        totalAmount: AR_TOTAL,
+        issueDate: '2026-01-20',
+        dueDate: '2026-02-20',
+        statusCode: invoiceStatus(request).get('inv-ar-001') ?? 'PENDING',
+        referenceNumber: 'REF-AR-001',
+      },
+    ];
+    return ok(paged(request, filterBy(request, rows, INVOICE_FILTER)));
   }),
   http.get<{
     invoiceId: string;

@@ -20,7 +20,6 @@ import { Input } from '@everp/ui';
 import CalendarButton from '@/app/components/common/CalendarButton';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { attendanceKeys } from '@/app/(private)/hrm/api/hrm.keys';
-import { toKeyValueItems } from '@/lib/api/options';
 import { toDateKey } from '@/app/utils/date';
 import AttendanceHeatmap from '@/app/(private)/hrm/components/heatmap/AttendanceHeatmap';
 
@@ -44,12 +43,12 @@ export default function AttendanceTab({ tabButtons }: { tabButtons?: ReactNode }
     'with-all',
   );
 
-  const { data: statusData } = useQuery({
-    queryKey: attendanceKeys.statusDropdown(),
-    queryFn: fetchAttendanceStatusDropdown,
-    select: toKeyValueItems,
-    staleTime: Infinity,
-  });
+  // 출결 상태 드롭다운. 전체 항목을 붙인다(카드 "목 필터와 검색", 없으면 고른 필터를 되돌릴 수 없다)
+  const { options: statusOptions } = useDropdown(
+    'attendanceStatusDropdown',
+    fetchAttendanceStatusDropdown,
+    'with-all',
+  );
 
   // --- 선택된 드롭다운 상태 ---
   const [selectedDepartment, setSelectedDepartment] = useState(''); // 부서
@@ -157,7 +156,7 @@ export default function AttendanceTab({ tabButtons }: { tabButtons?: ReactNode }
 
           <Dropdown
             placeholder={t('common.allStatuses')}
-            items={statusData ?? []}
+            items={statusOptions}
             value={selectedStatus}
             onChange={(status: string) => {
               setSelectedStatus(status);

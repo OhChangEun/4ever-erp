@@ -20,6 +20,7 @@ const cases = [
     material: '원자재',
     options: ['원자재', '부품', '기타'],
     filter: '전체 카테고리',
+    all: '전체',
     pick: '카테고리 선택',
   },
   {
@@ -27,13 +28,14 @@ const cases = [
     material: 'Raw materials',
     options: ['Raw materials', 'Parts', 'Other'],
     filter: 'All categories',
+    all: 'All',
     pick: 'Select a category',
   },
 ] as const;
 
 describe.each(cases)(
   '공급업체 카테고리 글자 ($locale)',
-  ({ locale, material, options, filter, pick }) => {
+  ({ locale, material, options, filter, all, pick }) => {
     it('목록의 카테고리 칸', async () => {
       renderWithProviders(<SupplierListTab />, { locale });
       // 원자재 공급사는 대양상사, 하나금속, 동양소재 셋(카드 "데모 데이터 채우기")
@@ -41,11 +43,12 @@ describe.each(cases)(
       expect(screen.queryByRole('cell', { name: 'MATERIAL' })).not.toBeInTheDocument();
     });
 
+    // 첫 항목은 전체(common.all). 한 번 고른 분류를 되돌릴 수 있다(카드 "목 필터와 검색")
     it('필터 드롭다운 옵션이 목록과 같은 글자', async () => {
       renderWithProviders(<SupplierListTab />, { locale });
       await userEvent.click(await screen.findByRole('combobox', { name: filter }));
       const names = (await screen.findAllByRole('option')).map((option) => option.textContent);
-      expect(names).toEqual(options);
+      expect(names).toEqual([all, ...options]);
     });
 
     it('상세 모달', async () => {

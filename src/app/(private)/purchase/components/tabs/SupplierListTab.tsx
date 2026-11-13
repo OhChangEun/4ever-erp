@@ -43,11 +43,14 @@ export default function SupplierListTab() {
   const { options: supplierCategoryOptions } = useDropdown(
     'supplierCategoryDropdown',
     fetchSupplierCategoryOptions,
+    // 전체 항목(공통 common.all, 값 '')을 붙인다. 없으면 한 번 고른 필터를 되돌릴 수 없다(카드 "목 필터와 검색")
+    'with-all',
   );
   // 공급업체 상태 드롭다운
   const { options: supplierStatusOptions } = useDropdown(
     'supplierStatusDropdown',
     fetchSupplierStatusOptions,
+    'with-all',
   );
   // 공급업체 검색타입 드롭다운
   const { options: supplierSearchTypeOptions } = useDropdown(
