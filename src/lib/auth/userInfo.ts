@@ -29,7 +29,3 @@ export const readUserResponse = (body: unknown): UserInfo | null => {
   }
   return { id, name, email, role };
 };
-
-/** 오류 응답 본문의 message. 글자가 아니면 undefined */
-export const readErrorMessage = (body: unknown): string | undefined =>
-  isRecord(body) && typeof body.message === 'string' ? body.message : undefined;

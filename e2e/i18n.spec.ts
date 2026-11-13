@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { chromeHangul } from '../src/test/chromeHangul';
 
 /** i18n 1: 프로필 메뉴에서 영어로 바꾸면 메뉴와 상태 글자가 영어가 되고, 새로고침해도 남는다 */
 test('영어로 바꾸면 메뉴와 상태가 영어로, 새로고침 뒤에도 유지되고 다시 한국어로 돌린다', async ({
@@ -68,4 +69,50 @@ test('영어로 바꾸면 공통 UI 패키지의 쪽 넘김과 검색 막대도 
     .getByRole('button', { name: '한국어' })
     .click();
   await expect(page.getByRole('navigation', { name: '페이지' })).toContainText(/총 \d+건/);
+});
+
+/**
+ * 남은 한국어 문자열 카드: 영어로 바꾸면 비공개 화면과 그 탭 전부에서 화면이 그린 글자(표 머리, 버튼, 탭, 제목, 라벨,
+ * 입력 안내, 접근성 이름)에 한글이 없다. 서버 데이터(품목, 고객사 이름)를 빼는 규칙은 src/test/chromeHangul.ts
+ */
+test('영어로 바꾸면 비공개 화면과 탭 전부에서 화면이 그린 글자에 한글이 없다', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(240_000);
+  await context.addCookies([{ name: 'NEXT_LOCALE', value: 'en', domain: 'localhost', path: '/' }]);
+  const routes = [
+    '/dashboard',
+    '/sales',
+    '/purchase',
+    '/production',
+    '/inventory',
+    '/low-stock',
+    '/warehouse',
+    '/finance',
+    '/hrm',
+    '/profile',
+  ];
+  const found: Record<string, string[]> = {};
+  const collect = async (where: string) => {
+    await page.waitForLoadState('networkidle');
+    // 가장 안쪽 main 이 화면 본문이다(프로필은 바깥 main 에 사이드바가 같이 있다)
+    const hangul = await page.locator('main:not(:has(main))').first().evaluate(chromeHangul);
+    if (hangul.length > 0) found[where] = hangul;
+  };
+
+  for (const route of routes) {
+    await page.goto(route);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await collect(route);
+    // 탭 바(TabNavigation)가 있는 화면은 탭마다 본다
+    const tabs = page.getByRole('navigation', { name: / tabs$/ }).getByRole('button');
+    const names = await tabs.allTextContents();
+    for (const name of names.slice(1)) {
+      await tabs.filter({ hasText: name }).first().click();
+      await expect(page.getByRole('region', { name })).toBeVisible();
+      await collect(`${route} > ${name}`);
+    }
+  }
+  expect(found).toEqual({});
 });

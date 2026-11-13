@@ -96,7 +96,8 @@ const InvoiceList = () => {
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
   const { mutate: sendReq, isPending: isCompleting } = useCompleteInvoice({
-    onSuccess: (data) => toast.success(data.message),
+    // 서버 message 는 언어를 모른다. 화면 문구로 알린다(남은 한국어 문자열 카드)
+    onSuccess: () => toast.success(t('completeSuccess')),
     onError: (error) => toast.error(t('completeError', { message: errorMessageOf(error) })),
   });
 

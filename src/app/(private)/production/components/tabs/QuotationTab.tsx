@@ -27,12 +27,14 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { quotationKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, PP_PLANNING_ROLES } from '@/lib/authz/policy';
 
 import { Button } from '@everp/ui';
 export default function QuotationTab() {
   const t = useTranslations('production');
+  const optionLabels = useOptionLabels();
   const { openModal, removeAllModals } = useModal();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
@@ -215,7 +217,7 @@ export default function QuotationTab() {
         <div className="flex items-center gap-3">
           <Dropdown
             placeholder={t('quotation.allAvailability')}
-            items={availableStatusOptions}
+            items={optionLabels(availableStatusOptions, { ALL: t('quotation.allAvailability') })}
             value={selectedStockStatus}
             onChange={(status) => {
               setSelectedStockStatus(status);

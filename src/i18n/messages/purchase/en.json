@@ -30,6 +30,10 @@
   },
   "requestList": {
     "create": "New purchase request",
+    "searchOption": {
+      "NUMBER": "Request no.",
+      "REQUESTER": "Requester"
+    },
     "loading": "Loading purchase requests...",
     "loadError": "Failed to load purchase requests.",
     "empty": "No purchase requests.",
@@ -53,6 +57,10 @@
   },
   "orderList": {
     "loading": "Loading purchase orders...",
+    "searchOption": {
+      "NUMBER": "Order no.",
+      "SUPPLIER": "Supplier"
+    },
     "loadError": "Failed to load purchase orders.",
     "empty": "No purchase orders.",
     "detailModalTitle": "Purchase order details",
@@ -87,6 +95,10 @@
     "detailModalTitle": "Supplier details",
     "allCategories": "All categories",
     "searchType": "Search by",
+    "searchOption": {
+      "NAME": "Supplier name",
+      "NUMBER": "Supplier code"
+    },
     "columns": {
       "number": "Supplier code",
       "name": "Company",

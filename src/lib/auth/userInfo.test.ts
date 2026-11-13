@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readErrorMessage, readUserResponse } from './userInfo';
+import { readUserResponse } from './userInfo';
 
 describe('인증 응답 읽기', () => {
   const user = { id: 1, name: '관리자', email: 'a@b.c', role: 'ALL_ADMIN' };
@@ -12,11 +12,5 @@ describe('인증 응답 읽기', () => {
     expect(readUserResponse(null)).toBeNull();
     expect(readUserResponse({})).toBeNull();
     expect(readUserResponse({ user: { ...user, role: 1 } })).toBeNull();
-  });
-
-  it('오류 본문의 message 가 글자일 때만 꺼낸다', () => {
-    expect(readErrorMessage({ message: '없는 계정' })).toBe('없는 계정');
-    expect(readErrorMessage({ message: 3 })).toBeUndefined();
-    expect(readErrorMessage(null)).toBeUndefined();
   });
 });

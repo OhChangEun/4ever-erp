@@ -173,12 +173,14 @@ describe('영업 화면 영어(i18n 8)', () => {
     );
     const { unmount } = renderWithProviders(<SalesChart />, { locale: 'en' });
     expect(await screen.findByText('40% (5M)')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Monthly sales trend' })).toBeInTheDocument();
+    // 주마다 한 점이다(PR #127). 남은 한국어 문자열 카드에서 월별 → 주별
+    expect(screen.getByRole('heading', { name: 'Weekly sales trend' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Sales by top customer' })).toBeInTheDocument();
     unmount();
     renderWithProviders(<SalesChart />);
     expect(await screen.findByText('40% (500만)')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '제품별 매출 비중' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '주별 매출 추이' })).toBeInTheDocument();
   });
 });
 

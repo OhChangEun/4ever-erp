@@ -50,6 +50,26 @@ describe('언어별 메시지(i18n 1, 2)', () => {
     expect(keysOf(enTree).sort()).toEqual(keysOf(koTree).sort());
   });
 
+  // 남은 한국어 문자열 카드: 영어 화면은 en 값을 그린다. status 의 한국어 키(입고, 퇴근완료)는 키라 괜찮고 값만 본다
+  it('en 메시지 값에 한글이 없다(언어 이름 한국어 제외)', () => {
+    const valueOf = (tree: object, key: string): unknown =>
+      key
+        .split('.')
+        .reduce<unknown>(
+          (node, part) =>
+            typeof node === 'object' && node !== null ? Reflect.get(node, part) : undefined,
+          tree,
+        );
+    // 언어 고르기 버튼은 언어마다 자기 이름으로 보인다(영어 화면에서도 '한국어')
+    const KOREAN_ON_PURPOSE = ['common:profile.korean'];
+    const found = PAIRS.flatMap(([name, , enTree]) =>
+      keysOf(enTree)
+        .filter((key) => /[가-힣]/.test(String(valueOf(enTree, key))))
+        .map((key) => `${name}:${key}`),
+    ).filter((key) => !KOREAN_ON_PURPOSE.includes(key));
+    expect(found).toEqual([]);
+  });
+
   it('빈 문구가 없다', () => {
     const empty = (tree: object) =>
       keysOf(tree).filter((key) => {

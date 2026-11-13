@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { error, makePage, ok } from '@/mocks/utils';
 import { FINANCE_ENDPOINTS } from '@/app/types/api';
 import { server } from '@/test/msw-server';
@@ -74,6 +74,22 @@ describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () =>
 
     await user.click(button);
     expect(posts()).toBe(1);
+  });
+
+  // 남은 한국어 문자열 카드: 성공 안내는 서버 message 대신 화면 문구(언어를 따른다)
+  it('처리 요청이 성공하면 서버 message 가 아니라 화면 문구로 알린다', async () => {
+    server.use(
+      http.post(FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'), () =>
+        HttpResponse.json({ status: 200, success: true, message: '수금 처리가 완료되었습니다.' }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<InvoiceList />, { locale: 'en' });
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Select AR-2026-001' }));
+    await user.click(screen.getByRole('button', { name: 'Request settlement' }));
+    expect(await screen.findByText('Settlement request sent.')).toBeInTheDocument();
+    expect(screen.queryByText('수금 처리가 완료되었습니다.')).not.toBeInTheDocument();
   });
 
   it('완납 전표의 상세를 열어도 처리 요청이 열리지 않는다', async () => {

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS, findDemoAccount } from '@/lib/auth/simpleLogin';
-import { readErrorMessage, readUserResponse } from '@/lib/auth/userInfo';
+import { readUserResponse } from '@/lib/auth/userInfo';
 import { safeReturnTo } from '@/lib/auth/returnTo';
 import { Button } from '@everp/ui';
 import { Flex } from '@everp/ui';
@@ -36,9 +36,9 @@ function readOidcError(): OidcErrorKey | null {
   return OIDC_ERROR_KEYS.find((key) => key === code) ?? 'unknown';
 }
 
-// 데모 로그인 오류. 화면 문구는 키로, 서버가 준 문구는 그대로 보인다
+// 데모 로그인 오류. 화면 문구는 키로 고른다(서버 message 는 보이지 않는다)
 type DemoErrorKey = 'empty' | 'unknownId' | 'failed' | 'badResponse' | 'network';
-type DemoError = { key: DemoErrorKey } | { text: string } | null;
+type DemoError = { key: DemoErrorKey } | null;
 
 function OidcLogin() {
   const t = useTranslations('login');
@@ -103,9 +103,8 @@ function DemoLogin() {
       });
 
       if (!res.ok) {
-        const body: unknown = await res.json().catch(() => null);
-        const message = readErrorMessage(body);
-        setError(message ? { text: message } : { key: 'failed' });
+        // 로그인 라우트의 message 는 한국어 고정이라 보이지 않고 상태 코드로 문구를 고른다(남은 한국어 문자열 카드)
+        setError({ key: res.status === 401 ? 'unknownId' : 'failed' });
         return;
       }
 
@@ -211,11 +210,7 @@ function DemoLogin() {
               />
             </Flex>
           </form>
-          {error ? (
-            <p className="pl-2 text-xs text-red-500">
-              {'key' in error ? t(`error.${error.key}`) : error.text}
-            </p>
-          ) : null}
+          {error ? <p className="pl-2 text-xs text-red-500">{t(`error.${error.key}`)}</p> : null}
         </Flex>
       </Flex>
     </Flex>

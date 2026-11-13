@@ -17,6 +17,7 @@
   "common": {
     "selectQuote": "Select quote",
     "allStatuses": "All statuses",
+    "allQuotes": "All quotes",
     "selectRow": "Select {name}",
     "loading": "Loading...",
     "loadFailed": "Couldn't load data.",
@@ -186,6 +187,7 @@
     "basicInfo": "Product info",
     "simulateConflictHint": "Forces the server version up to create a conflict",
     "simulateConflict": "Simulate conflict",
+    "simulateConflictDone": "Server version bumped. The next update will conflict.",
     "activate": "Activate",
     "deactivate": "Deactivate",
     "productCode": "Product code",

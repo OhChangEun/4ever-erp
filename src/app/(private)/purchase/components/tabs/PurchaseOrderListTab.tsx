@@ -29,6 +29,7 @@ import { useRole } from '@/app/hooks/useRole';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { purchaseOrderKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 
 export default function PurchaseOrderListTab() {
   const { openModal } = useModal();
@@ -36,6 +37,7 @@ export default function PurchaseOrderListTab() {
   const toast = useToast();
   const t = useTranslations('purchase.orderList');
   const tc = useTranslations('purchase.common');
+  const optionLabels = useOptionLabels();
 
   // 발주서 타입 드롭다운
   const { options: purchaseOrderStatusOptions } = useDropdown(
@@ -151,7 +153,7 @@ export default function PurchaseOrderListTab() {
         <div className="flex items-center gap-2">
           <Dropdown
             placeholder={tc('allStatuses')}
-            items={purchaseOrderStatusOptions}
+            items={optionLabels(purchaseOrderStatusOptions)}
             value={selectedStatus}
             onChange={(status: string) => {
               setSelectedStatus(status);
@@ -159,7 +161,10 @@ export default function PurchaseOrderListTab() {
             }}
           />
           <SearchBar
-            options={purchaseOrderSearchTypeOptions}
+            options={optionLabels(purchaseOrderSearchTypeOptions, {
+              NUMBER: t('searchOption.NUMBER'),
+              SUPPLIER: t('searchOption.SUPPLIER'),
+            })}
             onTypeChange={(type) => {
               setSelectedSearchType(type);
             }}

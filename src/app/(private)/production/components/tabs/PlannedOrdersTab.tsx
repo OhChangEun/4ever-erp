@@ -22,6 +22,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import { mrpPlannedOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { formatNumber } from '@/app/utils/number';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, MRP_PURCHASE_REQUEST_ROLES } from '@/lib/authz/policy';
@@ -32,6 +33,7 @@ interface PlannedOrdersTabProps {
 
 export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) {
   const t = useTranslations('production');
+  const optionLabels = useOptionLabels();
   const { openModal } = useModal();
   // 구매 요청 모달은 재고(IM) API 다음 구매(MM) API 를 부른다. 둘 다 통과하는 역할만 버튼을 본다
   const canRequestPurchase = hasRole(MRP_PURCHASE_REQUEST_ROLES, useRole());
@@ -179,7 +181,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
         <div className="flex items-center gap-3">
           <Dropdown
             placeholder={t('common.selectQuote')}
-            items={mrpQuotationOptions}
+            items={optionLabels(mrpQuotationOptions, { ALL: t('common.allQuotes') })}
             value={selectedQutations}
             onChange={(quotation: string) => {
               setSelectedQutations(quotation);
@@ -188,7 +190,7 @@ export default function PlannedOrdersTab({ tabButtons }: PlannedOrdersTabProps) 
           />
           <Dropdown
             placeholder={t('common.allStatuses')}
-            items={mrpStatusOptions}
+            items={optionLabels(mrpStatusOptions, { ALL: t('common.allStatuses') })}
             value={selectedStatus}
             onChange={(status) => {
               setSelectedStatus(status);

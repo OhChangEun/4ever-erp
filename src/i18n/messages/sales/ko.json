@@ -106,7 +106,7 @@
     "empty": "고객 정보가 없습니다."
   },
   "chart": {
-    "trendTitle": "월별 매출 추이",
+    "trendTitle": "주별 매출 추이",
     "salesAmount": "매출액",
     "orderCount": "주문건수",
     "week": "{month}월 {week}주차",

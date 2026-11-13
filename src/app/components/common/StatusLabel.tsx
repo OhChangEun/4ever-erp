@@ -1,12 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { getStatusColor } from '@/lib/status.constants';
-import ko from '@/i18n/messages/ko.json';
-
-type StatusKey = keyof typeof ko.status;
-const STATUS_KEYS: ReadonlySet<string> = new Set(Object.keys(ko.status));
-const isStatusKey = (code: string): code is StatusKey => STATUS_KEYS.has(code);
+import { getStatusColor, isStatusKey } from '@/lib/status.constants';
 
 /** STATUS_COLOR_MAP 의 text-{hue}-700 에서 색상 계열만 뽑아 점 색으로 쓴다. */
 const DOT_CLASS_BY_HUE: Record<string, string> = {

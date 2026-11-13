@@ -2,6 +2,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import {
   fetchDepartmentsDropdown,
   fetchPayRollList,
@@ -28,6 +29,7 @@ import { payrollKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import { formatCurrency } from '@/app/utils/number';
 export default function PayrollManagement() {
   const t = useTranslations('hrm');
+  const optionLabels = useOptionLabels();
   // --- 모달 출력 ---
   const { openModal } = useModal();
   const { keyword, handleKeywordChange, debouncedKeyword } = useDebouncedKeyword();
@@ -215,7 +217,7 @@ export default function PayrollManagement() {
           />
           <Dropdown
             placeholder={t('common.allStatuses')}
-            items={statusOptions}
+            items={optionLabels(statusOptions)}
             value={selectedPayrollStatus}
             onChange={(status: string) => {
               setSelectedPayrollStatus(status);

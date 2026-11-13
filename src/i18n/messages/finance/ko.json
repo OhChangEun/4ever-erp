@@ -24,6 +24,7 @@
       "PAID": "완납"
     },
     "requestSettlement": "미수 처리 신청",
+    "completeSuccess": "미수 처리를 신청했습니다.",
     "completeError": "등록 중 오류가 발생했습니다. {message}",
     "loading": "전표 목록을 불러오는 중입니다...",
     "loadError": "전표 목록을 불러오는 중 오류가 발생했습니다.",

@@ -36,6 +36,7 @@ import { purchaseRequestKeys } from '@/app/(private)/purchase/api/purchase.keys'
 import { formatCurrency } from '@/app/utils/number';
 import { Button } from '@everp/ui';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
 
@@ -45,6 +46,7 @@ export default function PurchaseRequestListTab() {
   const toast = useToast();
   const t = useTranslations('purchase.requestList');
   const tc = useTranslations('purchase.common');
+  const optionLabels = useOptionLabels();
   // 승인과 반려는 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
   const canDecide = hasRole(MM_GATEWAY_ROLES, useRole());
 
@@ -223,7 +225,7 @@ export default function PurchaseRequestListTab() {
         <div className="flex items-center space-x-4">
           <Dropdown
             placeholder={tc('allStatuses')}
-            items={purchaseRequestStatusOptions}
+            items={optionLabels(purchaseRequestStatusOptions)}
             value={selectedStatus}
             onChange={(status: string): void => {
               setSelectedStatus(status);
@@ -232,7 +234,10 @@ export default function PurchaseRequestListTab() {
           />
 
           <SearchBar
-            options={purchaseRequestSearchTypeOptions}
+            options={optionLabels(purchaseRequestSearchTypeOptions, {
+              NUMBER: t('searchOption.NUMBER'),
+              REQUESTER: t('searchOption.REQUESTER'),
+            })}
             onTypeChange={(type) => {
               setSelectedSearchType(type);
             }}

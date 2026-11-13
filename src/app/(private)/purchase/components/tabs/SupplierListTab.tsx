@@ -25,6 +25,7 @@ import { supplierKeys } from '@/app/(private)/purchase/api/purchase.keys';
 
 import { Button } from '@everp/ui';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, MM_GATEWAY_ROLES } from '@/lib/authz/policy';
 import { useSupplierCategoryLabels } from '@/app/(private)/purchase/supplierCategory';
@@ -33,6 +34,7 @@ export default function SupplierListTab() {
   const { openModal } = useModal();
   const t = useTranslations('purchase.supplierList');
   const tc = useTranslations('purchase.common');
+  const optionLabels = useOptionLabels();
   // 공급업체 등록은 게이트웨이가 MM 과 ALL_ADMIN 만 받는다
   const canCreate = hasRole(MM_GATEWAY_ROLES, useRole());
   const { categoryLabel, categoryOptions } = useSupplierCategoryLabels();
@@ -177,7 +179,7 @@ export default function SupplierListTab() {
           />
           <Dropdown
             placeholder={tc('allStatuses')}
-            items={supplierStatusOptions}
+            items={optionLabels(supplierStatusOptions)}
             value={selectedStatus}
             onChange={(status: string): void => {
               setSelectedStatus(status);
@@ -186,7 +188,10 @@ export default function SupplierListTab() {
           />
           <Dropdown
             placeholder={t('searchType')}
-            items={supplierSearchTypeOptions}
+            items={optionLabels(supplierSearchTypeOptions, {
+              NAME: t('searchOption.NAME'),
+              NUMBER: t('searchOption.NUMBER'),
+            })}
             value={selectedSearchType}
             onChange={(type: string): void => {
               setSelectedSearchType(type);
