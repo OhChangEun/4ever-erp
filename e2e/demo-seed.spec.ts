@@ -24,7 +24,13 @@ test('직원 목록은 2쪽이 있고, 넘기면 1쪽에 없던 직원이 보인
   await waitForListLoaded(page);
   // 직원 42명, 번호순. 1쪽 첫 행은 홍길동, 2쪽 첫 행은 11번째 직원(구매팀 장하은)
   await expect(page.getByRole('row', { name: /홍길동/ })).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('navigation').getByRole('button', { name: '2', exact: true }).click();
+  // 목록이 다시 그려지는 순간 클릭이 묻히면 1쪽에 남는다(CI 에서 한 번 흔들림). 2쪽이 현재 쪽이 될 때까지 누른다
+  const pager = page.getByRole('navigation', { name: '페이지' });
+  const second = pager.getByRole('button', { name: '2', exact: true });
+  await expect(async () => {
+    await second.click();
+    await expect(second).toHaveAttribute('aria-current', 'page', { timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
   await expect(page.getByRole('row', { name: /장하은/ })).toBeVisible();
   await expect(page.getByRole('row', { name: /홍길동/ })).toHaveCount(0);
 });
