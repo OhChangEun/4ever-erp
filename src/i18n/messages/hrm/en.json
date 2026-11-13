@@ -194,6 +194,7 @@
     "mode": "Format",
     "online": "Online",
     "offline": "In person",
+    "capacity": "Capacity",
     "startDate": "Start date",
     "assignedEmployees": "Assigned employees ({count})",
     "noAssigned": "No employees assigned.",

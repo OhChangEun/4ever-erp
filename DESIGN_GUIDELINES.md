@@ -348,7 +348,7 @@ UI 생성 및 수정 요청을 받으면 다음 순서로 작업한다.
 2. 금액·날짜 유틸 추가 후 전 도메인 테이블 컬럼에 적용 (sales, inventory, low-stock, finance, hrm 급여, purchase)
 3. 작업 열 아이콘 버튼 → 텍스트 링크 (12개 테이블)
 4. 서브탭 세그먼트화 + 탭 아이콘 제거 (hrm, production). 2026-11-13 카드 `ai/cards/2026-11-13_디자인_지침_위반_정리.md` 로 끝냈다(재고 출고, 입고와 대시보드 워크플로우 세그먼트도 `TabButtons`, 모든 탭 상수의 `icon` 제거)
-5. 카드 래퍼·그림자 제거 (dashboard, warehouse 목록, production 모달). 표를 감싼 카드는 2026-11-12 카드 `ai/cards/2026-11-12_표_테두리_한_겹.md` 로 끝냈다(sales, inventory, low-stock). warehouse 목록, 재고 목록 위 두 요약, 프로필, 모달 밖 그림자와 그라데이션은 2026-11-13 카드 `ai/cards/2026-11-13_디자인_지침_위반_정리.md` 로 끝냈다. 남은 것: dashboard 카드(7번과 같이), 모달 안(모달 규칙 대기). 다시 생기지 않는지는 `src/test/designRules.test.ts`(그림자, 그라데이션, 보라색, 탭 아이콘의 허용 목록)와 `e2e/design-rules.spec.ts` 가 본다
+5. 카드 래퍼·그림자 제거 (dashboard, warehouse 목록, production 모달). 표를 감싼 카드는 2026-11-12 카드 `ai/cards/2026-11-12_표_테두리_한_겹.md` 로 끝냈다(sales, inventory, low-stock). warehouse 목록, 재고 목록 위 두 요약, 프로필, 모달 밖 그림자와 그라데이션은 2026-11-13 카드 `ai/cards/2026-11-13_디자인_지침_위반_정리.md` 로 끝냈다. 남은 것: dashboard 카드(7번과 같이), 모달 안(모달 규칙 대기). 다시 생기지 않는지는 `src/test/designRules.test.ts`(그림자, 그라데이션, 보라색, 탭 아이콘, 아이콘 세 곳 밖 `ri-*` 의 허용 목록)와 `e2e/design-rules.spec.ts`, `e2e/one-primary.spec.ts`(화면마다 primary 하나 이하)가 본다. 아이콘 세 곳 밖에 남은 것(모달 안, 대시보드, 쪽 이동 화살표, 토스트, 빈 상태 그림 등)은 그 허용 목록에 이유와 같이 있다
 6. 모달 푸터 통일, `ModalStatusBox` 인라인화
 7. 대시보드 재구성
 8. `Logo` 사이드바 48px 안에 맞추기

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { IconButton } from '@everp/ui';
+import { Button } from '@everp/ui';
 import { devErrorDetail } from '@/lib/devErrorDetail';
 
 /**
@@ -38,12 +38,7 @@ export default function PrivateError({
           <span className="ml-1 tabular-nums">{t('errorId', { digest: error.digest })}</span>
         )}
       </p>
-      <IconButton
-        icon="ri-refresh-line"
-        label={t('retry')}
-        variant="secondary"
-        onClick={() => retry()}
-      />
+      <Button label={t('retry')} variant="secondary" onClick={() => retry()} />
       {isDev && (
         <pre className="mt-2 max-h-48 w-full max-w-2xl overflow-auto rounded bg-gray-100 p-3 text-left text-xs">
           {devErrorDetail(error)}

@@ -41,6 +41,7 @@ const Warehouse3DModal = dynamic(
 const WarehouseList = () => {
   const { warehouseTypeLabel } = useInventoryLabels();
   const t = useTranslations('warehouse.list');
+  const tForm = useTranslations('warehouse.form');
   const { openModal } = useModal();
   // 창고 추가는 게이트웨이가 IM 과 ALL_ADMIN 만 받는다
   const canAdd = hasRole(IM_GATEWAY_ROLES, useRole());
@@ -116,12 +117,14 @@ const WarehouseList = () => {
       ) : warehouses.length === 0 ? (
         <TableStatusBox type="empty" message={t('empty')} />
       ) : (
-        <div
+        // 창고 카드는 독립 정보 단위라 테두리를 남긴다. 행 이름은 아이콘 대신 글자(지침 12장 아이콘 세 곳)
+        <ul
+          role="list"
           aria-busy={isPlaceholderData || undefined}
           className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
         >
           {warehouses.map((warehouse) => (
-            <div
+            <li
               key={warehouse.warehouseId}
               className="bg-white border border-gray-200 rounded-lg p-4"
             >
@@ -133,56 +136,51 @@ const WarehouseList = () => {
                 {<StatusLabel statusCode={warehouse.statusCode} />}
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <i className="ri-building-line mr-2"></i>
-                  {warehouseTypeLabel(warehouse.warehouseType)}
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <i className="ri-map-pin-line mr-2"></i>
-                  {warehouse.location}
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <i className="ri-user-line mr-2"></i>
-                  {warehouse.manager}
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <i className="ri-phone-line mr-2"></i>
-                  <a
-                    href={`tel:${warehouse.managerPhone}`}
-                    className="hover:text-blue-600 cursor-pointer"
-                  >
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 mb-4 text-sm">
+                <dt className="text-gray-500">{tForm('type')}</dt>
+                <dd className="text-gray-800">{warehouseTypeLabel(warehouse.warehouseType)}</dd>
+                <dt className="text-gray-500">{tForm('location')}</dt>
+                <dd className="text-gray-800">{warehouse.location}</dd>
+                <dt className="text-gray-500">{tForm('manager')}</dt>
+                <dd className="text-gray-800">{warehouse.manager}</dd>
+                <dt className="text-gray-500">{tForm('phone')}</dt>
+                <dd className="text-gray-800">
+                  <a href={`tel:${warehouse.managerPhone}`} className="hover:text-blue-600">
                     {warehouse.managerPhone}
                   </a>
-                </div>
-              </div>
+                </dd>
+              </dl>
 
-              <div className="flex flex-col gap-2 pt-3 border-t border-gray-200 sm:flex-row">
+              {/* 카드 동작은 텍스트 링크(지침 "한 화면에 primary 는 하나", 표 작업 열과 같은 ghost) */}
+              <div className="flex gap-1 pt-3 border-t border-gray-200">
+                {/* 첫 링크 글자를 위 이름 글자와 같은 선에(ghost 안쪽 여백 px-3 만큼 당긴다) */}
                 <Button
-                  variant="secondary"
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-3"
                   label={t('detail')}
                   onClick={() =>
                     handleWarehouseDetail(warehouse.warehouseId, warehouse.warehouseName)
                   }
-                  className="w-[32%]"
                 />
                 <Button
-                  variant="secondary"
+                  variant="ghost"
+                  size="sm"
                   label={t('view3d')}
                   onClick={() => handleWarehouse3D(warehouse.warehouseId, warehouse.warehouseName)}
-                  className="w-[31%]"
                 />
                 <Button
+                  variant="ghost"
+                  size="sm"
                   label={t('manage')}
                   onClick={() =>
                     handleWarehouseManage(warehouse.warehouseId, warehouse.warehouseName)
                   }
-                  className="w-[34%]"
                 />
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
       {isError || isLoading ? null : (
         <Pagination

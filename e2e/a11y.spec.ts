@@ -13,6 +13,8 @@ const PAGES = [
   '/finance',
   '/hrm',
   '/production',
+  // 생산 첫 탭만 보던 것에 MES 표 보기를 더한다(남은 접근성과 디자인 카드)
+  '/production?tab=mes',
   '/warehouse',
   '/low-stock',
   '/profile',
