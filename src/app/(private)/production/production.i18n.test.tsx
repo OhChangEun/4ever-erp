@@ -125,11 +125,11 @@ describe('생산 화면 영어(i18n 9)', () => {
   // 남은 한국어 문자열 카드 리뷰 진1: 서버 BOM 상태 값 '활성' 이 status 키에 없어 Unknown 이었다
   it('BOM 목록 상태 칸이 영어 Active, 한국어 활성', async () => {
     const { unmount } = renderWithProviders(<BomTab />, { locale: 'en' });
-    const row = await screen.findByRole('row', { name: /BOM-/ });
+    const row = await screen.findByRole('row', { name: /BOM-2026-001/ });
     expect(within(row).getByText('Active')).toBeInTheDocument();
     unmount();
     renderWithProviders(<BomTab />);
-    const koRow = await screen.findByRole('row', { name: /BOM-/ });
+    const koRow = await screen.findByRole('row', { name: /BOM-2026-001/ });
     expect(within(koRow).getByText('활성')).toBeInTheDocument();
   });
 
@@ -285,7 +285,8 @@ describe('생산 화면 영어에 한글 글자가 없다(남은 한국어 문�
       </BomStatusActionsContext>,
       { locale: 'en' },
     );
-    await user.click(await screen.findByRole('button', { name: 'View details' }));
+    // 데모 BOM 이 12행이다. 첫 행(BOM-2026-001, 활성)의 상세를 연다
+    await user.click((await screen.findAllByRole('button', { name: 'View details' }))[0]);
     const dialog = await screen.findByRole('dialog', { name: 'BOM details' });
     await user.click(await within(dialog).findByRole('button', { name: 'Simulate conflict' }));
     expect(
