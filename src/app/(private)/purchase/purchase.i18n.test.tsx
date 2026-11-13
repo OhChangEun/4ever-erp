@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
 import { useAuthStore } from '@/store/authStore';
@@ -8,6 +8,9 @@ import PurchaseRequestListTab from './components/tabs/PurchaseRequestListTab';
 import SupplierListTab from './components/tabs/SupplierListTab';
 import PurchaseOrderDetailModal from './components/modals/PurchaseOrderDetailModal';
 import SupplierFormModal from './components/modals/SupplierFormModal';
+import PurchaseOrderListTab from './components/tabs/PurchaseOrderListTab';
+import { chromeHangul } from '@/test/chromeHangul';
+import { hangulOptions } from '@/test/dropdownOptions';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -68,6 +71,31 @@ describe('구매 화면 영어(i18n 5)', () => {
     expect(within(dialog).getByRole('columnheader', { name: 'Est. unit price' })).toBeVisible();
     expect(within(dialog).getByRole('button', { name: 'Submit request' })).toBeInTheDocument();
     expect(within(dialog).getByText('Estimated total:')).toBeInTheDocument();
+  });
+
+  // 남은 한국어 문자열 카드: 서버가 코드와 글자를 같이 주는 검색 타입과 상태 드롭다운
+  it.each([
+    ['구매 요청', PurchaseRequestListTab],
+    ['발주서', PurchaseOrderListTab],
+    ['공급업체', SupplierListTab],
+  ])('%s 목록의 필터와 검색 타입 드롭다운이 영어', async (_, Tab) => {
+    loginAs('ALL_ADMIN');
+    const user = userEvent.setup();
+    renderWithProviders(<Tab />, { locale: 'en' });
+    await waitFor(() => expect(screen.getAllByRole('row').length).toBeGreaterThan(1));
+    expect(chromeHangul(document.body)).toEqual([]);
+    expect(await hangulOptions(user)).toEqual([]);
+  });
+
+  it('검색 타입 기본값(첫 항목)이 영어, 한국어는 서버 글자와 같다', async () => {
+    loginAs('ALL_ADMIN');
+    const { unmount } = renderWithProviders(<PurchaseRequestListTab />, { locale: 'en' });
+    const combobox = await screen.findByRole('combobox', { name: 'Search type' });
+    await waitFor(() => expect(combobox).toHaveTextContent('Request no.'));
+    unmount();
+    renderWithProviders(<PurchaseRequestListTab />);
+    const ko = await screen.findByRole('combobox', { name: '검색 타입' });
+    await waitFor(() => expect(ko).toHaveTextContent('요청 번호'));
   });
 
   it('공급업체 목록의 배송 기간이 영어 복수형', async () => {

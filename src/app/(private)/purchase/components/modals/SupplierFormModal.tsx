@@ -25,6 +25,7 @@ import { LoadingMessage } from '@everp/ui';
 import { Input, InputLabel } from '@everp/ui';
 import { useToast } from '@/app/components/common/toast/useToast';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { useSupplierCategoryLabels } from '@/app/(private)/purchase/supplierCategory';
 
 interface SupplierFormModalProps extends ModalProps {
@@ -37,6 +38,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
   const toast = useToast();
   const t = useTranslations('purchase.supplierForm');
   const tc = useTranslations('purchase.common');
+  const optionLabels = useOptionLabels();
   const { categoryOptions } = useSupplierCategoryLabels();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
@@ -337,7 +339,7 @@ export default function SupplierFormModal({ initialData, onClose }: SupplierForm
                 <InputLabel label={t('status')} />
                 <Dropdown
                   placeholder={t('statusPlaceholder')}
-                  items={supplierStatusOptions}
+                  items={optionLabels(supplierStatusOptions)}
                   value={selectedStatus}
                   onChange={setSelectedStatus}
                 />

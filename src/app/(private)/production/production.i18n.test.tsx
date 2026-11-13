@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { type ReactNode } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { type ComponentType, type ReactNode } from 'react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { NextIntlClientProvider } from 'next-intl';
@@ -18,6 +18,9 @@ import MesGantt from './components/MesGantt';
 import BomCostTree from './components/bom/BomCostTree';
 import { useAuthStore } from '@/store/authStore';
 import type { BomLevelStructureNode } from './types/BomDetailApiType';
+import { MRP_TABS, PRODUCTION_TABS } from './constants';
+import { chromeHangul } from '@/test/chromeHangul';
+import { hangulOptions } from '@/test/dropdownOptions';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
@@ -115,6 +118,17 @@ describe('생산 화면 영어(i18n 9)', () => {
     expect(within(dialog).getByRole('button', { name: 'Deactivate' })).toBeInTheDocument();
     expect(await within(dialog).findByRole('group', { name: 'BOM cost tree' })).toBeInTheDocument();
     expect(within(dialog).getByText('Run time (min)')).toBeInTheDocument();
+  });
+
+  // 남은 한국어 문자열 카드 리뷰 진1: 서버 BOM 상태 값 '활성' 이 status 키에 없어 Unknown 이었다
+  it('BOM 목록 상태 칸이 영어 Active, 한국어 활성', async () => {
+    const { unmount } = renderWithProviders(<BomTab />, { locale: 'en' });
+    const row = await screen.findByRole('row', { name: /BOM-/ });
+    expect(within(row).getByText('Active')).toBeInTheDocument();
+    unmount();
+    renderWithProviders(<BomTab />);
+    const koRow = await screen.findByRole('row', { name: /BOM-/ });
+    expect(within(koRow).getByText('활성')).toBeInTheDocument();
   });
 
   it('MES 목록의 보기 전환, 표 머리, 상세 모달이 영어(소요시간 2 h)', async () => {
@@ -216,5 +230,63 @@ describe('생산 레이아웃(i18n 9)', () => {
     expect(await within(dialog).findByText('Production review')).toBeInTheDocument();
     expect(within(dialog).getByText('Quantity breakdown')).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Create MPS' })).toBeInTheDocument();
+  });
+});
+
+describe('생산 화면 영어에 한글 글자가 없다(남은 한국어 문자열 카드)', () => {
+  // 탭 바와 통계는 ProductionClient, 탭 내용은 탭마다. MRP 는 하위 탭 둘을 따로 그린다(검색 주소가 고정이라)
+  const tabs: [string, ComponentType<{ tabButtons?: ReactNode }>][] = [
+    ...PRODUCTION_TABS.filter((tab) => tab.id !== 'mrp').map(
+      (tab): [string, ComponentType<{ tabButtons?: ReactNode }>] => [tab.id, tab.component],
+    ),
+    ...MRP_TABS.map((tab): [string, ComponentType<{ tabButtons?: ReactNode }>] => [
+      `mrp/${tab.id}`,
+      tab.component,
+    ]),
+  ];
+
+  it('탭 바와 통계 카드', async () => {
+    renderWithProviders(<ProductionClient realBackend={false} />, { locale: 'en' });
+    await screen.findByText('Items in production');
+    await waitFor(() => expect(screen.getAllByRole('row').length).toBeGreaterThan(1));
+    expect(chromeHangul(document.body)).toEqual([]);
+  });
+
+  it.each(tabs)('%s 탭의 표 머리, 버튼, 제목, 라벨, 입력 안내', async (_, Tab) => {
+    renderWithProviders(
+      <BomStatusActionsContext value>
+        <Tab />
+      </BomStatusActionsContext>,
+      { locale: 'en' },
+    );
+    await waitFor(() => expect(screen.getAllByRole('row').length).toBeGreaterThan(1));
+    expect(chromeHangul(document.body)).toEqual([]);
+  });
+
+  // 서버가 코드와 글자를 같이 주는 필터 드롭다운. MPS 의 BOM 드롭다운은 제품 이름(서버 데이터)이라 뺀다
+  it.each(tabs.filter(([id]) => id !== 'mps' && id !== 'bom'))(
+    '%s 탭의 필터 드롭다운 항목',
+    async (_, Tab) => {
+      const user = userEvent.setup();
+      renderWithProviders(<Tab />, { locale: 'en' });
+      await waitFor(() => expect(screen.getAllByRole('row').length).toBeGreaterThan(1));
+      expect(await hangulOptions(user)).toEqual([]);
+    },
+  );
+
+  it('충돌 시뮬레이션 안내는 서버 message 대신 화면 문구', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <BomStatusActionsContext value>
+        <BomTab />
+      </BomStatusActionsContext>,
+      { locale: 'en' },
+    );
+    await user.click(await screen.findByRole('button', { name: 'View details' }));
+    const dialog = await screen.findByRole('dialog', { name: 'BOM details' });
+    await user.click(await within(dialog).findByRole('button', { name: 'Simulate conflict' }));
+    expect(
+      await screen.findByText('Server version bumped. The next update will conflict.'),
+    ).toBeInTheDocument();
   });
 });

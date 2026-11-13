@@ -17,6 +17,7 @@
   "common": {
     "selectQuote": "견적 선택",
     "allStatuses": "전체 상태",
+    "allQuotes": "전체 견적",
     "selectRow": "{name} 선택",
     "loading": "로딩 중...",
     "loadFailed": "데이터를 불러오는 데 실패했습니다.",
@@ -186,6 +187,7 @@
     "basicInfo": "제품 기본 정보",
     "simulateConflictHint": "서버 버전을 강제로 올려서 충돌 상황을 만듭니다",
     "simulateConflict": "충돌 시뮬레이션",
+    "simulateConflictDone": "서버 버전을 올렸습니다. 다음 수정은 충돌합니다.",
     "activate": "활성화",
     "deactivate": "비활성화",
     "productCode": "제품 코드",

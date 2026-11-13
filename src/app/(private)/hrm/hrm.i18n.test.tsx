@@ -15,6 +15,7 @@ import LeaveTab from './components/tabs/subTab/attendanceTab/LeaveTab';
 import EmployeeTrainingTab from './components/tabs/subTab/trainingTab/EmployeeTrainingTab';
 import AttendanceHeatmap from './components/heatmap/AttendanceHeatmap';
 import PayrollManagement from './components/tabs/mainTab/PayrollManagement';
+import { optionTexts } from '@/test/dropdownOptions';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -93,6 +94,15 @@ describe('인사 화면 영어(i18n 7)', () => {
     const month = now.toLocaleString('en-US', { month: 'short' });
     expect(screen.getByText(String(now.getFullYear()))).toBeInTheDocument();
     expect(screen.getByText(month)).toBeInTheDocument();
+  });
+
+  it('급여 상태 필터 항목이 영어(서버가 주는 상태 코드는 status 메시지로)', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<PayrollManagement />, { locale: 'en' });
+    await screen.findByRole('columnheader', { name: 'Net pay' });
+    expect(await optionTexts(user, screen.getByRole('combobox', { name: 'All statuses' }))).toEqual(
+      ['All', 'Not paid out', 'Paid out'],
+    );
   });
 
   it('한국어 급여 연도와 월 선택은 예전과 같다', async () => {

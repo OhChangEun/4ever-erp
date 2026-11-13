@@ -80,7 +80,9 @@ const EmploymentInfo = ({ isEditing, setIsEditing }: EmploymentInfoProps) => {
             </div>
             <div>
               <p className="text-sm text-white/80">{profileInfo?.employeeNumber}</p>
-              <h2 className="text-2xl font-semibold">{profileInfo?.name}</h2>
+              <h2 translate="no" className="text-2xl font-semibold">
+                {profileInfo?.name}
+              </h2>
               <p className="text-sm text-white/80">
                 {profileInfo?.department} · {profileInfo?.position}
               </p>

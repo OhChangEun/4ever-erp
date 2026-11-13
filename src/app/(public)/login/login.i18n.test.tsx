@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ReactElement } from 'react';
 import { render, screen } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { server } from '@/test/msw-server';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/i18n/messages/en.json';
@@ -62,6 +64,25 @@ describe('로그인 화면 영어(i18n 11)', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(screen.getByText('Pick an ID from the list or enter a valid one.')).toBeInTheDocument();
   });
+
+  // 남은 한국어 문자열 카드: 로그인 라우트의 오류 message 는 한국어 고정이라 화면은 상태 코드로 자기 문구를 고른다
+  it.each([
+    [401, '없는 아이디입니다.', 'Pick an ID from the list or enter a valid one.'],
+    [403, '잘못된 요청 출처', 'Sign-in failed.'],
+    [404, '데모 로그인이 꺼져 있습니다.', 'Sign-in failed.'],
+  ])(
+    '로그인 라우트가 %i 이면 서버 message 대신 영어 문구를 보인다',
+    async (status, message, shown) => {
+      server.use(http.post('/api/auth/login', () => HttpResponse.json({ message }, { status })));
+      const user = userEvent.setup();
+      renderWith(<LoginPage />, 'en');
+
+      await user.type(screen.getByRole('textbox'), 'admin');
+      await user.click(screen.getByRole('button', { name: 'Sign in' }));
+      expect(await screen.findByText(shown)).toBeInTheDocument();
+      expect(screen.queryByText(message)).not.toBeInTheDocument();
+    },
+  );
 
   it('한국어는 예전 문구 그대로(e2e 가 /로그인/ 버튼으로 들어온다)', async () => {
     const user = userEvent.setup();

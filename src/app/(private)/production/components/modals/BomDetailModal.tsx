@@ -79,7 +79,8 @@ export default function BomDetailModal({ bomId, showStatusActions }: BomDetailMo
 
   // [테스트 전용] 서버 버전을 강제로 올려서 충돌 상황 재현
   const { mutate: triggerConflict, isPending: isTriggering } = useSimulateBomConflict({
-    onSuccess: (data) => toast.info(data.message),
+    // 서버 message 는 한국어 고정이라 화면 문구를 쓴다(남은 한국어 문자열 카드)
+    onSuccess: () => toast.info(t('bomDetail.simulateConflictDone')),
   });
 
   // 충돌 발생 시 최신 데이터 재조회 후 모달 닫기

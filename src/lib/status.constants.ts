@@ -1,4 +1,12 @@
-// 상태 글자는 messages/{ko,en}.json 의 status 에 있다(i18n 1 카드). 여기는 색만
+import ko from '@/i18n/messages/ko.json';
+
+// 상태 글자는 messages/{ko,en}.json 의 status 에 있다(i18n 1 카드). 여기는 색과 글자가 있는 코드인지만
+
+type StatusKey = keyof typeof ko.status;
+const STATUS_KEYS: ReadonlySet<string> = new Set(Object.keys(ko.status));
+/** status 메시지에 글자가 있는 상태 코드인가. StatusLabel 과 드롭다운 옵션 글자(useOptionLabels)가 같이 쓴다 */
+export const isStatusKey = (code: string): code is StatusKey => STATUS_KEYS.has(code);
+
 // 모르는 상태 코드면 undefined 라 Partial. 기본 색은 DEFAULT_STATUS_COLOR
 export const STATUS_COLOR_MAP: Partial<Record<string, string>> = {
   REQUEST_APPROVED: 'bg-green-100 text-green-700 border-green-300',
@@ -70,6 +78,10 @@ export const STATUS_COLOR_MAP: Partial<Record<string, string>> = {
   입고: 'bg-green-100 text-green-700 border-green-300',
   출고: 'bg-red-100 text-red-700 border-red-300',
   이동: 'bg-blue-100 text-blue-700 border-blue-300',
+
+  // BOM 상태의 서버 값(목은 '활성'). verified=false: 실서버가 '활성' 인지 ACTIVE 인지 게이트웨이 사본으로 확인 못 했다. 색은 ACTIVE, INACTIVE 와 같다
+  활성: 'bg-green-100 text-green-700 border-green-300',
+  비활성: 'bg-gray-100 text-gray-700 border-gray-300',
 };
 
 const DEFAULT_STATUS_COLOR = 'bg-gray-100 text-gray-600 border-gray-300';

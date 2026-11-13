@@ -50,6 +50,8 @@
     "입고": "Inbound",
     "출고": "Outbound",
     "이동": "Transfer",
+    "활성": "Active",
+    "비활성": "Inactive",
     "TECHNICAL_TRAINING": "Technical training",
     "BASIC_TRAINING": "Basic training",
     "CONVERTED": "Converted",

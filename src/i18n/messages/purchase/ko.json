@@ -30,6 +30,10 @@
   },
   "requestList": {
     "create": "구매 요청 작성",
+    "searchOption": {
+      "NUMBER": "요청 번호",
+      "REQUESTER": "요청자"
+    },
     "loading": "구매 요청 목록을 불러오는 중입니다...",
     "loadError": "구매 요청 목록을 불러오는 중 오류가 발생했습니다.",
     "empty": "구매 요청 정보가 없습니다.",
@@ -53,6 +57,10 @@
   },
   "orderList": {
     "loading": "발주서 목록을 불러오는 중입니다...",
+    "searchOption": {
+      "NUMBER": "발주 번호",
+      "SUPPLIER": "공급업체"
+    },
     "loadError": "발주서 목록을 불러오는 중 오류가 발생했습니다.",
     "empty": "발주서가 없습니다.",
     "detailModalTitle": "발주서 상세정보",
@@ -87,6 +95,10 @@
     "detailModalTitle": "공급업체 상세",
     "allCategories": "전체 카테고리",
     "searchType": "검색 타입",
+    "searchOption": {
+      "NAME": "공급업체명",
+      "NUMBER": "공급업체 코드"
+    },
     "columns": {
       "number": "공급업체 코드",
       "name": "업체명",

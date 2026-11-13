@@ -19,6 +19,7 @@ import { useDropdown } from '@/app/hooks/useDropdown';
 import { Pagination, TabButtons } from '@everp/ui';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 
 // 간트는 전환할 때만 받는다(시각화 3, 첫 로드 예산)
 const MesGantt = dynamic(() => import('../MesGantt'), {
@@ -46,6 +47,7 @@ import { mesKeys } from '@/app/(private)/production/api/production.keys';
 
 export default function MesTab() {
   const t = useTranslations('production');
+  const optionLabels = useOptionLabels();
   const [selectedMesQuote, setSelectedMesQuote] = useState('');
   const [selectedMesStatus, setSelectedMesStatus] = useState('');
 
@@ -263,7 +265,7 @@ export default function MesTab() {
         </div>
         <Dropdown
           placeholder={t('common.selectQuote')}
-          items={mrpQuotationOptions}
+          items={optionLabels(mrpQuotationOptions, { ALL: t('common.allQuotes') })}
           value={selectedMesQuote}
           onChange={(quote: string) => {
             setSelectedMesQuote(quote);
@@ -273,7 +275,10 @@ export default function MesTab() {
         />
         <Dropdown
           placeholder={t('common.allStatuses')}
-          items={mesStatusOptions}
+          items={optionLabels(mesStatusOptions, {
+            ALL: t('common.allStatuses'),
+            WAITING: t('mes.status.WAITING'),
+          })}
           value={selectedMesStatus}
           onChange={(status: string) => {
             setSelectedMesStatus(status);

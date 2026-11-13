@@ -44,21 +44,6 @@ interface BomInputFormModalProps extends ModalProps {
   editMode?: boolean;
 }
 
-interface MaterialInfo {
-  id: string;
-  name: string;
-  productCode: string;
-  type: string;
-  supplier: string;
-  unit: string;
-  unitPrice: number;
-}
-
-interface OperationInfo {
-  id: string;
-  name: string;
-}
-
 // "productName": "string",
 //   "unit": "string",
 //   "items": [
@@ -73,72 +58,13 @@ interface OperationInfo {
 interface BomItem {
   id: string;
   itemId: string;
-  materialInfo?: MaterialInfo;
   quantity: number;
   operationId: string;
   sequence: number;
 }
 
-// 목업 데이터
-const MOCK_MATERIALS: MaterialInfo[] = [
-  {
-    id: 'M001',
-    name: '디스플레이 패널',
-    productCode: 'DP-2024-001',
-    type: '전자부품',
-    supplier: '삼성디스플레이',
-    unit: '개',
-    unitPrice: 150000,
-  },
-  {
-    id: 'M002',
-    name: 'AP 칩셋',
-    productCode: 'AP-2024-002',
-    type: '반도체',
-    supplier: '퀄컴',
-    unit: '개',
-    unitPrice: 80000,
-  },
-  {
-    id: 'M003',
-    name: '배터리',
-    productCode: 'BT-2024-003',
-    type: '전지',
-    supplier: 'LG에너지솔루션',
-    unit: '개',
-    unitPrice: 45000,
-  },
-  {
-    id: 'M004',
-    name: '카메라 모듈',
-    productCode: 'CM-2024-004',
-    type: '광학부품',
-    supplier: '소니',
-    unit: '개',
-    unitPrice: 35000,
-  },
-  {
-    id: 'M005',
-    name: '케이스',
-    productCode: 'CS-2024-005',
-    type: '외장재',
-    supplier: '폭스콘',
-    unit: '개',
-    unitPrice: 12000,
-  },
-];
-
-const MOCK_OPERATIONS: OperationInfo[] = [
-  { id: 'OP001', name: '조립' },
-  { id: 'OP002', name: '검사' },
-  { id: 'OP003', name: '테스트' },
-  { id: 'OP004', name: '포장' },
-];
-
 interface SortableRowProps {
   item: BomItem;
-  materialOptions: { key: string; value: string }[];
-  operationOptions: { key: string; value: string }[];
   onMaterialChange: (id: string, materialId: string) => void;
   onItemChange: (id: string, field: keyof BomItem, value: string | number) => void;
   onRemove: (id: string) => void;
@@ -286,16 +212,6 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
     }),
   );
 
-  const materialOptions = MOCK_MATERIALS.map((m) => ({
-    key: m.id,
-    value: m.name,
-  }));
-
-  const operationOptions = MOCK_OPERATIONS.map((o) => ({
-    key: o.id,
-    value: o.name,
-  }));
-
   const handleAddRow = () => {
     const newItem: BomItem = {
       id: Date.now().toString(),
@@ -317,12 +233,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
   };
 
   const handleMaterialChange = (id: string, materialId: string) => {
-    const material = MOCK_MATERIALS.find((m) => m.id === materialId);
-    setBomItems(
-      bomItems.map((item) =>
-        item.id === id ? { ...item, itemId: materialId, materialInfo: material } : item,
-      ),
-    );
+    setBomItems(bomItems.map((item) => (item.id === id ? { ...item, itemId: materialId } : item)));
   };
 
   const handleItemChange = (id: string, field: keyof BomItem, value: string | number) => {
@@ -352,7 +263,7 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
     const bomData: BomRequestBody = {
       productName,
       unit,
-      items: bomItems.map(({ id, materialInfo, ...rest }) => rest), // 필요한 dto만
+      items: bomItems.map(({ id, ...rest }) => rest), // 필요한 dto만
     };
 
     updateBomItem(bomData);
@@ -429,8 +340,6 @@ export default function BomInputFormModal({ editMode = false, onClose }: BomInpu
                       <SortableRow
                         key={item.id}
                         item={item}
-                        materialOptions={materialOptions}
-                        operationOptions={operationOptions}
                         onMaterialChange={handleMaterialChange}
                         onItemChange={handleItemChange}
                         onRemove={handleRemoveRow}

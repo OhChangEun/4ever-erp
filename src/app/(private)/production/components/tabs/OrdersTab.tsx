@@ -24,6 +24,7 @@ import { useToast } from '@/app/components/common/toast/useToast';
 import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { mrpOrderKeys } from '@/app/(private)/production/api/production.keys';
 import { useTranslations } from 'next-intl';
+import { useOptionLabels } from '@/app/hooks/useOptionLabels';
 import { formatNumber } from '@/app/utils/number';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, PP_PLANNING_ROLES } from '@/lib/authz/policy';
@@ -34,6 +35,7 @@ interface OrdersTabProps {
 
 export default function OrdersTab({ tabButtons }: OrdersTabProps) {
   const t = useTranslations('production');
+  const optionLabels = useOptionLabels();
   // mrp 순소요 - 견적 드롭다운
   const { options: mrpQuotationOptions } = useDropdown(
     'mrpQuotationsDropdown',
@@ -226,7 +228,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
         <div className="flex gap-4 items-center">
           <Dropdown
             placeholder={t('common.selectQuote')}
-            items={mrpQuotationOptions}
+            items={optionLabels(mrpQuotationOptions, { ALL: t('common.allQuotes') })}
             value={selectedQuote}
             onChange={(quote: string) => {
               setSelectedQuote(quote);
@@ -236,7 +238,7 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
           />
           <Dropdown
             placeholder={t('common.allStatuses')}
-            items={mrpAvailableStatusOptions}
+            items={optionLabels(mrpAvailableStatusOptions, { ALL: t('common.allStatuses') })}
             value={selectedStockStatus}
             onChange={(status: string) => {
               setSelectedStockStatus(status);

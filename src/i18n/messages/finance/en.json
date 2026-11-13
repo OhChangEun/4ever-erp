@@ -24,6 +24,7 @@
       "PAID": "Paid"
     },
     "requestSettlement": "Request settlement",
+    "completeSuccess": "Settlement request sent.",
     "completeError": "Failed to submit the request. {message}",
     "loading": "Loading invoices...",
     "loadError": "Failed to load invoices.",
