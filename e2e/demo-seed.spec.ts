@@ -22,17 +22,25 @@ test('직원 목록은 2쪽이 있고, 넘기면 1쪽에 없던 직원이 보인
   await loginAs(page, 'ADMIN');
   await page.goto('/hrm');
   await waitForListLoaded(page);
-  // 직원 42명, 번호순. 1쪽 첫 행은 홍길동, 2쪽 첫 행은 11번째 직원(구매팀 장하은)
+  // 직원 42명. 1쪽 10명을 적어 두고 2쪽으로 넘겨, 2쪽 행이 1쪽에 없던 직원인지 본다.
+  // 이름을 정해 두지 않는다(CI 와 로컬에서 같은 쪽의 순서가 달랐다)
   await expect(page.getByRole('row', { name: /홍길동/ })).toBeVisible({ timeout: 30_000 });
-  // 목록이 다시 그려지는 순간 클릭이 묻히면 1쪽에 남는다(CI 에서 한 번 흔들림). 2쪽이 현재 쪽이 될 때까지 누른다
+  const firstCells = () => page.locator('tbody tr td:first-child').allTextContents();
+  const pageOne = await firstCells();
+  expect(pageOne).toHaveLength(10);
   const pager = page.getByRole('navigation', { name: '페이지' });
   const second = pager.getByRole('button', { name: '2', exact: true });
+  // 목록이 다시 그려지는 순간 클릭이 묻히면 1쪽에 남는다. 2쪽이 현재 쪽이 될 때까지 누른다
   await expect(async () => {
     await second.click();
     await expect(second).toHaveAttribute('aria-current', 'page', { timeout: 2_000 });
   }).toPass({ timeout: 15_000 });
-  await expect(page.getByRole('row', { name: /장하은/ })).toBeVisible();
   await expect(page.getByRole('row', { name: /홍길동/ })).toHaveCount(0);
+  await expect(async () => {
+    const pageTwo = await firstCells();
+    expect(pageTwo).toHaveLength(10);
+    expect(pageTwo.filter((name) => pageOne.includes(name))).toEqual([]);
+  }).toPass({ timeout: 10_000 });
 });
 
 test('재고가 모자란 견적은 재고 확인 뒤 생산 검토로 안내하고 즉시 납품은 없다', async ({
