@@ -19,6 +19,7 @@ import { buildCluster } from '../warehouse/components/warehouseVisualizer/cluste
 import LowStockLayout from '../low-stock/layout';
 import LowStockPage from '../low-stock/page';
 import type { InventoryResponse } from '@/app/(private)/inventory';
+import { seedOrders } from '@/mocks/handlers/seed';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -86,14 +87,16 @@ describe('재고 화면 영어(i18n 6)', () => {
     expect(screen.getByRole('button', { name: 'Receiving' })).toBeInTheDocument();
   });
 
-  it('한국어 탭과 통계 카드는 예전과 같다(입고 완료 1건)', async () => {
+  it('한국어 탭과 통계 카드는 예전과 같다(입고 완료 4건)', async () => {
     renderWithProviders(<InventoryClient />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('총 재고 가치')).toBeInTheDocument();
-    // 입고 완료는 입고 목록 1건, 재고 가치는 재고 목록 금액 합 120 × 12,000(카드 "목 데이터 현실성")
-    expect(statOf(metrics, '입고 완료').getByText('1건')).toBeInTheDocument();
-    expect(statOf(metrics, '출고 완료').getByText('1건')).toBeInTheDocument();
-    expect(statOf(metrics, '총 재고 가치').getByText('₩1,440,000')).toBeInTheDocument();
+    // 입고 완료는 입고 완료 발주 4건, 출고 완료는 배송중 영업 주문 수(날마다 다르다), 재고 가치는 품목표 14개 금액 합
+    // (카드 "데모 목록 재고 물류". 예전엔 입고 1건, 출고 1건, 모터 A 한 줄 120 × 12,000)
+    const delivering = seedOrders().filter(({ order }) => order.statusCode === 'DELIVERING').length;
+    expect(statOf(metrics, '입고 완료').getByText('4건')).toBeInTheDocument();
+    expect(statOf(metrics, '출고 완료').getByText(`${delivering}건`)).toBeInTheDocument();
+    expect(statOf(metrics, '총 재고 가치').getByText('₩5,466,750')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '입고 관리' })).toBeInTheDocument();
   });
 
@@ -111,7 +114,8 @@ describe('재고 화면 영어(i18n 6)', () => {
   it('한국어 부족 알림 줄은 예전과 같다', async () => {
     renderWithProviders(<InventoryList />);
     expect(await screen.findByText('현재: 20EA / 최소: 50EA')).toBeInTheDocument();
-    expect(screen.getByText('1건')).toBeInTheDocument();
+    // 부족 품목은 구리선, 베어링 B, 너트 M6, 와셔 4건(카드 "데모 목록 재고 물류", 예전엔 베어링 B 1건)
+    expect(screen.getByText('4건')).toBeInTheDocument();
   });
 
   it('입고 관리 표 머리가 영어', async () => {
@@ -194,8 +198,8 @@ describe('다른 화면에서 여는 재고 모달(i18n 6)', () => {
     renderWithProviders(<LowStockPage />);
     const metrics = await screen.findByRole('region', { name: '지표' });
     expect(await within(metrics).findByText('긴급 재고 부족')).toBeInTheDocument();
-    // 긴급은 안전재고 목록의 부족 1건(카드 "목 데이터 현실성")
-    expect(statOf(metrics, '긴급 재고 부족').getByText('1건')).toBeInTheDocument();
+    // 긴급은 안전재고 목록에서 현재고가 안전재고 절반 미만인 3건(구리선, 베어링 B, 너트 M6. 카드 "데모 목록 재고 물류", 예전엔 1건)
+    expect(statOf(metrics, '긴급 재고 부족').getByText('3건')).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('checkbox', { name: '베어링 B 선택' }));
     await userEvent.click(screen.getByRole('button', { name: '선택 품목 발주' }));
     const dialog = await screen.findByRole('dialog', { name: '발주 요청' });

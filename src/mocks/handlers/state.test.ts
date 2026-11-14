@@ -30,6 +30,7 @@ const rowOf = (total: number, fields: object) => ({
     page: { totalElements: total },
   },
 });
+const TotalBody = z.object({ data: z.object({ page: z.object({ totalElements: z.number() }) }) });
 const RowsBody = z.object({
   data: z.object({ content: z.array(z.record(z.string(), z.unknown())) }),
 });
@@ -470,20 +471,22 @@ describe('재고와 창고 목 상태', () => {
   const SCM = '/scm-pp';
 
   it('배송을 시작하면 출고 준비 완료 목록에서 그 주문이 빠진다', async () => {
-    expect(await get(`${SCM}/sales-orders/ready-to-ship`)).toMatchObject({
-      data: { content: [{ salesOrderId: 'so-002' }], page: { totalElements: 1 } },
-    });
+    // 출고 준비는 영업 주문의 출고 준비 전부라 건수가 날마다 다르다(카드 "데모 목록 재고 물류"). 전후 차이와 그 행을 본다
+    const READY = `${SCM}/sales-orders/ready-to-ship`;
+    const before = TotalBody.parse(await all(READY)).data.page.totalElements;
+    expect(await all(READY)).toMatchObject(rowOf(before, { salesOrderId: 'so-002' }));
     await patch(`${SCM}/sales-orders/so-002/status`, { itemIds: ['item-1002'] });
-    expect(await get(`${SCM}/sales-orders/ready-to-ship`)).toMatchObject({
-      data: { content: [], page: { totalElements: 0 } },
-    });
+    const after = await all(READY);
+    expect(RowsBody.parse(after).data.content.map((r) => r.salesOrderId)).not.toContain('so-002');
+    expect(after).toMatchObject({ data: { page: { totalElements: before - 1 } } });
   });
 
   it('안전재고를 수정하면 재고 상세와 목록의 그 품목 안전재고가 바뀐다', async () => {
     await patch(`${SCM}/iv/items/item-1001/safety-stock?safetyStock=777`);
     expect(await get(`${SCM}/iv/items/item-1001`)).toMatchObject({ data: { safetyStock: 777 } });
-    expect(await get(`${SCM}/iv/inventory-items`)).toMatchObject(
-      content({ itemId: 'item-1001', safetyStock: 777 }),
+    // 재고 목록은 품목표 14개(카드 "데모 목록 재고 물류")
+    expect(await all(`${SCM}/iv/inventory-items`)).toMatchObject(
+      rowOf(14, { itemId: 'item-1001', safetyStock: 777 }),
     );
     // 다른 품목(베어링 B, 처음 안전재고 50)은 그대로다. 목록에 없는 id 는 404 라 목록의 다른 품목으로 본다(카드 "없는 건은 404")
     expect(await get(`${SCM}/iv/items/item-1002`)).toMatchObject({ data: { safetyStock: 50 } });
@@ -527,11 +530,12 @@ describe('재고와 창고 목 상태', () => {
 
   it('부족 재고 품목의 안전재고를 수정하면 안전재고 화면 목록도 바뀐다', async () => {
     await patch(`${SCM}/iv/items/item-1002/safety-stock?safetyStock=30`);
-    expect(await get(`${SCM}/iv/shortage`)).toMatchObject(
-      content({ itemId: 'item-1002', safetyStock: 30 }),
+    // 부족 품목은 구리선, 베어링 B, 너트 M6, 와셔 4개(현재고 < 안전재고). 베어링 B 는 20 < 30 이라 남고 주의가 된다
+    expect(await all(`${SCM}/iv/shortage`)).toMatchObject(
+      rowOf(4, { itemId: 'item-1002', safetyStock: 30, statusCode: 'CAUTION' }),
     );
     expect(await get(`${SCM}/iv/shortage/preview`)).toMatchObject(
-      content({ itemId: 'item-1002', safetyStock: 30 }),
+      row({ itemId: 'item-1002', safetyStock: 30, statusCode: 'CAUTION' }),
     );
   });
 
@@ -547,8 +551,8 @@ describe('재고와 창고 목 상태', () => {
     expect(await get(`${SCM}/iv/items/item-1001`)).toMatchObject({
       data: { currentStock: 117, totalAmount: 117 * 12000 },
     });
-    expect(await get(`${SCM}/iv/inventory-items`)).toMatchObject(
-      content({ itemId: 'item-1001', currentStock: 117 }),
+    expect(await all(`${SCM}/iv/inventory-items`)).toMatchObject(
+      rowOf(14, { itemId: 'item-1001', currentStock: 117 }),
     );
   });
 

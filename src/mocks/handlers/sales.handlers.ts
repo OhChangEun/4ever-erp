@@ -16,7 +16,7 @@ import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { MOTOR, catalogItem, type line } from './catalog';
-import { stockOf } from './inventory.handlers';
+import { stockOf } from './stock';
 import {
   CUSTOMERS,
   QUOTES,
@@ -61,6 +61,8 @@ const salesState = mockState<{
   quoteStatus: Map<string, Quote['statusCode']>;
   createdQuotes: Quote[];
   createdOrders: Order[];
+  /** 재고 화면에서 배송을 시작한 주문 → DELIVERING(게이트웨이 OrderController.java:236, 옛 목 ImController.java:537) */
+  orderStatus: Map<string, Order['statusCode']>;
   createdCustomers: Customer[];
   customerEdits: Map<string, Partial<CustomerPatchBody>>;
   /** 새 견적과 새 주문의 품목 줄(견적 id, 주문 id → 줄) */
@@ -71,6 +73,7 @@ const salesState = mockState<{
   quoteStatus: new Map(),
   createdQuotes: [],
   createdOrders: [],
+  orderStatus: new Map(),
   createdCustomers: [],
   customerEdits: new Map(),
   createdLines: new Map(),
@@ -150,11 +153,31 @@ const quotesOf = (request: Request) => {
     .sort(byQuoteDate);
 };
 
-/** 기본 주문(주마다 만든 것)과 즉시 납품으로 만든 주문. 주문일 최신순 */
-const ordersOf = (request: Request) =>
-  [...seedOrders().map(({ order }) => order), ...salesState(request).createdOrders].sort(
-    byOrderDate,
-  );
+/**
+ * 기본 주문(주마다 만든 것)과 즉시 납품으로 만든 주문에 배송 시작을 덮은 목록. 주문일 최신순.
+ * 재고 목의 생산중, 출고 준비 목록과 통계도 이 목록에서 거른다(카드 "데모 목록 재고 물류")
+ */
+export const ordersOf = (request: Request): Order[] => {
+  const state = salesState(request);
+  return [...seedOrders().map(({ order }) => order), ...state.createdOrders]
+    .map((order) => {
+      const statusCode = state.orderStatus.get(order.salesOrderId);
+      return statusCode ? { ...order, statusCode } : order;
+    })
+    .sort(byOrderDate);
+};
+
+/** 목록에 있는 주문의 품목 줄(재고 목의 생산중, 출고 준비 상세) */
+export const orderLinesOf = (request: Request, salesOrderId: string) =>
+  linesOf(request, salesOrderId, 'so-001');
+
+/** 배송 시작. 출고 준비 주문만 배송중으로 바꾼다. 다른 주문이나 모르는 id 는 그대로 둔다(응답은 성공, 카드 "없는 건은 404") */
+export const startShipping = (request: Request, salesOrderId: string) => {
+  const order = ordersOf(request).find((row) => row.salesOrderId === salesOrderId);
+  if (order?.statusCode === 'READY_FOR_SHIPMENT')
+    salesState(request).orderStatus.set(salesOrderId, 'DELIVERING');
+  return order;
+};
 
 /** 기본 고객의 상세 칸(씨앗) */
 const seedExtra = (customerId: string) =>

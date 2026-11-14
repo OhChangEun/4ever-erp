@@ -191,11 +191,12 @@ const CASES: Case[] = [
   ['재고 품목 검색', INV, 'type=ITEM_NAME&keyword=베어링', has('itemName', '베어링')],
   ['재고 창고 검색(부분)', INV, 'type=WAREHOUSE_NAME&keyword=2공장', has('warehouseName', '2공장')],
   ['안전재고 상태', LOW, 'statusCode=CAUTION', eq('statusCode', 'CAUTION')],
+  // 입고 완료는 입고 완료 발주 넷(납기 10-11, 10-16, 10-16, 10-26, 카드 "데모 목록 재고 물류"). 예전 범위는 넷을 다 남긴다
   [
     '입고 완료 날짜',
     RECEIVED,
-    'startDate=2026-02-01&endDate=2026-12-31',
-    between('dueDate', '2026-02-01', '2026-12-31'),
+    'startDate=2026-10-12&endDate=2026-10-20',
+    between('dueDate', '2026-10-12', '2026-10-20'),
   ],
   ['매입 전표 상태', AP, 'status=PAID', eq('statusCode', 'PAID')],
   ['매출 전표 상태', AR, 'status=UNPAID', eq('statusCode', 'UNPAID')],

@@ -20,6 +20,7 @@ import {
   salesOrderKeys,
   salesStatsKeys,
 } from './sales.keys';
+import { inventoryStatsKeys, shippingKeys } from '@/app/(private)/inventory';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
 import type {
   CustomerEditData,
@@ -63,6 +64,9 @@ export const SALES_MUTATION_EFFECTS = {
     customerKeys.lists(),
     customerKeys.details(),
     analyticsKeys.all,
+    // 새 주문은 출고 준비라 재고 출고 준비 목록과 재고 통계(출고 대기 건수)에 든다. 재고 키 둘은 의도한 교차(카드 "데모 목록 재고 물류")
+    shippingKeys.readyToShipLists(),
+    inventoryStatsKeys.all,
   ],
 } as const;
 

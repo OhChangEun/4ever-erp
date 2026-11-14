@@ -10,6 +10,7 @@ import { PRODUCTION_BASE_PATH } from './production.endpoints';
 import {
   bomKeys,
   mesKeys,
+  mpsKeys,
   mrpOrderKeys,
   mrpPlannedOrderKeys,
   productionStatsKeys,
@@ -45,6 +46,8 @@ const MRP_ORDER_LIST = mrpOrderKeys.list({
 const MRP_PLANNED_LIST = mrpPlannedOrderKeys.list({ page: 0, size: 10 });
 const QUOTATION_LIST = quotationKeys.list({ page: 0, size: 10, availableStatusCode: 'ALL' });
 const STATS = productionStatsKeys.all;
+// MPS 는 확인된 견적의 납기 주에서 나온다. 제안납기 확정만 MPS 를 다시 받는다(카드 "데모 목록 재고 물류")
+const MPS_LIST = mpsKeys.list('bom-001', '2026-11-13', '2026-11-13');
 const PURCHASE_REQUEST_LIST = purchaseRequestKeys.list({ page: 0, size: 10 });
 const PURCHASE_STATS = purchaseStatsKeys.byRole('ALL_ADMIN');
 const ALL_KEYS = [
@@ -55,6 +58,7 @@ const ALL_KEYS = [
   MRP_ORDER_LIST,
   MRP_PLANNED_LIST,
   QUOTATION_LIST,
+  MPS_LIST,
   STATS,
   PURCHASE_REQUEST_LIST,
   PURCHASE_STATS,
@@ -119,12 +123,12 @@ const cases: Case[] = [
     name: '계획 주문 전환 → MRP 주문 목록, 계획 주문 목록',
     run: (qc) => runHook(qc, useConvertMrpOrders, { items: [] }),
     invalidates: [MRP_ORDER_LIST, MRP_PLANNED_LIST],
-    keeps: [QUOTATION_LIST, HRM_EMPLOYEE_LIST],
+    keeps: [QUOTATION_LIST, HRM_EMPLOYEE_LIST, MPS_LIST],
   },
   {
-    name: '제안납기 확정 → 견적 목록',
+    name: '제안납기 확정 → 견적 목록, MPS',
     run: (qc) => runHook(qc, useConfirmQuotations, ['q-1']),
-    invalidates: [QUOTATION_LIST],
+    invalidates: [QUOTATION_LIST, MPS_LIST],
     keeps: [MRP_ORDER_LIST, HRM_EMPLOYEE_LIST],
   },
   {
@@ -157,7 +161,7 @@ cases.push({
   name: '견적 시뮬레이션 → 견적 목록',
   run: (qc) => runHook(qc, useSimulateQuotations, ['q-1']),
   invalidates: [QUOTATION_LIST],
-  keeps: [MRP_ORDER_LIST, BOM_LIST, HRM_EMPLOYEE_LIST],
+  keeps: [MRP_ORDER_LIST, BOM_LIST, HRM_EMPLOYEE_LIST, MPS_LIST],
 });
 
 describe('생산 mutation 훅의 무효화 범위는 매트릭스와 같다', () => {

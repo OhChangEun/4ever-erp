@@ -6,16 +6,18 @@ import {
 } from '@/app/(private)/production/api/production.endpoints';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { BEARING, MOTOR } from './catalog';
+import { BEARING, MOTOR, WAREHOUSE_ITEMS } from './catalog';
 import {
   ACTIVE_SUPPLIERS,
   CUSTOMERS,
   MATERIALS,
   QUOTES,
   addDays as addDayKey,
+  mondayOf,
   todayKey,
 } from './seed';
 import { purchaseState } from './purchase.handlers';
+import { stockOf } from './stock';
 import {
   ok,
   okNoData,
@@ -469,6 +471,56 @@ const productionStats = (request: Request) => {
   });
 };
 
+/** 생산 견적 목록. 제안 납기를 확정한 견적은 확인됨(CHECKED)으로 바뀐다 */
+const productionQuotesOf = (request: Request) =>
+  QUOTES.map((_, index) => productionQuote(index)).map((quotation) =>
+    productionState(request).confirmedQuotations.has(quotation.quotationId)
+      ? { ...quotation, availableStatus: 'CHECKED' }
+      : quotation,
+  );
+
+/** MPS 생산 로트. 필요 수량을 이 단위로 올려 계획한다(verified=false) */
+const MPS_LOT = 50;
+/**
+ * 제품 하나의 MPS(카드 "데모 목록 재고 물류"). startDate 가 든 주의 월요일부터 endDate 가 든 주까지 주마다 한 줄.
+ * 수요 = 그 주에 납기인 확인된(CHECKED) 생산 견적의 첫 품목 수량 합(견적의 제품 = 첫 품목). 필요 재고 = 그 품목의 안전재고.
+ * 첫 주의 가용 재고는 지금 현재고이고, 주마다 계획 생산을 더하고 수요를 뺀다. 생산 필요 = 수요 + 안전재고 - 가용 재고(0 이상),
+ * 계획 생산 = 생산 필요를 로트(50)로 올린 값. 그 제품의 견적이 하나도 없으면 빈 목록(예전처럼 bom-001 만 줄이 있다).
+ * 주 글자는 `YYYY-MM-NW`(월요일의 달과 그 달 몇째 주). 날짜가 없으면 오늘. 규칙은 전부 verified=false
+ */
+const mpsWeeks = (request: Request, productName: string) => {
+  const params = new URL(request.url).searchParams;
+  const startDate = params.get('startDate') || todayKey();
+  const endDate = params.get('endDate') || todayKey();
+  const item = WAREHOUSE_ITEMS.find((row) => row.itemName === productName);
+  const quotes = productionQuotesOf(request).filter((quote) => quote.productName === productName);
+  // 시작이 끝보다 늦으면 빈 목록(시작을 월요일로 당긴 뒤 비교하면 같은 주 안에서 한 줄이 생긴다)
+  if (!item || quotes.length === 0 || startDate > endDate) return [];
+  const confirmed = quotes.filter((quote) => quote.availableStatus === 'CHECKED');
+  const quantityOf = (quotationId: string) =>
+    QUOTES.find(({ quote }) => quote.quotationId === quotationId)?.lines[0].quantity ?? 0;
+  const { currentStock, safetyStock } = stockOf(request, item);
+  let onHand = currentStock;
+  const weeks = [];
+  for (let monday = mondayOf(startDate); monday <= endDate; monday = addDayKey(monday, 7)) {
+    const sunday = addDayKey(monday, 6);
+    const demand = confirmed
+      .filter((quote) => quote.dueDate >= monday && quote.dueDate <= sunday)
+      .reduce((sum, quote) => sum + quantityOf(quote.quotationId), 0);
+    const productionNeeded = Math.max(0, demand + safetyStock - onHand);
+    const plannedProduction = Math.ceil(productionNeeded / MPS_LOT) * MPS_LOT;
+    onHand += plannedProduction - demand;
+    weeks.push({
+      week: `${monday.slice(0, 7)}-${Math.ceil(Number(monday.slice(8, 10)) / 7)}W`,
+      demand,
+      requiredInventory: safetyStock,
+      productionNeeded,
+      plannedProduction,
+    });
+  }
+  return weeks;
+};
+
 export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load production stats', 500);
@@ -476,16 +528,10 @@ export const productionHandlers = [
   }),
   http.get(PRODUCTION_ENDPOINTS.QUOTATIONS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load quotations', 500);
-    const allData = QUOTES.map((_, index) => productionQuote(index)).map((quotation) =>
-      // 제안 납기를 확정한 견적은 확인됨으로 바뀐다
-      productionState(request).confirmedQuotations.has(quotation.quotationId)
-        ? { ...quotation, availableStatus: 'CHECKED' }
-        : quotation,
-    );
     return ok(
       paged(
         request,
-        filterBy(request, allData, {
+        filterBy(request, productionQuotesOf(request), {
           equals: { availableStatusCode: (row) => row.availableStatus },
           date: (row) => row.requestDate,
         }),
@@ -577,26 +623,10 @@ export const productionHandlers = [
   }),
   http.get(PRODUCTION_ENDPOINTS.MPS_PLANS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MPS', 500);
-    // 고른 BOM 의 제품을 준다. 계획 줄은 기본 BOM(bom-001)에만 있다(예전엔 어느 BOM 을 골라도 모터 A 계획이었다).
-    // 주 칸(2026-01-1W)은 날짜가 아니라 기간으로 거르지 않는다(카드 결정 8)
+    // 고른 BOM 의 제품을 준다. 계획 줄은 그 제품의 확인된 견적 납기에서 나온다(mpsWeeks)
     const bomId = new URL(request.url).searchParams.get('bomId') || SEED_BOM.bomId;
-    const bom = SEED_BOMS.find((row) => row.bomId === bomId);
-    const weeks = [
-      {
-        week: '2026-01-1W',
-        demand: 100,
-        requiredInventory: 20,
-        productionNeeded: 80,
-        plannedProduction: 90,
-      },
-    ];
-    const content = bomId === SEED_BOM.bomId ? weeks : [];
-    return ok({
-      bomId,
-      productName: bom?.productName ?? '',
-      content,
-      page: makePage(0, 10, content.length),
-    });
+    const productName = SEED_BOMS.find((row) => row.bomId === bomId)?.productName ?? '';
+    return ok({ bomId, productName, ...paged(request, mpsWeeks(request, productName)) });
   }),
   http.post<PathParams, { quotationIds?: string[] }>(
     PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM,
@@ -756,8 +786,10 @@ export const productionHandlers = [
       const { procurementStartDate, expectedArrivalDate, supplierCompanyName } =
         procurementDates(idx);
       const requiredQty = ((idx % 50) + 1) * 10;
-      const reservedStock = Math.min(idx % 5, item.current);
-      const availableStock = item.current - reservedStock;
+      // 현재고와 안전재고는 재고 목록과 같은 값(쓰기 결과 포함, 카드 "데모 목록 재고 물류")
+      const stock = stockOf(request, item);
+      const reservedStock = Math.max(0, Math.min(idx % 5, stock.currentStock));
+      const availableStock = stock.currentStock - reservedStock;
       const consumptionQty = Math.min(availableStock, requiredQty);
       const shortageQty = Math.max(0, requiredQty - availableStock);
       return {
@@ -765,10 +797,10 @@ export const productionHandlers = [
         itemId: item.itemId,
         itemName: item.itemName,
         requiredQuantity: requiredQty,
-        currentStock: item.current,
+        currentStock: stock.currentStock,
         reservedStock,
         actualAvailableStock: availableStock,
-        safetyStock: item.safety,
+        safetyStock: stock.safetyStock,
         availableStock,
         availableStatusCode: shortageQty > 0 ? 'INSUFFICIENT' : 'SUFFICIENT',
         shortageQuantity: shortageQty,

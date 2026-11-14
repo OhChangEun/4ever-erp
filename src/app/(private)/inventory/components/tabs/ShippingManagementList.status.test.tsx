@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import ko from '@/i18n/messages/ko.json';
@@ -17,15 +17,19 @@ describe('출하 목록의 상태 칸', () => {
     const user = userEvent.setup();
     renderWithProviders(<ShippingManagementList />);
 
-    const producing = within(
-      await screen.findByRole('row', { name: /SO-2026-001/ }, { timeout: 3000 }),
-    );
-    expect(producing.getByText('생산중')).toBeInTheDocument();
+    // 두 목록은 영업 주문에서 나와 첫 쪽 주문 번호가 날마다 다르다(카드 "데모 목록 재고 물류").
+    // 예전엔 SO-2026-001, 002 한 줄씩이었다. 이제 첫 쪽의 모든 주문 행을 본다
+    const orderRows = () => screen.getAllByRole('row', { name: /SO-\d{4}-/ });
+    await screen.findAllByRole('row', { name: /SO-\d{4}-/ }, { timeout: 3000 });
+    for (const row of orderRows()) expect(within(row).getByText('생산중')).toBeInTheDocument();
     expect(screen.queryByText('알 수 없음')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /출고 준비 완료/ }));
-    const ready = within(await screen.findByRole('row', { name: /SO-2026-002/ }));
-    expect(ready.getByText('출고 준비 완료')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(orderRows().length).toBeGreaterThan(0);
+      for (const row of orderRows())
+        expect(within(row).getByText('출고 준비 완료')).toBeInTheDocument();
+    });
     expect(screen.queryByText('알 수 없음')).not.toBeInTheDocument();
   });
 

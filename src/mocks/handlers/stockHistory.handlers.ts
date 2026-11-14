@@ -3,7 +3,7 @@ import type { paths } from '@/lib/api/openapi.gen';
 import { API_BASE_URL } from '@/app/types/api';
 import { addDays, startOfDay, toDateKey } from '@/app/utils/date';
 import { MOTOR, catalogItem } from './catalog';
-import { stockOf } from './inventory.handlers';
+import { stockOf } from './stock';
 import { shouldError } from './utils';
 
 /**

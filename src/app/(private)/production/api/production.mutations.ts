@@ -18,6 +18,7 @@ import {
 import {
   bomKeys,
   mesKeys,
+  mpsKeys,
   mrpOrderKeys,
   mrpPlannedOrderKeys,
   productionStatsKeys,
@@ -47,7 +48,8 @@ export const PRODUCTION_MUTATION_EFFECTS = {
   ],
   // 전환된 계획 주문은 계획 주문 탭에서 빠진다
   convertMrpOrders: (): readonly QueryKey[] => [mrpOrderKeys.lists(), mrpPlannedOrderKeys.lists()],
-  confirmQuotations: (): readonly QueryKey[] => [quotationKeys.lists()],
+  // 확정한 견적은 확인됨이 되어 그 납기 주의 MPS 수요에 든다(카드 "데모 목록 재고 물류")
+  confirmQuotations: (): readonly QueryKey[] => [quotationKeys.lists(), mpsKeys.lists()],
   // 시뮬레이션은 견적의 가용 재고 상태를 바꾼다
   simulateQuotations: (): readonly QueryKey[] => [quotationKeys.lists()],
   startMes: (mesId: string): readonly QueryKey[] => [
