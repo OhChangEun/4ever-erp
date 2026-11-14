@@ -2,7 +2,7 @@
  * EverP 로컬 ESLint 플러그인(커스텀 ESLint 규칙 카드). 문서 규칙을 린트로 지킨다.
  * 모노레포 카드에서 packages/eslint-plugin 으로 옮긴다.
  *
- * 1. domain-boundary       다른 도메인은 그 도메인의 공개 입구(index.ts, ui.ts)로만 가져온다
+ * 1. domain-boundary       다른 도메인은 그 도메인의 공개 입구(index.ts, ui.ts, messages.ts)로만 가져온다
  * 2. no-component-mutation useMutation 은 *.mutations.ts 와 src/lib/query 에서만
  * 3. no-arbitrary-color    className 의 임의 색(bg-[#...]) 금지. 색은 디자인 토큰으로
  */
@@ -47,9 +47,10 @@ const SHARED = [
 ];
 const isTest = (posix) => /\.test\.[jt]sx?$/.test(posix);
 
-// 도메인의 공개 입구 두 개. index(키, api, 타입, 상수)와 ui(화면 컴포넌트).
-// 나눈 이유: 키만 쓰는 도메인이 모달과 그 의존까지 받지 않게(창고 첫 로드 +21.7KB 였음)
-const PUBLIC_ENTRIES = new Set(['', 'index', 'ui']);
+// 도메인의 공개 입구 세 개. index(키, api, 타입, 상수), ui(화면 컴포넌트), messages(메시지 감싸개).
+// 나눈 이유: 키만 쓰는 도메인이 모달과 그 의존까지 받지 않게(창고 첫 로드 +21.7KB 였음).
+// messages 는 메시지 JSON 을 정적으로 가져와서 index 에 두면 키만 쓰는 화면에도 딸려 온다(구매 첫 로드 +5KB 였음)
+const PUBLIC_ENTRIES = new Set(['', 'index', 'ui', 'messages']);
 
 /** @type {import('eslint').Rule.RuleModule} */
 const domainBoundary = {
@@ -58,7 +59,7 @@ const domainBoundary = {
     docs: { description: '다른 도메인은 공개 API(index.ts)로만 가져온다' },
     messages: {
       deepImport:
-        "다른 도메인({{domain}})의 깊은 경로를 가져오지 않는다. '@/app/(private)/{{domain}}'(키, api, 타입) 이나 '@/app/(private)/{{domain}}/ui'(화면 컴포넌트)에서 가져오고, 없으면 거기에 내보낸다.",
+        "다른 도메인({{domain}})의 깊은 경로를 가져오지 않는다. '@/app/(private)/{{domain}}'(키, api, 타입) 이나 '@/app/(private)/{{domain}}/ui'(화면 컴포넌트), '@/app/(private)/{{domain}}/messages'(메시지 감싸개)에서 가져오고, 없으면 거기에 내보낸다.",
       sharedImportsDomain:
         '공통 코드는 도메인({{domain}})을 가져오지 않는다. 도메인이 공통 코드를 가져오는 방향만 허용한다.',
     },

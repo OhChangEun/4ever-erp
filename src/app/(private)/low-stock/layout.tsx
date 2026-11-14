@@ -1,5 +1,5 @@
 import RouteProviders from '../_RouteProviders';
-import { InventoryMessages } from '@/app/(private)/inventory';
+import { InventoryMessages } from '@/app/(private)/inventory/messages';
 import LowStockMessages from './LowStockMessages';
 
 export default function LowStockLayout({ children }: { children: React.ReactNode }) {
