@@ -55,34 +55,44 @@ export default function StockMovement() {
           )}
 
           {!isLoading && !isError && stockMovementCount > 0 && (
-            // 이동 종류는 아이콘 대신 상태 글자 하나(지침 12장 아이콘 세 곳)
-            <ul role="list" className="divide-y divide-gray-200">
-              {/* 행에 id 가 없다. 시각과 품목이 같은 행만 그 안의 순번으로 가른다(위에 새 행이 끼어도 다른 행 key 는 그대로) */}
-              {stockMovementRes?.map((movement, index, rows) => (
-                <li
-                  key={`${movement.workDate}-${movement.itemName}-${
-                    rows
-                      .slice(0, index)
-                      .filter(
-                        (row) =>
-                          row.workDate === movement.workDate && row.itemName === movement.itemName,
-                      ).length
-                  }`}
-                  className="py-3 min-w-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <StatusLabel statusCode={getMovementType(movement.type)} />
-                    <span className="text-sm font-medium text-gray-900">
-                      {movement.quantity} {movement.uomName}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 truncate">{movement.itemName}</div>
-                  <div className="text-xs text-gray-500">
-                    {FormatDate(movement.workDate)} · {movement.managerName}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            // 이동 종류는 아이콘 대신 상태 글자 하나(지침 12장 아이콘 세 곳).
+            // 목록 높이를 묶는다. 안 묶으면 기록이 늘수록 이 줄이 길어져 아래 재고 표 칸이 0 으로 눌린다
+            // (카드 데모 목록 재고 물류). 넘친 기록은 이 칸 안에서 스크롤하고, 키보드로도 닿게 이름 있는 영역으로 둔다
+            <div
+              role="region"
+              aria-label={t('stockMovement.title')}
+              tabIndex={0}
+              className="max-h-40 overflow-y-auto"
+            >
+              <ul role="list" className="divide-y divide-gray-200">
+                {/* 행에 id 가 없다. 시각과 품목이 같은 행만 그 안의 순번으로 가른다(위에 새 행이 끼어도 다른 행 key 는 그대로) */}
+                {stockMovementRes?.map((movement, index, rows) => (
+                  <li
+                    key={`${movement.workDate}-${movement.itemName}-${
+                      rows
+                        .slice(0, index)
+                        .filter(
+                          (row) =>
+                            row.workDate === movement.workDate &&
+                            row.itemName === movement.itemName,
+                        ).length
+                    }`}
+                    className="py-3 min-w-0"
+                  >
+                    <div className="flex items-center gap-2">
+                      <StatusLabel statusCode={getMovementType(movement.type)} />
+                      <span className="text-sm font-medium text-gray-900">
+                        {movement.quantity} {movement.uomName}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 truncate">{movement.itemName}</div>
+                    <div className="text-xs text-gray-500">
+                      {FormatDate(movement.workDate)} · {movement.managerName}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </div>
