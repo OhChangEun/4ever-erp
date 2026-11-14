@@ -11,15 +11,15 @@ import { countRequests } from '@/test/countRequests';
 import AddEmployeeTrainingModal from './AddEmployeeTrainingModal';
 
 /**
- * 이미 처리된 건의 버튼 카드. 기본 목 직원(emp-001) 이력에는 안전 교육(prog-001)이 있다.
- * 드롭다운 목은 프로그램이 하나뿐이라 둘로 늘려서 본다.
+ * 이미 처리된 건의 버튼 카드. 기본 목 직원(emp-001) 이력에는 안전 교육(prog-001)이 있고 모집 중인 산업 안전 보건(prog-010)은
+ * 없다(카드 "데모 목록 인사 재무"의 교육 이력). 드롭다운은 그 둘로 좁혀서 본다.
  */
 const usePrograms = () =>
   server.use(
     http.get(HRM_ENDPOINTS.PROGRAM_LIST_DROPDOWN, () =>
       ok([
         { key: 'prog-001', value: '안전 교육' },
-        { key: 'prog-002', value: '보안 교육' },
+        { key: 'prog-010', value: '산업 안전 보건' },
       ]),
     ),
   );
@@ -36,7 +36,7 @@ describe('교육 지정: 이미 받은 프로그램은 고를 수 없다', () =>
     usePrograms();
     renderWithProviders(<AddEmployeeTrainingModal id="m" onClose={vi.fn()} employeeId="emp-001" />);
     await openOptions();
-    expect(screen.getByRole('option', { name: '보안 교육' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '산업 안전 보건' })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: '안전 교육' })).not.toBeInTheDocument();
   });
 
@@ -49,7 +49,7 @@ describe('교육 지정: 이미 받은 프로그램은 고를 수 없다', () =>
     const { rerender } = renderWithProviders(modal);
 
     await openOptions();
-    await user.click(screen.getByRole('option', { name: '보안 교육' }));
+    await user.click(screen.getByRole('option', { name: '산업 안전 보건' }));
     await user.click(screen.getByRole('button', { name: '추가' }));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
 
@@ -57,7 +57,7 @@ describe('교육 지정: 이미 받은 프로그램은 고를 수 없다', () =>
     rerender(<div />);
     rerender(modal);
     await openOptions();
-    expect(screen.queryByRole('option', { name: '보안 교육' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: '산업 안전 보건' })).not.toBeInTheDocument();
     await user.keyboard('{Escape}');
     await user.click(screen.getByRole('button', { name: '추가' }));
     expect(await screen.findByText('교육 프로그램을 선택해주세요.')).toBeInTheDocument();
@@ -112,7 +112,7 @@ describe('교육 지정 리뷰 반영', () => {
     await userEvent.click(retry);
 
     await openOptions();
-    expect(screen.getByRole('option', { name: '보안 교육' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '산업 안전 보건' })).toBeInTheDocument();
     expect(screen.queryByText('데이터를 불러올 수 없습니다.')).not.toBeInTheDocument();
   });
 });

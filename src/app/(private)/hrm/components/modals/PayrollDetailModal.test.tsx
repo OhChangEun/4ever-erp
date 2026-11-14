@@ -8,16 +8,23 @@ import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import PayrollManagement from '@/app/(private)/hrm/components/tabs/mainTab/PayrollManagement';
+import { todayKey } from '@/mocks/handlers/seed';
 
 const DETAIL_TITLE = '급여 상세정보';
 const CONFIRM_TITLE = '해당 급여를 지급 완료 처리하시겠습니까?';
+
+/**
+ * 이번 달 emp-001 급여 id. 상세는 기본 목이 주고 기본 목은 이 id 만 안다(pay-<연월>-<직원 순번>,
+ * 카드 "데모 목록 인사 재무". 예전 한 줄 목록은 pay-001)
+ */
+const PAY = `pay-${todayKey().slice(0, 7).replace('-', '')}-001`;
 
 /** 미지급 급여 한 건. 지급완료 버튼은 이 상태에서만 보인다 */
 const unpaidList = () =>
   ok({
     content: [
       {
-        payrollId: 'pay-001',
+        payrollId: PAY,
         employee: {
           employeeId: 'emp-001',
           employeeName: '홍길동',
@@ -77,7 +84,7 @@ describe('급여 지급 완료 확인 창(실제 모달 스택)', () => {
     await user.click(confirm.getByRole('button', { name: '확인' }));
 
     await waitFor(() => expect(screen.queryAllByRole('dialog', { hidden: true })).toHaveLength(0));
-    expect(bodies).toEqual([{ payrollId: 'pay-001' }]);
+    expect(bodies).toEqual([{ payrollId: PAY }]);
     // 확인 창이 포커스를 돌려줄 "지급완료 처리" 버튼은 급여 모달과 함께 사라진다. body 로 떨어지면 안 된다
     await waitFor(() => expect(rowButton).toHaveFocus());
   });

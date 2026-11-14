@@ -22,13 +22,21 @@ test('재무 전표를 처리 요청하면 그 전표를 다시 요청할 수 �
   await loginAs(page, 'ADMIN');
   await page.goto('/finance?tab=sales');
 
-  const box = page.getByRole('checkbox', { name: 'AR-2026-001 선택' });
-  await expect(box).toBeEnabled({ timeout: 30_000 });
+  // 첫 쪽의 처리할 수 있는(수금 대기) 첫 전표. 매출 전표는 주문에서 날짜로 만들어 번호를 정해 두지 않는다
+  // (카드 "데모 목록 인사 재무". 예전 한 줄 목록은 AR-2026-001). 고를 수 있는지는 단위 테스트가 목의 대기 전표로 본다
+  const open = page
+    .getByRole('checkbox', { name: /^AR-.+ 선택$/ })
+    .and(page.locator(':enabled'))
+    .first();
+  await expect(open).toBeVisible({ timeout: 30_000 });
+  const label = (await open.getAttribute('aria-label')) ?? '';
+  const invoiceNumber = label.replace(/ 선택$/, '');
+  const box = page.getByRole('checkbox', { name: label });
   await box.check();
   const request = page.getByRole('button', { name: '미수 처리 신청' });
   await request.click();
 
-  const row = page.getByRole('row', { name: /AR-2026-001/ });
+  const row = page.getByRole('row', { name: new RegExp(invoiceNumber) });
   await expect(row.getByText('완납', { exact: true })).toBeVisible();
   await expect(box).toBeDisabled();
   await expect(box).not.toBeChecked();

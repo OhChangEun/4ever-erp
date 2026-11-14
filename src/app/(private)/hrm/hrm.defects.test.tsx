@@ -95,7 +95,9 @@ describe('인사 화면 결함', () => {
 
   it('교육 프로그램 카드에 온라인 여부가 글자로 보인다', async () => {
     renderWithProviders(<AvailableProgramTab />);
-    expect(await screen.findByText('온라인')).toBeInTheDocument();
+    // 첫 쪽 프로그램 10개 중 온라인과 오프라인이 다섯씩이다(카드 "데모 목록 인사 재무")
+    expect(await screen.findAllByText('온라인')).toHaveLength(5);
+    expect(screen.getAllByText('오프라인')).toHaveLength(5);
   });
 
   it('교육관리 하위 탭 id 가 근태관리 탭 id 와 겹치지 않는다', () => {

@@ -13,14 +13,26 @@ describe('휴가 승인과 반려 확인 창', () => {
     vi.restoreAllMocks();
   });
 
+  /**
+   * 기본 목의 대기 휴가 leave-001(홍길동) 행. 기본 목에는 대기 휴가가 여럿이고 홍길동의 지난 승인 휴가도 있어
+   * 버튼이 있는 홍길동 행으로 좁힌다(카드 "데모 목록 인사 재무")
+   */
+  const pendingRow = async () => {
+    const rows = await screen.findAllByRole('row', { name: /홍길동/ }, { timeout: 3000 });
+    const row = rows.find((item) => within(item).queryByRole('button', { name: '승인' }));
+    if (!row) throw new Error('홍길동의 대기 휴가 행이 없다');
+    return within(row);
+  };
+
   /** 대기 휴가 한 건(기본 목)의 행 버튼을 누른다. 브라우저 기본 창은 쓰지 않아야 한다 */
   const openFromRow = async (button: string) => {
     const nativeConfirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     const user = userEvent.setup();
     renderWithProviders(<LeaveTab />);
-    await user.click(await screen.findByRole('button', { name: button }, { timeout: 3000 }));
+    const row = await pendingRow();
+    await user.click(row.getByRole('button', { name: button }));
     expect(nativeConfirm).not.toHaveBeenCalled();
-    return user;
+    return { user, row };
   };
 
   it('승인: 앱 모달에서 확인하면 요청이 한 번 나가고 닫힌다', async () => {
@@ -31,7 +43,7 @@ describe('휴가 승인과 반려 확인 창', () => {
         return ok(null);
       }),
     );
-    const user = await openFromRow('승인');
+    const { user } = await openFromRow('승인');
     const dialog = within(
       await screen.findByRole('dialog', { name: '해당 요청을 승인하시겠습니까?' }),
     );
@@ -53,7 +65,7 @@ describe('휴가 승인과 반려 확인 창', () => {
         return ok(null);
       }),
     );
-    const user = await openFromRow('승인');
+    const { user, row } = await openFromRow('승인');
     const dialog = within(
       await screen.findByRole('dialog', { name: '해당 요청을 승인하시겠습니까?' }),
     );
@@ -62,12 +74,12 @@ describe('휴가 승인과 반려 확인 창', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    expect(screen.getByRole('button', { name: '승인' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: '반려' })).toBeDisabled();
+    expect(row.getByRole('button', { name: '승인' })).toBeDisabled();
+    expect(row.getByRole('button', { name: '반려' })).toBeDisabled();
 
     release();
-    await waitFor(() => expect(screen.getByRole('button', { name: '반려' })).toBeEnabled());
-    expect(screen.getByRole('button', { name: '승인' })).toBeEnabled();
+    await waitFor(() => expect(row.getByRole('button', { name: '반려' })).toBeEnabled());
+    expect(row.getByRole('button', { name: '승인' })).toBeEnabled();
     expect(calls).toBe(1);
   });
 
@@ -80,7 +92,7 @@ describe('휴가 승인과 반려 확인 창', () => {
         return ok(null);
       }),
     );
-    const user = await openFromRow('반려');
+    const { user } = await openFromRow('반려');
     const dialog = within(
       await screen.findByRole('dialog', { name: '해당 요청을 반려하시겠습니까?' }),
     );

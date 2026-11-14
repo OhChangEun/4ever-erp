@@ -3,6 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
 import { postPayrollComplete } from '@/app/(private)/hrm/api/hrm.api';
+import { todayKey } from '@/mocks/handlers/seed';
 import PayrollManagement from '../tabs/mainTab/PayrollManagement';
 
 /**
@@ -16,7 +17,8 @@ describe('급여 상세: 지급완료 버튼은 상세 상태를 본다', () => 
     const row = within(await screen.findByRole('row', { name: /홍길동/ }, { timeout: 3000 }));
     expect(row.getByText('미지급')).toBeInTheDocument();
 
-    await postPayrollComplete({ payrollId: 'pay-001' });
+    // 급여 id 는 pay-<연월>-<직원 순번>(카드 "데모 목록 인사 재무"). 화면 기본은 이번 달
+    await postPayrollComplete({ payrollId: `pay-${todayKey().slice(0, 7).replace('-', '')}-001` });
 
     await user.click(row.getByRole('button', { name: '상세보기' }));
     const detail = within(await screen.findByRole('dialog', { name: '급여 상세정보' }));
