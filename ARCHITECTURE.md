@@ -187,7 +187,7 @@ src/
 
 import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx`. 2026-11-10 부터 린트가 강제한다(`eslint-rules/index.mjs`, error).
 
-1. `everp/domain-boundary`: 다른 도메인은 공개 입구 두 곳으로만 가져온다. `@/app/(private)/<도메인>`(index.ts: 키, api, 타입, 상수)과 `@/app/(private)/<도메인>/ui`(ui.ts: 화면 컴포넌트). 둘로 나눈 이유는 키만 쓰는 도메인이 모달과 그 의존까지 받지 않게 하려는 것이다(한 파일일 때 창고 첫 로드가 +21.7KB). 공통 코드(`src/lib`, `src/app/components` 등)는 도메인을 가져오지 않는다. 지금 공개 입구가 있는 도메인은 구매, 안전재고, 재고, 영업.
+1. `everp/domain-boundary`: 다른 도메인은 공개 입구로만 가져온다. `@/app/(private)/<도메인>`(index.ts: 키, api, 타입, 상수), `@/app/(private)/<도메인>/ui`(ui.ts: 화면 컴포넌트), `@/app/(private)/<도메인>/messages`(messages.ts: 메시지 감싸개, 지금은 재고만). 나눈 이유는 키만 쓰는 도메인이 모달이나 메시지 JSON 까지 받지 않게 하려는 것이다(한 파일일 때 창고 첫 로드가 +21.7KB, 재고 index 에 메시지 감싸개가 있을 때 구매 첫 로드가 +5KB). 공통 코드(`src/lib`, `src/app/components` 등)는 도메인을 가져오지 않는다. 지금 공개 입구가 있는 도메인은 구매, 안전재고, 재고, 영업.
 2. `everp/no-component-mutation`: `useMutation` 은 `*.mutations.ts` 와 `src/lib/query/` 에서만.
 3. `everp/no-arbitrary-color`: className 의 임의 색(`bg-[#...]`) 금지. 3D 장면처럼 코드가 색을 정하면 상수를 style 로 넘긴다(`src/app/(private)/warehouse/components/warehouseVisualizer/stockColors.ts`).
 

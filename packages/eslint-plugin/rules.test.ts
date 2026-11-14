@@ -33,6 +33,10 @@ tester.run('domain-boundary', plugin.rules['domain-boundary'], {
       filename: at('src/app/(private)/inventory/inventory.mutations.ts'),
     },
     {
+      code: "import { InventoryMessages } from '@/app/(private)/inventory/messages';",
+      filename: at('src/app/(private)/warehouse/layout.tsx'),
+    },
+    {
       code: "import { NewOrderModal } from '@/app/(private)/sales/ui';",
       filename: at('src/app/(private)/dashboard/components/ActionCard.tsx'),
     },

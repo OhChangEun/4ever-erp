@@ -1,5 +1,5 @@
 import RouteProviders from '../_RouteProviders';
-import { InventoryMessages } from '@/app/(private)/inventory';
+import { InventoryMessages } from '@/app/(private)/inventory/messages';
 import WarehouseMessages from './WarehouseMessages';
 
 export default function WarehouseLayout({ children }: { children: React.ReactNode }) {
