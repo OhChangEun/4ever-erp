@@ -60,41 +60,50 @@ export default function LowStockAlert() {
           </div>
         )}
 
-        {!isLoading &&
-          !isError &&
-          lowStockRes?.map((item) => (
-            <div key={item.itemId} className="flex items-center justify-between py-3">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      item.statusCode === 'URGENT' ? 'bg-red-500' : 'bg-yellow-500'
+        {!isLoading && !isError && lowStockCount > 0 && (
+          // 목록 높이를 묶는다. 부족 품목이 늘수록 이 줄이 길어져 아래 재고 표 칸이 0 으로 눌린다(카드 데모 목록 재고 물류).
+          // 넘친 품목은 이 칸 안에서 스크롤하고, 키보드로도 닿게 이름 있는 영역으로 둔다
+          <div
+            role="region"
+            aria-label={t('lowStockAlert.title')}
+            tabIndex={0}
+            className="max-h-40 overflow-y-auto divide-y divide-gray-200"
+          >
+            {lowStockRes?.map((item) => (
+              <div key={item.itemId} className="flex items-center justify-between py-3">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        item.statusCode === 'URGENT' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`}
+                    ></span>
+                    <span className="text-sm font-medium text-gray-900">{item.itemName}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {t('lowStockAlert.stockLine', {
+                      // 예전처럼 숫자를 그대로 둔다(1000 은 1000). 숫자로 넘기면 언어별로 1,000 처럼 묶일 수 있다
+                      current: String(item.currentStock),
+                      safety: String(item.safetyStock),
+                      unit: item.uomName,
+                    })}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div
+                    className={`text-sm font-medium ${
+                      item.statusCode === 'URGENT' ? 'text-red-600' : 'text-orange-700'
                     }`}
-                  ></span>
-                  <span className="text-sm font-medium text-gray-900">{item.itemName}</span>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {t('lowStockAlert.stockLine', {
-                    // 예전처럼 숫자를 그대로 둔다(1000 은 1000). 숫자로 넘기면 언어별로 1,000 처럼 묶일 수 있다
-                    current: String(item.currentStock),
-                    safety: String(item.safetyStock),
-                    unit: item.uomName,
-                  })}
+                  >
+                    {item.statusCode === 'URGENT'
+                      ? t('lowStockAlert.urgent')
+                      : t('lowStockAlert.caution')}
+                  </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div
-                  className={`text-sm font-medium ${
-                    item.statusCode === 'URGENT' ? 'text-red-600' : 'text-yellow-600'
-                  }`}
-                >
-                  {item.statusCode === 'URGENT'
-                    ? t('lowStockAlert.urgent')
-                    : t('lowStockAlert.caution')}
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
