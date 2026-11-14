@@ -1,6 +1,8 @@
 import { getResponse } from 'msw';
 import { handlers } from '@/mocks/handlers';
 import { API_BASE_URL } from '@/app/types/api';
+import { attendanceDays } from '@/mocks/handlers/attendanceSummary.handlers';
+import { todayKey } from '@/mocks/handlers/seed';
 
 const ORIGIN = 'http://localhost';
 
@@ -71,13 +73,20 @@ const CUSTOMER_EDIT = {
   manager: { name: '새 담당', mobile: '010-9999-8888', email: 'new@hanbit.co.kr' },
 };
 
+/**
+ * 달과 날로 만드는 행의 id(카드 "데모 목록 인사 재무"). 이번 달 첫 공급사의 매입 전표(미납), 이번 달 emp-001 급여(미지급),
+ * 근태 집계 마지막 근무일의 emp-001 출퇴근 기록(그날 결근이나 휴가면 목록에 없지만 쓰기는 성공한다)
+ */
+const THIS_MONTH = todayKey().slice(0, 7).replace('-', '');
+const LAST_WORKDAY = (attendanceDays().days.at(-1)?.date ?? '').replace(/-/g, '');
+
 /** 수정과 상태 변경. id 는 기본 목 행의 id 를 받아 실제로 보낼 id 를 돌려준다 */
 const writesFor = (id: (seed: string) => string): MockWrite[] => [
   ['POST', `/scm-pp/mm/purchase-requisitions/${id('pr-001')}/reject`, { comment: '예산 초과' }],
   ['POST', `/scm-pp/mm/purchase-orders/${id('po-001')}/approve`],
   ['POST', `/scm-pp/mm/${id('po-001')}/start-delivery`],
   ['PATCH', `/scm-pp/mm/supplier/${id('sup-001')}`, SUPPLIER_EDIT],
-  ['POST', '/business/hrm/payroll/complete', { payrollId: id('pay-001') }],
+  ['POST', '/business/hrm/payroll/complete', { payrollId: id(`pay-${THIS_MONTH}-001`) }],
   ['PATCH', `/business/hrm/leave/request/${id('leave-001')}/release`],
   [
     'PATCH',
@@ -92,7 +101,7 @@ const writesFor = (id: (seed: string) => string): MockWrite[] => [
   ],
   [
     'PUT',
-    `/business/hrm/time-record/${id('time-001')}`,
+    `/business/hrm/time-record/${id(`time-${LAST_WORKDAY}-001`)}`,
     { checkInTime: '2026-01-28T08:30:00', checkOutTime: '2026-01-28T17:30:00' },
   ],
   [
@@ -124,8 +133,11 @@ const writesFor = (id: (seed: string) => string): MockWrite[] => [
   ['PUT', `/scm-pp/pp/mes/${id('mes-001')}/start`],
   ['PUT', `/scm-pp/pp/mes/${id('mes-001')}/complete`],
   ['POST', `/business/fcm/invoice/ar/${id('inv-ar-001')}/receivable/complete`],
-  ['POST', `/business/fcm/invoice/ap/receivable/request?invoiceId=${id('inv-ap-001')}`],
-  ['POST', `/business/fcm/invoice/ap/${id('inv-ap-001')}/payable/complete`],
+  [
+    'POST',
+    `/business/fcm/invoice/ap/receivable/request?invoiceId=${id(`inv-ap-${THIS_MONTH}-001`)}`,
+  ],
+  ['POST', `/business/fcm/invoice/ap/${id(`inv-ap-${THIS_MONTH}-001`)}/payable/complete`],
   // 위와 같은 행의 반대 쓰기. 다른 id 로 보낸다(같은 id 면 뒤 쓰기가 앞 결과를 덮는다)
   ['POST', `/scm-pp/mm/purchase-requisitions/${id('pr-002')}/release`],
   ['POST', `/scm-pp/mm/purchase-orders/${id('po-002')}/reject`, { reason: '단가 불일치' }],

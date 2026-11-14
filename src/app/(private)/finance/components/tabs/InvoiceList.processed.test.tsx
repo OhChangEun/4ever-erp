@@ -7,6 +7,8 @@ import { FINANCE_ENDPOINTS } from '@/app/types/api';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { countRequests } from '@/test/countRequests';
+import { mockApi } from '@/test/mockApi';
+import * as z from 'zod';
 import InvoiceList from './InvoiceList';
 
 // 탭은 주소의 tab 파라미터로 고른다. 기본은 매출 탭
@@ -19,9 +21,28 @@ afterEach(() => {
 });
 
 /**
- * 이미 처리된 건의 버튼 카드. 기본 목(매출 전표 AR-2026-001, 대기)은 처리 요청을 기억한다.
+ * 이미 처리된 건의 버튼 카드. 기본 목은 처리 요청을 기억한다.
  * 역할이 없으면 매출 탭이고 처리는 매출 수금 완료(ar)다.
  */
+
+/**
+ * 기본 목 매출 전표 첫 쪽의 첫 수금 대기 전표. 매출 전표는 주문에서 날짜로 만들어(카드 "데모 목록 인사 재무")
+ * 번호를 정해 두지 않고 목에서 꺼낸다. 예전에는 한 줄 목록의 AR-2026-001 이었다
+ */
+const firstPending = async () => {
+  const body = z
+    .object({
+      data: z.object({
+        content: z.array(
+          z.object({ invoiceId: z.string(), invoiceNumber: z.string(), statusCode: z.string() }),
+        ),
+      }),
+    })
+    .parse(await mockApi('GET', '/business/fcm/invoice/ar?page=0&size=10'));
+  const row = body.data.content.find((invoice) => invoice.statusCode === 'PENDING');
+  if (!row) throw new Error('매출 전표 첫 쪽에 수금 대기 전표가 없다');
+  return row;
+};
 const salesRow = (invoiceId: string, invoiceNumber: string, statusCode: string) => ({
   invoiceId,
   invoiceNumber,
@@ -46,10 +67,11 @@ const checkbox = (invoiceNumber: string) =>
 
 describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () => {
   it('처리할 수 있는 전표는 고를 수 있고, 고르면 처리 요청이 열린다', async () => {
+    const target = await firstPending();
     const user = userEvent.setup();
     renderWithProviders(<InvoiceList />);
 
-    const box = await checkbox('AR-2026-001');
+    const box = await checkbox(target.invoiceNumber);
     expect(box).toBeEnabled();
     expect(screen.getByRole('button', { name: REQUEST })).toBeDisabled();
     await user.click(box);
@@ -57,16 +79,17 @@ describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () =>
   });
 
   it('처리 요청 뒤 그 전표는 잠기고 체크가 풀리며, 버튼을 다시 눌러도 두 번째 요청이 없다', async () => {
-    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'));
+    const target = await firstPending();
+    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE(target.invoiceId));
     const user = userEvent.setup();
     renderWithProviders(<InvoiceList />);
 
-    await user.click(await checkbox('AR-2026-001'));
+    await user.click(await checkbox(target.invoiceNumber));
     await user.click(screen.getByRole('button', { name: REQUEST }));
 
-    const row = within(await screen.findByRole('row', { name: /AR-2026-001/ }));
+    const row = within(await screen.findByRole('row', { name: new RegExp(target.invoiceNumber) }));
     await waitFor(() => expect(row.getByText('완납')).toBeInTheDocument());
-    const box = await checkbox('AR-2026-001');
+    const box = await checkbox(target.invoiceNumber);
     expect(box).toBeDisabled();
     expect(box).not.toBeChecked();
     const button = screen.getByRole('button', { name: REQUEST });
@@ -78,15 +101,18 @@ describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () =>
 
   // 남은 한국어 문자열 카드: 성공 안내는 서버 message 대신 화면 문구(언어를 따른다)
   it('처리 요청이 성공하면 서버 message 가 아니라 화면 문구로 알린다', async () => {
+    const target = await firstPending();
     server.use(
-      http.post(FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'), () =>
+      http.post(FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE(target.invoiceId), () =>
         HttpResponse.json({ status: 200, success: true, message: '수금 처리가 완료되었습니다.' }),
       ),
     );
     const user = userEvent.setup();
     renderWithProviders(<InvoiceList />, { locale: 'en' });
 
-    await user.click(await screen.findByRole('checkbox', { name: 'Select AR-2026-001' }));
+    await user.click(
+      await screen.findByRole('checkbox', { name: `Select ${target.invoiceNumber}` }),
+    );
     await user.click(screen.getByRole('button', { name: 'Request settlement' }));
     expect(await screen.findByText('Settlement request sent.')).toBeInTheDocument();
     expect(screen.queryByText('수금 처리가 완료되었습니다.')).not.toBeInTheDocument();
@@ -129,11 +155,12 @@ describe('전표 목록: 처리한 전표는 다시 처리할 수 없다', () =>
 
 describe('전표 목록 리뷰 반영', () => {
   it('처리 성공 뒤 목록을 다시 못 받으면 버튼이 잠기고 두 번째 요청이 없다', async () => {
-    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE('inv-ar-001'));
+    const target = await firstPending();
+    const posts = countRequests('POST', FINANCE_ENDPOINTS.SALES_INVOICE_COMPLETE(target.invoiceId));
     const user = userEvent.setup();
     renderWithProviders(<InvoiceList />);
 
-    await user.click(await checkbox('AR-2026-001'));
+    await user.click(await checkbox(target.invoiceNumber));
     // 처리는 성공하지만 그 뒤 목록 재조회가 실패한다. 캐시에는 처리 전(대기) 목록이 남는다
     server.use(http.get(FINANCE_ENDPOINTS.SALES_INVOICES_LIST, () => error('Failed to load', 500)));
     await user.click(screen.getByRole('button', { name: REQUEST }));

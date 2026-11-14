@@ -262,8 +262,9 @@ describe('목록과 상세: 목록의 모든 행 id 로 상세를 부르면 그 
       requiredPositions: [],
       description: '신규 품질 기준',
     });
-    const rows = await rowsOf(HRM_ENDPOINTS.PROGRAM);
-    expect(rows).toHaveLength(2);
+    // 씨앗 12개 + 새 프로그램(카드 "데모 목록 인사 재무")
+    const rows = await rowsOf(allOf(HRM_ENDPOINTS.PROGRAM));
+    expect(rows).toHaveLength(13);
     const keys = ['programId', 'programName', 'statusCode', 'category', 'trainingHour', 'isOnline'];
     for (const row of rows) {
       const detail = await recordOf(`${HRM_ENDPOINTS.PROGRAM}/${str(row.programId)}`);

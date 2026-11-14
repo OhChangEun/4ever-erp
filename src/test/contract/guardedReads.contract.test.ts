@@ -17,6 +17,7 @@ import * as warehouse from '@/app/(private)/warehouse/warehouse.api';
 import { useMockSource, type MockSource } from './serverMock';
 import { collectFailures } from './collect';
 import { mockData, nullAt, type Path } from './mockData';
+import { AP_INVOICE_ID, PAYROLL_ID } from './detailPairs';
 
 /**
  * 타입 4차 카드. 대시보드, 재무, 인사, 재고, 창고에서 화면이 null 가드를 두던 GET 읽기만 스키마로 확인한다.
@@ -56,8 +57,8 @@ const READS: Record<string, GuardedRead> = {
     guarded: ['items', 0],
   },
   '매입 전표 상세': {
-    url: FINANCE_ENDPOINTS.PURCHASE_INVOICE_DETAIL('inv-ap-001'),
-    read: () => finance.getPurchaseInvoiceDetail('inv-ap-001'),
+    url: FINANCE_ENDPOINTS.PURCHASE_INVOICE_DETAIL(AP_INVOICE_ID),
+    read: () => finance.getPurchaseInvoiceDetail(AP_INVOICE_ID),
     guarded: ['items', 0],
   },
   '부서 목록': {
@@ -66,8 +67,8 @@ const READS: Record<string, GuardedRead> = {
     guarded: ['content', 0, 'employees'],
   },
   '급여 상세': {
-    url: HRM_ENDPOINTS.PAYROLL_DETAIL('pay-001'),
-    read: () => hrm.fetchPayRollDetail('pay-001'),
+    url: HRM_ENDPOINTS.PAYROLL_DETAIL(PAYROLL_ID),
+    read: () => hrm.fetchPayRollDetail(PAYROLL_ID),
     guarded: ['pay', 'basePayItem'],
   },
   '교육 프로그램 상세': {

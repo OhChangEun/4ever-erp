@@ -16,6 +16,8 @@ import EmployeeTrainingTab from './components/tabs/subTab/trainingTab/EmployeeTr
 import AttendanceHeatmap from './components/heatmap/AttendanceHeatmap';
 import PayrollManagement from './components/tabs/mainTab/PayrollManagement';
 import { optionTexts } from '@/test/dropdownOptions';
+import { mockApi } from '@/test/mockApi';
+import * as z from 'zod';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -69,24 +71,45 @@ describe('인사 화면 영어(i18n 7)', () => {
   });
 
   it('휴가 목록의 일수는 영어 복수형, 한국어는 예전과 같다', async () => {
+    // 휴가가 여럿이라 대기 휴가 leave-001(홍길동, 2일) 행으로 좁힌다. 남은 연차는 지난 승인 휴가 수로 정해져 목에서 꺼낸다
+    // (카드 "데모 목록 인사 재무")
+    const leave = z
+      .object({
+        data: z.object({
+          content: z.array(
+            z.object({ leaveRequestId: z.string(), remainingLeaveDays: z.number() }),
+          ),
+        }),
+      })
+      .parse(await mockApi('GET', '/business/hrm/leave-request?page=0&size=1000'))
+      .data.content.find((row) => row.leaveRequestId === 'leave-001');
+    const pendingRow = async (approve: string) => {
+      const rows = await screen.findAllByRole('row', { name: /홍길동/ });
+      const row = rows.find((item) => within(item).queryByRole('button', { name: approve }));
+      if (!row) throw new Error('홍길동의 대기 휴가 행이 없다');
+      return within(row);
+    };
     const { unmount } = renderWithProviders(<LeaveTab />, { locale: 'en' });
-    expect(await screen.findByText('2 days')).toBeInTheDocument();
+    expect((await pendingRow('Approve')).getByText('2 days')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Annual leave left' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
     unmount();
     renderWithProviders(<LeaveTab />);
-    expect(await screen.findByText('2일')).toBeInTheDocument();
-    expect(screen.getByText('8일')).toBeInTheDocument();
+    const row = await pendingRow('승인');
+    expect(row.getByText('2일')).toBeInTheDocument();
+    expect(row.getByText(`${leave?.remainingLeaveDays}일`)).toBeInTheDocument();
   });
 
   it('직원별 교육 표의 단위와 모달 제목이 영어', async () => {
     renderWithProviders(<EmployeeTrainingTab />, { locale: 'en' });
-    expect(await screen.findByText('courses')).toBeInTheDocument();
-    expect(screen.getByText('incomplete')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Details' }));
+    // 재직자 40명이라 홍길동 행으로 좁힌다. 홍길동은 5과정 이수, 이수일 중 하나가 화재 대피 훈련 2026-03-12
+    // (카드 "데모 목록 인사 재무")
+    const row = within(await screen.findByRole('row', { name: /홍길동/ }));
+    expect(row.getByText('courses')).toBeInTheDocument();
+    expect(row.getByText('incomplete')).toBeInTheDocument();
+    await userEvent.click(row.getByRole('button', { name: 'Details' }));
     const dialog = await screen.findByRole('dialog', { name: 'Training for 홍길동' });
     expect(await within(dialog).findByText('Training history')).toBeInTheDocument();
-    expect(within(dialog).getByText('Completed: 2026-01-05')).toBeInTheDocument();
+    expect(within(dialog).getByText('Completed: 2026-03-12')).toBeInTheDocument();
   });
 
   it('급여 목록의 연도와 월 선택, 표 머리가 영어', async () => {

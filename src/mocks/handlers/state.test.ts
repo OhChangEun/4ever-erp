@@ -2,6 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
 import { mockApi } from '@/test/mockApi';
+import { attendanceDays } from './attendanceSummary.handlers';
+import { todayKey } from './seed';
 
 /**
  * 목이 쓰기 결과를 기억해 뒤의 목록과 상세가 바뀐 상태를 준다(카드 "목이 쓰기 결과를 따르게").
@@ -38,6 +40,14 @@ const RowsBody = z.object({
 const firstRows = (body: unknown, n: number) => RowsBody.parse(body).data.content.slice(0, n);
 /** 마스터 목록(번호순)의 맨 끝 행 */
 const lastRow = (body: unknown) => RowsBody.parse(body).data.content.at(-1);
+/** 목록 총 건수. 날짜로 만드는 목록(휴가, 출퇴근, 매출 전표)은 쓰기 전 총 건수를 받아 쓰기 뒤와 견준다 */
+const totalOf = async (path: string) =>
+  z
+    .object({ data: z.object({ page: z.object({ totalElements: z.number() }) }) })
+    .parse(await get(`${path}${path.includes('?') ? '&' : '?'}page=0&size=1`)).data.page
+    .totalElements;
+/** 이번 달 emp-001 의 급여 id 와 이번 달 첫 공급사의 매입 전표 id(카드 "데모 목록 인사 재무") */
+const THIS_MONTH = todayKey().slice(0, 7).replace('-', '');
 
 describe('구매 목 상태', () => {
   const REQUESTS = '/scm-pp/mm/purchase-requisitions';
@@ -217,18 +227,20 @@ describe('인사 목 상태', () => {
   const HRM = '/business/hrm';
 
   it('급여는 처음에 PAYROLL_UNPAID 이고, 지급 완료 뒤 목록과 상세가 PAYROLL_PAID 다', async () => {
-    expect(await get(`${HRM}/payroll`)).toMatchObject(
-      content({ payrollId: 'pay-001', pay: { statusCode: 'PAYROLL_UNPAID' } }),
+    // 이번 달 급여(연월이 없으면 이번 달)는 재직자 40명
+    const PAY = `pay-${THIS_MONTH}-001`;
+    expect(await all(`${HRM}/payroll`)).toMatchObject(
+      rowOf(40, { payrollId: PAY, pay: expect.objectContaining({ statusCode: 'PAYROLL_UNPAID' }) }),
     );
-    expect(await get(`${HRM}/payroll/pay-001`)).toMatchObject({
+    expect(await get(`${HRM}/payroll/${PAY}`)).toMatchObject({
       data: { statusCode: 'PAYROLL_UNPAID' },
     });
 
-    await post(`${HRM}/payroll/complete`, { payrollId: 'pay-001' });
-    expect(await get(`${HRM}/payroll`)).toMatchObject(
-      content({ pay: { statusCode: 'PAYROLL_PAID' } }),
+    await post(`${HRM}/payroll/complete`, { payrollId: PAY });
+    expect(await all(`${HRM}/payroll`)).toMatchObject(
+      rowOf(40, { payrollId: PAY, pay: expect.objectContaining({ statusCode: 'PAYROLL_PAID' }) }),
     );
-    expect(await get(`${HRM}/payroll/pay-001`)).toMatchObject({
+    expect(await get(`${HRM}/payroll/${PAY}`)).toMatchObject({
       data: { statusCode: 'PAYROLL_PAID' },
     });
   });
@@ -240,19 +252,22 @@ describe('인사 목 상태', () => {
   });
 
   it('휴가를 승인하면 APPROVED, 반려하면 REJECTED 다', async () => {
+    const total = await totalOf(`${HRM}/leave-request`);
     await patch(`${HRM}/leave/request/leave-001/release`);
-    expect(await get(`${HRM}/leave-request`)).toMatchObject(
-      content({ leaveRequestId: 'leave-001', status: 'APPROVED' }),
+    expect(await all(`${HRM}/leave-request`)).toMatchObject(
+      rowOf(total, { leaveRequestId: 'leave-001', status: 'APPROVED' }),
     );
     await patch(`${HRM}/leave/request/leave-001/reject`);
-    expect(await get(`${HRM}/leave-request`)).toMatchObject(content({ status: 'REJECTED' }));
+    expect(await all(`${HRM}/leave-request`)).toMatchObject(
+      rowOf(total, { leaveRequestId: 'leave-001', status: 'REJECTED' }),
+    );
   });
 
   it('교육 프로그램을 수정하면 목록과 상세의 이름과 상태가 바뀐다', async () => {
     await patch(`${HRM}/program/prog-001`, { programName: '안전 교육 2', statusCode: 'COMPLETED' });
     const edited = { programName: '안전 교육 2', statusCode: 'COMPLETED' };
-    expect(await get(`${HRM}/program`)).toMatchObject(
-      content({ programId: 'prog-001', ...edited }),
+    expect(await all(`${HRM}/program`)).toMatchObject(
+      rowOf(12, { programId: 'prog-001', ...edited }),
     );
     expect(await get(`${HRM}/program/prog-001`)).toMatchObject({ data: edited });
   });
@@ -269,54 +284,104 @@ describe('인사 목 상태', () => {
       requiredPositions: [],
       description: '신규 품질 기준',
     });
-    expect(await get(`${HRM}/program`)).toMatchObject(
-      content(
-        { programId: 'prog-001' },
-        { programName: '품질 교육', category: 'QUALITY', trainingHour: 8, capacity: 20 },
-      ),
-    );
+    // 씨앗 12개(카드 "데모 목록 인사 재무") 다음 번호
+    const programs = await all(`${HRM}/program`);
+    expect(programs).toMatchObject(rowOf(13, { programId: 'prog-001' }));
+    expect(lastRow(programs)).toMatchObject({
+      programId: 'prog-013',
+      programName: '품질 교육',
+      category: 'QUALITY',
+      trainingHour: 8,
+      capacity: 20,
+    });
   });
 
+  /**
+   * emp-001 의 씨앗 교육 이력(카드 "데모 목록 인사 재무" 결정 5). 진행 중 프로그램 prog-001 은 이미 대상이라
+   * 지정은 아직 아무도 대상이 아닌 모집 중 프로그램 prog-010(산업 안전 보건)으로 한다
+   */
+  const HISTORY_EMP_001 = [
+    { programId: 'prog-001', programStatus: 'INCOMPLETED' },
+    { programId: 'prog-002', programStatus: 'COMPLETED' },
+    { programId: 'prog-003', programStatus: 'COMPLETED' },
+    { programId: 'prog-005', programStatus: 'COMPLETED' },
+    { programId: 'prog-006', programStatus: 'COMPLETED' },
+    { programId: 'prog-007', programStatus: 'COMPLETED' },
+    { programId: 'prog-008', programStatus: 'INCOMPLETED' },
+    { programId: 'prog-009', programStatus: 'INCOMPLETED' },
+  ];
+
   it('직원에게 교육을 지정하면 그 직원 교육 상세에 미완료 이력이 생기고 목록의 진행 중 수가 는다', async () => {
-    await post(`${HRM}/program/emp-001`, { programId: 'prog-001' });
+    await post(`${HRM}/program/emp-001`, { programId: 'prog-010' });
     expect(await get(`${HRM}/training/employee/emp-001`)).toMatchObject({
       data: {
         programHistory: [
-          { programStatus: 'COMPLETED' },
-          { programId: 'prog-001', programName: '안전 교육', programStatus: 'INCOMPLETED' },
+          ...HISTORY_EMP_001,
+          { programId: 'prog-010', programName: '산업 안전 보건', programStatus: 'INCOMPLETED' },
         ],
       },
     });
     expect(await get(`${HRM}/training-status`)).toMatchObject({
-      data: { items: [{ employeeId: 'emp-001', inProgressCount: 2 }] },
+      data: {
+        items: expect.arrayContaining([
+          expect.objectContaining({ employeeId: 'emp-001', inProgressCount: 4 }),
+        ]),
+      },
     });
   });
 
   it('같은 프로그램을 같은 직원에게 또 지정해도 성공이고 이력은 하나다', async () => {
-    await post(`${HRM}/program/emp-001`, { programId: 'prog-001' });
-    expect(await post(`${HRM}/program/emp-001`, { programId: 'prog-001' })).toMatchObject({
+    await post(`${HRM}/program/emp-001`, { programId: 'prog-010' });
+    expect(await post(`${HRM}/program/emp-001`, { programId: 'prog-010' })).toMatchObject({
       success: true,
     });
     expect(await get(`${HRM}/training/employee/emp-001`)).toMatchObject({
-      data: { programHistory: [{ programStatus: 'COMPLETED' }, { programId: 'prog-001' }] },
+      data: { programHistory: [...HISTORY_EMP_001, { programId: 'prog-010' }] },
     });
     expect(await get(`${HRM}/training-status`)).toMatchObject({
-      data: { items: [{ inProgressCount: 2 }] },
+      data: {
+        items: expect.arrayContaining([
+          expect.objectContaining({ employeeId: 'emp-001', inProgressCount: 4 }),
+        ]),
+      },
+    });
+  });
+
+  it('이미 이력에 있는 프로그램을 지정해도 이력은 그대로다', async () => {
+    await post(`${HRM}/program/emp-001`, { programId: 'prog-001' });
+    expect(await get(`${HRM}/training/employee/emp-001`)).toMatchObject({
+      data: { programHistory: HISTORY_EMP_001 },
     });
   });
 
   it('부서를 수정하면 목록의 설명과 부서장 id 가 바뀐다', async () => {
     await patch(`${HRM}/departments/dept-001`, { managerId: 'emp-002', description: '해외 영업' });
-    expect(await get(`${HRM}/departments`)).toMatchObject(
-      content({ departmentId: 'dept-001', managerId: 'emp-002', description: '해외 영업' }),
-    );
+    // 부서장 이름도 그 id 의 직원(김영업)을 따른다(부서원이 생겨서, 카드 "데모 목록 인사 재무")
+    expect(await get(`${HRM}/departments`)).toMatchObject({
+      data: {
+        content: expect.arrayContaining([
+          expect.objectContaining({
+            departmentId: 'dept-001',
+            managerId: 'emp-002',
+            managerName: '김영업',
+            description: '해외 영업',
+          }),
+        ]),
+      },
+    });
   });
 
   it('출퇴근 기록을 수정하면 목록의 출근, 퇴근 시각이 바뀐다', async () => {
-    const times = { checkInTime: '2026-01-28T08:30:00', checkOutTime: '2026-01-28T17:30:00' };
-    await put(`${HRM}/time-record/time-001`, times);
-    expect(await get(`${HRM}/time-record`)).toMatchObject(
-      content({ timerecordId: 'time-001', ...times }),
+    // 출퇴근 기록은 근태 집계의 날마다 만든다(카드 "데모 목록 인사 재무"). 마지막 근무일의 첫 행을 고친다
+    const date = attendanceDays().days.at(-1)?.date ?? '';
+    const list = `${HRM}/time-record?date=${date}`;
+    const before = await get(`${list}&page=0&size=1000`);
+    const first = RowsBody.parse(before).data.content[0];
+    const total = await totalOf(list);
+    const times = { checkInTime: `${date}T08:30:00`, checkOutTime: `${date}T17:30:00` };
+    await put(`${HRM}/time-record/${String(first.timerecordId)}`, times);
+    expect(await get(`${list}&page=0&size=1000`)).toMatchObject(
+      rowOf(total, { timerecordId: first.timerecordId, ...times }),
     );
   });
 
@@ -787,22 +852,27 @@ describe('재무 목 상태', () => {
   const FCM = '/business/fcm/invoice';
 
   it('매출 전표의 수금을 완료하면 목록과 상세가 PAID 다', async () => {
+    // 매출 전표는 주문마다 하나(카드 "데모 목록 인사 재무"). inv-ar-001 은 so-001 의 전표다
+    const total = await totalOf(`${FCM}/ar`);
     await post(`${FCM}/ar/inv-ar-001/receivable/complete`);
-    expect(await get(`${FCM}/ar`)).toMatchObject(
-      content({ invoiceId: 'inv-ar-001', statusCode: 'PAID' }),
+    expect(await all(`${FCM}/ar`)).toMatchObject(
+      rowOf(total, { invoiceId: 'inv-ar-001', statusCode: 'PAID' }),
     );
     expect(await get(`${FCM}/ar/inv-ar-001`)).toMatchObject({ data: { statusCode: 'PAID' } });
   });
 
   it('매입 전표는 처리 요청 뒤 PENDING, 공급사가 완료하면 PAID 다', async () => {
-    await post(`${FCM}/ap/receivable/request?invoiceId=inv-ap-001`);
-    expect(await get(`${FCM}/ap`)).toMatchObject(
-      content({ invoiceId: 'inv-ap-001', statusCode: 'PENDING' }),
+    // 매입 전표는 활성 공급사 5곳 × 12달(카드 "데모 목록 인사 재무"). 이번 달 첫 공급사의 전표는 미납이다
+    const AP = `inv-ap-${THIS_MONTH}-001`;
+    expect(await get(`${FCM}/ap/${AP}`)).toMatchObject({ data: { statusCode: 'UNPAID' } });
+    await post(`${FCM}/ap/receivable/request?invoiceId=${AP}`);
+    expect(await all(`${FCM}/ap`)).toMatchObject(
+      rowOf(60, { invoiceId: AP, statusCode: 'PENDING' }),
     );
-    expect(await get(`${FCM}/ap/inv-ap-001`)).toMatchObject({ data: { statusCode: 'PENDING' } });
+    expect(await get(`${FCM}/ap/${AP}`)).toMatchObject({ data: { statusCode: 'PENDING' } });
 
-    await post(`${FCM}/ap/inv-ap-001/payable/complete`);
-    expect(await get(`${FCM}/ap`)).toMatchObject(content({ statusCode: 'PAID' }));
-    expect(await get(`${FCM}/ap/inv-ap-001`)).toMatchObject({ data: { statusCode: 'PAID' } });
+    await post(`${FCM}/ap/${AP}/payable/complete`);
+    expect(await all(`${FCM}/ap`)).toMatchObject(rowOf(60, { invoiceId: AP, statusCode: 'PAID' }));
+    expect(await get(`${FCM}/ap/${AP}`)).toMatchObject({ data: { statusCode: 'PAID' } });
   });
 });
