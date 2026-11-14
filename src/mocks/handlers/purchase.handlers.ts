@@ -200,8 +200,8 @@ const SEED_PURCHASE_ORDERS: Array<{ row: PurchaseOrder; supplierId: string; line
     }),
   ];
 
-/** 발주서 목록. 바뀐 상태를 덮고 발주일 최신순 */
-const purchaseOrdersOf = (request: Request) => {
+/** 발주서 목록. 바뀐 상태를 덮고 발주일 최신순. 재고 목의 입고 대기, 입고 완료 목록도 여기서 거른다 */
+export const purchaseOrdersOf = (request: Request) => {
   const { orderStatus } = purchaseState(request);
   return SEED_PURCHASE_ORDERS.map(({ row }) => ({
     ...row,

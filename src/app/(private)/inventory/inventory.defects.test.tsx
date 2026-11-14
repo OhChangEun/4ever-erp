@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import { http } from 'msw';
 import { server } from '@/test/msw-server';
@@ -170,5 +170,28 @@ describe('재고 코드 표시 결함', () => {
     expect(await screen.findAllByText(/긴급 보충분/)).toHaveLength(1);
     expect(screen.getByText('PO-2026-001')).toBeInTheDocument();
     expect(screen.getByText('SO-2026-002')).toBeInTheDocument();
+  });
+  // 카드 "데모 목록 재고 물류": 행 key 가 품목 이름이라 같은 품목을 두 번 옮긴 기록이 오면 key 가 겹쳤다
+  it('같은 품목의 이동 기록이 둘이면 두 줄 다 보이고 key 경고가 없다', async () => {
+    const twice = [
+      { ...movements[2], itemName: '모터 A', quantity: 3, workDate: '2026-11-13T12:00:00' },
+      { ...movements[0], itemName: '모터 A', quantity: 7, workDate: '2026-11-12T15:30:00' },
+    ];
+    server.use(http.get(INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT, () => ok({ content: twice })));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      renderWithProviders(<StockMovement />);
+      await screen.findAllByText('모터 A');
+      const rows = screen.getAllByRole('listitem');
+      expect(rows).toHaveLength(2);
+      expect(within(rows[0]).getByText('3 EA')).toBeInTheDocument();
+      expect(within(rows[1]).getByText('7 EA')).toBeInTheDocument();
+      const keyWarnings = consoleError.mock.calls.filter((call) =>
+        call.some((arg) => String(arg).includes('same key')),
+      );
+      expect(keyWarnings).toEqual([]);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

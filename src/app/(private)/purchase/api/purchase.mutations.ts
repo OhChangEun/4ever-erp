@@ -19,6 +19,7 @@ import {
   purchaseStatsKeys,
   supplierKeys,
 } from './purchase.keys';
+import { inventoryStatsKeys, receivingKeys } from '@/app/(private)/inventory';
 import type { CreatePurchaseRequestBody } from '@/app/(private)/purchase/types/PurchaseRequestType';
 import type {
   CreateSupplierBody,
@@ -31,7 +32,7 @@ import type { ApiResponse } from '@/app/types/api';
  *
  * 아래 표가 "mutation 뒤 무엇을 다시 가져오나"의 단일 출처다. 훅은 이 표를 읽어 무효화하므로
  * 표와 동작이 따로 놀 수 없다. ARCHITECTURE.md 5절의 표는 이걸 옮겨 적은 것이다.
- * 다른 도메인 키는 넣지 않는다(10월 "재고가 인사 목록 무효화" 버그). 통계 키는 금액과 건수가
+ * 다른 도메인 키는 넣지 않는다(10월 "재고가 인사 목록 무효화" 버그). 예외는 배송 시작의 재고 입고 대기 목록과 재고 통계(표에 적음). 통계 키는 금액과 건수가
  * 바뀌는 mutation 마다 넣는다(10월 "통계 카드 누락" 버그).
  */
 export const PURCHASE_MUTATION_EFFECTS = {
@@ -45,10 +46,13 @@ export const PURCHASE_MUTATION_EFFECTS = {
     purchaseOrderKeys.detail(purchaseOrderId),
     purchaseStatsKeys.all,
   ],
+  // 배송중 발주는 재고 입고 대기 목록과 재고 통계(입고 대기 건수)에 든다. 재고 키 둘은 의도한 교차(카드 "데모 목록 재고 물류")
   startDelivery: (purchaseOrderId: string): readonly QueryKey[] => [
     purchaseOrderKeys.lists(),
     purchaseOrderKeys.detail(purchaseOrderId),
     purchaseStatsKeys.all,
+    receivingKeys.pendingLists(),
+    inventoryStatsKeys.all,
   ],
   // 요청 승인(release)은 발주를 만들 수 있다(서버 계약 미확인, OpenAPI 카드에서 확정). 발주 목록도 다시 가져온다.
   approveRequest: (purchaseRequestId: string): readonly QueryKey[] => [

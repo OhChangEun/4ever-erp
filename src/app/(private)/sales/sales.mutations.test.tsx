@@ -15,6 +15,7 @@ import {
   useCheckInventory,
   useProcessDelivery,
 } from './sales.mutations';
+import { inventoryStatsKeys, receivingKeys, shippingKeys } from '@/app/(private)/inventory';
 
 const FOREIGN = ['purchase', 'orders', 'list'];
 const QUOTE_LIST = quoteKeys.list({ page: 0, size: 10 });
@@ -30,6 +31,11 @@ const ORDER_LIST = salesOrderKeys.list({
 const CUSTOMER_LIST = customerKeys.list({ page: 0, size: 10 });
 const CUSTOMER_DETAIL = customerKeys.detail('cus-002');
 const ANALYTICS = analyticsKeys.byParams({ startDate: '2026-06-13', endDate: '2026-11-13' });
+// 재고 출고 화면의 키. 즉시 납품만 출고 준비 목록과 재고 통계를 건드린다(카드 "데모 목록 재고 물류")
+const READY_TO_SHIP = shippingKeys.readyToShipList({ page: 0, size: 10 });
+const PRODUCTION_ORDERS = shippingKeys.productionList({ page: 0, size: 10 });
+const RECEIVING_PENDING = receivingKeys.pendingList({ page: 0, size: 10 });
+const INVENTORY_STATS = inventoryStatsKeys.all;
 
 describe('영업 mutation 훅', () => {
   it('견적 생성 → 견적 목록, 통계', () =>
@@ -38,7 +44,7 @@ describe('영업 mutation 훅', () => {
       useHook: useCreateQuote,
       variables: { items: [] },
       invalidates: [QUOTE_LIST, salesStatsKeys.byRole('ALL_ADMIN')],
-      keeps: [ORDER_LIST, CUSTOMER_LIST, ANALYTICS, FOREIGN],
+      keeps: [ORDER_LIST, CUSTOMER_LIST, ANALYTICS, FOREIGN, READY_TO_SHIP, INVENTORY_STATS],
     }));
 
   it('검토 요청 → 견적 목록, 상세, 검토 상세, 통계', () =>
@@ -57,7 +63,8 @@ describe('영업 mutation 훅', () => {
 
   // 주문이 생기면 고객의 주문 수, 거래 금액, 마지막 주문일과 매출 분석이 바뀐다(데모 데이터 채우기 리뷰 A1).
   // 어느 고객인지는 견적 id 만으로 몰라 고객 상세는 전부 다시 받는다
-  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계, 고객 목록과 상세, 매출 분석', () =>
+  // 새 주문은 출고 준비라 재고 출고 준비 목록과 재고 통계에 든다(의도한 교차). 생산중, 입고 목록은 그대로
+  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계, 고객 목록과 상세, 매출 분석 + 재고 출고 준비 목록, 재고 통계', () =>
     expectMatrix({
       name: '',
       useHook: useProcessDelivery,
@@ -71,8 +78,10 @@ describe('영업 mutation 훅', () => {
         CUSTOMER_LIST,
         CUSTOMER_DETAIL,
         ANALYTICS,
+        READY_TO_SHIP,
+        INVENTORY_STATS,
       ],
-      keeps: [FOREIGN],
+      keeps: [FOREIGN, PRODUCTION_ORDERS, RECEIVING_PENDING],
     }));
 
   it('고객 등록(생성, 낙관적 없음) → 고객 목록만', () =>

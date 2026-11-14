@@ -57,8 +57,19 @@ export default function StockMovement() {
           {!isLoading && !isError && stockMovementCount > 0 && (
             // 이동 종류는 아이콘 대신 상태 글자 하나(지침 12장 아이콘 세 곳)
             <ul role="list" className="divide-y divide-gray-200">
-              {stockMovementRes?.map((movement) => (
-                <li key={movement.itemName} className="py-3 min-w-0">
+              {/* 행에 id 가 없다. 시각과 품목이 같은 행만 그 안의 순번으로 가른다(위에 새 행이 끼어도 다른 행 key 는 그대로) */}
+              {stockMovementRes?.map((movement, index, rows) => (
+                <li
+                  key={`${movement.workDate}-${movement.itemName}-${
+                    rows
+                      .slice(0, index)
+                      .filter(
+                        (row) =>
+                          row.workDate === movement.workDate && row.itemName === movement.itemName,
+                      ).length
+                  }`}
+                  className="py-3 min-w-0"
+                >
                   <div className="flex items-center gap-2">
                     <StatusLabel statusCode={getMovementType(movement.type)} />
                     <span className="text-sm font-medium text-gray-900">

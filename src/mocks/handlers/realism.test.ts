@@ -667,19 +667,19 @@ describe('같은 품목과 거래처는 응답끼리 같은 값이다', () => {
     });
   });
 
-  it('PO-2026-001 의 날짜와 금액이 발주 목록과 입고 대기 목록에서 같다', async () => {
-    // 발주 목록은 최신순이라 po-001 은 첫 쪽이 아니다
-    const order =
-      (await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS))).find(
-        (row) => row.purchaseOrderId === 'po-001',
-      ) ?? {};
-    const pending = (await rowsOf(INVENTORY_ENDPOINTS.PENDING_LIST)).find(
-      (row) => row.purchaseOrderId === order.purchaseOrderId,
-    );
-    expect(
-      pick(pending ?? {}, ['purchaseOrderNumber', 'orderDate', 'dueDate', 'totalAmount']),
-    ).toEqual(pick(order, ['purchaseOrderNumber', 'orderDate', 'dueDate', 'totalAmount']));
-    expect(pending?.supplierCompanyName).toBe(order.supplierName);
+  it('입고 대기 목록의 발주는 발주 목록의 같은 발주와 날짜, 금액, 공급사가 같다', async () => {
+    // 예전엔 입고 대기가 대기(PENDING) 발주 PO-2026-001 한 줄이었다. 이제 배송중 발주 전부다(카드 "데모 목록 재고 물류")
+    const orders = await rowsOf(allOf(PURCHASE_ENDPOINTS.PURCHASE_ORDERS));
+    const pendingRows = await rowsOf(allOf(INVENTORY_ENDPOINTS.PENDING_LIST));
+    expect(pendingRows.length).toBeGreaterThan(0);
+    for (const pending of pendingRows) {
+      const order = orders.find((row) => row.purchaseOrderId === pending.purchaseOrderId) ?? {};
+      expect(pick(pending, ['purchaseOrderNumber', 'orderDate', 'dueDate', 'totalAmount'])).toEqual(
+        pick(order, ['purchaseOrderNumber', 'orderDate', 'dueDate', 'totalAmount']),
+      );
+      expect(pending.supplierCompanyName).toBe(order.supplierName);
+      expect(order.statusCode).toBe('DELIVERING');
+    }
   });
 });
 
@@ -878,6 +878,7 @@ describe('통계 띠', () => {
 
   it('쓰기(생성, 시작, 배송) 뒤에도 건수 지표의 주 값은 그 로그인의 목록 총 건수다(리뷰 관찰 1)', async () => {
     const ordersThisWeek = await week(SALES_ENDPOINTS.STATS, 'new_orders_count');
+    const readyBefore = await week(INVENTORY_ENDPOINTS.STATS, 'delivery_pending');
     await post(SALES_ENDPOINTS.NEW_ORDER, {
       items: [{ itemId: 'item-1001', quantity: 5, unitPrice: 12000 }],
       note: '',
@@ -911,7 +912,8 @@ describe('통계 띠', () => {
     // 기본 견적 16건 + 1, 이번 주 주문 + 즉시 납품 1
     expect(await week(SALES_ENDPOINTS.CSUTOMER_STATISTICS, 'quotation_count')).toBe(17);
     expect(await week(SALES_ENDPOINTS.STATS, 'new_orders_count')).toBe(ordersThisWeek + 1);
-    expect(await week(INVENTORY_ENDPOINTS.STATS, 'delivery_pending')).toBe(0);
+    // 출고 준비는 영업 주문의 출고 준비 전부다. 즉시 납품 주문 하나가 들고 배송을 시작한 so-002 가 빠진다
+    expect(await week(INVENTORY_ENDPOINTS.STATS, 'delivery_pending')).toBe(readyBefore + 1 - 1);
     await expectCountsMatchLists();
   });
 
@@ -952,7 +954,9 @@ describe('통계 띠', () => {
   });
 
   it('재고 금액은 재고 목록 금액 합이다', async () => {
-    const rows = await rowsOf(INVENTORY_ENDPOINTS.INVENTORY_LIST);
+    // 목록은 품목표 14개라 2쪽이다. 통계는 목록 전부의 합
+    const rows = await rowsOf(allOf(INVENTORY_ENDPOINTS.INVENTORY_LIST));
+    expect(rows).toHaveLength(14);
     expect(await week(INVENTORY_ENDPOINTS.STATS, 'total_stock')).toBe(
       rows.reduce((sum, row) => sum + num(row.totalAmount), 0),
     );

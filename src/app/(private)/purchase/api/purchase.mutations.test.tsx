@@ -26,6 +26,7 @@ import {
   useStartPurchaseOrderDelivery,
   useUpdateSupplier,
 } from './purchase.mutations';
+import { inventoryStatsKeys, receivingKeys, shippingKeys } from '@/app/(private)/inventory';
 
 // 다른 도메인 키. 구매 mutation 이 여기를 건드리면 10월에 잡은 "재고가 인사 목록 무효화" 버그의 재발이다.
 const SALES_ORDER_LIST: QueryKey = ['sales', 'orders', 'list'];
@@ -64,6 +65,11 @@ const REQUEST_DETAIL = purchaseRequestKeys.detail('pr-001');
 const SUPPLIER_LIST = supplierKeys.list({ page: 0, size: 10 });
 const SUPPLIER_DETAIL = supplierKeys.detail('sup-001');
 const STATS = purchaseStatsKeys.byRole('ALL_ADMIN');
+// 재고 입고 화면의 키. 배송 시작만 입고 대기 목록과 재고 통계를 건드린다(카드 "데모 목록 재고 물류")
+const RECEIVING_PENDING = receivingKeys.pendingList({ page: 0, size: 10 });
+const RECEIVED = receivingKeys.receivedList({ page: 0, size: 10 });
+const INVENTORY_STATS = inventoryStatsKeys.all;
+const READY_TO_SHIP = shippingKeys.readyToShipList({ page: 0, size: 10 });
 const ALL_KEYS = [
   ORDER_LIST,
   ORDER_DETAIL,
@@ -73,6 +79,10 @@ const ALL_KEYS = [
   SUPPLIER_DETAIL,
   STATS,
   SALES_ORDER_LIST,
+  RECEIVING_PENDING,
+  RECEIVED,
+  INVENTORY_STATS,
+  READY_TO_SHIP,
 ];
 
 const seed = (queryClient: QueryClient) => {
@@ -109,7 +119,7 @@ const cases: Case[] = [
     name: '발주 승인',
     run: (qc) => runHook(qc, useApprovePurchaseOrder, 'po-001'),
     invalidates: [ORDER_LIST, ORDER_DETAIL, STATS],
-    keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST],
+    keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST, RECEIVING_PENDING, INVENTORY_STATS],
   },
   {
     name: '발주 반려',
@@ -118,10 +128,11 @@ const cases: Case[] = [
     keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST],
   },
   {
-    name: '배송 시작',
+    // 배송중 발주는 재고 입고 대기 목록과 재고 통계에 든다(의도한 교차). 입고 완료와 출고 목록은 그대로
+    name: '배송 시작 → 발주, 통계 + 재고 입고 대기 목록, 재고 통계',
     run: (qc) => runHook(qc, useStartPurchaseOrderDelivery, 'po-001'),
-    invalidates: [ORDER_LIST, ORDER_DETAIL, STATS],
-    keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST],
+    invalidates: [ORDER_LIST, ORDER_DETAIL, STATS, RECEIVING_PENDING, INVENTORY_STATS],
+    keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST, RECEIVED, READY_TO_SHIP],
   },
   {
     name: '구매 요청 승인 (발주가 생길 수 있어 발주 목록도)',
