@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { formatCurrency } from '@/app/utils/number';
@@ -8,6 +8,8 @@ import { buildBomTree } from '../../utils/buildBomTree';
 import { rollupBomCost, type NodeCost } from '../../utils/bomCost';
 import {
   bomLayout,
+  initialBomView,
+  TREE_VIEWPORT_HEIGHT,
   COLLAPSED_LABEL_GAP,
   NODE_H,
   NODE_W,
@@ -58,32 +60,52 @@ const useCostText = () => {
 export default function BomCostTree({ bomData }: { bomData: BomLevelStructureNode[] }) {
   const summaryId = useId();
   const { t, money, qtyText, costText } = useCostText();
-  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set());
+  const [manualCollapse, setManualCollapse] = useState<ReadonlyMap<string, boolean>>(
+    () => new Map(),
+  );
+  const toggledElement = useRef<SVGGElement | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   const { treeData, error } = useMemo(() => buildBomTree(bomData), [bomData]);
   const cost = useMemo(() => (treeData ? rollupBomCost(treeData) : null), [treeData]);
-  const layout = useMemo(
-    () => (treeData ? bomLayout(treeData, collapsed) : null),
-    [treeData, collapsed],
-  );
+  const initial = useMemo(() => (treeData ? initialBomView(treeData) : null), [treeData]);
+  const layout = useMemo(() => {
+    if (!initial || !treeData || !manualCollapse.size) return initial?.layout;
+    const collapsed = new Set(initial.collapsed);
+    for (const [id, isCollapsed] of manualCollapse) {
+      if (isCollapsed) collapsed.add(id);
+      else collapsed.delete(id);
+    }
+    return bomLayout(treeData, collapsed);
+  }, [initial, treeData, manualCollapse]);
 
-  if (error) return <TableStatusBox type="error" message={t(`error.${error}`)} />;
+  // 넓은 가지를 펼치면 누른 상자 자체가 수백 픽셀 옮겨질 수 있다.
+  useLayoutEffect(() => {
+    const node = toggledElement.current;
+    toggledElement.current = null;
+    const viewport = node?.ownerSVGElement?.parentElement;
+    if (!node || !viewport) return;
+    const bounds = node.getBoundingClientRect();
+    const clip = viewport.getBoundingClientRect();
+    if (bounds.top < clip.top) viewport.scrollTop += bounds.top - clip.top;
+    else if (bounds.bottom > clip.bottom) viewport.scrollTop += bounds.bottom - clip.bottom;
+  }, [layout]);
+
+  if (error || (cost && cost.byId.size !== bomData.length)) {
+    return <TableStatusBox type="error" message={t(`error.${error ?? 'convert'}`)} />;
+  }
   if (!treeData || !cost || !layout) return <TableStatusBox type="empty" message={t('empty')} />;
 
-  const toggle = (id: string) =>
-    setCollapsed((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const toggle = (node: LayoutNode, element: SVGGElement) => {
+    toggledElement.current = element;
+    setManualCollapse((prev) => new Map(prev).set(node.id, !node.collapsed));
+  };
 
-  const onKey = (e: KeyboardEvent, id: string) => {
+  const onKey = (e: KeyboardEvent<SVGGElement>, node: LayoutNode) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     e.preventDefault();
-    toggle(id);
+    toggle(node, e.currentTarget);
   };
 
   const labelOf = (n: LayoutNode) => {
@@ -133,7 +155,10 @@ export default function BomCostTree({ bomData }: { bomData: BomLevelStructureNod
       {showTable ? (
         <CostTable root={treeData} cost={cost.byId} />
       ) : (
-        <div className="max-h-[480px] overflow-auto rounded-lg border border-gray-200 bg-white">
+        <div
+          style={{ maxHeight: TREE_VIEWPORT_HEIGHT }}
+          className="overflow-auto rounded-lg border border-gray-200 bg-white"
+        >
           <svg
             role="group"
             aria-label={t('treeLabel')}
@@ -160,8 +185,8 @@ export default function BomCostTree({ bomData }: { bomData: BomLevelStructureNod
                   tabIndex={n.hasChildren ? 0 : undefined}
                   aria-expanded={n.hasChildren ? !n.collapsed : undefined}
                   aria-label={n.hasChildren ? labelOf(n) : undefined}
-                  onClick={n.hasChildren ? () => toggle(n.id) : undefined}
-                  onKeyDown={n.hasChildren ? (e) => onKey(e, n.id) : undefined}
+                  onClick={n.hasChildren ? (e) => toggle(n, e.currentTarget) : undefined}
+                  onKeyDown={n.hasChildren ? (e) => onKey(e, n) : undefined}
                   onFocus={() => setFocusedId(n.id)}
                   onBlur={() => setFocusedId(null)}
                   className={n.hasChildren ? 'cursor-pointer outline-none' : undefined}

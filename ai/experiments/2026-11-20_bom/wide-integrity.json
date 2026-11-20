@@ -1,0 +1,25 @@
+{
+  "wide": {
+    "before": {
+      "topInside": true,
+      "bottomInside": true,
+      "scrollTop": 0,
+      "visibleNodes": 1
+    },
+    "after": {
+      "topInside": true,
+      "bottomInside": true,
+      "scrollTop": 728,
+      "visibleNodes": 31
+    },
+    "focus": true
+  },
+  "orphan": {
+    "errorShown": true,
+    "partialSummaryHidden": true
+  },
+  "secondRoot": {
+    "errorShown": true,
+    "partialSummaryHidden": true
+  }
+}
