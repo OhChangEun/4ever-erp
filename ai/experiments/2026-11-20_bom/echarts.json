@@ -1,0 +1,336 @@
+{
+  "address": "http://localhost:3252/production?tab=bom&bomRenderer=echarts",
+  "chrome": "157.0.8103.80",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "cpuSlowdown": 4,
+  "runs": 3,
+  "samples": [
+    {
+      "size": 9,
+      "run": 1,
+      "cold": {
+        "inputToFrameMs": 716,
+        "inputToResponseEndMs": 330.59999999403954,
+        "detailRequestMs": 22.099999994039536,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 109.741,
+        "LayoutDurationMs": 6.674000000000014,
+        "RecalcStyleDurationMs": 10.117
+      },
+      "collapse": {
+        "inputToFrameMs": 28.799999997019768,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 10.510999999999992,
+        "LayoutDurationMs": 0.18299999999998873,
+        "RecalcStyleDurationMs": 1.3749999999999978
+      },
+      "reopen": {
+        "inputToFrameMs": 28.5,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 16.262,
+        "LayoutDurationMs": 1.1550000000000034,
+        "RecalcStyleDurationMs": 5.606
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": true,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 357
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 482
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 3,
+      "foldedButtons": 3,
+      "reexpandedButtons": 3,
+      "restoredAllAssemblies": true,
+      "scrollDelta": null,
+      "tableRows": 9
+    },
+    {
+      "size": 9,
+      "run": 2,
+      "cold": {
+        "inputToFrameMs": 709.2000000029802,
+        "inputToResponseEndMs": 325.09999999403954,
+        "detailRequestMs": 18.599999994039536,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 106.96599999999998,
+        "LayoutDurationMs": 6.637999999999991,
+        "RecalcStyleDurationMs": 10.310999999999996
+      },
+      "collapse": {
+        "inputToFrameMs": 27.5,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 10.988999999999999,
+        "LayoutDurationMs": 1.0050000000000059,
+        "RecalcStyleDurationMs": 0.8129999999999977
+      },
+      "reopen": {
+        "inputToFrameMs": 29,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 16.042,
+        "LayoutDurationMs": 1.2270000000000059,
+        "RecalcStyleDurationMs": 5.589999999999998
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": true,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 357
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 482
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 3,
+      "foldedButtons": 3,
+      "reexpandedButtons": 3,
+      "restoredAllAssemblies": true,
+      "scrollDelta": null,
+      "tableRows": 9
+    },
+    {
+      "size": 9,
+      "run": 3,
+      "cold": {
+        "inputToFrameMs": 707.0999999940395,
+        "inputToResponseEndMs": 324.09999999403954,
+        "detailRequestMs": 17.099999994039536,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 104.94200000000001,
+        "LayoutDurationMs": 7.1439999999999975,
+        "RecalcStyleDurationMs": 10.028000000000002
+      },
+      "collapse": {
+        "inputToFrameMs": 29.299999997019768,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 9.831000000000007,
+        "LayoutDurationMs": 0.6710000000000049,
+        "RecalcStyleDurationMs": 0.7769999999999999
+      },
+      "reopen": {
+        "inputToFrameMs": 30.599999994039536,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 14.419000000000015,
+        "LayoutDurationMs": 1.4259999999999966,
+        "RecalcStyleDurationMs": 5.067000000000002
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": true,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 357
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 482
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 3,
+      "foldedButtons": 3,
+      "reexpandedButtons": 3,
+      "restoredAllAssemblies": true,
+      "scrollDelta": null,
+      "tableRows": 9
+    },
+    {
+      "size": 1023,
+      "run": 1,
+      "cold": {
+        "inputToFrameMs": 888.2000000029802,
+        "inputToResponseEndMs": 324.5,
+        "detailRequestMs": 18.600000008940697,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 355.1,
+        "LayoutDurationMs": 7.185999999999998,
+        "RecalcStyleDurationMs": 18.630999999999997
+      },
+      "collapse": {
+        "inputToFrameMs": 135.70000000298023,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 120.64000000000003,
+        "LayoutDurationMs": 0.8650000000000047,
+        "RecalcStyleDurationMs": 4.735999999999997
+      },
+      "reopen": {
+        "inputToFrameMs": 191.59999999403954,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 167.44599999999997,
+        "LayoutDurationMs": 2.0160000000000178,
+        "RecalcStyleDurationMs": 13.907000000000004
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 29933
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 14957
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 511,
+      "foldedButtons": 257,
+      "reexpandedButtons": 511,
+      "restoredAllAssemblies": true,
+      "scrollDelta": 360,
+      "tableRows": 1023
+    },
+    {
+      "size": 1023,
+      "run": 2,
+      "cold": {
+        "inputToFrameMs": 884.7000000029802,
+        "inputToResponseEndMs": 325.40000000596046,
+        "detailRequestMs": 18.400000005960464,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 352.726,
+        "LayoutDurationMs": 7.432000000000008,
+        "RecalcStyleDurationMs": 19.484
+      },
+      "collapse": {
+        "inputToFrameMs": 140.90000000596046,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 123.836,
+        "LayoutDurationMs": 1.0449999999999904,
+        "RecalcStyleDurationMs": 5.794999999999995
+      },
+      "reopen": {
+        "inputToFrameMs": 197.70000000298023,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 171.2729999999999,
+        "LayoutDurationMs": 2.1740000000000093,
+        "RecalcStyleDurationMs": 13.548999999999992
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 29933
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 14957
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 511,
+      "foldedButtons": 257,
+      "reexpandedButtons": 511,
+      "restoredAllAssemblies": true,
+      "scrollDelta": 360,
+      "tableRows": 1023
+    },
+    {
+      "size": 1023,
+      "run": 3,
+      "cold": {
+        "inputToFrameMs": 890.2000000029802,
+        "inputToResponseEndMs": 324.59999999403954,
+        "detailRequestMs": 17.099999994039536,
+        "scriptsTransferredBytes": 152910,
+        "scriptRequests": 4,
+        "ScriptDurationMs": 361.69800000000004,
+        "LayoutDurationMs": 7.10100000000001,
+        "RecalcStyleDurationMs": 17.803
+      },
+      "collapse": {
+        "inputToFrameMs": 148.59999999403954,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 132.71200000000005,
+        "LayoutDurationMs": 1.0869999999999909,
+        "RecalcStyleDurationMs": 4.931999999999999
+      },
+      "reopen": {
+        "inputToFrameMs": 192.19999998807907,
+        "inputToResponseEndMs": null,
+        "detailRequestMs": null,
+        "scriptsTransferredBytes": 0,
+        "scriptRequests": 0,
+        "ScriptDurationMs": 168.37200000000007,
+        "LayoutDurationMs": 2.0870000000000055,
+        "RecalcStyleDurationMs": 13.492000000000004
+      },
+      "initialVisibility": {
+        "root": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 29933
+        },
+        "rotor": {
+          "inChartArea": false,
+          "inBrowserViewport": false,
+          "yFromScrollArea": 14957
+        },
+        "chartHeight": 480,
+        "scrollTop": 0
+      },
+      "buttons": 511,
+      "foldedButtons": 257,
+      "reexpandedButtons": 511,
+      "restoredAllAssemblies": true,
+      "scrollDelta": 360,
+      "tableRows": 1023
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import type { TreeNode } from './bomTreeUtils';
 
 export const NODE_W = 168;
 export const NODE_H = 64;
+export const TREE_VIEWPORT_HEIGHT = 480;
 /** 같은 깊이 노드 사이(세로) */
 const GAP_BREADTH = 14;
 /** 깊이 사이(가로). 접힘 글자가 들어갈 자리 */
@@ -72,3 +73,20 @@ export const bomLayout = (root: TreeNode, collapsed: ReadonlySet<string>) => {
   );
   return { nodes, links, width: right + PAD, height: maxB - minB + NODE_H + PAD * 2 };
 };
+
+/** 펼친 배치에서 완제품이 세로 스크롤 밖이면 처음에는 한 단계씩 둘러보게 한다. */
+export function initialBomView(root: TreeNode) {
+  const collapsed = new Set<string>();
+  let layout = bomLayout(root, collapsed);
+  if (layout.nodes[0].y + NODE_H + PAD <= TREE_VIEWPORT_HEIGHT) return { collapsed, layout };
+  for (const node of layout.nodes) {
+    if (node.depth > 0 && node.hasChildren) collapsed.add(node.id);
+  }
+  layout = bomLayout(root, collapsed);
+  // 직속 자재만 많아도 완제품이 밀려난다. 그때는 완제품부터 열 수 있게 둔다.
+  if (layout.nodes[0].y + NODE_H + PAD > TREE_VIEWPORT_HEIGHT) {
+    collapsed.add(root.id);
+    layout = bomLayout(root, collapsed);
+  }
+  return { collapsed, layout };
+}

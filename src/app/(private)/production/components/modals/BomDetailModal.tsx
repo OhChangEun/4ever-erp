@@ -246,7 +246,7 @@ export default function BomDetailModal({ bomId, showStatusActions }: BomDetailMo
           {/* 레벨 구조 */}
           <div>
             <h4 className="text-md font-semibold text-gray-900 mb-4">{t('bomDetail.treeTitle')}</h4>
-            <BomCostTree bomData={bomDetail.levelStructure} />
+            <BomCostTree key={bomId} bomData={bomDetail.levelStructure} />
           </div>
 
           {/* 공정 라우팅 정보 */}
