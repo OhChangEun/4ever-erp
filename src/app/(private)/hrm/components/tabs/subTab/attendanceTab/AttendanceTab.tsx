@@ -185,6 +185,7 @@ export default function AttendanceTab({ tabButtons }: { tabButtons?: ReactNode }
         <TableStatusBox type="error" message={t('attendance.loadError')} />
       ) : (
         <Table
+          scrollLabel={t('tabs.attendanceRecords')}
           isStale={isPlaceholderData}
           columns={columns}
           data={attendanceList}
