@@ -104,6 +104,11 @@ test('BOM 원가 트리에 완제품 원가(이상)가 있고 조립품을 키�
   await page.keyboard.press('Enter');
   await expect(rotor).toHaveAttribute('aria-expanded', 'false');
   await expect(tree.getByText('하위 3개 접힘', { exact: true })).toBeVisible();
+  await expect(rotor).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(rotor).toHaveAttribute('aria-expanded', 'true');
+  await expect(rotor).toBeFocused();
+  await expect(tree.getByText('하위 3개 접힘', { exact: true })).toHaveCount(0);
 });
 
 /** 시각화 8: 창고 3D 는 실제 재고를 재고율 색으로 그리고, 목록에서 고른 품목의 재고 상세를 연다 */

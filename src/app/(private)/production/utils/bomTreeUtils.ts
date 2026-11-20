@@ -24,11 +24,7 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
-/**
- * 백엔드 BOM 데이터를 D3 트리 구조로 변환
- * @param bomData 백엔드에서 받아온 BOM 데이터
- * @returns D3TreeChart에서 사용할 수 있는 트리 구조
- */
+/** BOM 상세 응답의 평탄한 행을 형제 품목 코드 순서의 트리로 연결한다. */
 export function transformBomDataToTree(bomData: BomApiNode[]): TreeNode | null {
   if (bomData.length === 0) return null;
 
@@ -36,10 +32,16 @@ export function transformBomDataToTree(bomData: BomApiNode[]): TreeNode | null {
   const rootNode = bomData.find((node) => node.level === 0 || !node.parentId);
   if (!rootNode) return null;
 
-  // 2. 재귀적으로 자식 노드들을 연결
+  const childrenByParent = new Map<string, BomApiNode[]>();
+  for (const node of bomData) {
+    if (node.parentId === undefined) continue;
+    const siblings = childrenByParent.get(node.parentId);
+    if (siblings) siblings.push(node);
+    else childrenByParent.set(node.parentId, [node]);
+  }
+
   function buildTree(parentNode: BomApiNode): TreeNode {
-    const children = bomData
-      .filter((node) => node.parentId === parentNode.id)
+    const children = (childrenByParent.get(parentNode.id) ?? [])
       .map((child) => buildTree(child))
       .sort((a, b) => a.code.localeCompare(b.code)); // 코드 순으로 정렬
 
