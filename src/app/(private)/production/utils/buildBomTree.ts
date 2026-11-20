@@ -20,7 +20,7 @@ export function buildBomTree(bomData: readonly BomLevelStructureNode[]): BomTree
       id: node.id,
       code: node.code,
       name: node.name,
-      quantity: node.quantity || undefined,
+      quantity: node.quantity ?? undefined,
       unit: node.unit || undefined,
       level: node.level,
       parentId: node.parentId || undefined,

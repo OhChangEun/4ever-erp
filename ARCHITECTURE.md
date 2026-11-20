@@ -248,6 +248,8 @@ CI 는 빌드용 더미 `SESSION_SECRET` 을 넣는다 (`.github/workflows/ci.ym
 
 ## 8-1. 성능 기준선 (2026-11-10)
 
+생산 BOM 상세의 계층 변환, 실제 모달 입력 지연, 수량 0 재현은 [BOM 문제 카드](ai/cards/2026-11-20_BOM_상세에서_자식_부품_찾기.md)에 개별 측정값과 함께 기록했다.
+
 측정: `pnpm build` 뒤 `pnpm perf`. 같은 맥에서 전후를 비교하는 용도다. 절대값으로 쓰지 않는다.
 
 첫 로드 JS(정적 HTML 이 처음 받는 스크립트, gzip). `scripts/measure-bundle.mjs`:
