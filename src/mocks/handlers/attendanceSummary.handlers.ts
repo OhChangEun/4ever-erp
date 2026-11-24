@@ -1,12 +1,13 @@
 import { createOpenApiHttp } from 'openapi-msw';
 import type { paths } from '@/lib/api/openapi.gen';
 import { API_BASE_URL } from '@/app/types/api';
-import { addDays, startOfDay, toDateKey } from '@/app/utils/date';
+import { addDays, todayKey } from './seed';
 import { shouldError } from './utils';
 
 /**
  * 날짜별 근태 집계 목(시각화 5). 새 핸들러라 openapi-msw 로 쓴다(결정 기록 OpenAPI 계약 2).
- * 오늘에서 끝나는 12주의 근무일(월~금). 값은 날 순번으로 정해져 결정적이고, 3주 전 주에 지각이 몰린다.
+ * 오늘(한국 날짜)에서 끝나는 12주의 근무일(월~금). 12주 창은 날짜를 고르기만 하고 값은 그 날짜로 정한다(카드 "날짜가
+ * 지나도 같은 데모 데이터"). 매월 22~28일에 지각이 몰린다.
  */
 const http = createOpenApiHttp<paths>({ baseUrl: API_BASE_URL });
 
@@ -14,29 +15,30 @@ const WEEKS = 12;
 /** 회사 인원. 인사와 대시보드 통계의 직원 수도 이 값이다 */
 export const HEADCOUNT = 40;
 
-export const attendanceDays = (today = new Date()) => {
-  const end = startOfDay(today);
-  const start = addDays(end, -(WEEKS * 7 - 1));
-  const days = [];
-  for (let i = 0; i < WEEKS * 7; i++) {
-    const date = addDays(start, i);
-    const dow = date.getDay();
-    if (dow === 0 || dow === 6) continue;
-    const daysAgo = WEEKS * 7 - 1 - i;
-    const busyWeek = daysAgo >= 15 && daysAgo <= 21;
-    const late = busyWeek ? 3 + (i % 3) : i % 4 === 1 ? 1 : i % 7 === 3 ? 2 : 0;
-    const absent = i % 9 === 0 ? 1 : 0;
-    const onLeave = i % 6 === 0 ? 2 : 0;
-    days.push({
-      date: toDateKey(date),
-      headcount: HEADCOUNT,
-      present: HEADCOUNT - late - absent - onLeave,
-      late,
-      absent,
-      onLeave,
-    });
-  }
-  return { from: toDateKey(start), to: toDateKey(end), days };
+const dayOf = (date: string) => {
+  const day = new Date(date);
+  // 1970-01-01(목)에서 센 날 수
+  const n = day.getTime() / 86_400_000;
+  const busy = day.getUTCDate() >= 22 && day.getUTCDate() <= 28;
+  const late = busy ? 3 + (n % 3) : n % 4 === 1 ? 1 : n % 7 === 4 ? 2 : 0;
+  const absent = n % 9 === 0 ? 1 : 0;
+  const onLeave = n % 6 === 0 ? 2 : 0;
+  return {
+    date,
+    headcount: HEADCOUNT,
+    present: HEADCOUNT - late - absent - onLeave,
+    late,
+    absent,
+    onLeave,
+  };
+};
+
+export const attendanceDays = (today = todayKey()) => {
+  const from = addDays(today, -(WEEKS * 7 - 1));
+  const days = Array.from({ length: WEEKS * 7 }, (_, i) => addDays(from, i))
+    .filter((date) => ![0, 6].includes(new Date(date).getUTCDay()))
+    .map(dayOf);
+  return { from, to: today, days };
 };
 
 export const attendanceSummaryHandlers = [

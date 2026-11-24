@@ -41,7 +41,16 @@ test('MES 간트에서 막대를 키보드로 옮기고 Enter 로 상세를 연�
   await expect(page.getByRole('dialog', { name: 'MES 현황' })).toBeVisible();
 });
 
-/** 시각화 4: 재무 현황 탭의 월별 복합 차트와 미수금 경과 */
+interface ArInvoice {
+  totalAmount: number;
+  dueDate: string;
+  statusCode: string;
+}
+
+/**
+ * 시각화 4: 재무 현황 탭의 월별 복합 차트와 미수금 경과. 미수금은 같은 로그인의 매출 전표(미납, 수금 대기)를 받아
+ * 여기서 다시 계산한 금액과 정확히 견준다(카드 "날짜가 지나도 같은 데모 데이터")
+ */
 test('재무 현황에 월별 매출, 매입 차트와 미수금 경과 표가 있다', async ({ page }) => {
   await page.goto('/finance');
   await page.getByRole('button', { name: '재무 현황' }).first().click();
@@ -54,7 +63,17 @@ test('재무 현황에 월별 매출, 매입 차트와 미수금 경과 표가 �
     monthly.getByRole('table', { name: '월별 매출과 매입 표' }).locator('tbody tr'),
   ).toHaveCount(12);
   const aging = page.getByRole('region', { name: '미수금 경과' });
-  await expect(aging).toContainText(/기한 지난 금액 ₩100,700,000\(36%\)/);
+  const response = await page.request.get('/api/proxy/business/fcm/invoice/ar?page=0&size=5000');
+  expect(response.status()).toBe(200);
+  const body: { data: { content: ArInvoice[] } } = await response.json();
+  const today = new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 10);
+  const open = body.data.content.filter((row) => row.statusCode !== 'PAID');
+  const sum = (rows: ArInvoice[]) => rows.reduce((total, row) => total + row.totalAmount, 0);
+  const overdue = sum(open.filter((row) => row.dueDate < today));
+  expect(overdue).toBeGreaterThan(0);
+  await expect(aging).toContainText(
+    `기한 지난 금액 ₩${overdue.toLocaleString('ko-KR')}(${Math.round((overdue / sum(open)) * 100)}%)`,
+  );
   await expect(
     aging.getByRole('table', { name: '미수금 경과 표' }).locator('tbody tr'),
   ).toHaveCount(5);

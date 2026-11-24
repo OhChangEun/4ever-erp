@@ -106,7 +106,7 @@ const productionRows = (request: Request) => {
  * 생산 완료일은 주문 10일 뒤, 출고 준비일은 11일 뒤(영업 주문의 상태 기간), 오늘보다 늦으면 오늘(즉시 납품 주문). verified=false.
  * 목록 상태 값 READY_TO_SHIP 은 게이트웨이 옛 목 데이터의 목록 값이다(계약은 READY_FOR_SHIPMENT 도 받는다)
  */
-const readyRows = (request: Request) => {
+export const readyRows = (request: Request) => {
   const today = todayKey();
   return ordersOf(request)
     .filter((order) => order.statusCode === 'READY_FOR_SHIPMENT')
@@ -124,7 +124,7 @@ const readyRows = (request: Request) => {
 };
 
 /** 입고 목록의 행. 발주 목록(바뀐 상태 포함, 발주일 최신순)에서 그 상태만 */
-const receivingRowsOf = (request: Request, from: 'DELIVERING' | 'DELIVERED') =>
+export const receivingRowsOf = (request: Request, from: 'DELIVERING' | 'DELIVERED') =>
   purchaseOrdersOf(request)
     .filter((order) => order.statusCode === from)
     .map((order) => ({

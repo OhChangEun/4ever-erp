@@ -19,7 +19,12 @@ import { useErrorMessage } from '@/i18n/useErrorMessage';
 import { formatCurrency } from '@/app/utils/number';
 import { useDismissibleError } from '@/app/hooks/useDismissibleError';
 import { useTranslations } from 'next-intl';
-const NewOrderModal = ({ onClose }: ModalProps) => {
+interface NewOrderModalProps extends ModalProps {
+  /** 견적 요청이 성공한 뒤. 모달을 연 화면이 자기 캐시를 지울 때 쓴다 */
+  onCreated?: () => void;
+}
+
+const NewOrderModal = ({ onClose, onCreated }: NewOrderModalProps) => {
   // 대시보드에서도 열린다. 대시보드 레이아웃이 영업 메시지를 같이 감싼다(i18n 8)
   const t = useTranslations('sales.newOrder');
   const tc = useTranslations('sales.common');
@@ -131,6 +136,7 @@ const NewOrderModal = ({ onClose }: ModalProps) => {
   const { mutate: addOrder, isPending: isCreating } = useCreateQuote({
     onSuccess: () => {
       toast.success(t('success'));
+      onCreated?.();
       setNewOrderItems({
         items: [
           {
