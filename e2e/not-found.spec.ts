@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { waitForListLoaded } from './helpers';
+import { quoteNumberOf, waitForListLoaded } from './helpers';
 
 /**
  * 카드 "없는 건은 404"(ai/cards/2026-11-13_없는_건은_404.md). 서버 목(프록시 → `src/app/api/[...slug]`)이
@@ -33,10 +33,11 @@ test('서버 목은 목록에 없는 id 의 상세에 404, 있는 id 에 200 을
 
 test('견적 상세가 404 면 오류 안내만 보이고 견적 목록을 다시 받는다', async ({ page }) => {
   // 첫 쪽의 견적(성원오토). 기본 16건, 최신순(카드 "데모 데이터 채우기")
+  const number = await quoteNumberOf(page, 'qt-014');
   await redirectDetailToMissing(page, '/business/sd/quotations', 'qt-014');
   await page.goto('/sales?tab=quotes');
   await waitForListLoaded(page);
-  const row = page.getByRole('row', { name: /QT-2026-014/ });
+  const row = page.getByRole('row', { name: new RegExp(number) });
   await expect(row).toBeVisible();
 
   const listRefetch = page.waitForRequest(

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { quoteNumberOf } from './helpers';
 
 /**
  * 이미 처리된 건의 버튼 카드(ai/cards/2026-11-12_이미_처리된_건의_버튼.md).
@@ -54,10 +55,14 @@ test('영업 견적을 즉시 납품하면 그 견적을 다시 고를 수 없�
   await page.goto('/sales');
 
   // 첫 쪽 맨 위의 대기 견적. 모터 A 40, 베어링 B 10 이라 재고(120, 20) 안이다(카드 "데모 데이터 채우기")
-  const box = page.getByRole('checkbox', { name: 'QT-2026-016 선택' });
+  const [pending, approved] = [
+    await quoteNumberOf(page, 'qt-016'),
+    await quoteNumberOf(page, 'qt-015'),
+  ];
+  const box = page.getByRole('checkbox', { name: `${pending} 선택` });
   await expect(box).toBeEnabled({ timeout: 30_000 });
   // 이미 승인된 견적은 처음부터 고를 수 없다
-  await expect(page.getByRole('checkbox', { name: 'QT-2026-015 선택' })).toBeDisabled();
+  await expect(page.getByRole('checkbox', { name: `${approved} 선택` })).toBeDisabled();
   await box.check();
   await page.getByRole('button', { name: '견적 검토 요청' }).click();
 

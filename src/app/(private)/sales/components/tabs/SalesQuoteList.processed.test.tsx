@@ -7,18 +7,21 @@ import { SALES_ENDPOINTS } from '@/app/types/api';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { countRequests } from '@/test/countRequests';
+import { quoteNumberOf } from '@/test/mockApi';
 import SalesQuoteList from './SalesQuoteList';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import { postQuotationConfirm } from '../../sales.api';
 
 /**
  * 이미 처리된 건의 버튼 카드. 처리(검토 요청, 즉시 납품)는 대기(PENDING) 견적만 한다(카드 결정 2, verified=false).
- * 기본 목 견적 16건(카드 "데모 데이터 채우기"). 첫 쪽: QT-2026-016 대기(재고 충분), 015 승인, 014 대기(재고 부족),
+ * 기본 목 견적 16건(카드 "데모 데이터 채우기"). 첫 쪽: qt-016 대기(재고 충분), 015 승인, 014 대기(재고 부족),
  * 013 검토중, 012 반려. 2쪽: 002 대기(모터 A 225 > 재고 120), 001 승인, 003 검토중, 004 반려.
  */
 const REVIEW = '견적 검토 요청';
 const DELIVER = '즉시 납품 처리';
 const checkbox = (number: string) => screen.findByRole('checkbox', { name: `${number} 선택` });
+/** 기본 견적(id)의 체크박스. 번호는 목록과 같은 API 로 읽는다 */
+const seedCheckbox = async (quotationId: string) => checkbox(await quoteNumberOf(quotationId));
 
 const quote = (quotationId: string, quotationNumber: string, statusCode: string) => ({
   quotationId,
@@ -40,11 +43,11 @@ const useQuotes = (rows: ReturnType<typeof quote>[]) =>
 describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', () => {
   it('대기 견적만 고를 수 있다', async () => {
     renderWithProviders(<SalesQuoteList />);
-    expect(await checkbox('QT-2026-016')).toBeEnabled();
-    expect(await checkbox('QT-2026-014')).toBeEnabled();
-    expect(await checkbox('QT-2026-015')).toBeDisabled();
-    expect(await checkbox('QT-2026-013')).toBeDisabled();
-    expect(await checkbox('QT-2026-012')).toBeDisabled();
+    expect(await seedCheckbox('qt-016')).toBeEnabled();
+    expect(await seedCheckbox('qt-014')).toBeEnabled();
+    expect(await seedCheckbox('qt-015')).toBeDisabled();
+    expect(await seedCheckbox('qt-013')).toBeDisabled();
+    expect(await seedCheckbox('qt-012')).toBeDisabled();
   });
 
   it('모르는 상태 값의 견적은 고를 수 없다', async () => {
@@ -58,7 +61,7 @@ describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', (
     const user = userEvent.setup();
     renderWithProviders(<SalesQuoteList />);
 
-    await user.click(await checkbox('QT-2026-016'));
+    await user.click(await seedCheckbox('qt-016'));
     await user.click(screen.getByRole('button', { name: REVIEW }));
     const dialog = within(await screen.findByRole('dialog', { name: REVIEW }));
     await user.click(await dialog.findByRole('button', { name: '재고 확인' }));
@@ -70,7 +73,7 @@ describe('영업 견적 목록: 처리한 견적은 다시 고를 수 없다', (
     expect(posts()).toBe(1);
 
     await user.keyboard('{Escape}');
-    const box = await checkbox('QT-2026-016');
+    const box = await seedCheckbox('qt-016');
     expect(box).toBeDisabled();
     expect(box).not.toBeChecked();
     expect(screen.getByRole('button', { name: REVIEW })).toBeDisabled();
@@ -110,7 +113,7 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
   });
 
   it('기본 목의 재고 확인이 요청 수량을 보고 부족하면 생산에서 검토가 보인다', async () => {
-    // QT-2026-002: 모터 A 225(재고 120), 베어링 B 200(재고 20). 덮어쓰기 없이 기본 목으로 본다
+    // qt-002: 모터 A 225(재고 120), 베어링 B 200(재고 20). 덮어쓰기 없이 기본 목으로 본다
     await openAndCheck('qt-002');
     expect(screen.getByRole('link', { name: '생산관리에서 검토' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: DELIVER })).not.toBeInTheDocument();

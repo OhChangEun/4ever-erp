@@ -9,7 +9,7 @@ import ko from '@/i18n/messages/ko.json';
 import { http } from 'msw';
 import * as z from 'zod';
 import { ok } from '@/mocks/utils';
-import { mockApi } from '@/test/mockApi';
+import { mockApi, quoteNumberOf } from '@/test/mockApi';
 import { formatNumber } from '@/app/utils/number';
 import { SALES_ENDPOINTS } from '@/app/types/api';
 import { server } from '@/test/msw-server';
@@ -132,14 +132,15 @@ describe('영업 화면 영어(i18n 8)', () => {
     expect(await screen.findByRole('columnheader', { name: 'Quote no.' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Due date' })).toBeInTheDocument();
     // 첫 쪽 맨 위(가장 최근 견적). 기본 16건, 최신순(카드 "데모 데이터 채우기")
-    const checkbox = screen.getByRole('checkbox', { name: 'Select QT-2026-016' });
+    const number = await quoteNumberOf('qt-016');
+    const checkbox = screen.getByRole('checkbox', { name: `Select ${number}` });
     expect(checkbox).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Request quote review' })).toBeDisabled();
     await userEvent.click(screen.getByRole('combobox', { name: 'All statuses' }));
     expect(screen.getByRole('option', { name: 'In review' })).toBeInTheDocument();
-    // 견적이 여러 행이라(서버 계약 2 리뷰) QT-2026-016 행의 버튼을 누른다
+    // 견적이 여러 행이라(서버 계약 2 리뷰) 그 행의 버튼을 누른다
     await userEvent.click(rowButton(checkbox, 'Details'));
-    const dialog = await screen.findByRole('dialog', { name: 'Quote details - QT-2026-016' });
+    const dialog = await screen.findByRole('dialog', { name: `Quote details - ${number}` });
     expect(await within(dialog).findByText('Quote items')).toBeInTheDocument();
     expect(within(dialog).getByRole('columnheader', { name: 'Unit price' })).toBeInTheDocument();
   });
@@ -147,11 +148,12 @@ describe('영업 화면 영어(i18n 8)', () => {
   it('한국어 견적 목록은 예전과 같다', async () => {
     renderWithProviders(<SalesQuoteList />);
     expect(await screen.findByRole('columnheader', { name: '견적번호' })).toBeInTheDocument();
-    const checkbox = screen.getByRole('checkbox', { name: 'QT-2026-016 선택' });
+    const number = await quoteNumberOf('qt-016');
+    const checkbox = screen.getByRole('checkbox', { name: `${number} 선택` });
     expect(checkbox).toBeInTheDocument();
     await userEvent.click(rowButton(checkbox, '상세'));
     expect(
-      await screen.findByRole('dialog', { name: '견적서 상세보기-QT-2026-016' }),
+      await screen.findByRole('dialog', { name: `견적서 상세보기-${number}` }),
     ).toBeInTheDocument();
   });
 

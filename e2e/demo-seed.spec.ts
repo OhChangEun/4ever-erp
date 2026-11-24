@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { waitForListLoaded } from './helpers';
+import { quoteNumberOf, waitForListLoaded } from './helpers';
 
 /**
  * 카드 "데모 데이터 채우기"(ai/cards/2026-11-13_데모_데이터_채우기.md). 서버 목(프록시 → `src/app/api/[...slug]`)으로
@@ -48,8 +48,9 @@ test('재고가 모자란 견적은 재고 확인 뒤 생산 검토로 안내하
 }) => {
   await loginAs(page, 'ADMIN');
   await page.goto('/sales');
-  // QT-2026-014: 모터 A 350(재고 120), 베어링 B 120(재고 20)
-  const box = page.getByRole('checkbox', { name: 'QT-2026-014 선택' });
+  // qt-014: 모터 A 350(재고 120), 베어링 B 120(재고 20)
+  const number = await quoteNumberOf(page, 'qt-014');
+  const box = page.getByRole('checkbox', { name: `${number} 선택` });
   await expect(box).toBeEnabled({ timeout: 30_000 });
   await box.check();
   await page.getByRole('button', { name: '견적 검토 요청' }).click();
@@ -66,8 +67,9 @@ test('재고가 모자란 견적은 재고 확인 뒤 생산 검토로 안내하
 test('즉시 납품으로 만든 대성기계 주문 상세에 주소와 담당자가 있다', async ({ page }) => {
   await loginAs(page, 'ADMIN');
   await page.goto('/sales');
-  // QT-2026-016: 대성기계, 모터 A 40, 베어링 B 10(재고 안)
-  const box = page.getByRole('checkbox', { name: 'QT-2026-016 선택' });
+  // qt-016: 대성기계, 모터 A 40, 베어링 B 10(재고 안)
+  const number = await quoteNumberOf(page, 'qt-016');
+  const box = page.getByRole('checkbox', { name: `${number} 선택` });
   await expect(box).toBeEnabled({ timeout: 30_000 });
   await box.check();
   await page.getByRole('button', { name: '견적 검토 요청' }).click();
@@ -80,7 +82,7 @@ test('즉시 납품으로 만든 대성기계 주문 상세에 주소와 담당�
   await page.goto('/sales?tab=orders');
   await waitForListLoaded(page);
   // 오늘 만든 주문이라 최신순 맨 위
-  const row = page.getByRole('row', { name: /SO-QT-2026-016/ });
+  const row = page.getByRole('row', { name: new RegExp(`SO-${number}`) });
   await expect(row).toBeVisible({ timeout: 30_000 });
   await row.getByRole('button', { name: '상세' }).click();
   const detail = page.getByRole('dialog');

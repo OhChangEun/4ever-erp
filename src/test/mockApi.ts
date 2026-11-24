@@ -1,4 +1,5 @@
 import { getResponse } from 'msw';
+import * as z from 'zod/mini';
 import { handlers } from '@/mocks/handlers';
 import { API_BASE_URL } from '@/app/types/api';
 import { attendanceDays } from '@/mocks/handlers/attendanceSummary.handlers';
@@ -40,6 +41,15 @@ export const mockApi = async (
   path: string,
   options: CallOptions = {},
 ): Promise<unknown> => (await mockCall(method, path, options)).body;
+
+const QuoteBody = z.object({
+  data: z.object({ quotationNumber: z.string(), quotationDate: z.string() }),
+});
+/** 기본 견적의 번호와 견적일. 로그인한 날을 따라 옮겨져(카드 "견적 날짜와 MPS 수요") 테스트에 글자로 적지 않고 화면과 같은 API 로 읽는다 */
+export const quoteOf = async (quotationId: string) =>
+  z.parse(QuoteBody, await mockApi('GET', `/business/sd/quotations/${quotationId}`)).data;
+export const quoteNumberOf = async (quotationId: string) =>
+  (await quoteOf(quotationId)).quotationNumber;
 
 /** 상태를 바꾸는 쓰기 한 건. 계약 테스트가 전부 보낸 뒤 GET 응답을 다시 검사한다 */
 type MockWrite = [method: 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown];
