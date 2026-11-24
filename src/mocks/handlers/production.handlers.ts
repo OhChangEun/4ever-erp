@@ -973,10 +973,15 @@ export const productionHandlers = [
   ),
   http.get(PRODUCTION_ENDPOINTS.MPS_TOGGLE_PRODUCTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MPS dropdown', 500);
-    return ok([
-      { key: 'bom-001', value: '모터 A' },
-      { key: 'bom-002', value: '펌프 B' },
-    ]);
+    // 견적이 있는 제품의 기본 BOM 만. 화면은 드롭다운 전부의 줄을 한 표에 모은다. 견적이 없는 제품은 늘 빈 줄이고,
+    // 새로 등록한 BOM 은 같은 제품의 수요를 두 번 보이게 되어 넣지 않는다(verified=false)
+    const quoted = new Set(productionQuotesOf(request).map((quote) => quote.productName));
+    return ok(
+      SEED_BOMS.filter((bom) => quoted.has(bom.productName)).map((bom) => ({
+        key: bom.bomId,
+        value: bom.productName,
+      })),
+    );
   }),
   http.get(PRODUCTION_ENDPOINTS.PRODUCTS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load products', 500);

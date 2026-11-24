@@ -117,6 +117,8 @@
     "empty": "구매 요청할 자재가 없습니다.",
     "loading": "자재 정보를 불러오는 중...",
     "loadError": "자재 정보를 불러오지 못했습니다. {message}",
+    "missingItems": "품목 정보가 없는 주문 {count}건({names})이 있어 요청을 보낼 수 없습니다. 그 주문을 빼고 다시 선택해 주세요.",
+    "tableLabel": "구매 요청 자재 목록",
     "summary": "구매 요청 요약",
     "selectedOrders": "선택된 주문:",
     "orderCount": "{count}건",

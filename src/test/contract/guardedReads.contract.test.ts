@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as z from 'zod';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw-server';
 import { isAppError } from '@/lib/AppError';
@@ -14,6 +15,7 @@ import * as finance from '@/app/(private)/finance/finance.api';
 import * as hrm from '@/app/(private)/hrm/api/hrm.api';
 import * as inventory from '@/app/(private)/inventory/inventory.api';
 import * as warehouse from '@/app/(private)/warehouse/warehouse.api';
+import { attendanceDays } from '@/mocks/handlers/attendanceSummary.handlers';
 import { useMockSource, type MockSource } from './serverMock';
 import { collectFailures } from './collect';
 import { mockData, nullAt, type Path } from './mockData';
@@ -78,7 +80,12 @@ const READS: Record<string, GuardedRead> = {
   },
   '출퇴근 목록': {
     url: HRM_ENDPOINTS.TIME_RECORD,
-    read: () => hrm.fetchAttendanceList({ date: '2026-11-10', page: 0, size: 10 }),
+    read: () =>
+      hrm.fetchAttendanceList({
+        date: attendanceDays().days.at(-1)?.date ?? '',
+        page: 0,
+        size: 10,
+      }),
     guarded: ['content', 0, 'employee'],
   },
   '교육 현황 목록': {
@@ -140,4 +147,23 @@ describe('가드가 지키던 필드가 비면 형식 오류', () => {
     expect(isAppError(error) && error.kind).toBe('invalidShape');
     expect(error instanceof Error && error.message).toContain(guarded.join('.'));
   });
+});
+
+describe('출퇴근 조회 날짜', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // 근태 목은 오늘에서 끝나는 12주만 준다. 고정 날짜면 그 뒤로 빈 목록을 검사하게 된다
+  it.each(['2026-11-24', '2027-03-01', '2028-03-01'])(
+    '%s 에도 행이 있는 근무일이다',
+    async (today) => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(`${today}T03:00:00Z`));
+      const { content } = z
+        .object({ content: z.array(z.unknown()) })
+        .parse(await READS['출퇴근 목록'].read());
+      expect(content.length).toBeGreaterThan(0);
+    },
+  );
 });

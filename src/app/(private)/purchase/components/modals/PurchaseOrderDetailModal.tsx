@@ -83,7 +83,9 @@ export default function PurchaseOrderDetailModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {t('totalAmount')}
             </label>
-            <div className="text-lg font-semibold text-green-600">{order.totalAmount}</div>
+            <div className="text-lg font-semibold text-green-600">
+              {formatCurrency(order.totalAmount)}
+            </div>
           </div>
         </div>
       </div>

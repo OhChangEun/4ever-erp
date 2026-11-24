@@ -3,9 +3,17 @@ import { INVENTORY_BASE_PATH, INVENTORY_ENDPOINTS, LOWSTOCK_ENDPOINTS } from '@/
 import type { Schema } from '@/lib/api/contract';
 import { purchaseOrdersOf } from './purchase.handlers';
 import { orderLinesOf, ordersOf, startShipping } from './sales.handlers';
-import { MOTOR, WAREHOUSE_ITEMS, catalogItem, type CatalogItem } from './catalog';
-import { EMPLOYEES, WAREHOUSES, addDays, todayKey } from './seed';
-import { DETAIL_WAREHOUSE_ID, inventoryState, stockOf, stockStatus } from './stock';
+import { WAREHOUSE_ITEMS, catalogItem, type CatalogItem } from './catalog';
+import { WAREHOUSES, addDays, todayKey } from './seed';
+import {
+  HOME,
+  ITEM_SUPPLIER,
+  inventoryState,
+  movesOf,
+  recordTransfer,
+  stockOf,
+  stockStatus,
+} from './stock';
 import {
   ok,
   okNoData,
@@ -17,7 +25,6 @@ import {
   paged,
   filterBy,
   flow,
-  hashUnit,
   level,
   statResponse,
 } from './utils';
@@ -27,9 +34,6 @@ import {
  * 생산중과 출고 준비는 영업 주문 목록, 입고 대기와 입고 완료는 발주 목록에서 거른다. 손으로 적은 행은 없다.
  * 쓰기 결과(안전재고, 재고 이동)는 `stock.ts`, 배송 시작은 영업 목, 발주 배송 시작은 구매 목이 기억한다(로그인별)
  */
-
-/** 재고 목의 창고(1공장 창고). 품목은 모두 이 창고에 있다. 재고 상세와 재고 이동이 같은 창고를 쓴다 */
-const HOME = WAREHOUSES.find((row) => row.warehouseId === DETAIL_WAREHOUSE_ID) ?? WAREHOUSES[0];
 
 /** 품목 한 줄의 공통 칸. 금액은 지금 현재고 × 단가, 상태는 지금 현재고와 안전재고로 정한다 */
 const itemRow = (request: Request, item: CatalogItem) => {
@@ -160,32 +164,6 @@ const lowStockStats = (request: Request) => {
   });
 };
 
-/** 물류팀 재직 직원. 재고 이동 기록의 담당자 */
-const LOGISTICS = EMPLOYEES.filter(
-  (row) => row.department === '물류팀' && row.statusCode === 'ACTIVE',
-);
-const MOVEMENT_TYPES = ['IN', 'OUT', 'MOVE'] as const;
-/**
- * 최근 재고 이동 기록. 품목표 앞 12개가 어제부터 하루 두 건씩 거슬러 간다(최근 것이 위). 그 로그인이 옮긴 기록이 맨 위에 온다.
- * 수량과 종류는 해시, verified=false
- */
-const movementsOf = (request: Request) => {
-  const today = todayKey();
-  const seed = WAREHOUSE_ITEMS.slice(0, 12).map((item, i) => ({
-    type: MOVEMENT_TYPES[i % MOVEMENT_TYPES.length],
-    quantity: 10 + Math.floor(hashUnit(`move:${item.itemId}`) * 20) * 5,
-    itemName: item.itemName,
-    workDate: `${addDays(today, -1 - Math.floor(i / 2))}T${i % 2 ? '10' : '15'}:30:00`,
-    managerName: LOGISTICS[i % LOGISTICS.length].name,
-  }));
-  const moved = inventoryState(request).transfers.map((row) => ({
-    ...row,
-    type: 'MOVE' as const,
-    managerName: LOGISTICS[0].name,
-  }));
-  return [...moved, ...seed].map((row) => ({ ...row, uomName: 'EA' }));
-};
-
 /** 생산중, 출고 준비 상세. 품목 줄은 그 영업 주문의 줄이다 */
 const shippingDetail = (
   request: Request,
@@ -247,26 +225,27 @@ export const inventoryHandlers = [
     if (!item) return notFound('재고 상세 조회');
     return ok({
       ...itemRow(request, item),
-      supplierCompanyName: '대양상사',
+      supplierCompanyName: ITEM_SUPPLIER.supplierName,
       warehouseId: HOME.warehouseId,
       warehouseName: HOME.warehouseName,
       warehouseNumber: HOME.warehouseNumber,
       location: 'A-1',
       lastModified: isoNow,
       description: `${item.itemName} 표준 규격`,
-      stockMovement: [
-        {
-          type: 'IN',
-          quantity: 50,
+      // 최근 재고 이동 목록의 그 품목 줄
+      stockMovement: movesOf(request)
+        .filter((move) => move.itemId === item.itemId)
+        .map((move) => ({
+          type: move.type,
+          quantity: move.quantity,
           uomName: 'EA',
-          from: '대양상사',
-          to: HOME.warehouseName,
-          movementDate: isoNow,
-          managerName: '이자재',
-          referenceNumber: 'IN-2026-001',
-          note: '정상 입고',
-        },
-      ],
+          from: move.from,
+          to: move.to,
+          movementDate: move.workDate,
+          managerName: move.managerName,
+          referenceNumber: move.referenceNumber,
+          note: move.note,
+        })),
     });
   }),
   http.get(INVENTORY_ENDPOINTS.LOW_STOCK, ({ request }) => {
@@ -286,27 +265,22 @@ export const inventoryHandlers = [
   }),
   http.get(INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT, ({ request }) => {
     if (shouldError(request)) return error('Failed to load stock movement', 500);
-    return ok({ content: movementsOf(request) });
+    return ok({
+      content: movesOf(request).map(({ type, quantity, itemName, workDate, managerName }) => ({
+        type,
+        quantity,
+        itemName,
+        workDate,
+        managerName,
+        uomName: 'EA',
+      })),
+    });
   }),
   http.post<PathParams, Schema<'StockMovementRequest'>>(
     INVENTORY_ENDPOINTS.RECENT_STOCK_MOVEMENT,
     async ({ request }) => {
       if (shouldError(request)) return error('Failed to post stock movement', 500);
-      const { movedOut, transfers } = inventoryState(request);
-      const { itemId, fromWarehouseId, toWarehouseId, stockQuantity } = await request.json();
-      const direction =
-        (fromWarehouseId === DETAIL_WAREHOUSE_ID ? 1 : 0) -
-        (toWarehouseId === DETAIL_WAREHOUSE_ID ? 1 : 0);
-      movedOut.set(itemId, (movedOut.get(itemId) ?? 0) + direction * stockQuantity);
-      // 화면이 이동 기록을 다시 받는다(moveStock 무효화). 맨 위에 MOVE 한 줄(종류 값은 화면이 받는 값, verified=false).
-      // 시각은 한국 시각 글자
-      transfers.unshift({
-        itemName: catalogItem(itemId)?.itemName ?? itemId,
-        quantity: stockQuantity,
-        workDate: new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 19),
-      });
-      // shortcut: 최근 이동 14건만 기억한다(서버리스 메모리 상한), 더 긴 이력이 필요하면 상한을 올린다
-      transfers.splice(WAREHOUSE_ITEMS.length);
+      recordTransfer(request, await request.json());
       return okNoData();
     },
   ),
@@ -370,16 +344,18 @@ export const inventoryHandlers = [
   }),
   http.get(INVENTORY_ENDPOINTS.ITEM_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load item toggle', 500);
-    return ok([
-      {
-        itemId: MOTOR.itemId,
-        unitPrice: MOTOR.unitPrice,
-        supplierCompanyName: '대양상사',
+    // 재고 목록과 같은 품목표 14개, 같은 순서. 게이트웨이 설명은 "재고에 존재하지 않는 자재 품목"(ImController.java:235)인데
+    // 품목표 품목은 모두 재고에 있어 그대로 따르면 빈 목록이다(verified=false)
+    return ok(
+      [...WAREHOUSE_ITEMS].sort(byItemNumber).map(({ itemId, itemName, unitPrice }) => ({
+        itemId,
+        itemName,
+        unitPrice,
         uomName: 'EA',
-        supplierCompanyId: 'sup-001',
-        itemName: '모터 A',
-      },
-    ]);
+        supplierCompanyId: ITEM_SUPPLIER.supplierId,
+        supplierCompanyName: ITEM_SUPPLIER.supplierName,
+      })),
+    );
   }),
   http.get(INVENTORY_ENDPOINTS.WAREHOUSE_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load warehouse toggle', 500);
@@ -398,18 +374,23 @@ export const inventoryHandlers = [
     if (shouldError(request)) return error('Failed to add materials', 500);
     return okNoData();
   }),
-  http.post(INVENTORY_ENDPOINTS.MATERIALS_LIST, ({ request }) => {
-    if (shouldError(request)) return error('Failed to load materials', 500);
-    return ok([
-      {
-        itemId: MOTOR.itemId,
-        itemName: MOTOR.itemName,
-        itemNmber: MOTOR.itemNumber,
-        unitPrice: MOTOR.unitPrice,
-        supplierName: '대양상사',
-      },
-    ]);
-  }),
+  http.post<PathParams, { itemIds?: string[] }>(
+    INVENTORY_ENDPOINTS.MATERIALS_LIST,
+    async ({ request }) => {
+      if (shouldError(request)) return error('Failed to load materials', 500);
+      // 보낸 품목만 준다. 모르는 품목은 빠진다(verified=false)
+      const { itemIds = [] } = await request.json();
+      return ok(
+        WAREHOUSE_ITEMS.filter((item) => itemIds.includes(item.itemId)).map((item) => ({
+          itemId: item.itemId,
+          itemName: item.itemName,
+          itemNmber: item.itemNumber,
+          unitPrice: item.unitPrice,
+          supplierName: ITEM_SUPPLIER.supplierName,
+        })),
+      );
+    },
+  ),
 
   // ----------------------- Low Stock -----------------------
   http.get(LOWSTOCK_ENDPOINTS.STATS, ({ request }) => {

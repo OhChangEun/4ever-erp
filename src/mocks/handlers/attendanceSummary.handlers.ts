@@ -33,12 +33,17 @@ const dayOf = (date: string) => {
   };
 };
 
+/** from~to(양끝 포함) 근무일의 근태 */
+export const attendanceBetween = (from: string, to: string) => {
+  const days = [];
+  for (let date = from; date <= to; date = addDays(date, 1))
+    if (![0, 6].includes(new Date(date).getUTCDay())) days.push(dayOf(date));
+  return days;
+};
+
 export const attendanceDays = (today = todayKey()) => {
   const from = addDays(today, -(WEEKS * 7 - 1));
-  const days = Array.from({ length: WEEKS * 7 }, (_, i) => addDays(from, i))
-    .filter((date) => ![0, 6].includes(new Date(date).getUTCDay()))
-    .map(dayOf);
-  return { from, to: today, days };
+  return { from, to: today, days: attendanceBetween(from, today) };
 };
 
 export const attendanceSummaryHandlers = [

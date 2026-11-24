@@ -2,7 +2,7 @@ import { http, type PathParams } from 'msw';
 import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { HEADCOUNT, attendanceDays } from './attendanceSummary.handlers';
+import { HEADCOUNT, attendanceBetween, attendanceDays } from './attendanceSummary.handlers';
 import { DEPARTMENTS, EMPLOYEES, addDays, departmentIdOf, todayKey } from './seed';
 import {
   ok,
@@ -327,7 +327,10 @@ const trainingCounts = (history: ReturnType<typeof historyOf>) => ({
  */
 const rosterOf = (date: string) => {
   const day = attendanceDays().days.find((row) => row.date === date);
-  if (!day) return undefined;
+  return day && rosterOn(day);
+};
+const rosterOn = (day: ReturnType<typeof attendanceBetween>[number]) => {
+  const { date } = day;
   const order = [...SEED_STAFF].sort(
     (a, b) => hashUnit(`${date}:${a.employeeId}`) - hashUnit(`${date}:${b.employeeId}`),
   );
@@ -416,7 +419,10 @@ const LEAVE_ROWS: Array<[string, string, number, number, string]> = [
   ['emp-030', 'ANNUAL', 3, 2, 'REJECTED'],
   ['emp-038', 'ANNUAL', 19, 1, 'PENDING'],
 ];
-/** 연차 한 해 일수(verified=false). 남은 일수 = 이 값 - 그 사람의 승인 휴가 일수 */
+/**
+ * 연차 한 해 일수(verified=false). 남은 일수 = 이 값 - 그 휴가가 든 해(시작일)에 그 사람이 쓴 승인 휴가 일수. 목록에 보이는
+ * 12주보다 앞의 휴가도 그 해 1월 1일부터 세어 오래된 휴가가 목록에서 빠져도 늘지 않는다. 해가 바뀌면 다시 15일부터
+ */
 const ANNUAL_DAYS = 15;
 
 /**
@@ -427,8 +433,13 @@ const ANNUAL_DAYS = 15;
 export const leavesOf = (request: Request) => {
   const employees = employeesOf(request);
   const { leaveStatus, leavesFrom } = hrmState(request);
-  const past = attendanceDays().days.flatMap(({ date }) =>
-    (rosterOf(date)?.onLeave ?? []).map((employee) => ({
+  const { from, to } = attendanceDays();
+  const leaveDays = attendanceBetween(`${from.slice(0, 4)}-01-01`, to).filter(
+    (day) => day.onLeave > 0,
+  );
+  const past = leaveDays.flatMap((day) => {
+    const { date } = day;
+    return rosterOn(day).onLeave.map((employee) => ({
       leaveRequestId: `leave-${date.replace(/-/g, '')}-${serialOf(employee.employeeId)}`,
       employeeId: employee.employeeId,
       leaveType: hashUnit(`${date}:${employee.employeeId}:type`) < 0.2 ? 'SICK' : 'ANNUAL',
@@ -436,8 +447,8 @@ export const leavesOf = (request: Request) => {
       endDate: date,
       numberOfLeaveDays: 1,
       status: 'APPROVED',
-    })),
-  );
+    }));
+  });
   const upcoming = LEAVE_ROWS.map(([employeeId, leaveType, after, days, status], i) => {
     const startDate = weekdayFrom(addDays(leavesFrom, after));
     return {
@@ -454,11 +465,17 @@ export const leavesOf = (request: Request) => {
     ...row,
     status: leaveStatus.get(row.leaveRequestId) ?? row.status,
   }));
-  const used = (employeeId: string) =>
+  const used = (employeeId: string, year: string) =>
     rows
-      .filter((row) => row.employeeId === employeeId && row.status === 'APPROVED')
+      .filter(
+        (row) =>
+          row.employeeId === employeeId &&
+          row.status === 'APPROVED' &&
+          row.startDate.startsWith(year),
+      )
       .reduce((sum, row) => sum + row.numberOfLeaveDays, 0);
   return rows
+    .filter((row) => row.startDate >= from)
     .map(({ employeeId, ...row }) => {
       const employee =
         employees.find((person) => person.employeeId === employeeId) ?? SEED_EMPLOYEE;
@@ -474,7 +491,7 @@ export const leavesOf = (request: Request) => {
         startDate: row.startDate,
         endDate: row.endDate,
         numberOfLeaveDays: row.numberOfLeaveDays,
-        remainingLeaveDays: ANNUAL_DAYS - used(employeeId),
+        remainingLeaveDays: ANNUAL_DAYS - used(employeeId, row.startDate.slice(0, 4)),
         status: row.status,
       };
     })

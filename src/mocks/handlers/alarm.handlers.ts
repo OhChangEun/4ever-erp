@@ -4,6 +4,9 @@ import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
 import { NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
+import { BEARING } from './catalog';
+import { apRowsOf } from './finance.handlers';
+import { addDays, todayKey } from './seed';
 import { makePage } from './utils';
 
 /**
@@ -16,60 +19,69 @@ type Notification = Schema<'NotificationData'>;
 const http = createOpenApiHttp<paths>({ baseUrl: API_BASE_URL });
 const OK = { status: 200, success: true, message: 'OK' } as const;
 
-// 최신순. createdAt 은 서버 형식(yyyy-MM-dd'T'HH:mm:ss, 시간대 없음)
-const seed = (): Notification[] => [
-  {
-    notificationId: 'ntf-001',
-    notificationTitle: '발주 승인 요청',
-    notificationMessage: 'PO-2026-001 승인 요청이 도착했습니다.',
-    linkType: 'PURCHASE_ORDER',
-    linkId: 'po-001',
-    source: 'PR',
-    createdAt: '2026-11-12T09:05:00',
-    isRead: false,
-  },
-  {
-    notificationId: 'ntf-002',
-    notificationTitle: '재고 부족 경고',
-    notificationMessage: 'ITEM-1002의 재고가 안전재고 이하입니다.',
-    linkType: 'INSUFFICIENT_STOCK',
-    linkId: 'item-1002',
-    source: 'IM',
-    createdAt: '2026-11-12T08:40:00',
-    isRead: true,
-  },
-  {
-    notificationId: 'ntf-003',
-    notificationTitle: '견적 검토 요청',
-    notificationMessage: 'QT-2026-014 견적 검토가 요청되었습니다.',
-    linkType: 'QUOTATION',
-    linkId: 'qt-014',
-    source: 'SD',
-    createdAt: '2026-11-11T17:20:00',
-    isRead: false,
-  },
-  {
-    notificationId: 'ntf-004',
-    notificationTitle: '매입 전표 등록',
-    notificationMessage: 'AP-2026-032 전표가 등록되었습니다.',
-    linkType: 'PURCHASE_INVOICE',
-    linkId: 'ap-032',
-    source: 'FCM',
-    createdAt: '2026-11-11T11:00:00',
-    isRead: false,
-  },
-  {
-    // 참조가 없는 알림. 알림 서버는 linkType, linkId 를 null 로 준다
-    notificationId: 'ntf-005',
-    notificationTitle: '휴가 승인',
-    notificationMessage: '11월 14일 휴가 신청이 승인되었습니다.',
-    linkType: null,
-    linkId: null,
-    source: 'HRM',
-    createdAt: '2026-11-10T15:30:00',
-    isRead: true,
-  },
-];
+/** 오늘에서 며칠 전의 시각. 서버 형식(yyyy-MM-dd'T'HH:mm:ss, 시간대 없음)이고 한국 시각이다 */
+const timeAt = (daysAgo: number, time: string) => `${addDays(todayKey(), -daysAgo)}T${time}`;
+
+/**
+ * 최신순. 말하는 번호와 linkId 는 실제 목록의 행이다(카드 "품목 선택과 이동 내역"). 매입 전표는 최근 12달만 있어 알림 날까지
+ * 발행된 것 중 가장 최근 전표를 고르고, 그래서 시각도 로그인한 날에서 센다(전표보다 앞선 알림이 되지 않게)
+ */
+const seed = (request: Request): Notification[] => {
+  const invoice = apRowsOf(request).find((row) => row.issueDate <= addDays(todayKey(), -2));
+  return [
+    {
+      notificationId: 'ntf-001',
+      notificationTitle: '발주 승인 요청',
+      notificationMessage: 'PO-2026-001 승인 요청이 도착했습니다.',
+      linkType: 'PURCHASE_ORDER',
+      linkId: 'po-001',
+      source: 'PR',
+      createdAt: timeAt(1, '09:05:00'),
+      isRead: false,
+    },
+    {
+      notificationId: 'ntf-002',
+      notificationTitle: '재고 부족 경고',
+      notificationMessage: `${BEARING.itemNumber}의 재고가 안전재고 이하입니다.`,
+      linkType: 'INSUFFICIENT_STOCK',
+      linkId: BEARING.itemId,
+      source: 'IM',
+      createdAt: timeAt(1, '08:40:00'),
+      isRead: true,
+    },
+    {
+      notificationId: 'ntf-003',
+      notificationTitle: '견적 검토 요청',
+      notificationMessage: 'QT-2026-014 견적 검토가 요청되었습니다.',
+      linkType: 'QUOTATION',
+      linkId: 'qt-014',
+      source: 'SD',
+      createdAt: timeAt(2, '17:20:00'),
+      isRead: false,
+    },
+    {
+      notificationId: 'ntf-004',
+      notificationTitle: '매입 전표 등록',
+      notificationMessage: `${invoice?.invoiceNumber ?? ''} 전표가 등록되었습니다.`,
+      linkType: 'PURCHASE_INVOICE',
+      linkId: invoice?.invoiceId ?? '',
+      source: 'FCM',
+      createdAt: timeAt(2, '11:00:00'),
+      isRead: false,
+    },
+    {
+      // 참조가 없는 알림. 알림 서버는 linkType, linkId 를 null 로 준다
+      notificationId: 'ntf-005',
+      notificationTitle: '휴가 승인',
+      notificationMessage: '휴가 신청이 승인되었습니다.',
+      linkType: null,
+      linkId: null,
+      source: 'HRM',
+      createdAt: timeAt(3, '15:30:00'),
+      isRead: true,
+    },
+  ];
+};
 
 // 상태는 Authorization 값(로그인)별. 프록시가 세션 토큰을 Bearer 로 붙이므로 로그인마다 새 상태다.
 // 브라우저 MSW 와 단위 테스트는 헤더가 없어 '' 하나를 같이 쓴다.
@@ -80,7 +92,7 @@ const storeOf = (request: Request): Notification[] => {
   const key = request.headers.get('authorization') ?? '';
   const existing = stores.get(key);
   if (existing) return existing;
-  const created = seed();
+  const created = seed(request);
   stores.set(key, created);
   return created;
 };
@@ -136,15 +148,15 @@ export const alarmHandlers = [
           setTimeout(() => {
             const alarmId = `ntf-sse-${items.length + 1}`;
             const title = '구매 요청 승인';
-            const message = 'PR-2026-021 구매 요청이 승인되었습니다.';
+            const message = 'PR-2026-013 구매 요청이 승인되었습니다.';
             items.unshift({
               notificationId: alarmId,
               notificationTitle: title,
               notificationMessage: message,
               linkType: 'PURCHASE_REQUISITION',
-              linkId: 'pr-021',
+              linkId: 'pr-013',
               source: 'PR',
-              createdAt: '2026-11-12T09:30:00',
+              createdAt: new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 19),
               isRead: false,
             });
             send(
@@ -155,7 +167,7 @@ export const alarmHandlers = [
                 targetId: 'user-001',
                 title,
                 message,
-                linkId: 'pr-021',
+                linkId: 'pr-013',
                 linkType: 'PURCHASE_REQUISITION',
               }),
             );
