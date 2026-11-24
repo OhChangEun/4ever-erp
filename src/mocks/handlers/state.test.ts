@@ -726,13 +726,13 @@ describe('생산 목 상태', () => {
   });
 
   it('순소요를 계획 주문으로 전환하면 그 견적의 그 품목 전환 상태가 CONVERTED 다', async () => {
-    // 첫 쪽 셋째 행: 견적 qt-004 의 알루미늄 판(품목표 item-wh-004)
-    const target = { quotationId: 'qt-004', itemId: 'item-wh-004', itemName: '알루미늄 판' };
+    // 첫 쪽 셋째 행: 견적 qt-005(반려 견적 qt-004 는 없다)의 알루미늄 판(품목표 item-wh-004)
+    const target = { quotationId: 'qt-005', itemId: 'item-wh-004', itemName: '알루미늄 판' };
     expect(await get(`${PP}/quotations/mrp`)).toMatchObject(
       row({ ...target, convertStatus: 'NOT_CONVERTED' }),
     );
     await post(`${PP}/mrp/convert`, {
-      items: [{ quotationId: 'qt-004', itemId: 'item-wh-004', quantity: 40 }],
+      items: [{ quotationId: 'qt-005', itemId: 'item-wh-004', quantity: 40 }],
     });
     expect(await get(`${PP}/quotations/mrp`)).toMatchObject(
       row({ ...target, convertStatus: 'CONVERTED' }),

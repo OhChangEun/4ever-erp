@@ -1,9 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
 import { quoteOf } from '@/test/mockApi';
 import SalesQuoteList from './SalesQuoteList';
+
+// 검토 모달은 성공한 뒤 생산으로 간다. 앱 라우터가 없어 흉내 낸다
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 /**
  * 카드 "목 데이터 현실성". 기본 목(덮어쓰기 없음)으로 본다.

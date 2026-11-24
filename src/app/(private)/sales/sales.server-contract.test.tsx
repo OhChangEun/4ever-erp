@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { quoteNumberOf } from '@/test/mockApi';
+import { addDays, monthStart, todayKey } from '@/mocks/handlers/seed';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { SALES_ENDPOINTS } from '@/app/types/api';
@@ -105,22 +106,43 @@ describe('주문 날짜 필터 파라미터', () => {
     expect(seen[0].has('end')).toBe(false);
   });
 
-  it('기본 목은 startDate, endDate 로 주문일을 거른다(옛 이름이면 거르지 않아 실패)', async () => {
-    // 기본 주문은 주마다 만든 주문이라 3월에도 주문이 있다(카드 "데모 데이터 채우기"). 거르지 않으면 다른 달이 섞인다
-    const { data } = await getOrderList(marchFilter);
-    expect(data.length).toBeGreaterThan(0);
-    expect(data.every((order) => order.orderDate.startsWith('2026-03'))).toBe(true);
-    const january = await getOrderList({
-      ...marchFilter,
-      startDate: '2026-01-01',
-      endDate: '2026-01-31',
-      size: 1000,
-    });
-    expect(january.data.every((order) => order.orderDate.startsWith('2026-01'))).toBe(true);
-    expect(january.data.map((order) => order.salesOrderNumber)).toEqual(
-      expect.arrayContaining(['SO-2026-001', 'SO-2026-002']),
-    );
+  afterEach(() => {
+    vi.useRealTimers();
   });
+
+  // 실제 시계와, 2026-03 을 고정해 두어 깨지던 날들(2027-04-12 부터. 기본 주문은 오늘이 든 주에서 53주 앞까지만 있다)
+  it.each([
+    undefined,
+    '2026-11-24',
+    '2027-04-11',
+    '2027-04-12',
+    '2027-08-15',
+    '2028-03-01',
+    '2030-01-31',
+  ])(
+    '기본 목은 startDate, endDate 로 주문일을 거른다(옛 이름이면 거르지 않아 실패). 오늘 %s',
+    async (day) => {
+      if (day) vi.useFakeTimers({ toFake: ['Date'], now: new Date(`${day}T03:00:00Z`) });
+      // 주마다 만든 주문이라 두 달 전 한 달에도 주문이 있다(카드 "데모 데이터 채우기"). 거르지 않으면 다른 달이 섞인다
+      const startDate = monthStart(todayKey(), 2);
+      const endDate = addDays(monthStart(todayKey(), 1), -1);
+      const month = startDate.slice(0, 7);
+      expect(endDate.slice(0, 7)).toBe(month);
+      const { data } = await getOrderList({ ...marchFilter, startDate, endDate });
+      expect(data.length).toBeGreaterThan(0);
+      expect(data.every((order) => order.orderDate.startsWith(month))).toBe(true);
+      const january = await getOrderList({
+        ...marchFilter,
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        size: 1000,
+      });
+      expect(january.data.every((order) => order.orderDate.startsWith('2026-01'))).toBe(true);
+      expect(january.data.map((order) => order.salesOrderNumber)).toEqual(
+        expect.arrayContaining(['SO-2026-001', 'SO-2026-002']),
+      );
+    },
+  );
 });
 
 const locales: readonly Locale[] = ['ko', 'en'];

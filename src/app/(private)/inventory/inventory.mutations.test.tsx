@@ -10,6 +10,7 @@ import { scenarioResponse } from '@/mocks/scenario';
 import {
   inventoryKeys,
   inventoryStatsKeys,
+  itemInfoKeys,
   lowStockItemKeys,
   shippingKeys,
   stockMovementKeys,
@@ -50,13 +51,25 @@ describe('재고 mutation 훅 무효화 범위', () => {
       keeps: [LIST_0, FOREIGN],
     }));
 
-  it('자재 추가(생성, 낙관적 없음) → 재고 목록, 재고 통계', () =>
+  it('자재 추가(생성, 낙관적 없음) → 재고 목록, 재고 통계, 자재 선택, 부족 재고 3곳', () =>
     expectMatrix({
       name: '',
       useHook: useAddMaterial,
-      variables: { itemId: 'item-1', safetyStock: 5, currentStock: 10, warehouseId: 'wh-1' },
-      invalidates: [LIST_0, inventoryStatsKeys.all],
-      keeps: [inventoryKeys.detail('item-1'), FOREIGN],
+      variables: {
+        itemId: 'item-wh-015',
+        safetyStock: 5,
+        currentStock: 10,
+        warehouseId: 'wh-003',
+      },
+      invalidates: [
+        LIST_0,
+        inventoryStatsKeys.all,
+        itemInfoKeys.all,
+        lowStockItemKeys.all,
+        LOW_STOCK_LIST,
+        lowStockStatsKeys.all,
+      ],
+      keeps: [inventoryKeys.detail('item-1'), stockMovementKeys.all, WAREHOUSE_INFO, FOREIGN],
     }));
 
   it('안전재고 수정 → 상세, 재고 목록, 부족 재고 3곳', () =>

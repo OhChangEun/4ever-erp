@@ -175,13 +175,19 @@ describe('견적이 나오는 목록은 모두 같은 견적이다', () => {
     const sales = await user.rows(Q);
     const production = byId(await user.rows(PQ));
     const simulated = byId(await user.simulate(sales.map((row) => str(row.quotationId))));
-    expect([...production.keys()].sort()).toEqual(sales.map((row) => str(row.quotationId)).sort());
+    // 반려 견적 셋은 생산과 시뮬레이션에 없다(카드 "반려 견적과 등록 반영")
+    const planned = sales.filter((row) => row.statusCode !== 'REJECTED');
+    expect(planned).toHaveLength(13);
+    const plannedIds = planned.map((row) => str(row.quotationId)).sort();
+    expect([...production.keys()].sort()).toEqual(plannedIds);
+    expect([...simulated.keys()].sort()).toEqual(plannedIds);
     for (const row of sales) {
       const id = str(row.quotationId);
       const detail = await user.get(`${Q}/${id}`);
       const first = RowsSchema.parse(detail.items)[0];
       for (const key of ['quotationNumber', 'quotationDate', 'dueDate', 'statusCode'])
         expect([id, detail[key]]).toEqual([id, row[key]]);
+      if (!plannedIds.includes(id)) continue;
       expect(production.get(id), id).toMatchObject({
         quotationNumber: row.quotationNumber,
         customerName: row.customerName,
@@ -202,9 +208,13 @@ describe('견적이 나오는 목록은 모두 같은 견적이다', () => {
   it.each(DAYS)('%s: MRP 순소요, 계획 주문, MES 와 견적 드롭다운', async (day) => {
     setToday(day);
     const user = login(`Bearer mrp-${day}`);
+    // 반려 견적 셋은 어느 계획에도 없다
     const numbers = new Map(
-      (await user.rows(Q)).map((row) => [str(row.quotationId), str(row.quotationNumber)]),
+      (await user.rows(Q))
+        .filter((row) => row.statusCode !== 'REJECTED')
+        .map((row) => [str(row.quotationId), str(row.quotationNumber)]),
     );
+    expect(numbers.size).toBe(13);
     for (const row of await user.rows(MRP)) expect(numbers.has(str(row.quotationId))).toBe(true);
     const runs = await user.rows(RUN);
     expect(runs).toHaveLength(500);
@@ -215,8 +225,8 @@ describe('견적이 나오는 목록은 모두 같은 견적이다', () => {
         'qt-001',
         'qt-002',
         'qt-003',
-        'qt-004',
         'qt-005',
+        'qt-007',
       ]);
       for (const { key, value } of options) expect([key, value]).toEqual([key, numbers.get(key)]);
     }

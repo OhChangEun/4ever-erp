@@ -1,4 +1,4 @@
-import { mockState } from '../state';
+import { addCreated, mockState } from '../state';
 import { WAREHOUSE_ITEMS, catalogItem, type CatalogItem } from './catalog';
 import { EMPLOYEES, SUPPLIERS, WAREHOUSES, addDays, todayKey } from './seed';
 
@@ -17,6 +17,12 @@ interface StockMove {
   note: string;
 }
 
+/** 재고에 있는 품목과 보관 창고 */
+interface Stocked {
+  item: CatalogItem;
+  warehouse: (typeof WAREHOUSES)[number];
+}
+
 /**
  * 재고 목이 기억하는 쓰기 결과(로그인별, `src/mocks/state.ts`)와 그 위에 계산한 현재고, 재고 이동 기록.
  * 재고, 영업(견적 재고 확인), 생산(MRP, MPS), 재고 추이 목이 같이 읽는다. 핸들러 파일끼리 서로 부르지 않게 따로 둔다
@@ -26,23 +32,58 @@ interface StockMove {
 export const inventoryState = mockState<{
   safetyStock: Map<string, number>;
   /**
-   * 품목 id → 한국 날짜 → 그날 이동으로 1공장 창고 재고가 변한 수량. 현재고와 재고 추이가 같이 읽는다.
+   * 품목 id → 한국 날짜 → 그날 이동과 원자재 추가로 보관 창고 재고가 변한 수량. 현재고와 재고 추이가 같이 읽는다.
    * 아래 이동 기록은 최근 것만 남지만 이 값은 전부 남아 오래된 기록이 밀려나도 지난 날의 재고가 안 바뀐다
    */
   dailyChange: Map<string, Map<string, number>>;
   /** 그 로그인이 보낸 재고 이동 기록. 최근 것이 앞 */
   transfers: StockMove[];
+  /** 그 로그인이 원자재 추가로 넣은 자재와 보관 창고. 수량은 dailyChange, 안전재고는 safetyStock 에 있다 */
+  added: Stocked[];
   /** 씨앗 이동 기록과 재고 추이를 세는 날. 그 로그인이 재고 목을 처음 부른 날이고 그 뒤로 안 바뀐다(자정이 지나도 지난 재고가 그대로) */
   movesFrom: string;
 }>(() => ({
   safetyStock: new Map(),
   dailyChange: new Map(),
   transfers: [],
+  added: [],
   movesFrom: todayKey(),
 }));
 
-/** 재고 목의 창고(1공장 창고 wh-001). 품목은 모두 이 창고에 있고 재고 이동은 이 창고에서 나가거나 들어올 때만 현재고가 바뀐다 */
-export const HOME = WAREHOUSES[0];
+/** 품목표 14개의 보관 창고(1공장 창고 wh-001) */
+const HOME = WAREHOUSES[0];
+/** 그 로그인의 재고. 품목표 14개와 원자재 추가로 넣은 자재. 재고 이동은 보관 창고에서 나가거나 들어올 때만 현재고가 바뀐다 */
+export const stockedOf = (request: Request): Stocked[] => [
+  ...WAREHOUSE_ITEMS.map((item) => ({ item, warehouse: HOME })),
+  ...inventoryState(request).added,
+];
+export const stockedItem = (request: Request, itemId: string) =>
+  stockedOf(request).find(({ item }) => item.itemId === itemId);
+/** 원자재 추가로 넣은 자재인가(추가하기 전에는 재고가 없었다) */
+export const isAdded = (request: Request, itemId: string) =>
+  inventoryState(request).added.some(({ item }) => item.itemId === itemId);
+
+/** 품목의 그날(한국 날짜) 재고 변화에 더한다 */
+const addChange = (request: Request, itemId: string, day: string, quantity: number) => {
+  const { dailyChange } = inventoryState(request);
+  const byDay = dailyChange.get(itemId) ?? new Map<string, number>();
+  byDay.set(day, (byDay.get(day) ?? 0) + quantity);
+  dailyChange.set(itemId, byDay);
+};
+
+/** 원자재 추가 쓰기. 처음 수량은 오늘 생긴 재고다(이동 기록은 남기지 않는다. 화면도 이동 목록을 다시 받지 않는다) */
+export const recordMaterial = (
+  request: Request,
+  { item, warehouse }: Stocked,
+  quantity: number,
+  safetyStock: number,
+) => {
+  const state = inventoryState(request);
+  addCreated(state.added, () => ({ item, warehouse }));
+  state.safetyStock.set(item.itemId, safetyStock);
+  addChange(request, item.itemId, todayKey(), quantity);
+};
+
 /** 품목의 공급사. 품목마다 다른 공급사를 아는 표가 없어 모두 대양상사다(재고 상세, 품목 선택, 자재 목록, 입고 기록) */
 export const ITEM_SUPPLIER = SUPPLIERS[0].supplierInfo;
 
@@ -59,6 +100,12 @@ export const stockOf = (request: Request, item: CatalogItem) => {
     currentStock: item.current + transferredAfter(request, item.itemId),
     safetyStock: state.safetyStock.get(item.itemId) ?? item.safety,
   };
+};
+
+/** 품목 id 의 현재고. 품목표에 없는 품목은 0. 영업의 재고 확인과 생산의 시뮬레이션이 같이 읽는다 */
+export const onHand = (request: Request, itemId: string) => {
+  const item = catalogItem(itemId);
+  return item ? stockOf(request, item).currentStock : 0;
 };
 
 /**
@@ -127,16 +174,14 @@ export const recordTransfer = (
     reason: string;
   },
 ) => {
-  const { dailyChange, transfers } = inventoryState(request);
+  const { transfers } = inventoryState(request);
   const { itemId, fromWarehouseId, toWarehouseId, stockQuantity } = body;
-  const direction =
-    (toWarehouseId === HOME.warehouseId ? 1 : 0) - (fromWarehouseId === HOME.warehouseId ? 1 : 0);
+  const { warehouseId: home } = stockedItem(request, itemId)?.warehouse ?? HOME;
+  const direction = (toWarehouseId === home ? 1 : 0) - (fromWarehouseId === home ? 1 : 0);
   // 기록의 시각과 재고를 빼는 날이 같은 순간에서 나온다(자정에 갈리지 않게)
   const workDate = new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 19);
   const today = workDate.slice(0, 10);
-  const byDay = dailyChange.get(itemId) ?? new Map<string, number>();
-  byDay.set(today, (byDay.get(today) ?? 0) + direction * stockQuantity);
-  dailyChange.set(itemId, byDay);
+  addChange(request, itemId, today, direction * stockQuantity);
   // 씨앗의 네 자리 품목 번호와 겹치지 않는 세 자리 순번. 오래된 것이 밀려나도 맨 앞 기록의 다음 번호다
   const serial = Number(transfers.at(0)?.referenceNumber.slice(-3) ?? 0) + 1;
   transfers.unshift({

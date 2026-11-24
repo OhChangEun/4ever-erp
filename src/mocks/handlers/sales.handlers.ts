@@ -15,9 +15,9 @@ interface CustomerPatchBody {
 import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { MOTOR, catalogItem, type line } from './catalog';
+import { SALE_ITEMS, catalogItem, type line } from './catalog';
 import { seedQuoteOf, seedQuotesOf } from './quotes';
-import { stockOf } from './stock';
+import { onHand } from './stock';
 import {
   CUSTOMERS,
   QUOTE_DUE_DAYS,
@@ -31,6 +31,7 @@ import {
   type CustomerExtra,
   type Order,
   type Quote,
+  type SeedQuote,
 } from './seed';
 import {
   ok,
@@ -153,6 +154,22 @@ export const quotesOf = (request: Request) => {
     }))
     .sort(byQuoteDate);
 };
+
+/**
+ * 생산이 받는 견적과 품목 줄(카드 "반려 견적과 등록 반영"). 번호순, 새 견적은 뒤. 생산 견적, 시뮬레이션, MPS, MRP, 계획 주문, MES 가
+ * 모두 여기서 고른다. 기본 견적은 반려만 빼고 전부(대기도 예전처럼 있다). 로그인이 만든 견적은 검토를 요청해 검토중(REVIEW)일 때만
+ * 온다. 화면에서 생산으로 가는 길이 "생산관리에서 검토"뿐이고 즉시 납품은 재고로 나가 만들 것이 없다.
+ * 서버가 생산에 어떤 상태의 견적을 주는지는 모른다(게이트웨이가 Object 로 넘긴다, PpController.java:449, verified=false)
+ */
+export const quotesForProduction = (request: Request): SeedQuote[] =>
+  quotesOf(request)
+    .filter(({ quotationId, statusCode }) =>
+      seedQuoteOf(request, quotationId) ? statusCode !== 'REJECTED' : statusCode === 'REVIEW',
+    )
+    .sort((a, b) => a.quotationId.localeCompare(b.quotationId))
+    .map((quote) => ({ quote, lines: linesOf(request, quote.quotationId, 'qt-001') }))
+    // 제품이 첫 품목 줄이라 줄이 없는 견적은 낼 수 없다
+    .filter(({ lines }) => lines.length > 0);
 
 /**
  * 기본 주문(주마다 만든 것)과 즉시 납품으로 만든 주문에 배송 시작을 덮은 목록. 주문일 최신순.
@@ -402,7 +419,7 @@ export const salesHandlers = [
       const seeds = seedQuotesOf(request);
       const lines = body.items.map((item) => ({
         itemId: item.itemId,
-        itemName: item.itemId === MOTOR.itemId ? MOTOR.itemName : item.itemId,
+        itemName: catalogItem(item.itemId)?.itemName ?? item.itemId,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         amount: item.quantity * item.unitPrice,
@@ -492,7 +509,7 @@ export const salesHandlers = [
       return ok({
         items: items.map(({ itemId, requiredQuantity }) => {
           const item = catalogItem(itemId);
-          const inventoryQuantity = item ? stockOf(request, item).currentStock : 0;
+          const inventoryQuantity = onHand(request, itemId);
           const shortageQuantity = Math.max(0, requiredQuantity - inventoryQuantity);
           return {
             itemId,
@@ -666,16 +683,15 @@ export const salesHandlers = [
   }),
   http.get(SALES_ENDPOINTS.NEW_QUOTE_ITEM_TOGGLE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load items', 500);
+    // 판매 제품만(게이트웨이 OrderController.java:211 "판매제품", getItemCategoryProducts). 자재는 넣지 않는다
     return ok({
-      products: [
-        {
-          itemId: MOTOR.itemId,
-          itemNumber: MOTOR.itemNumber,
-          itemName: MOTOR.itemName,
-          uomName: 'EA',
-          unitPrice: MOTOR.unitPrice,
-        },
-      ],
+      products: SALE_ITEMS.map(({ itemId, itemNumber, itemName, unitPrice }) => ({
+        itemId,
+        itemNumber,
+        itemName,
+        uomName: 'EA',
+        unitPrice,
+      })),
     });
   }),
 ];

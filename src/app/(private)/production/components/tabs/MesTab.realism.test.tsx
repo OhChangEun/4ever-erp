@@ -16,13 +16,13 @@ beforeAll(() => {
 });
 
 describe('MES 상세는 목록에서 연 행의 내용이다', () => {
-  it('셋째 행(qt-004 모터 A 200 EA)을 열면 상세도 그 제품과 수량이다', async () => {
+  it('셋째 행(qt-005 모터 A 200 EA)을 열면 상세도 그 제품과 수량이다', async () => {
     const user = userEvent.setup();
     renderWithProviders(<MesTab />);
 
     // 머리 행 다음부터 mes-001, mes-002, mes-003. 목록은 MES 번호 대신 견적 번호를 보인다
     const third = (await screen.findAllByRole('row', {}, { timeout: 3000 }))[3];
-    expect(within(third).getByText(await quoteNumberOf('qt-004'))).toBeInTheDocument();
+    expect(within(third).getByText(await quoteNumberOf('qt-005'))).toBeInTheDocument();
     expect(within(third).getByText('모터 A')).toBeInTheDocument();
     expect(within(third).getByText('200')).toBeInTheDocument();
     await user.click(third);

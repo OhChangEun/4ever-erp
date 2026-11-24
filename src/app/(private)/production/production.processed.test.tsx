@@ -6,6 +6,7 @@ import { error, makePage, ok } from '@/mocks/utils';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { countRequests } from '@/test/countRequests';
+import { mockApi, quoteNumberOf } from '@/test/mockApi';
 import { useAuthStore } from '@/store/authStore';
 import { PRODUCTION_ENDPOINTS } from './api/production.endpoints';
 import OrdersTab from './components/tabs/OrdersTab';
@@ -51,9 +52,9 @@ describe('MRP 순소요: 전환한 품목은 다시 전환하지 않는다', () 
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toMatchObject({
       items: [
-        { quotationId: 'qt-004', itemId: 'item-wh-004' },
-        { quotationId: 'qt-007', itemId: 'item-wh-008' },
-        { quotationId: 'qt-010', itemId: 'item-wh-011' },
+        { quotationId: 'qt-005', itemId: 'item-wh-004' },
+        { quotationId: 'qt-009', itemId: 'item-wh-008' },
+        { quotationId: 'qt-013', itemId: 'item-wh-011' },
       ],
     });
     expect(bodies[0]).toHaveProperty('items.length', 3);
@@ -120,6 +121,88 @@ describe('생산 견적: 확정한 견적은 다음 확정에 가지 않는다',
 
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toEqual({ quotationIds: ['qt-013'] });
+  });
+});
+
+/** 카드 "반려 견적과 등록 반영" 리뷰 A1. 기본 목으로 만든 견적을 검토 요청하고 생산 화면에서 확정까지 간다 */
+describe('생산 견적: 로그인이 만든 견적의 시뮬레이션은 지금 재고로 본다', () => {
+  const SALES = '/business/sd/quotations';
+  const motor = (quantity: number) => ({ itemId: 'item-1001', quantity, unitPrice: 12000 });
+  const bearing = (quantity: number) => ({ itemId: 'item-1002', quantity, unitPrice: 8000 });
+  /** 견적(모터 A 재고 120, 베어링 B 재고 20)을 만들어 검토를 요청하고, 생산 화면에서 시뮬레이션한다 */
+  const simulateNewQuote = async (...items: Array<ReturnType<typeof motor>>) => {
+    await mockApi('POST', SALES, { body: { items, note: '' } });
+    await mockApi('POST', `${SALES}/confirm`, { body: { quotationId: 'qt-017' } });
+    const number = await quoteNumberOf('qt-017');
+    const user = userEvent.setup();
+    renderWithProviders(<QuotationTab />);
+    // 번호순 맨 끝(2쪽)
+    await user.click(await screen.findByRole('button', { name: '2' }));
+    await user.click(await screen.findByRole('checkbox', { name: `${number} 선택` }));
+    await user.click(screen.getByRole('button', { name: '시뮬레이션' }));
+    const create = await screen.findByRole('button', { name: 'MPS 생성하기' });
+    return { user, number, create, dialog: within(screen.getByRole('dialog')) };
+  };
+
+  it('재고보다 많이 요청하면 모자란 수량이 보이고 MPS 를 만들면 확인됨이 된다', async () => {
+    const { user, number, create, dialog } = await simulateNewQuote(motor(200));
+    expect(dialog.getByText('200개')).toBeInTheDocument();
+    expect(dialog.getByText('120개')).toBeInTheDocument();
+    expect(dialog.getByText('80개')).toBeInTheDocument();
+    expect(create).toBeEnabled();
+    await user.click(create);
+    expect(
+      await screen.findByRole('checkbox', {
+        name: `${number} 가용재고 확인 완료(선택할 수 없음)`,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('재고 안이면 만들 것이 없어 MPS 생성이 잠긴다', async () => {
+    const { create, dialog } = await simulateNewQuote(motor(100));
+    expect(dialog.getByText('0개')).toBeInTheDocument();
+    expect(create).toBeDisabled();
+  });
+
+  it.each([
+    ['둘째', [motor(1), bearing(30)]],
+    ['첫째', [bearing(30), motor(1)]],
+  ])(
+    '%s 품목(베어링 B)만 모자라면 그 품목의 수량과 사유가 보이고 BOM 이 없어 MPS 생성이 잠긴다',
+    async (_, items) => {
+      const { user, number, create, dialog } = await simulateNewQuote(...items);
+      expect(dialog.getAllByText('베어링 B')).not.toHaveLength(0);
+      expect(dialog.queryByText('모터 A')).not.toBeInTheDocument();
+      for (const quantity of ['30개', '20개', '10개'])
+        expect(dialog.getByText(quantity)).toBeInTheDocument();
+      expect(dialog.getAllByText('BOM이 등록되지 않은 품목')).not.toHaveLength(0);
+      expect(create).toBeDisabled();
+      await user.keyboard('{Escape}');
+      expect(await screen.findByRole('checkbox', { name: `${number} 선택` })).toBeEnabled();
+    },
+  );
+
+  it('모자란 품목이 모터 A 면 순서와 상관없이 모터 A 다', async () => {
+    const { create, dialog } = await simulateNewQuote(bearing(1), motor(200));
+    expect(dialog.getByText('80개')).toBeInTheDocument();
+    expect(create).toBeEnabled();
+  });
+
+  it('재고를 옮겨 모자라지면 MPS 를 만들 수 있다', async () => {
+    await mockApi('POST', '/scm-pp/iv/stock-transfers', {
+      body: {
+        itemId: 'item-1001',
+        fromWarehouseId: 'wh-001',
+        toWarehouseId: 'wh-002',
+        stockQuantity: 50,
+        uomName: 'EA',
+        reason: '재배치',
+      },
+    });
+    const { create, dialog } = await simulateNewQuote(motor(100));
+    expect(dialog.getByText('70개')).toBeInTheDocument();
+    expect(dialog.getByText('30개')).toBeInTheDocument();
+    expect(create).toBeEnabled();
   });
 });
 

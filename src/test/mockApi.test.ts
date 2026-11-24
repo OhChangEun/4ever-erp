@@ -35,7 +35,6 @@ const NOT_SENT: Array<[method: string, url: string, why: string]> = [
   ['POST', PROFILE_ENDPOINTS.EDIT_PROFILE, '프로필 목'],
   ['POST', SALES_ENDPOINTS.INVENTORY_CHECK, '계산 요청. 서버 상태를 안 바꾼다'],
   ['POST', INVENTORY_ENDPOINTS.MATERIALS_LIST, 'POST 지만 읽기'],
-  ['POST', INVENTORY_ENDPOINTS.ADD_MATERIALS, '자재 추가는 반영하지 않는다(카드 조사 1)'],
   ['POST', PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE, '계산 요청'],
   ['POST', PRODUCTION_ENDPOINTS.QUOTATION_PREVIEW, '계산 요청'],
   [
@@ -62,7 +61,7 @@ const matchesAny = (handler: HttpHandler, requests: Array<{ method: string; url:
 };
 
 describe('applyAllMockWrites', () => {
-  it('결과를 기억하는 쓰기 핸들러 40개 전부에 요청을 보내고, 응답이 전부 성공이다', async () => {
+  it('결과를 기억하는 쓰기 핸들러 41개 전부에 요청을 보내고, 응답이 전부 성공이다', async () => {
     const sent = await applyAllMockWrites();
     expect(sent.filter((write) => !write.ok)).toEqual([]);
 
@@ -78,7 +77,7 @@ describe('applyAllMockWrites', () => {
       .map((handler) => `${String(handler.info.method)} ${String(handler.info.path)}`);
 
     expect(unaccounted).toEqual([]);
-    expect(covered).toHaveLength(40);
-    expect(writeHandlers).toHaveLength(40 + NOT_SENT.length);
+    expect(covered).toHaveLength(41);
+    expect(writeHandlers).toHaveLength(41 + NOT_SENT.length);
   });
 });

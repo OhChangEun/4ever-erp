@@ -135,6 +135,19 @@ describe('영업 화면 결함', () => {
     expect(note).toHaveValue('급함');
   });
 
+  it('견적 품목은 판매 품목 둘이고 고르면 품목표 단가가 나온다(카드 "반려 견적과 등록 반영")', async () => {
+    renderWithProviders(<NewOrderModal id="m" onClose={vi.fn()} />);
+    const bearing = await screen.findByRole('option', { name: '베어링 B' });
+    const select = screen.getByRole('combobox');
+    expect(
+      within(select)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['제품을 선택하세요', '모터 A', '베어링 B']);
+    await userEvent.selectOptions(select, bearing);
+    expect(screen.getByRole('textbox', { name: '단가' })).toHaveValue('₩8,000');
+  });
+
   it('재고 확인 시각은 렌더 때의 지금 시각이 아니라 서버가 확인한 시각이다', async () => {
     server.use(
       http.post(SALES_ENDPOINTS.INVENTORY_CHECK, () =>

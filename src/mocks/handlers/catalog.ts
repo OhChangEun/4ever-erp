@@ -70,9 +70,36 @@ export const WAREHOUSE_ITEMS: CatalogItem[] = WAREHOUSE_ITEM_NAMES.map((itemName
   };
 });
 
-/** 재고 상세가 찾는 품목. 모르는 id 는 undefined */
+/**
+ * 처음에는 재고에 없는 자재(카드 "반려 견적과 등록 반영"). 원자재 추가의 품목 선택에 나오고 추가하면 그 로그인의 재고에 든다.
+ * 번호와 단가는 위 14개에 이어 센다. 처음 재고는 0 이다
+ */
+export const UNSTOCKED_MATERIALS: CatalogItem[] = [
+  '영구자석',
+  '절연지',
+  '오링',
+  '리드선',
+  '방열판',
+  '황동봉',
+].map((itemName, k) => {
+  const i = WAREHOUSE_ITEM_NAMES.length + k;
+  return {
+    itemId: `item-wh-${String(i + 1).padStart(3, '0')}`,
+    itemNumber: `ITM-${3000 + i}`,
+    itemName,
+    category: '자재',
+    unitPrice: 1000 + i * 150,
+    current: 0,
+    safety: 0,
+  };
+});
+
+/** 판매 품목(모터 A, 베어링 B). 자재가 아닌 품목이고 기본 견적과 주문이 파는 것과 같다 */
+export const SALE_ITEMS = [MOTOR, BEARING];
+
+/** 품목표에서 찾은 품목. 재고에 아직 없는 자재도 찾는다. 모르는 id 는 undefined */
 export const catalogItem = (itemId: string) =>
-  WAREHOUSE_ITEMS.find((item) => item.itemId === itemId);
+  [...WAREHOUSE_ITEMS, ...UNSTOCKED_MATERIALS].find((item) => item.itemId === itemId);
 
 /** 품목 줄. 금액은 수량 × 단가 */
 export const line = (item: CatalogItem, quantity: number) => ({

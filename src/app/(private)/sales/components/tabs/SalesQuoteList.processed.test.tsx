@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http } from 'msw';
@@ -11,6 +11,8 @@ import { quoteNumberOf } from '@/test/mockApi';
 import SalesQuoteList from './SalesQuoteList';
 import QuoteReviewModal from '../modals/QuoteReviewModal';
 import { postQuotationConfirm } from '../../sales.api';
+
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 /**
  * 이미 처리된 건의 버튼 카드. 처리(검토 요청, 즉시 납품)는 대기(PENDING) 견적만 한다(카드 결정 2, verified=false).
@@ -115,7 +117,7 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
   it('기본 목의 재고 확인이 요청 수량을 보고 부족하면 생산에서 검토가 보인다', async () => {
     // qt-002: 모터 A 225(재고 120), 베어링 B 200(재고 20). 덮어쓰기 없이 기본 목으로 본다
     await openAndCheck('qt-002');
-    expect(screen.getByRole('link', { name: '생산관리에서 검토' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '생산관리에서 검토' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: DELIVER })).not.toBeInTheDocument();
   });
 
@@ -139,7 +141,7 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
       ),
     );
     await openAndCheck('qt-002');
-    expect(screen.getByRole('link', { name: '생산관리에서 검토' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '생산관리에서 검토' })).toBeInTheDocument();
   });
 
   it.each([
@@ -149,7 +151,7 @@ describe('견적 검토 모달: 버튼은 상세 쿼리의 상태를 본다', ()
   ])('%s 견적이면 즉시 납품도 생산에서 검토도 없다', async (_, quotationId) => {
     await openAndCheck(quotationId);
     expect(screen.queryByRole('button', { name: DELIVER })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: '생산관리에서 검토' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '생산관리에서 검토' })).not.toBeInTheDocument();
   });
 
   it('모달이 열린 동안 다른 곳에서 검토 요청을 보내면 상세를 다시 받은 뒤 버튼이 사라진다', async () => {
