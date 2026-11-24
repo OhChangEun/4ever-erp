@@ -5,7 +5,7 @@ import { http } from 'msw';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { scenarioResponse } from '@/mocks/scenario';
-import { resetAlarmMock } from '@/mocks/handlers/alarm.handlers';
+import { resetMockState } from '@/mocks/state';
 import { makePage, ok } from '@/mocks/utils';
 import { NOTIFICATION_BASE_PATH, NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
 import { useAuthStore } from '@/store/authStore';
@@ -51,7 +51,7 @@ const openPopover = async (name = '알림, 안 읽은 알림 3개', dialogName =
 };
 
 afterEach(() => {
-  resetAlarmMock();
+  resetMockState();
   useAuthStore.getState().clearUserInfo();
   useSidebarStore.getState().setExpanded(true);
   vi.unstubAllEnvs();

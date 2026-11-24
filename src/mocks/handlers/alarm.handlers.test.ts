@@ -4,7 +4,8 @@ import { getResponse } from 'msw';
 import * as z from 'zod';
 import { API_BASE_URL } from '@/app/types/api';
 import { mockApi } from '@/test/mockApi';
-import { alarmHandlers, resetAlarmMock } from './alarm.handlers';
+import { resetMockState } from '../state';
+import { alarmHandlers } from './alarm.handlers';
 
 /**
  * 알림 목(알림 UI 연결 카드). 목록, 안 읽은 수, 읽음 처리가 같은 상태를 본다.
@@ -43,7 +44,7 @@ const list = (query = '?size=100', token = '') =>
   );
 
 afterEach(() => {
-  resetAlarmMock();
+  resetMockState();
   vi.useRealTimers();
 });
 

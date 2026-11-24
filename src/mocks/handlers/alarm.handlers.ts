@@ -4,8 +4,10 @@ import type { paths } from '@/lib/api/openapi.gen';
 import type { Schema } from '@/lib/api/contract';
 import { API_BASE_URL } from '@/app/types/api';
 import { NOTIFICATION_ENDPOINTS } from '@/lib/api/notification.endpoints';
+import { mockState } from '../state';
 import { BEARING } from './catalog';
 import { apRowsOf } from './finance.handlers';
+import { seedQuoteOf } from './quotes';
 import { addDays, todayKey } from './seed';
 import { makePage } from './utils';
 
@@ -52,7 +54,7 @@ const seed = (request: Request): Notification[] => {
     {
       notificationId: 'ntf-003',
       notificationTitle: '견적 검토 요청',
-      notificationMessage: 'QT-2026-014 견적 검토가 요청되었습니다.',
+      notificationMessage: `${seedQuoteOf(request, 'qt-014')?.quote.quotationNumber ?? ''} 견적 검토가 요청되었습니다.`,
       linkType: 'QUOTATION',
       linkId: 'qt-014',
       source: 'SD',
@@ -83,22 +85,10 @@ const seed = (request: Request): Notification[] => {
   ];
 };
 
-// 상태는 Authorization 값(로그인)별. 프록시가 세션 토큰을 Bearer 로 붙이므로 로그인마다 새 상태다.
-// 브라우저 MSW 와 단위 테스트는 헤더가 없어 '' 하나를 같이 쓴다.
-// shortcut: 로그인할 때마다 저장소가 하나씩 늘어난다(목 전용, 서버를 다시 띄우면 비워진다), 문제 되면 최근 N개만 남긴다
-// shortcut: 브라우저 MSW 는 로그인을 바꿔도 같은 저장소라 앞 사용자의 읽음 상태가 남는다(개발용 목에서만), 문제 되면 로그아웃 때 resetAlarmMock
-const stores = new Map<string, Notification[]>();
-const storeOf = (request: Request): Notification[] => {
-  const key = request.headers.get('authorization') ?? '';
-  const existing = stores.get(key);
-  if (existing) return existing;
-  const created = seed(request);
-  stores.set(key, created);
-  return created;
-};
-
-/** 테스트가 끝날 때 처음 상태로 돌린다 */
-export const resetAlarmMock = () => stores.clear();
+// 로그인별 공용 목 상태(`src/mocks/state.ts`). 견적 같은 다른 목과 함께 지워져야 알림의 번호가 그 행의 번호로 남는다(리뷰 A1).
+// shortcut: 브라우저 MSW 는 로그인을 바꿔도 같은 저장소라 앞 사용자의 읽음 상태가 남는다(개발용 목에서만), 문제 되면 로그아웃 때 resetMockState
+const alarmState = mockState<{ items?: Notification[] }>(() => ({}));
+const storeOf = (request: Request): Notification[] => (alarmState(request).items ??= seed(request));
 
 export const alarmHandlers = [
   http.get('/alarm/notifications/list', ({ request, query, response }) => {

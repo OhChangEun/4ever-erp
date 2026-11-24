@@ -256,15 +256,15 @@ export const WAREHOUSES: Array<Schema<'WarehouseListItem'>> = WAREHOUSE_ROWS.map
 
 export type Quote = Schema<'Quote'>;
 /**
- * 영업 견적 16건과 품목 줄. 줄 금액 합이 총액이다. 생산 견적과 시뮬레이션도 이 견적을 쓴다(제품 = 첫 줄).
- * qt-001~004 는 예전 값 그대로. 대기(PENDING) 중 qt-016 은 재고(모터 A 120, 베어링 B 20) 안이라 즉시 납품,
+ * 영업 견적 16건(견적일 순)과 품목 줄. 줄 금액 합이 총액이다. 생산 견적과 시뮬레이션도 이 견적을 쓴다(제품 = 첫 줄).
+ * 날짜는 `seedQuotes` 가 주 단위로 옮긴다. 대기(PENDING) 중 qt-016 은 재고(모터 A 120, 베어링 B 20) 안이라 즉시 납품,
  * qt-002, 009, 014 는 넘쳐 생산 검토로 간다
  */
 const QUOTE_ROWS: Array<[string, string, string, Quote['statusCode'], number, number]> = [
-  ['한빛전자', '김영업', '2026-01-10', 'APPROVAL', 875, 250],
-  ['대성기계', '이영업', '2026-01-14', 'PENDING', 225, 200],
-  ['서진산업', '김영업', '2026-01-18', 'REVIEW', 450, 300],
-  ['한빛전자', '박영업', '2026-01-20', 'REJECTED', 125, 75],
+  ['한빛전자', '김영업', '2026-09-19', 'APPROVAL', 875, 250],
+  ['대성기계', '이영업', '2026-09-23', 'PENDING', 225, 200],
+  ['서진산업', '김영업', '2026-09-27', 'REVIEW', 450, 300],
+  ['한빛전자', '박영업', '2026-09-29', 'REJECTED', 125, 75],
   ['세광정밀', '정서연', '2026-10-02', 'APPROVAL', 300, 120],
   ['동해기공', '강도윤', '2026-10-07', 'REJECTED', 80, 0],
   ['우진테크', '김영업', '2026-10-10', 'REVIEW', 500, 200],
@@ -278,28 +278,41 @@ const QUOTE_ROWS: Array<[string, string, string, Quote['statusCode'], number, nu
   ['서진산업', '박영업', '2026-11-10', 'APPROVAL', 90, 10],
   ['대성기계', '이영업', '2026-11-12', 'PENDING', 40, 10],
 ];
-/** qt-001~004 의 예전 납기 */
-const OLD_DUE = ['2026-02-01', '2026-02-10', '2026-02-15', '2026-02-20'];
+/** 견적일에서 납기까지 날 수. qt-001~004 만 다르다(예전 값) */
+const FIRST_DUE_DAYS = [22, 27, 28, 31];
+export const QUOTE_DUE_DAYS = 30;
 
-export const QUOTES: Array<{ quote: Quote; lines: Line[] }> = QUOTE_ROWS.map(
-  ([customerName, managerName, quotationDate, statusCode, motor, bearing], i) => {
+export interface SeedQuote {
+  quote: Quote;
+  lines: Line[];
+}
+/**
+ * from 날 기준의 견적. 가장 최근 견적(표의 마지막 행)이 from 의 0~6일 전이 되게 모든 견적일과 납기를 같은 주 수만큼 옮긴다
+ * (요일과 납기까지의 날 수가 그대로다). 번호의 해는 견적일의 해이고 순번은 id 와 같아 겹치지 않는다.
+ * from 이 목~일이면 qt-008, 월~수면 qt-010(둘 다 생산에서 확인됨)의 납기가 그 주라 MPS 기본 기간에 수요가 있다
+ */
+export const seedQuotes = (from: string): SeedQuote[] => {
+  const newest = QUOTE_ROWS[QUOTE_ROWS.length - 1][2];
+  const shift = Math.floor((ms(from) - ms(newest)) / (7 * DAY)) * 7;
+  return QUOTE_ROWS.map(([customerName, managerName, baseDate, statusCode, motor, bearing], i) => {
     const serial = String(i + 1).padStart(3, '0');
+    const quotationDate = addDays(baseDate, shift);
     const lines = [line(MOTOR, motor), ...(bearing ? [line(BEARING, bearing)] : [])];
     return {
       quote: {
         quotationId: `qt-${serial}`,
-        quotationNumber: `QT-2026-${serial}`,
+        quotationNumber: `QT-${quotationDate.slice(0, 4)}-${serial}`,
         customerName,
         managerName,
         quotationDate,
-        dueDate: OLD_DUE[i] ?? addDays(quotationDate, 30),
+        dueDate: addDays(quotationDate, FIRST_DUE_DAYS[i] ?? QUOTE_DUE_DAYS),
         totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
         statusCode,
       },
       lines,
     };
-  },
-);
+  });
+};
 
 // ---------- 영업 주문 ----------
 

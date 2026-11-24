@@ -19,6 +19,7 @@ import BomCostTree from './components/bom/BomCostTree';
 import { useAuthStore } from '@/store/authStore';
 import type { BomLevelStructureNode } from './types/BomDetailApiType';
 import { MRP_TABS, PRODUCTION_TABS } from './constants';
+import { quoteNumberOf } from '@/test/mockApi';
 import { chromeHangul } from '@/test/chromeHangul';
 import { hangulOptions } from '@/test/dropdownOptions';
 
@@ -227,7 +228,8 @@ describe('생산 레이아웃(i18n 9)', () => {
     // 영어 메시지는 받은 뒤에 바뀐다
     expect(await screen.findByRole('columnheader', { name: 'Quote no.' })).toBeInTheDocument();
     // 생산 견적은 영업 견적과 같은 번호다(카드 "데모 데이터 채우기")
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Select QT-2026-001' }));
+    const number = await quoteNumberOf('qt-001');
+    await userEvent.click(screen.getByRole('checkbox', { name: `Select ${number}` }));
     await userEvent.click(screen.getByRole('button', { name: 'Simulate' }));
     const dialog = await screen.findByRole('dialog', { name: 'Simulation results' });
     expect(await within(dialog).findByText('Production review')).toBeInTheDocument();

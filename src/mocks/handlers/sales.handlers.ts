@@ -16,10 +16,11 @@ import { SALES_BASE_PATH, SALES_ENDPOINTS } from '@/app/types/api';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
 import { MOTOR, catalogItem, type line } from './catalog';
+import { seedQuoteOf, seedQuotesOf } from './quotes';
 import { stockOf } from './stock';
 import {
   CUSTOMERS,
-  QUOTES,
+  QUOTE_DUE_DAYS,
   addDays,
   monthStart,
   mondayOf,
@@ -81,8 +82,8 @@ const salesState = mockState<{
 }));
 
 /** 기본 견적(qt-001~016)과 기본 주문의 품목 줄. 줄 금액 합이 목록의 총액이다 */
-const seedLines = (rowId: string) =>
-  QUOTES.find(({ quote }) => quote.quotationId === rowId)?.lines ??
+const seedLines = (request: Request, rowId: string) =>
+  seedQuoteOf(request, rowId)?.lines ??
   seedOrders().find(({ order }) => order.salesOrderId === rowId)?.lines;
 
 /**
@@ -96,8 +97,8 @@ const linesOf = (
 ): Line[] =>
   (rowId === undefined
     ? undefined
-    : (salesState(request).createdLines.get(rowId) ?? seedLines(rowId))) ??
-  seedLines(fallback) ??
+    : (salesState(request).createdLines.get(rowId) ?? seedLines(request, rowId))) ??
+  seedLines(request, fallback) ??
   [];
 
 const byQuoteDate = newestFirst<Quote>(
@@ -145,7 +146,7 @@ const CUSTOMER_FILTER: FilterRules<Customer> = {
 /** 기본 견적과 새로 만든 견적에 바뀐 상태를 덮은 목록. 견적일 최신순(새 견적은 오늘이라 맨 위) */
 export const quotesOf = (request: Request) => {
   const state = salesState(request);
-  return [...QUOTES.map(({ quote }) => quote), ...state.createdQuotes]
+  return [...seedQuotesOf(request).map(({ quote }) => quote), ...state.createdQuotes]
     .map((quote) => ({
       ...quote,
       statusCode: state.quoteStatus.get(quote.quotationId) ?? quote.statusCode,
@@ -398,6 +399,7 @@ export const salesHandlers = [
       const state = salesState(request);
       const body = await request.json();
       // 고객과 담당자는 게이트웨이가 로그인에서 정한다. 목은 첫 견적의 값을 쓴다
+      const seeds = seedQuotesOf(request);
       const lines = body.items.map((item) => ({
         itemId: item.itemId,
         itemName: item.itemId === MOTOR.itemId ? MOTOR.itemName : item.itemId,
@@ -409,16 +411,19 @@ export const salesHandlers = [
         state.createdQuotes,
         (serial) => {
           state.createdLines.set(`qt-${serial}`, lines);
+          const quotationDate = todayKey();
           return {
-            ...QUOTES[0].quote,
+            ...seeds[0].quote,
             quotationId: `qt-${serial}`,
-            quotationNumber: `QT-2026-${serial}`,
-            quotationDate: todayKey(),
+            quotationNumber: `QT-${quotationDate.slice(0, 4)}-${serial}`,
+            quotationDate,
+            // 등록 본문에 납기가 없다(계약 NewOrderRequest). 기본 견적과 같은 날 수(verified=false)
+            dueDate: addDays(quotationDate, QUOTE_DUE_DAYS),
             totalAmount: lines.reduce((sum, item) => sum + item.amount, 0),
             statusCode: 'PENDING',
           };
         },
-        QUOTES.length + 1,
+        seeds.length + 1,
         // 상한으로 밀려난 견적의 줄도 같이 지운다
         (dropped) => state.createdLines.delete(dropped.quotationId),
       );
@@ -511,7 +516,7 @@ export const salesHandlers = [
       const { quotationId } = params;
       // 모르는 id 는 상세 목처럼 첫 견적의 본문으로 답한다
       const found = quotesOf(request).find((q) => q.quotationId === quotationId);
-      const quote = found ?? QUOTES[0].quote;
+      const quote = found ?? seedQuotesOf(request)[0].quote;
       state.quoteStatus.set(quotationId, 'APPROVAL');
       // 같은 견적을 또 눌러도 주문은 하나만 만든다
       const salesOrderId = `so-${quotationId}`;

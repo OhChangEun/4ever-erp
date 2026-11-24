@@ -17,5 +17,12 @@ export const waitForListLoaded = async (page: Page) => {
     .catch(() => undefined);
 };
 
+/** 기본 견적의 번호. 로그인한 날을 따라 해가 바뀌어(QT-2026-, QT-2027-) 같은 로그인의 서버 목에서 읽는다. 로그인 뒤에 부른다 */
+export const quoteNumberOf = async (page: Page, quotationId: string): Promise<string> => {
+  const response = await page.request.get(`/api/proxy/business/sd/quotations/${quotationId}`);
+  const body: { data: { quotationNumber: string } } = await response.json();
+  return body.data.quotationNumber;
+};
+
 /** 응답을 늦춘다. 낙관적 값이 보이는 순간을 확인할 때 쓴다 */
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { quoteNumberOf } from '@/test/mockApi';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { SALES_ENDPOINTS } from '@/app/types/api';
@@ -290,15 +291,16 @@ describe('견적 목록 승인 필터', () => {
     server.events.on('request:start', record);
     try {
       renderWithProviders(<SalesQuoteList />);
-      // 첫 쪽 맨 위는 가장 최근 견적(대기). 승인 견적 QT-2026-001 은 2쪽이다(카드 "데모 데이터 채우기")
-      expect(await screen.findByText('QT-2026-016')).toBeInTheDocument();
-      expect(screen.queryByText('QT-2026-001')).not.toBeInTheDocument();
+      // 첫 쪽 맨 위는 가장 최근 견적(대기). 승인 견적 qt-001 은 2쪽이다(카드 "데모 데이터 채우기")
+      const [first, newest] = [await quoteNumberOf('qt-001'), await quoteNumberOf('qt-016')];
+      expect(await screen.findByText(newest)).toBeInTheDocument();
+      expect(screen.queryByText(first)).not.toBeInTheDocument();
       await userEvent.click(screen.getByRole('combobox', { name: salesKo.common.allStatuses }));
       await userEvent.click(screen.getByRole('option', { name: ko.status.APPROVAL }));
       await waitFor(() => expect(seen.at(-1)?.get('status')).toBe('APPROVAL'));
       expect(seen.some((params) => params.get('status') === 'APPROVED')).toBe(false);
-      expect(await screen.findByText('QT-2026-001')).toBeInTheDocument();
-      expect(screen.queryByText('QT-2026-016')).not.toBeInTheDocument();
+      expect(await screen.findByText(first)).toBeInTheDocument();
+      expect(screen.queryByText(newest)).not.toBeInTheDocument();
     } finally {
       server.events.removeListener('request:start', record);
     }
@@ -307,13 +309,9 @@ describe('견적 목록 승인 필터', () => {
   it('기본 목은 status 로 거른다(옛 값 APPROVED 면 승인 견적이 없다)', async () => {
     const approval = await getQuoteList({ status: 'APPROVAL', page: 0, size: 10 });
     // 승인 견적 다섯 건, 견적일 최신순
-    expect(approval.data.map((quote) => quote.quotationNumber)).toEqual([
-      'QT-2026-015',
-      'QT-2026-011',
-      'QT-2026-008',
-      'QT-2026-005',
-      'QT-2026-001',
-    ]);
+    expect(approval.data.map((quote) => quote.quotationNumber)).toEqual(
+      await Promise.all(['qt-015', 'qt-011', 'qt-008', 'qt-005', 'qt-001'].map(quoteNumberOf)),
+    );
     // 옛 값은 타입(QuoteStatusFilter)이 막으므로 axios 로 직접 보낸다
     const approved = await axios.get<ApiResponse<{ content: Quote[] }>>(
       SALES_ENDPOINTS.QUOTES_LIST,

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
-import { resetAlarmMock } from '@/mocks/handlers/alarm.handlers';
+import { resetMockState } from '@/mocks/state';
 import NotificationBell from './NotificationBell';
 
 /**
@@ -20,7 +20,7 @@ describe('알림 팝오버 청크를 못 받았을 때', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
   afterEach(() => {
-    resetAlarmMock();
+    resetMockState();
     vi.restoreAllMocks();
   });
 
