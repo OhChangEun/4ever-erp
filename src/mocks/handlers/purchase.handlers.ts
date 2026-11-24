@@ -412,18 +412,22 @@ export const purchaseHandlers = [
       if (shouldError(request)) return error('Failed to create stock purchase requisition', 500);
       const state = purchaseState(request);
       const { items } = await request.json();
-      // 본문에 단가와 품목 이름이 없다. 이름은 품목표에서 찾고(없으면 품목 id), 금액은 0 이다
+      // 본문에 단가와 품목 이름이 없다. 품목표에서 찾는다(확정 모달, 부족 목록과 같은 단가). 모르는 품목은 품목 id 와 0 원
       addRequisition(
         state,
-        items.map((item, i) => ({
-          itemId: i + 1,
-          itemName: catalogItem(item.productId)?.itemName ?? item.productId,
-          dueDate: '',
-          quantity: item.quantity,
-          uomCode: 'EA',
-          unitPrice: 0,
-          amount: 0,
-        })),
+        items.map(({ productId, quantity }, i) => {
+          const item = catalogItem(productId);
+          const unitPrice = item?.unitPrice ?? 0;
+          return {
+            itemId: i + 1,
+            itemName: item?.itemName ?? productId,
+            dueDate: '',
+            quantity,
+            uomCode: 'EA',
+            unitPrice,
+            amount: quantity * unitPrice,
+          };
+        }),
       );
       for (const item of items) if (item.mrpRunId) state.requestedMrpRuns.add(item.mrpRunId);
       return ok(null);

@@ -4,6 +4,7 @@ import * as z from 'zod';
 import { mockApi } from '@/test/mockApi';
 import ko from '@/i18n/messages/ko.json';
 import en from '@/i18n/messages/en.json';
+import { addDays } from './seed';
 
 /**
  * 카드 "날짜가 지나도 같은 데모 데이터". 시계를 다음 날, 다음 달로 옮겨 같은 id 가 같은 값인지 본다.
@@ -87,6 +88,77 @@ describe('근태는 날짜로 정해진다', () => {
       list.filter((row) => str(row.startDate) >= from && str(row.startDate) <= TODAY);
     expect(within(before).length).toBeGreaterThan(5);
     expect(within(after)).toEqual(within(before));
+  });
+
+  /** 그 해에 쓴(시작한) 승인 휴가 일수를 사람마다. 12주 창을 옮겨 가며 휴가 목록을 모아 센다 */
+  const usedIn = async (year: string, until: string) => {
+    const seen = new Map<string, Row>();
+    for (let day = `${year}-01-01`; ; day = addDays(day, 28)) {
+      const at = day < until ? day : until;
+      setToday(at);
+      for (const row of await rows(`${HRM}/leave-request`, `s-${at}`)) {
+        const id = str(row.leaveRequestId);
+        // 앞으로의 신청(leave-001~006)은 마지막 날에 본 것만
+        if (/^leave-\d{8}-/.test(id) || at === until) seen.set(id, row);
+      }
+      if (at === until) break;
+    }
+    const used = new Map<string, number>();
+    for (const row of seen.values()) {
+      if (row.status !== 'APPROVED' || !str(row.startDate).startsWith(year)) continue;
+      const employeeId = str(RecordSchema.parse(row.employee).employeeId);
+      used.set(employeeId, (used.get(employeeId) ?? 0) + num(row.numberOfLeaveDays));
+    }
+    return used;
+  };
+
+  it.each(['2026-11-13', '2026-12-31', '2027-01-15'])(
+    '%s: 남은 연차는 15일에서 그 휴가가 든 해에 쓴 승인 휴가 전부를 뺀 값이다',
+    async (today) => {
+      const used: Record<string, Map<string, number>> = {
+        2026: await usedIn('2026', today < '2026-12-31' ? today : '2026-12-31'),
+      };
+      if (today > '2026-12-31') used[2027] = await usedIn('2027', today);
+      setToday(today);
+      // 앞으로의 신청 중 다음 해에 든 것은 위에서 세지 않아 뺀다
+      const list = (await rows(`${HRM}/leave-request`, `s-${today}`)).filter(
+        (row) => str(row.startDate).slice(0, 4) in used,
+      );
+      expect(list.length).toBeGreaterThan(10);
+      // 그 해 전부를 세지만 목록은 근태 집계 12주만 보인다
+      const from = str((await days())[0].date);
+      expect(list.filter((row) => str(row.startDate) < from)).toEqual([]);
+      for (const row of list) {
+        const employeeId = str(RecordSchema.parse(row.employee).employeeId);
+        const year = str(row.startDate).slice(0, 4);
+        expect(row.remainingLeaveDays, `${str(row.leaveRequestId)}`).toBe(
+          15 - (used[year].get(employeeId) ?? 0),
+        );
+      }
+    },
+  );
+
+  it('오래된 휴가가 12주 창에서 빠져도 같은 해에는 남은 연차가 늘지 않는다', async () => {
+    const remaining = async () =>
+      new Map(
+        (await rows(`${HRM}/leave-request`))
+          .filter((row) => /^leave-2026/.test(str(row.leaveRequestId)))
+          .map((row) => [
+            str(RecordSchema.parse(row.employee).employeeId),
+            num(row.remainingLeaveDays),
+          ]),
+      );
+    const grown: string[] = [];
+    let before = new Map<string, number>();
+    for (const today of ['2026-04-10', '2026-06-05', '2026-08-14', '2026-11-13', '2026-12-31']) {
+      setToday(today);
+      const after = await remaining();
+      for (const [id, days] of after)
+        if (days > (before.get(id) ?? days)) grown.push(`${today} ${id}`);
+      before = new Map([...before, ...after]);
+    }
+    expect(before.size).toBeGreaterThan(20);
+    expect(grown).toEqual([]);
   });
 
   it.each([TODAY, ...LATER])('%s: 잔디의 날마다 그날 출퇴근 목록과 같다', async (today) => {

@@ -117,6 +117,8 @@
     "empty": "No materials to request.",
     "loading": "Loading material info...",
     "loadError": "Couldn't load material info. {message}",
+    "missingItems": "{count, plural, one {# order has} other {# orders have}} no item info ({names}), so the request can't be sent. Deselect them and try again.",
+    "tableLabel": "Materials to request",
     "summary": "Request summary",
     "selectedOrders": "Selected orders:",
     "orderCount": "{count}",

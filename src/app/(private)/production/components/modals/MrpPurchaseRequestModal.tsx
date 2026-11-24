@@ -62,6 +62,17 @@ export default function MrpPurchaseRequestModal({
     ];
   });
 
+  // 품목 정보가 없는 주문은 줄을 만들 수 없다. 조용히 빼고 보내면 일부만 요청된다. 알리고 확정을 막는다(우선순위 2)
+  const missing = items
+    ? orders.filter((order) => !items.some((item) => item.itemId === order.itemId))
+    : [];
+  const missingNotice =
+    missing.length > 0 &&
+    t('purchaseRequest.missingItems', {
+      count: missing.length,
+      names: missing.map((order) => order.itemName).join(', '),
+    });
+
   // 구매 도메인 데이터를 만드는 요청. 구매 요청 목록과 통계도 훅이 같이 무효화한다.
   const { mutate: createStockPurchase, isPending } = useCreateStockPurchaseRequest({
     onSuccess: () => {
@@ -79,7 +90,7 @@ export default function MrpPurchaseRequestModal({
   if (editableOrders.length === 0 && !isLoading && !isError) {
     return (
       <div className="min-w-3xl flex justify-center items-center p-8">
-        <div className="text-gray-500">{t('purchaseRequest.empty')}</div>
+        <div className="text-gray-500">{missingNotice || t('purchaseRequest.empty')}</div>
       </div>
     );
   }
@@ -128,7 +139,18 @@ export default function MrpPurchaseRequestModal({
         </div>
 
         {/* 테이블 영역 */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[252px] rounded shadow-xs">
+        {missingNotice && (
+          <p role="alert" className="text-sm text-red-600">
+            {missingNotice}
+          </p>
+        )}
+
+        <div
+          role="region"
+          aria-label={t('purchaseRequest.tableLabel')}
+          tabIndex={0}
+          className="overflow-x-auto overflow-y-auto max-h-[252px] rounded shadow-xs"
+        >
           <table className="min-w-full divide-y divide-gray-100 border-b border-gray-100">
             <thead className="sticky top-0 z-local bg-gray-100">
               <tr>
@@ -154,7 +176,7 @@ export default function MrpPurchaseRequestModal({
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-center">
               {editableOrders.map((order) => (
-                <tr key={order.itemId} className="hover:bg-gray-50">
+                <tr key={order.mrpRunId} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-medium text-blue-600">
                     {order.quotationNumber}
                   </td>
@@ -187,7 +209,7 @@ export default function MrpPurchaseRequestModal({
               })),
             })
           }
-          disabled={isPending}
+          disabled={isPending || missing.length > 0}
         />
       </div>
     </div>

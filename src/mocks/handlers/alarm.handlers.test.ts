@@ -1,7 +1,9 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getResponse } from 'msw';
+import * as z from 'zod';
 import { API_BASE_URL } from '@/app/types/api';
+import { mockApi } from '@/test/mockApi';
 import { alarmHandlers, resetAlarmMock } from './alarm.handlers';
 
 /**
@@ -105,4 +107,70 @@ describe('알림 목: 목록, 안 읽은 수, 읽음 처리가 서로 맞는다'
     expect(await unread()).toEqual({ count: 4 });
     expect((await list()).content).toHaveLength(6);
   });
+});
+
+describe('알림이 말하는 번호는 실제 목록에 있다', () => {
+  const RowsBody = z.object({
+    data: z.object({ content: z.array(z.record(z.string(), z.unknown())) }),
+  });
+  const ItemsBody = z.object({
+    data: z.object({
+      content: z.array(
+        z.object({
+          notificationMessage: z.string(),
+          linkType: z.nullable(z.string()),
+          linkId: z.nullable(z.string()),
+          createdAt: z.string(),
+        }),
+      ),
+    }),
+  });
+  /** 알림 종류 → [목록, id 칸, 번호 칸, 그 문서의 날짜 칸] */
+  const LISTS: Record<string, [string, string, string, string?]> = {
+    PURCHASE_ORDER: [
+      '/scm-pp/mm/purchase-orders',
+      'purchaseOrderId',
+      'purchaseOrderNumber',
+      'orderDate',
+    ],
+    PURCHASE_REQUISITION: [
+      '/scm-pp/mm/purchase-requisitions',
+      'purchaseRequisitionId',
+      'purchaseRequisitionNumber',
+      'requestDate',
+    ],
+    QUOTATION: ['/business/sd/quotations', 'quotationId', 'quotationNumber', 'quotationDate'],
+    PURCHASE_INVOICE: ['/business/fcm/invoice/ap', 'invoiceId', 'invoiceNumber', 'issueDate'],
+    INSUFFICIENT_STOCK: ['/scm-pp/iv/shortage', 'itemId', 'itemNumber'],
+  };
+
+  // 매입 전표는 최근 12달만 있어 해가 바뀐 뒤와 달의 첫날도 본다
+  it.each(['2026-11-24', '2026-12-01', '2027-03-01', '2028-01-01'])(
+    '%s: 번호와 id 가 같은 행이고 알림 시각이 그 문서보다 앞서거나 앞날이 아니다',
+    async (today) => {
+      vi.useFakeTimers();
+      // 한국 새벽 1시
+      vi.setSystemTime(new Date(`${today}T01:00:00+09:00`));
+      // 구독하면 새 알림(구매 요청 승인)이 하나 더 온다
+      const response = await send('GET', '/subscribe');
+      const body = response.text();
+      await vi.advanceTimersByTimeAsync(2_000);
+      await body;
+
+      const { content } = ItemsBody.parse(await (await send('GET', '/list?size=100')).json()).data;
+      const named = content.filter((item) => item.linkType !== null);
+      expect(named.map((item) => item.linkType).sort()).toEqual(Object.keys(LISTS).sort());
+      for (const item of named) {
+        const [path, idKey, numberKey, dateKey] = LISTS[item.linkType ?? ''];
+        const rows = RowsBody.parse(await mockApi('GET', `${path}?page=0&size=5000`)).data.content;
+        const row = rows.find((candidate) => candidate[idKey] === item.linkId);
+        const number = /[A-Z]+-\d[\d-]*/.exec(item.notificationMessage)?.[0];
+        expect([item.linkType, row?.[numberKey]]).toEqual([item.linkType, number]);
+        if (dateKey) expect(item.createdAt.slice(0, 10) >= String(row?.[dateKey])).toBe(true);
+      }
+      const times = content.map((item) => item.createdAt);
+      expect(times).toEqual([...times].sort().reverse());
+      expect(times.every((time) => Date.parse(`${time}+09:00`) <= Date.now())).toBe(true);
+    },
+  );
 });

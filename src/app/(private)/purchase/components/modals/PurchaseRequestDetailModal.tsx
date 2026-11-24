@@ -132,7 +132,9 @@ export default function PurchaseRequestDetailModal({
                 <tr className="text-center">
                   <td colSpan={6} className="px-4 py-3 text-right font-medium">
                     <span className="text-sm text-gray-700 pr-5">{t('totalAmount')}</span>
-                    <span className="text-xl text-green-600 pr-7">{request.totalAmount}</span>
+                    <span className="text-xl text-green-600 pr-7">
+                      {formatCurrency(request.totalAmount)}
+                    </span>
                   </td>
                 </tr>
               </tfoot>
