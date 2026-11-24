@@ -143,7 +143,7 @@ const CUSTOMER_FILTER: FilterRules<Customer> = {
 };
 
 /** 기본 견적과 새로 만든 견적에 바뀐 상태를 덮은 목록. 견적일 최신순(새 견적은 오늘이라 맨 위) */
-const quotesOf = (request: Request) => {
+export const quotesOf = (request: Request) => {
   const state = salesState(request);
   return [...QUOTES.map(({ quote }) => quote), ...state.createdQuotes]
     .map((quote) => ({

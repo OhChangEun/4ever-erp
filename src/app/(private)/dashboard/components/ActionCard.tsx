@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { dashboardKeys } from '../dashboard.keys';
 import { getColorClasses } from '../dashboard.utils';
 import { type ActionCardProps } from '../types/ActionCardType';
 import { useModal } from '@/app/components/common/modal/useModal';
@@ -8,13 +10,20 @@ import { NewOrderModal } from '@/app/(private)/sales/ui';
 export const ActionCard = ({ actionKey, icon, color, href }: ActionCardProps) => {
   const t = useTranslations('dashboard.quickActions');
   const { openModal } = useModal();
+  const queryClient = useQueryClient();
 
   const colors = getColorClasses(color);
   const handleClick = (e: React.MouseEvent) => {
     if (actionKey === 'newQuote') {
       e.preventDefault(); // 페이지 이동 막기
 
-      openModal(NewOrderModal, { title: t('newQuoteModalTitle'), width: '900px' });
+      openModal(NewOrderModal, {
+        title: t('newQuoteModalTitle'),
+        width: '900px',
+        // 새 견적은 작업 현황의 견적 탭에 든다. 영업이 대시보드 키를 모르게 여기서 무효화한다
+        onCreated: () =>
+          void queryClient.invalidateQueries({ queryKey: dashboardKeys.workflowStatus() }),
+      });
     }
   };
   return (

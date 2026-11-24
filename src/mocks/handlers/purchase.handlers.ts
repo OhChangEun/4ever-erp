@@ -289,7 +289,7 @@ const addRequisition = (state: PurchaseState, lines: RequisitionLine[]) => {
 };
 
 /** 구매 요청 목록. 기본 행과 새 행에 바뀐 상태를 덮는다. 요청일 최신순(새 요청은 오늘이라 맨 위) */
-const requisitionsOf = (request: Request) => {
+export const requisitionsOf = (request: Request) => {
   const state = purchaseState(request);
   return [...SEED_REQUISITIONS.map(({ row }) => row), ...state.createdRequisitions]
     .map((row) => ({

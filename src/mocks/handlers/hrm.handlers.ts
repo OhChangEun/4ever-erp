@@ -47,6 +47,8 @@ const hrmState = mockState<{
   /** 직원 id → 지정한 교육 프로그램 id 들 */
   assignedPrograms: Map<string, string[]>;
   timeRecordEdits: Map<string, TimeRecordEdit>;
+  /** 앞으로의 휴가 신청을 세는 날. 그 로그인이 인사 목을 처음 부른 날이고 그 뒤로 안 바뀐다 */
+  leavesFrom: string;
 }>(() => ({
   paidPayrolls: new Set(),
   leaveStatus: new Map(),
@@ -58,6 +60,7 @@ const hrmState = mockState<{
   programStarts: new Map(),
   assignedPrograms: new Map(),
   timeRecordEdits: new Map(),
+  leavesFrom: todayKey(),
 }));
 
 // 드롭다운 목과 직원 수정, 등록이 같은 이름표를 쓴다. 부서는 직원 씨앗과 같은 여섯(`seed.ts`)
@@ -340,11 +343,20 @@ const rosterOf = (date: string) => {
 const clock = (date: string, minutes: number) =>
   `${date}T${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`;
 
+/** 시간대 없는 시각 글자는 한국 시각이다. 그냥 읽으면 서버 시간대와 서머타임을 따라간다(리뷰 A4) */
+const instant = (time: string) =>
+  Date.parse(/(Z|[+-]\d{2}:?\d{2})$/.test(time) ? time : `${time}+09:00`);
+/** 두 시각 사이의 분. 거꾸로면 0 */
+const minutesBetween = (from: string, to: string) =>
+  Math.max(0, (instant(to) - instant(from)) / 60_000);
+
 /**
  * 그날 출퇴근 기록. 그날까지 입사한 재직자 중 결근, 휴가를 뺀 사람. 정상은 08:20~08:59, 지각은 09:05~09:50 출근,
- * 퇴근 18:00~20:29. 근무 시간은 출근부터 퇴근까지, 연장은 18시 뒤(verified=false). 오늘도 퇴근까지 채운다
+ * 퇴근 18:00~20:29. 근무 시간은 출근부터 퇴근까지, 연장은 18시 뒤(verified=false). 오늘도 퇴근까지 채운다.
+ * 고친 기록은 고친 시각으로 같은 규칙을 쓴다. 지각 여부는 다시 정하지 않는다(서버의 지각 규칙을 모르고, 바꾸면 근태 잔디의
+ * 그날 지각 수와 어긋난다)
  */
-const timeRecordsOf = (request: Request, date: string) => {
+export const timeRecordsOf = (request: Request, date: string) => {
   const roster = rosterOf(date);
   if (!roster) return [];
   const { timeRecordEdits } = hrmState(request);
@@ -354,18 +366,24 @@ const timeRecordsOf = (request: Request, date: string) => {
       const timerecordId = `time-${date.replace(/-/g, '')}-${serialOf(employee.employeeId)}`;
       const late = roster.late.has(employee.employeeId);
       const h = (what: string) => hashUnit(`${timerecordId}:${what}`);
-      const checkIn = late ? 545 + Math.floor(h('in') * 46) : 500 + Math.floor(h('in') * 40);
-      const checkOut = 1080 + Math.floor(h('out') * 150);
+      const times = timeRecordEdits.get(timerecordId) ?? {
+        checkInTime: clock(
+          date,
+          late ? 545 + Math.floor(h('in') * 46) : 500 + Math.floor(h('in') * 40),
+        ),
+        checkOutTime: clock(date, 1080 + Math.floor(h('out') * 150)),
+      };
       return {
         timerecordId,
         employee: summaryOf(employee),
         workDate: date,
-        checkInTime: clock(date, checkIn),
-        checkOutTime: clock(date, checkOut),
-        // 근무 시간과 지각 여부는 수정 뒤 다시 계산하지 않는다(서버 규칙을 모른다)
-        ...timeRecordEdits.get(timerecordId),
-        totalWorkMinutes: checkOut - checkIn,
-        overtimeMinutes: checkOut - 1080,
+        ...times,
+        totalWorkMinutes: minutesBetween(times.checkInTime, times.checkOutTime),
+        // 18시 뒤에 출근했으면 출근부터 센다(연장이 근무보다 길지 않게)
+        overtimeMinutes: Math.min(
+          minutesBetween(clock(date, 1080), times.checkOutTime),
+          minutesBetween(times.checkInTime, times.checkOutTime),
+        ),
         statusCode: late ? 'LATE' : 'ON_TIME',
       };
     });
@@ -385,10 +403,14 @@ const lastWorkday = (start: string, days: number) => {
   return day;
 };
 
-/** 앞으로의 휴가 신청 [직원, 종류, 오늘에서 며칠 뒤, 근무일 수, 상태]. id 는 leave-001 부터 */
+/**
+ * 앞으로의 휴가 신청 [직원, 종류, 그 로그인의 첫날(leavesFrom)에서 며칠 뒤, 근무일 수, 상태]. id 는 leave-001 부터.
+ * shortcut: 이틀 뒤부터라 세션(하루) 안에는 휴가 첫날이 오지 않는다. 하루보다 오래 켜 둔 브라우저 MSW 에서는 승인한
+ * 사람이 그날 출퇴근 목록에도 나온다, 세션을 늘리면 출근부도 로그인별로 만든다
+ */
 const LEAVE_ROWS: Array<[string, string, number, number, string]> = [
   ['emp-001', 'ANNUAL', 5, 2, 'PENDING'],
-  ['emp-009', 'SICK', 1, 1, 'PENDING'],
+  ['emp-009', 'SICK', 2, 1, 'PENDING'],
   ['emp-017', 'ANNUAL', 12, 3, 'PENDING'],
   ['emp-025', 'ANNUAL', 8, 1, 'APPROVED'],
   ['emp-030', 'ANNUAL', 3, 2, 'REJECTED'],
@@ -402,10 +424,9 @@ const ANNUAL_DAYS = 15;
  * 목록에 없다), 앞으로의 신청 6건(대기, 승인, 반려)이 더해진다. 시작일 최신순(게이트웨이 sortOrder 기본 DESC,
  * 정렬 칸은 verified=false). 승인, 반려 쓰기를 덮는다
  */
-const leavesOf = (request: Request) => {
-  const today = todayKey();
+export const leavesOf = (request: Request) => {
   const employees = employeesOf(request);
-  const { leaveStatus } = hrmState(request);
+  const { leaveStatus, leavesFrom } = hrmState(request);
   const past = attendanceDays().days.flatMap(({ date }) =>
     (rosterOf(date)?.onLeave ?? []).map((employee) => ({
       leaveRequestId: `leave-${date.replace(/-/g, '')}-${serialOf(employee.employeeId)}`,
@@ -418,7 +439,7 @@ const leavesOf = (request: Request) => {
     })),
   );
   const upcoming = LEAVE_ROWS.map(([employeeId, leaveType, after, days, status], i) => {
-    const startDate = weekdayFrom(addDays(today, after));
+    const startDate = weekdayFrom(addDays(leavesFrom, after));
     return {
       leaveRequestId: `leave-${String(i + 1).padStart(3, '0')}`,
       employeeId,
@@ -860,9 +881,11 @@ export const hrmHandlers = [
   }),
   http.get(HRM_ENDPOINTS.TRAINING_CATE_DROPDOWN, ({ request }) => {
     if (shouldError(request)) return error('Failed to load training categories dropdown', 500);
+    // 교육 프로그램이 쓰는 분류. 글자는 status 메시지와 같다
     return ok([
       { key: 'SAFETY', value: '안전' },
-      { key: 'SKILL', value: '기술' },
+      { key: 'QUALITY', value: '품질' },
+      { key: 'SYSTEM', value: '시스템' },
     ]);
   }),
   http.get(HRM_ENDPOINTS.PROGRAM_LIST_DROPDOWN, ({ request }) => {

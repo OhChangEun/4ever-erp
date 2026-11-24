@@ -1,7 +1,9 @@
 import { http } from 'msw';
-import { FINANCE_BASE_PATH, FINANCE_ENDPOINTS } from '@/app/types/api';
+import { createOpenApiHttp } from 'openapi-msw';
+import type { paths } from '@/lib/api/openapi.gen';
+import { API_BASE_URL, FINANCE_BASE_PATH, FINANCE_ENDPOINTS } from '@/app/types/api';
 import { mockState } from '../state';
-import { financeMonthlyPoints, monthlyMetric } from './financeAnalytics.handlers';
+import { financeMonthlyPoints, monthIndex, monthlyMetric } from './financeAnalytics.handlers';
 import {
   ACTIVE_SUPPLIERS,
   CUSTOMERS,
@@ -143,7 +145,7 @@ const apInvoices = (today = todayKey()): Invoice[] => {
             : Math.round((point.purchases * weights[s]) / weightSum / 10_000) * 10_000;
         left -= amount;
         const serial = supplierInfo.supplierId.slice('sup-'.length);
-        const lines = apLines(amount, s * 3 + i);
+        const lines = apLines(amount, s * 3 + monthIndex(point.month));
         return {
           row: {
             invoiceId: `inv-ap-${yyyymm}-${serial}`,
@@ -176,19 +178,44 @@ const withStatus = (request: Request, invoices: Invoice[]) => {
   }));
 };
 
+/** 그 로그인의 매출, 매입 전표 목록(발행일 최신순). 대시보드 작업 현황도 읽는다 */
+export const arRowsOf = (request: Request) =>
+  withStatus(request, arInvoices()).map(({ row }) => row);
+export const apRowsOf = (request: Request) =>
+  withStatus(request, apInvoices()).map(({ row }) => row);
+
+/** 미수금 경과 구간과 만기일에서 지난 날 수의 상한 */
+const AGING = [
+  { bucket: 'CURRENT', max: 0 },
+  { bucket: 'D1_30', max: 30 },
+  { bucket: 'D31_60', max: 60 },
+  { bucket: 'D61_90', max: 90 },
+  { bucket: 'D90_PLUS', max: Infinity },
+] as const;
+
+/** 미수금 경과. 그 로그인의 매출 전표 중 완납이 아닌 것(미납, 수금 대기)을 만기일에서 지난 날로 나눈다 */
+const arAging = (request: Request) => {
+  const asOf = todayKey();
+  const open = arRowsOf(request).filter((row) => row.statusCode !== 'PAID');
+  const buckets = AGING.map(({ bucket, max }, i) => {
+    const min = AGING[i - 1]?.max ?? -Infinity;
+    const own = open.filter((row) => {
+      const past = daysSince(row.dueDate, asOf);
+      return past > min && past <= max;
+    });
+    return {
+      bucket,
+      amount: own.reduce((total, row) => total + row.totalAmount, 0),
+      count: own.length,
+    };
+  });
+  return { asOf, buckets };
+};
+
 /** 전표 목록 필터. 화면은 상태만 보낸다(게이트웨이의 company, startDate, endDate 는 안 보낸다, FcmController.java:62-65) */
 const INVOICE_FILTER = { equals: { status: (row: { statusCode: string }) => row.statusCode } };
-const invoiceList = (request: Request, invoices: Invoice[]) =>
-  ok(
-    paged(
-      request,
-      filterBy(
-        request,
-        withStatus(request, invoices).map(({ row }) => row),
-        INVOICE_FILTER,
-      ),
-    ),
-  );
+const invoiceList = (request: Request, rows: Array<Invoice['row']>) =>
+  ok(paged(request, filterBy(request, rows, INVOICE_FILTER)));
 /** 상세의 비고. 상태로 정한다 */
 const INVOICE_NOTES: Partial<Record<string, string>> = {
   UNPAID: '처리 요청 전',
@@ -220,7 +247,23 @@ const invoiceDetail = (
   };
 };
 
+/** 계약에 묶은 핸들러(결정 기록 OpenAPI 계약 2) */
+const typedHttp = createOpenApiHttp<paths>({ baseUrl: API_BASE_URL });
+
 export const financeHandlers = [
+  typedHttp.get('/business/fcm/analytics/ar-aging', ({ request, response }) => {
+    if (shouldError(request))
+      return response('default').json(
+        { status: 500, success: false, message: 'Failed to load AR aging' },
+        { status: 500 },
+      );
+    return response(200).json({
+      status: 200,
+      success: true,
+      message: 'OK',
+      data: arAging(request),
+    });
+  }),
   http.get(FINANCE_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load finance stats', 500);
     // 재무 월별 손익(재무 현황 그래프)과 같은 값
@@ -244,7 +287,7 @@ export const financeHandlers = [
   }),
   http.get(FINANCE_ENDPOINTS.PURCHASE_INVOICES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load purchase invoices', 500);
-    return invoiceList(request, apInvoices());
+    return invoiceList(request, apRowsOf(request));
   }),
   http.get<{
     invoiceId: string;
@@ -273,7 +316,7 @@ export const financeHandlers = [
   }),
   http.get(FINANCE_ENDPOINTS.SALES_INVOICES_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load sales invoices', 500);
-    return invoiceList(request, arInvoices());
+    return invoiceList(request, arRowsOf(request));
   }),
   http.get<{
     invoiceId: string;

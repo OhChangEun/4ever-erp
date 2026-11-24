@@ -447,7 +447,7 @@ const mesIndex = (mesId: string) => {
 };
 
 /** MES 목록 50건(그 로그인의 시작, 완료 결과 반영) */
-const mesListOf = (request: Request) =>
+export const mesListOf = (request: Request) =>
   Array.from({ length: MES_TOTAL }, (_, i) => {
     const { statuses: _statuses, ...row } = mesRow(
       request,
@@ -472,7 +472,7 @@ const productionStats = (request: Request) => {
 };
 
 /** 생산 견적 목록. 제안 납기를 확정한 견적은 확인됨(CHECKED)으로 바뀐다 */
-const productionQuotesOf = (request: Request) =>
+export const productionQuotesOf = (request: Request) =>
   QUOTES.map((_, index) => productionQuote(index)).map((quotation) =>
     productionState(request).confirmedQuotations.has(quotation.quotationId)
       ? { ...quotation, availableStatus: 'CHECKED' }

@@ -31,6 +31,9 @@ export default function DashboardClient() {
   const { data: workflowData, isLoading: workflowLoading } = useQuery({
     queryKey: dashboardKeys.workflowStatus(),
     queryFn: getWorkflowStatus,
+    // 도메인 레이아웃마다 QueryClient 가 따로라 다른 화면의 mutation 은 이 키를 지울 수 없다. 대시보드에 올 때마다
+    // 다시 받는다(서버가 미리 받은 값이 staleTime 안이어도). 떠 있는 동안 바꾸는 것은 견적 요청 모달 하나이고 ActionCard 가 무효화한다
+    refetchOnMount: 'always',
   });
 
   if (statsLoading || workflowLoading) {
