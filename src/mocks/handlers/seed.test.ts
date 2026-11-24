@@ -77,10 +77,15 @@ describe('목록이 2쪽 이상이고 상태가 섞인다', () => {
 });
 
 describe('영업 견적과 생산 견적', () => {
-  it('영업 견적의 모든 id 가 생산 견적에 같은 번호, 고객, 첫 품목, 날짜로 있다', async () => {
-    const sales = await rows('/business/sd/quotations?page=0&size=1000');
+  it('반려를 뺀 영업 견적의 모든 id 가 생산 견적에 같은 번호, 고객, 첫 품목, 날짜로 있다', async () => {
+    const all = await rows('/business/sd/quotations?page=0&size=1000');
+    const sales = all.filter((row) => row.statusCode !== 'REJECTED');
     const production = await rows('/scm-pp/pp/quotations?page=0&size=1000');
     expect(sales.length).toBeGreaterThanOrEqual(12);
+    expect(all.length - sales.length).toBe(3);
+    expect(production.map((row) => str(row.quotationId)).sort()).toEqual(
+      sales.map((row) => str(row.quotationId)).sort(),
+    );
     for (const quote of sales) {
       const id = str(quote.quotationId);
       const detail = await get(`/business/sd/quotations/${id}`);
@@ -96,12 +101,14 @@ describe('영업 견적과 생산 견적', () => {
   });
 
   it('시뮬레이션도 같은 견적의 고객과 제품을 쓴다', async () => {
-    const sales = await rows('/business/sd/quotations?page=0&size=1000');
-    const ids = sales.map((quote) => str(quote.quotationId));
+    const all = await rows('/business/sd/quotations?page=0&size=1000');
+    const ids = all.map((quote) => str(quote.quotationId));
+    const sales = all.filter((row) => row.statusCode !== 'REJECTED');
     const simulated = RowsSchema.parse(
       RecordSchema.parse(await post('/scm-pp/pp/quotations/simulate', { quotationIds: ids }))
         .content,
     );
+    expect(simulated).toHaveLength(sales.length);
     for (const quote of sales) {
       const id = str(quote.quotationId);
       const detail = await get(`/business/sd/quotations/${id}`);

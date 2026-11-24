@@ -266,7 +266,12 @@ const CREATES: MockWrite[] = [
   [
     'POST',
     '/scm-pp/pp/mrp/convert',
-    { items: [{ quotationId: 'qt-004', itemId: 'item-wh-004', quantity: 40 }] },
+    { items: [{ quotationId: 'qt-005', itemId: 'item-wh-004', quantity: 40 }] },
+  ],
+  [
+    'POST',
+    '/scm-pp/iv/items',
+    { itemId: 'item-wh-015', safetyStock: 40, currentStock: 10, warehouseId: 'wh-003' },
   ],
 ];
 
@@ -274,7 +279,7 @@ const isSuccess = (body: unknown) =>
   typeof body === 'object' && body !== null && 'success' in body && body.success === true;
 
 /**
- * 결과를 기억하는 쓰기를 전부 보낸다(40종, `src/test/mockApi.test.ts` 가 핸들러 목록과 맞춰 본다).
+ * 결과를 기억하는 쓰기를 전부 보낸다(41종, `src/test/mockApi.test.ts` 가 핸들러 목록과 맞춰 본다).
  * 계약 테스트는 상세를 `id-1` 로 불러서, 목록의 기본 행과 `id-1` 양쪽에 같은 쓰기를 보낸다.
  * 보낸 요청과 성공 여부(2xx 이고 본문의 `success` 가 true)를 돌려준다
  */

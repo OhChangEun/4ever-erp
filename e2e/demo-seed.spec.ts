@@ -57,7 +57,7 @@ test('재고가 모자란 견적은 재고 확인 뒤 생산 검토로 안내하
 
   const dialog = page.getByRole('dialog', { name: '견적 검토 요청' });
   await dialog.getByRole('button', { name: '재고 확인' }).click();
-  await expect(dialog.getByRole('link', { name: '생산관리에서 검토' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '생산관리에서 검토' })).toBeVisible();
   await expect(dialog.getByRole('button', { name: '즉시 납품 처리' })).toHaveCount(0);
   // 모자란 품목의 요청 수량과 재고가 그대로 보인다
   await expect(dialog.getByRole('row', { name: /모터 A/ })).toContainText('350');

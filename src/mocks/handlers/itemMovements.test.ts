@@ -2,11 +2,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod';
 import { mockApi } from '@/test/mockApi';
-import { WAREHOUSE_ITEMS } from './catalog';
+import { UNSTOCKED_MATERIALS, WAREHOUSE_ITEMS } from './catalog';
 import { WAREHOUSES } from './seed';
 
 /**
- * 카드 "품목 선택과 이동 내역". 품목 선택과 자재 목록이 재고 목록과 같은 품목표에서 나오고, 재고 상세의 이동 내역이
+ * 카드 "품목 선택과 이동 내역". 자재 목록이 재고 목록과 같은 품목표에서 나오고(품목 선택은 카드 "반려 견적과 등록 반영"에서
+ * 재고에 없는 자재로 바꿨다), 재고 상세의 이동 내역이
  * 최근 재고 이동 목록과 같은 기록이며 현재고, 재고 추이와 어긋나지 않는지 본다. MPS 드롭다운은 견적이 있는 제품의 BOM 만.
  * 목의 쓰기 결과는 vitest.setup.ts 가 테스트마다 비운다.
  */
@@ -65,12 +66,21 @@ const change = (move: Row) => {
 };
 
 describe('품목 선택과 자재 목록은 재고 목록과 같은 품목이다', () => {
-  it('품목 선택은 재고 목록과 같은 순서로 14개, 이름과 단가와 공급사가 재고 상세와 같다', async () => {
+  it('품목 선택은 재고에 없는 자재 6개, 추가하면 재고 목록과 순서, 이름, 단가가 같고 공급사가 재고 상세와 같다', async () => {
     const options = RowsSchema.parse(await data('GET', '/scm-pp/iv/items/toggle'));
-    const inventory = await rows(INV);
+    const before = (await rows(INV)).map((row) => row.itemId);
+    expect(options.map((row) => row.itemId).filter((id) => before.includes(id))).toEqual([]);
+    expect(options).toHaveLength(UNSTOCKED_MATERIALS.length);
+    for (const { itemId } of options)
+      await data('POST', '/scm-pp/iv/items', {
+        itemId,
+        safetyStock: 10,
+        currentStock: 20,
+        warehouseId: 'wh-001',
+      });
+    const inventory = (await rows(INV)).filter((row) => !before.includes(row.itemId));
     const keys = ['itemId', 'itemName', 'unitPrice', 'uomName'];
     expect(options.map((row) => pick(row, keys))).toEqual(inventory.map((row) => pick(row, keys)));
-    expect(options).toHaveLength(WAREHOUSE_ITEMS.length);
     for (const option of options) {
       expect(option.supplierCompanyName).toBe(
         (await get(ITEM(str(option.itemId)))).supplierCompanyName,

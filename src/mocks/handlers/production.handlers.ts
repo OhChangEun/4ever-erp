@@ -17,7 +17,8 @@ import {
 } from './seed';
 import { purchaseState } from './purchase.handlers';
 import { quotesFrom, seedQuoteOf, seedQuotesOf } from './quotes';
-import { stockOf } from './stock';
+import { quotesForProduction } from './sales.handlers';
+import { onHand, stockOf } from './stock';
 import {
   ok,
   okNoData,
@@ -49,7 +50,10 @@ const productionState = mockState<{
   bomVersion: Map<string, string>;
   bomStatus: Map<string, string>;
   createdBoms: Bom[];
-  confirmedQuotations: Set<string>;
+  /** 납기를 확정한 견적 → 확정할 때의 품목 줄 순번. 재고가 바뀌어도 계획한 품목은 그대로다 */
+  confirmedQuotations: Map<string, number>;
+  /** 마지막 시뮬레이션이 보인 품목 줄 순번(견적 id 별). 확정은 본 것을 계획한다 */
+  simulatedLines: Map<string, number>;
   convertedItems: Set<string>;
   mesStatus: Map<string, MesStatus>;
   /** `MES id/공정 id` → 상태 */
@@ -58,7 +62,8 @@ const productionState = mockState<{
   bomVersion: new Map(),
   bomStatus: new Map(),
   createdBoms: [],
-  confirmedQuotations: new Set(),
+  confirmedQuotations: new Map(),
+  simulatedLines: new Map(),
   convertedItems: new Set(),
   mesStatus: new Map(),
   operationStatus: new Map(),
@@ -95,17 +100,38 @@ const PRODUCTS = [
   { productId: 'prod-011', productName: '브레이크 K', category: 'BRAKE', unitPrice: 8500 },
   { productId: 'prod-012', productName: '엔코더 L', category: 'SENSOR', unitPrice: 13000 },
 ];
-/** 견적의 첫 품목 줄과 그 제품 id(MES 행). 제품 표에 없는 품목이면 품목 id(시뮬레이션과 같은 규칙) */
-const quoteProduct = (request: Request, quotationId: string) => {
-  const { quote, lines } = seedQuoteOf(request, quotationId) ?? seedQuotesOf(request)[0];
-  const first = lines[0];
+/**
+ * 생산이 보는 견적의 품목 줄 순번. 생산 견적, 시뮬레이션, MPS, MES 가 모두 이것으로 고른다.
+ * 기본 견적은 첫 줄. 로그인이 만든 견적은 지금 재고보다 많이 요청한 첫 줄, 없으면 첫 줄(영업의 재고 확인과 같은 재고).
+ * 확정하면 시뮬레이션이 보인 줄(없으면 그때의 줄)로 굳는다. 응답에 품목이 하나라 모자란 줄이 여럿이면 첫 줄만 본다
+ */
+const productLine = (request: Request, { quote, lines }: SeedQuote) => {
+  const confirmed = productionState(request).confirmedQuotations.get(quote.quotationId);
+  if (confirmed !== undefined) return confirmed;
+  if (seedQuoteOf(request, quote.quotationId)) return 0;
+  return Math.max(
+    0,
+    lines.findIndex(({ itemId, quantity }) => quantity > onHand(request, itemId)),
+  );
+};
+/** 품목의 BOM 이 있나. MPS 는 기본 BOM 으로 줄을 만들어 없으면 계획할 수 없다 */
+const hasBom = (itemName: string) => SEED_BOMS.some((bom) => bom.productName === itemName);
+/** 생산이 보는 품목 줄과 그 제품 id. 제품 표에 없는 품목이면 품목 id */
+const productOf = (request: Request, source: SeedQuote) => {
+  const line = source.lines[productLine(request, source)];
   return {
-    quote,
-    first,
+    line,
     productId:
-      PRODUCTS.find((product) => product.productName === first.itemName)?.productId ?? first.itemId,
+      PRODUCTS.find((product) => product.productName === line.itemName)?.productId ?? line.itemId,
   };
 };
+
+/**
+ * 순번으로 만드는 MRP 순소요, 계획 주문, MES 와 견적 드롭다운이 나눠 쓰는 견적. 생산 견적 중 기본 견적(반려를 뺀 13건)이다.
+ * 로그인이 만든 견적은 넣지 않는다. 넣으면 기존 행의 견적이 밀리고, 화면도 납기 확정 뒤 견적과 MPS 만 다시 받는다
+ */
+const plannedQuotes = (request: Request) =>
+  quotesForProduction(request).filter(({ quote }) => seedQuoteOf(request, quote.quotationId));
 
 /**
  * 조달 날짜(카드 "목 필터와 검색"). 그 로그인의 기준일(`quotesFrom`)에서 순번으로 -14~+13일에 시작하고 그 순번 공급사의 납기 일수 뒤에
@@ -126,19 +152,29 @@ const quotationIdOf = (request: Request, quotationNumber: string) =>
   seedQuotesOf(request).find(({ quote }) => quote.quotationNumber === quotationNumber)?.quote
     .quotationId ?? '';
 
+/** 견적 id(qt-001)의 순번 */
+const quoteSerial = (quotationId: string) => Number(quotationId.slice('qt-'.length));
+
 /**
- * 생산 견적은 영업 견적 씨앗과 같은 견적이다(카드 "데모 데이터 채우기" 결정 8). 제품은 첫 품목 줄, 요청일은 견적일.
- * 가용 상태는 순번이 홀수면 미확인(예전 규칙)
+ * 생산 견적은 영업 견적과 같은 견적이다(카드 "데모 데이터 채우기" 결정 8). 제품은 `productLine` 의 줄, 요청일은 견적일.
+ * 가용 상태는 기본 견적의 순번이 짝수면 확인(예전 규칙), 로그인이 만든 견적과 홀수는 미확인. 확정하면 확인됨
  */
-const productionQuote = ({ quote, lines }: SeedQuote, index: number) => ({
-  quotationId: quote.quotationId,
-  quotationNumber: quote.quotationNumber,
-  customerName: quote.customerName,
-  productName: lines[0].itemName,
-  requestDate: quote.quotationDate,
-  dueDate: quote.dueDate,
-  availableStatus: (index + 1) % 2 === 1 ? 'UNCHECKED' : 'CHECKED',
-});
+const productionQuote = (request: Request, source: SeedQuote) => {
+  const { quote } = source;
+  return {
+    quotationId: quote.quotationId,
+    quotationNumber: quote.quotationNumber,
+    customerName: quote.customerName,
+    productName: productOf(request, source).line.itemName,
+    requestDate: quote.quotationDate,
+    dueDate: quote.dueDate,
+    availableStatus:
+      productionState(request).confirmedQuotations.has(quote.quotationId) ||
+      (seedQuoteOf(request, quote.quotationId) && quoteSerial(quote.quotationId) % 2 === 0)
+        ? 'CHECKED'
+        : 'UNCHECKED',
+  };
+};
 
 const SEED_BOM: Bom = {
   bomId: 'bom-001',
@@ -403,13 +439,14 @@ const operationStatusOf = (
 const MRP_TOTAL = 130;
 /** 목록의 MES 수 */
 const MES_TOTAL = 50;
-const MES_QUOTATIONS = ['qt-001', 'qt-002', 'qt-003', 'qt-004', 'qt-005'];
-/** MRP 순소요와 계획 주문의 견적 드롭다운(앞의 다섯 견적) */
+/** MRP 순소요와 계획 주문의 견적 드롭다운이자 MES 의 견적(앞의 다섯 견적) */
+const firstQuotes = (request: Request) => plannedQuotes(request).slice(0, 5);
 const quotationOptions = (request: Request) => [
   { key: 'ALL', value: '전체 견적' },
-  ...seedQuotesOf(request)
-    .slice(0, 5)
-    .map(({ quote }) => ({ key: quote.quotationId, value: quote.quotationNumber })),
+  ...firstQuotes(request).map(({ quote }) => ({
+    key: quote.quotationId,
+    value: quote.quotationNumber,
+  })),
 ];
 
 /**
@@ -417,22 +454,23 @@ const quotationOptions = (request: Request) => [
  * 상태와 공정은 `mesId` 의 것이다(모르는 id 도 쓰기 결과를 따른다).
  * 진행률은 끝난 공정 / 전체 공정, 현재 공정은 처음으로 안 끝난 공정(다 끝났으면 마지막)이다
  */
-const mesRow = (request: Request, mesId: string, idx: number) => {
+const mesRow = (request: Request, mesId: string, idx: number, quotes = firstQuotes(request)) => {
   const status = mesStatusOf(request, mesId);
   const statuses = OPERATIONS.map((operation) => operationStatusOf(request, mesId, operation));
   const done = statuses.filter((operationStatus) => operationStatus === 'COMPLETED').length;
-  const quotationId = MES_QUOTATIONS[idx % MES_QUOTATIONS.length];
   // 제품은 그 견적의 첫 품목(카드 "목 필터와 검색", 예전엔 순번으로 고른 제품이라 영업 견적과 달랐다)
-  const { quote, first, productId } = quoteProduct(request, quotationId);
+  const source = quotes[idx % quotes.length];
+  const { quote } = source;
+  const { line, productId } = productOf(request, source);
   const startDate = addDays(quotesFrom(request), -((idx * 3) % 15));
   return {
     mesId,
     mesNumber: `MES-2026-${String(idx).padStart(3, '0')}`,
     productId,
-    productName: first.itemName,
+    productName: line.itemName,
     quantity: ((idx % 10) + 1) * 50,
     uomName: 'EA',
-    quotationId,
+    quotationId: quote.quotationId,
     quotationNumber: quote.quotationNumber,
     status,
     currentOperation: Math.min(done + 1, OPERATIONS.length),
@@ -452,15 +490,18 @@ const mesIndex = (mesId: string) => {
 };
 
 /** MES 목록 50건(그 로그인의 시작, 완료 결과 반영) */
-export const mesListOf = (request: Request) =>
-  Array.from({ length: MES_TOTAL }, (_, i) => {
+export const mesListOf = (request: Request) => {
+  const quotes = firstQuotes(request);
+  return Array.from({ length: MES_TOTAL }, (_, i) => {
     const { statuses: _statuses, ...row } = mesRow(
       request,
       `mes-${String(i + 1).padStart(3, '0')}`,
       i + 1,
+      quotes,
     );
     return row;
   });
+};
 
 /**
  * 생산 통계. 건수는 그 로그인의 지금 목록에서 센다(리뷰 관찰 1). 진행 중과 완료는 MES 목록의 상태,
@@ -478,13 +519,7 @@ const productionStats = (request: Request) => {
 
 /** 생산 견적 목록. 제안 납기를 확정한 견적은 확인됨(CHECKED)으로 바뀐다 */
 export const productionQuotesOf = (request: Request) =>
-  seedQuotesOf(request)
-    .map(productionQuote)
-    .map((quotation) =>
-      productionState(request).confirmedQuotations.has(quotation.quotationId)
-        ? { ...quotation, availableStatus: 'CHECKED' }
-        : quotation,
-    );
+  quotesForProduction(request).map((source) => productionQuote(request, source));
 
 /** MPS 의 주 글자 `YYYY-MM-NW`(월요일의 달과 그 달 몇째 주) */
 const weekLabel = (monday: string) =>
@@ -494,7 +529,7 @@ const weekLabel = (monday: string) =>
 const MPS_LOT = 50;
 /**
  * 제품 하나의 MPS(카드 "데모 목록 재고 물류"). startDate 가 든 주의 월요일부터 endDate 가 든 주까지 주마다 한 줄.
- * 수요 = 그 주에 납기인 확인된(CHECKED) 생산 견적의 첫 품목 수량 합(견적의 제품 = 첫 품목). 필요 재고 = 그 품목의 안전재고.
+ * 수요 = 그 주에 납기인 확인된(CHECKED) 생산 견적의 품목 수량 합(견적의 제품 = `productLine` 의 줄). 필요 재고 = 그 품목의 안전재고.
  * 첫 주의 가용 재고는 지금 현재고이고, 주마다 계획 생산을 더하고 수요를 뺀다. 생산 필요 = 수요 + 안전재고 - 가용 재고(0 이상),
  * 계획 생산 = 생산 필요를 로트(50)로 올린 값. 그 제품의 견적이 하나도 없으면 빈 목록(예전처럼 bom-001 만 줄이 있다).
  * 주 글자는 `YYYY-MM-NW`(월요일의 달과 그 달 몇째 주). 날짜가 없으면 오늘. 규칙은 전부 verified=false
@@ -504,12 +539,15 @@ const mpsWeeks = (request: Request, productName: string) => {
   const startDate = params.get('startDate') || todayKey();
   const endDate = params.get('endDate') || todayKey();
   const item = WAREHOUSE_ITEMS.find((row) => row.itemName === productName);
-  const quotes = productionQuotesOf(request).filter((quote) => quote.productName === productName);
+  const quotes = quotesForProduction(request)
+    .map((source) => ({
+      ...productionQuote(request, source),
+      quantity: productOf(request, source).line.quantity,
+    }))
+    .filter((quote) => quote.productName === productName);
   // 시작이 끝보다 늦으면 빈 목록(시작을 월요일로 당긴 뒤 비교하면 같은 주 안에서 한 줄이 생긴다)
   if (!item || quotes.length === 0 || startDate > endDate) return [];
   const confirmed = quotes.filter((quote) => quote.availableStatus === 'CHECKED');
-  const quantityOf = (quotationId: string) =>
-    seedQuoteOf(request, quotationId)?.lines[0].quantity ?? 0;
   const { currentStock, safetyStock } = stockOf(request, item);
   let onHand = currentStock;
   const weeks = [];
@@ -517,7 +555,7 @@ const mpsWeeks = (request: Request, productName: string) => {
     const sunday = addDays(monday, 6);
     const demand = confirmed
       .filter((quote) => quote.dueDate >= monday && quote.dueDate <= sunday)
-      .reduce((sum, quote) => sum + quantityOf(quote.quotationId), 0);
+      .reduce((sum, quote) => sum + quote.quantity, 0);
     const productionNeeded = Math.max(0, demand + safetyStock - onHand);
     const plannedProduction = Math.ceil(productionNeeded / MPS_LOT) * MPS_LOT;
     onHand += plannedProduction - demand;
@@ -556,21 +594,29 @@ export const productionHandlers = [
 
       const body = await request.json();
       const quotationIds = body.quotationIds || [];
-      const seeds = seedQuotesOf(request);
+      const sources = quotesForProduction(request);
 
-      // 영업 견적 씨앗에 있는 견적만 답한다. 고객, 제품, 요청 수량은 그 견적(첫 품목 줄)의 값
+      // 생산 견적 목록에 있는 견적만 답한다. 고객, 제품, 요청 수량은 그 견적(`productLine` 의 줄)의 값
       const selectedQuotations = quotationIds.flatMap((quotationId) => {
-        const index = seeds.findIndex(({ quote }) => quote.quotationId === quotationId);
-        if (index < 0) return [];
-        const { quote, lines } = seeds[index];
-        const num = index + 1;
-        const requestQty = lines[0].quantity;
-        // 가용 수량은 요청 수량의 40~130% 범위에서 결정
+        const source = sources.find(({ quote }) => quote.quotationId === quotationId);
+        if (!source) return [];
+        const { quote } = source;
+        const { line, productId } = productOf(request, source);
+        productionState(request).simulatedLines.set(quotationId, productLine(request, source));
+        const num = quoteSerial(quotationId);
+        const requestQty = line.quantity;
+        // 기본 견적의 가용 수량은 요청 수량의 40~130%(예전 규칙, 화면에 결과 셋이 다 나온다).
+        // 로그인이 만든 견적은 영업의 재고 확인과 같은 지금 재고다. 비율로 정하면 재고가 모자라 온 견적이 늘 재고 충당이라 확정할 수 없다
+        const seeded = seedQuoteOf(request, quotationId) !== undefined;
         const availableRatio = [0.4, 0.6, 0.8, 1.0, 1.1, 1.3][num % 6];
-        const availableQty = Math.floor(requestQty * availableRatio);
+        const availableQty = seeded
+          ? Math.floor(requestQty * availableRatio)
+          : onHand(request, line.itemId);
         const shortageQty = Math.max(0, requestQty - availableQty);
-        // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 경우 내부 사정으로 약 30% FAIL
-        const isFail = shortageQty > 0 && (num * 7 + 3) % 10 < 2;
+        // 생산 불필요(재고 충당)면 항상 STOCK_SUFFICIENT, 필요한 기본 견적은 내부 사정으로 약 30% FAIL
+        // 로그인이 만든 견적은 BOM 이 없는 품목만 FAIL(모달이 MPS 생성을 잠그는 값)
+        const noBom = !hasBom(line.itemName);
+        const isFail = shortageQty > 0 && (seeded ? (num * 7 + 3) % 10 < 2 : noBom);
         const simulationStatus = shortageQty === 0 ? 'STOCK_SUFFICIENT' : isFail ? 'FAIL' : 'PASS';
         const customer = CUSTOMERS.find((row) => row.customer.customerName === quote.customerName);
         return [
@@ -579,26 +625,26 @@ export const productionHandlers = [
             quotationNumber: quote.quotationNumber,
             customerCompanyId: customer?.customer.customerId ?? '',
             customerCompanyName: quote.customerName,
-            productId:
-              PRODUCTS.find((product) => product.productName === lines[0].itemName)?.productId ??
-              lines[0].itemId,
-            productName: lines[0].itemName,
+            productId,
+            productName: line.itemName,
             requestQuantity: requestQty,
             requestDueDate: new Date(quote.dueDate).getTime(),
             simulation: {
               status: simulationStatus,
               availableQuantity: availableQty,
               shortageQuantity: shortageQty,
-              shortageReason: isFail
-                ? [
-                    '주요 원자재(실리콘 웨이퍼) 입고 지연',
-                    '협력사 생산 차질',
-                    '공정 설비 점검으로 인한 생산 중단',
-                    '긴급 오더로 인한 재고 소진',
-                    '예상치 못한 불량률 증가',
-                    '납기일 내 입고 불가',
-                  ][num % 6]
-                : '',
+              shortageReason: !isFail
+                ? ''
+                : noBom
+                  ? 'BOM이 등록되지 않은 품목'
+                  : [
+                      '주요 원자재(실리콘 웨이퍼) 입고 지연',
+                      '협력사 생산 차질',
+                      '공정 설비 점검으로 인한 생산 중단',
+                      '긴급 오더로 인한 재고 소진',
+                      '예상치 못한 불량률 증가',
+                      '납기일 내 입고 불가',
+                    ][num % 6],
               suggestedDueDate: shortageQty > 0 ? addDays(quote.dueDate, 14) : quote.dueDate,
               generatedAt: isoNow,
             },
@@ -646,8 +692,16 @@ export const productionHandlers = [
     PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM,
     async ({ request }) => {
       if (shouldError(request)) return error('Failed to confirm quotation', 500);
-      const { confirmedQuotations } = productionState(request);
-      for (const id of (await request.json()).quotationIds ?? []) confirmedQuotations.add(id);
+      const { confirmedQuotations, simulatedLines } = productionState(request);
+      const { quotationIds = [] } = await request.json();
+      // 생산 견적 목록에 있는 견적만. 아직 검토를 요청하지 않은 견적과 BOM 이 없는 품목에 보낸 확정은 남기지 않는다.
+      // 응답은 그래도 성공이다(화면은 시뮬레이션에서 막는다. 서버가 거절하는지 모른다, verified=false)
+      for (const source of quotesForProduction(request)) {
+        const { quotationId } = source.quote;
+        if (!quotationIds.includes(quotationId)) continue;
+        const index = simulatedLines.get(quotationId) ?? productLine(request, source);
+        if (hasBom(source.lines[index].itemName)) confirmedQuotations.set(quotationId, index);
+      }
       return ok(null);
     },
   ),
@@ -791,12 +845,13 @@ export const productionHandlers = [
     if (shouldError(request)) return error('Failed to load MRP orders', 500);
     const convertStatuses = ['NOT_CONVERTED', 'CONVERTED', 'PENDING'];
     const { convertedItems } = productionState(request);
-    // 견적 10건(qt-001~010) × 자재 13개 = 130행. 순번 1~130 은 (순번 % 10, 순번 % 13) 짝이 겹치지 않는다.
+    // 견적 10건(반려를 뺀 앞의 열 견적) × 자재 13개 = 130행. 순번 1~130 은 (순번 % 10, 순번 % 13) 짝이 겹치지 않는다.
     // 품목은 품목표의 자재(번호, 이름, 현재고, 안전재고). 조달 날짜와 공급사는 procurementDates
+    const quotes = plannedQuotes(request).slice(0, 10);
     const allData = Array.from({ length: MRP_TOTAL }, (_, i) => {
       const idx = i + 1;
       const item = MATERIALS[idx % MATERIALS.length];
-      const quotationId = `qt-${String((idx % 10) + 1).padStart(3, '0')}`;
+      const { quotationId } = quotes[idx % quotes.length].quote;
       const { procurementStartDate, expectedArrivalDate, supplierCompanyName } = procurementDates(
         request,
         idx,
@@ -858,16 +913,18 @@ export const productionHandlers = [
   http.get(PRODUCTION_ENDPOINTS.MRP_PLANNED_ORDERS_LIST, ({ request }) => {
     if (shouldError(request)) return error('Failed to load MRP planned orders', 500);
     const statuses = ['PENDING', 'PLANNED', 'APPROVED', 'REJECTED'];
-    const seeds = seedQuotesOf(request);
+    const quotes = plannedQuotes(request);
     const baseTotal = 500;
-    // 품목은 품목표의 자재, 견적 번호는 영업 견적 씨앗(카드 "데모 데이터 채우기")
+    // 품목은 품목표의 자재, 견적 번호는 생산 견적(카드 "데모 데이터 채우기"). 견적과 자재가 둘 다 13개라 한 바퀴마다
+    // 견적을 하나씩 밀어 한 견적에 같은 자재만 나오지 않게 한다
     const allData = Array.from({ length: baseTotal }, (_, i) => {
       const idx = i + 1;
       const item = MATERIALS[idx % MATERIALS.length];
       const { procurementStartDate, expectedArrivalDate } = procurementDates(request, idx);
       return {
         mrpRunId: `mrp-${String(idx).padStart(3, '0')}`,
-        quotationNumber: seeds[idx % seeds.length].quote.quotationNumber,
+        quotationNumber:
+          quotes[(idx + Math.floor(idx / MATERIALS.length)) % quotes.length].quote.quotationNumber,
         itemId: item.itemId,
         itemName: item.itemName,
         quantity: ((idx % 50) + 1) * 10,
@@ -881,7 +938,7 @@ export const productionHandlers = [
         ? { ...order, status: 'PENDING' }
         : order,
     );
-    // 견적 필터는 견적 id(드롭다운 qt-001~005)로 온다. 예전엔 번호(QT-2026-001)에 id 를 부분 일치로 찾아 늘 빈 목록이었다
+    // 견적 필터는 견적 id(드롭다운의 다섯 견적)로 온다. 예전엔 번호(QT-2026-001)에 id 를 부분 일치로 찾아 늘 빈 목록이었다
     return ok(
       paged(
         request,

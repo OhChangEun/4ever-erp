@@ -13,6 +13,7 @@ import {
 import {
   inventoryKeys,
   inventoryStatsKeys,
+  itemInfoKeys,
   lowStockItemKeys,
   shippingKeys,
   stockMovementKeys,
@@ -62,7 +63,13 @@ export const INVENTORY_MUTATION_EFFECTS = {
     purchaseRequestKeys.lists(),
     purchaseStatsKeys.all,
   ],
-  addMaterial: (): readonly QueryKey[] => [inventoryKeys.lists(), inventoryStatsKeys.all],
+  // 추가한 자재는 자재 선택에서 빠지고, 처음 재고가 안전재고보다 적으면 부족 재고에 든다
+  addMaterial: (): readonly QueryKey[] => [
+    inventoryKeys.lists(),
+    inventoryStatsKeys.all,
+    itemInfoKeys.all,
+    ...LOW_STOCK_ALL,
+  ],
   updateSafetyStock: (itemId: string): readonly QueryKey[] => [
     inventoryKeys.detail(itemId),
     inventoryKeys.lists(),

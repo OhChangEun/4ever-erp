@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { INVENTORY_NEED_TABLE_HEADERS } from '@/app/(private)/sales/constant';
 import {
   type InventoryCheckRes,
@@ -34,6 +34,17 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
   const [receivedAt, setReceivedAt] = useState<Date | null>(null);
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
+  const router = useRouter();
+
+  // 검토 요청이 성공한 뒤에만 닫고 생산으로 간다. mutate 에 준 콜백이라 응답 전에 모달을 닫으면 화면을 옮기지 않는다
+  const handleReviewInProduction = () => {
+    quotationConfirmReq(selectedQuotationId, {
+      onSuccess: () => {
+        onClose();
+        router.push('/production');
+      },
+    });
+  };
 
   const handleInventoryCheck = () => {
     inventoryCheckReq(haveToCheckItems);
@@ -61,7 +72,7 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
     })) ?? [];
 
   // 무효화 범위는 sales.mutations.ts 한 곳. 재고 확인은 읽기라 아래 useMutation 그대로.
-  const { mutate: quotationConfirmReq } = useConfirmQuotation({
+  const { mutate: quotationConfirmReq, isPending: isConfirming } = useConfirmQuotation({
     onSuccess: () => toast.success(t('confirmSuccess')),
     onError: (error) => toast.error(t('confirmError', { message: errorMessageOf(error) })),
   });
@@ -275,17 +286,14 @@ const QuoteReviewModal = ({ onClose, selectedQuotationId }: QuoteReviewModalProp
                 {t('shortNext')}
               </p>
               <div className="flex gap-3">
-                <Link
-                  href="/production"
-                  className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2"
-                  onClick={() => {
-                    quotationConfirmReq(selectedQuotationId);
-                    onClose();
-                  }}
+                <button
+                  onClick={handleReviewInProduction}
+                  disabled={isConfirming}
+                  className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer whitespace-nowrap flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <i className="ri-settings-3-line"></i>
                   <span>{t('reviewInProduction')}</span>
-                </Link>
+                </button>
               </div>
             </div>
           )}
