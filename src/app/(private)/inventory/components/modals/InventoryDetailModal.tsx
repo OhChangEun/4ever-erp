@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import InventoryMoveModal from './InventoryMoveModal';
-import InventorySafetyModal from './InventorySafetyStockModal';
+import InventorySafetyStockModal from './InventorySafetyStockModal';
 import {
   type InventoryDetailModalProps,
   type InventoryDetailResponse,
@@ -28,54 +27,13 @@ import { useTranslations } from 'next-intl';
 import { useInventoryLabels } from '../../inventory.labels';
 import { useRole } from '@/app/hooks/useRole';
 import { hasRole, IM_GATEWAY_ROLES } from '@/lib/authz/policy';
+import { useModal } from '@/app/components/common/modal/useModal';
 const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => {
   const { categoryLabel } = useInventoryLabels();
   const t = useTranslations('inventory');
   // 재고 이동은 게이트웨이가 IM 과 ALL_ADMIN 만 받는다
   const canMove = hasRole(IM_GATEWAY_ROLES, useRole());
-  const [showMoveModal, setShowMoveModal] = useState(false);
-  const [showSafetyStockModal, setShowSafetyStockModal] = useState(false);
-  const [selectedStock, setSelectedStock] = useState({
-    itemId: '',
-    itemName: '',
-    itemNumber: '',
-    warehouseId: '',
-    warehouseName: '',
-    warehouseNumber: '',
-    safetyStock: 0,
-    currentStock: 0,
-    uomName: '',
-  });
-
-  const handleStockMove = () => {
-    setSelectedStock({
-      itemId: inventoryDetailRes?.itemId || '',
-      itemName: inventoryDetailRes?.itemName || '',
-      itemNumber: inventoryDetailRes?.itemNumber || '',
-      warehouseId: inventoryDetailRes?.warehouseId || '',
-      warehouseName: inventoryDetailRes?.warehouseName || '',
-      warehouseNumber: inventoryDetailRes?.warehouseNumber || '',
-      safetyStock: inventoryDetailRes?.safetyStock || 0,
-      currentStock: inventoryDetailRes?.currentStock || 0,
-      uomName: inventoryDetailRes?.uomName || '',
-    });
-    setShowMoveModal(true);
-  };
-
-  const handleSafetyStockEdit = () => {
-    setSelectedStock({
-      itemId: inventoryDetailRes?.itemId || '',
-      itemName: inventoryDetailRes?.itemName || '',
-      itemNumber: inventoryDetailRes?.itemNumber || '',
-      warehouseId: inventoryDetailRes?.warehouseId || '',
-      warehouseName: inventoryDetailRes?.warehouseName || '',
-      warehouseNumber: inventoryDetailRes?.warehouseNumber || '',
-      safetyStock: inventoryDetailRes?.safetyStock || 0,
-      currentStock: inventoryDetailRes?.currentStock || 0,
-      uomName: inventoryDetailRes?.uomName || '',
-    });
-    setShowSafetyStockModal(true);
-  };
+  const { openModal } = useModal();
 
   const {
     data: inventoryDetailRes,
@@ -89,6 +47,29 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
   });
   // 조회 오류 창. 닫으면 닫히고, 오류가 풀렸다 다시 나면 다시 열린다
   const errorDialog = useDismissibleError(isError);
+
+  // 여는 순간의 재고 값을 넘긴다. 폼의 처음 값이라 여는 동안 바뀌지 않아야 한다
+  const selectedStock = {
+    itemId: inventoryDetailRes?.itemId || '',
+    itemName: inventoryDetailRes?.itemName || '',
+    itemNumber: inventoryDetailRes?.itemNumber || '',
+    warehouseId: inventoryDetailRes?.warehouseId || '',
+    warehouseName: inventoryDetailRes?.warehouseName || '',
+    warehouseNumber: inventoryDetailRes?.warehouseNumber || '',
+    safetyStock: inventoryDetailRes?.safetyStock || 0,
+    currentStock: inventoryDetailRes?.currentStock || 0,
+    uomName: inventoryDetailRes?.uomName || '',
+  };
+
+  const handleStockMove = () =>
+    openModal(InventoryMoveModal, { title: t('move.title'), width: '448px', selectedStock });
+
+  const handleSafetyStockEdit = () =>
+    openModal(InventorySafetyStockModal, {
+      title: t('safetyStock.title'),
+      width: '448px',
+      selectedStock,
+    });
 
   if (isLoading) return <ModalStatusBox type="loading" message={t('detail.loading')} />;
 
@@ -261,33 +242,18 @@ const InventoryDetailModal = ({ selectedItemId }: InventoryDetailModalProps) => 
               <Button
                 variant="secondary"
                 label={t('detail.moveStock')}
-                onClick={() => {
-                  handleStockMove();
-                }}
+                onClick={handleStockMove}
                 className="w-[49%]"
               />
             )}
             <Button
               label={t('detail.editSafetyStock')}
-              onClick={() => {
-                handleSafetyStockEdit();
-              }}
+              onClick={handleSafetyStockEdit}
               className={canMove ? 'w-[51%]' : 'w-full'}
             />
           </div>
         </div>
       </div>
-      {/* 재고 이동 모달 */}
-      {showMoveModal && (
-        <InventoryMoveModal setShowMoveModal={setShowMoveModal} selectedStock={selectedStock} />
-      )}
-      {/* 안전재고 수정 모달 */}
-      {showSafetyStockModal && (
-        <InventorySafetyModal
-          setShowSafetyStockModal={setShowSafetyStockModal}
-          selectedStock={selectedStock}
-        />
-      )}
     </>
   );
 };

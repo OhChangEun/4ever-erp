@@ -180,11 +180,9 @@ const MODALS: Record<string, ModalCase[]> = {
   ],
   '/profile': [
     {
-      // 공통 모달 틀이 아니라 화면이 직접 그린 창이다
       name: '휴가 신청',
       url: '/profile',
       open: '휴가 신청',
-      shown: (page) => page.getByRole('button', { name: '취소' }),
     },
   ],
 };

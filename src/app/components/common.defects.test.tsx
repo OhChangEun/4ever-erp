@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/render';
 import { useAuthStore } from '@/store/authStore';
 import { DEMO_ACCOUNTS } from '@/lib/auth/simpleLogin';
 import NotificationList from './header/Notification/NotificationList';
-import ProfileInfoModal from './header/ProfileInfoModal';
+import SidebarProfile from './sidebar/SidebarProfile';
 import EmployeeRegisterModal from '@/app/(private)/hrm/components/modals/EmployeeRegisterModal';
 
 vi.mock('next/navigation', () => ({
@@ -15,6 +15,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 afterEach(() => useAuthStore.getState().clearUserInfo());
+
+const openPartnerProfile = async () => {
+  const user = userEvent.setup();
+  renderWithProviders(<SidebarProfile isExpanded />);
+  const menu = screen.getByRole('button', { name: /sup|cus/ });
+  await user.click(menu);
+  await user.click(screen.getByRole('link', { name: '프로필 설정' }));
+  return { user, menu };
+};
 
 describe('공통 화면 결함', () => {
   it('알림 출처 FCM 은 재무(백엔드 알림 서비스의 FCM = 재무부)', () => {
@@ -55,7 +64,7 @@ describe('공통 화면 결함', () => {
       email: 's@everp.local',
       role: 'SUPPLIER_ADMIN',
     });
-    renderWithProviders(<ProfileInfoModal setIsOpen={vi.fn()} />);
+    await openPartnerProfile();
     expect(await screen.findByText('공급사 프로필')).toBeInTheDocument();
     expect(screen.queryByText('고객사 프로필')).not.toBeInTheDocument();
   });
@@ -67,8 +76,19 @@ describe('공통 화면 결함', () => {
       email: 'c@everp.local',
       role: 'CUSTOMER_ADMIN',
     });
-    renderWithProviders(<ProfileInfoModal setIsOpen={vi.fn()} />);
+    await openPartnerProfile();
     expect(await screen.findByText('고객사 프로필')).toBeInTheDocument();
+  });
+
+  it('거래처 프로필은 이름 있는 dialog 이고, Esc 로 닫으면 메뉴를 연 버튼으로 포커스가 돌아간다', async () => {
+    useAuthStore
+      .getState()
+      .setUserInfo({ id: 1, name: 'sup', email: 's@everp.local', role: 'SUPPLIER_ADMIN' });
+    const { user, menu } = await openPartnerProfile();
+    const dialog = await screen.findByRole('dialog', { name: '공급사 프로필' });
+    await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement));
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(menu).toHaveFocus());
   });
 
   it("직원 등록의 부서 선택지에 '전체'가 없다(서버에 ALL 부서로 등록되지 않게)", async () => {

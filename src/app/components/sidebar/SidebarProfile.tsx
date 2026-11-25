@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import ProfileInfoModal from '@/app/components/header/ProfileInfoModal';
 import { useRoleLabel } from '@/app/components/header/roleLabel';
+import { useModal } from '@/app/components/common/modal/useModal';
 import { logout } from '@/lib/auth/logout';
 import { useLocale, useTranslations } from 'next-intl';
 import { LOCALES } from '@/i18n/locale';
@@ -18,7 +19,8 @@ interface SidebarProfileProps {
 
 export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSupOrCusModalOpen, setIsSupOrCusModalOpen] = useState(false);
+  const { openModal } = useModal();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const role = useRole();
   const roleLabel = useRoleLabel(role);
@@ -26,6 +28,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
 
   const { userInfo, clearUserInfo } = useAuthStore();
   const t = useTranslations('profile');
+  const tPartner = useTranslations('partnerProfile');
   const locale = useLocale();
   const setLocale = useSetLocale();
   const userName = userInfo?.name;
@@ -58,7 +61,14 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
   const handleProfile = (e: React.MouseEvent) => {
     if (role === 'SUPPLIER_ADMIN' || role === 'CUSTOMER_ADMIN') {
       e.preventDefault();
-      setIsSupOrCusModalOpen(true);
+      // 누른 메뉴 항목은 메뉴와 같이 사라진다. 모달이 닫히면 메뉴를 연 버튼으로 돌아가게 포커스를 먼저 옮긴다
+      setIsOpen(false);
+      menuButtonRef.current?.focus();
+      openModal(ProfileInfoModal, {
+        // 공급사와 고객사가 같은 모달을 쓴다. 예전엔 공급사도 '고객사 프로필'이었다
+        title: tPartner(role === 'SUPPLIER_ADMIN' ? 'supplierTitle' : 'title'),
+        width: '520px',
+      });
     }
   };
 
@@ -66,6 +76,7 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
     <div className="relative mt-auto border-t border-gray-200 bg-white" ref={dropdownRef}>
       {/* 프로필 버튼 */}
       <button
+        ref={menuButtonRef}
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
           isExpanded ? 'justify-start' : 'justify-center'
@@ -154,8 +165,6 @@ export default function SidebarProfile({ isExpanded }: SidebarProfileProps) {
           </div>
         </div>
       )}
-
-      {isSupOrCusModalOpen && <ProfileInfoModal setIsOpen={setIsSupOrCusModalOpen} />}
     </div>
   );
 }

@@ -1,5 +1,6 @@
-export interface InventoryMoveModalProps {
-  setShowMoveModal: (show: boolean) => void;
+import { type ModalProps } from '@/app/components/common/modal/types';
+
+export interface InventoryMoveModalProps extends ModalProps {
   selectedStock: {
     itemId: string;
     itemName: string;

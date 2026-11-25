@@ -30,7 +30,8 @@ const animationsDone = (page: Page) =>
       document
         .getAnimations()
         .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
-        .map((a) => a.finished),
+        // 요소가 사라져 취소된 애니메이션도 끝난 것이다
+        .map((a) => a.finished.catch(() => undefined)),
     ),
   );
 
@@ -83,6 +84,42 @@ test('axe 모달을 연 상태(창고 수정)와 키보드', async ({ page }) =>
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(trigger).toBeFocused();
+});
+
+// 예전엔 화면이 직접 그린 창이라 role, 이름, 포커스 가두기가 없었고 Esc 가 아래 상세를 닫았다
+for (const name of ['재고 이동', '안전 재고 수정']) {
+  test(`axe 상세 모달 위에 겹친 창(${name})과 키보드`, async ({ page }) => {
+    await page.goto('/inventory');
+    await page.getByRole('row').nth(1).getByRole('button', { name: /상세$/ }).click();
+    const trigger = page.getByRole('button', { name, exact: true });
+    await trigger.click({ timeout: 20_000 });
+    const dialog = page.getByRole('dialog', { name, exact: true });
+    // 재고 이동은 창고 목록을 받는 동안 로딩만 보인다. 폼이 뜬 뒤에 본다
+    await expect(dialog.getByRole('spinbutton')).toBeVisible();
+    await animationsDone(page);
+    const result = await scan(page);
+    expect(summarize(result.violations)).toEqual([]);
+    for (let i = 0; i < 12; i += 1) {
+      await page.keyboard.press('Tab');
+      await expect(dialog.locator(':focus')).toHaveCount(1);
+    }
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole('dialog')).toHaveCount(1);
+    await expect(trigger).toBeFocused();
+  });
+}
+
+test('좁은 화면(320px)에서 모달이 가로로 넘치지 않는다', async ({ page }) => {
+  await page.goto('/warehouse');
+  await page.getByRole('button', { name: /관리$/ }).first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 720 });
+  await animationsDone(page);
+  const box = await dialog.boundingBox();
+  expect(box?.x).toBeGreaterThanOrEqual(0);
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(320);
 });
 
 // 리뷰 지적 P1: 모달 안 드롭다운 목록이 body 로 portal 되면 Radix 의 pointer-events: none 때문에 못 누른다

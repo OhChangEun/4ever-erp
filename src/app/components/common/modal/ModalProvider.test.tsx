@@ -311,3 +311,106 @@ describe('모달(포커스와 키보드)', () => {
     spy.mockRestore();
   });
 });
+
+/** 상세에서 수정으로 넘어가듯 앞 모달을 닫고 다음 모달을 연다. 앞 모달의 버튼은 같이 사라진다 */
+function Replacing({ onClose, closeFirst }: ModalProps & { closeFirst: boolean }) {
+  const { openModal } = useModal();
+  const openNext = () => openModal(Inner, { title: '바뀐 모달' });
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (closeFirst) onClose();
+        openNext();
+        if (!closeFirst) onClose();
+      }}
+    >
+      바꾸기
+    </button>
+  );
+}
+
+function ReplacingPage({ closeFirst }: { closeFirst: boolean }) {
+  const { openModal } = useModal();
+  return (
+    <button type="button" onClick={() => openModal(Replacing, { title: '앞 모달', closeFirst })}>
+      앞 모달 열기
+    </button>
+  );
+}
+
+/** 모달을 연 버튼이 모달이 떠 있는 동안 잠긴다(처리 뒤 버튼이 잠기는 화면) */
+function Locking({ onLock, onClose }: ModalProps & { onLock: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        onLock();
+        onClose();
+      }}
+    >
+      처리
+    </button>
+  );
+}
+
+function LockingOuter(_: ModalProps) {
+  const { openModal } = useModal();
+  const [locked, setLocked] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={locked}
+      onClick={() => openModal(Locking, { title: '처리 모달', onLock: () => setLocked(true) })}
+    >
+      처리 열기
+    </button>
+  );
+}
+
+function LockingPage() {
+  const { openModal } = useModal();
+  return (
+    <button type="button" onClick={() => openModal(LockingOuter, { title: '바깥' })}>
+      바깥 열기
+    </button>
+  );
+}
+
+describe('모달을 연 요소가 없어졌을 때의 포커스', () => {
+  it.each([
+    ['닫고 여는', true],
+    ['열고 닫는', false],
+  ])('%s 순서로 모달을 바꿔도 닫으면 처음 연 버튼으로 돌아간다', async (_, closeFirst) => {
+    render(
+      <ModalProvider>
+        <ReplacingPage closeFirst={closeFirst} />
+      </ModalProvider>,
+      { wrapper: IntlTestProvider },
+    );
+    const trigger = screen.getByRole('button', { name: '앞 모달 열기' });
+    await userEvent.click(trigger);
+    await userEvent.click(await screen.findByRole('button', { name: '바꾸기' }));
+    const next = await screen.findByRole('dialog', { name: '바뀐 모달' });
+    await waitFor(() => expect(next).toContainElement(document.activeElement as HTMLElement));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('연 버튼이 잠겼으면 포커스를 body 에 두지 않고 남은 모달 안에 둔다', async () => {
+    render(
+      <ModalProvider>
+        <LockingPage />
+      </ModalProvider>,
+      { wrapper: IntlTestProvider },
+    );
+    const trigger = screen.getByRole('button', { name: '바깥 열기' });
+    await userEvent.click(trigger);
+    await userEvent.click(await screen.findByRole('button', { name: '처리 열기' }));
+    await userEvent.click(await screen.findByRole('button', { name: '처리' }));
+    const outer = await screen.findByRole('dialog', { name: '바깥' });
+    await waitFor(() => expect(outer).toContainElement(document.activeElement as HTMLElement));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+});
