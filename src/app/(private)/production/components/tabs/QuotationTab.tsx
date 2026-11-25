@@ -1,6 +1,6 @@
 'use client';
 import { Dropdown } from '@everp/ui';
-import { useState, useMemo } from 'react'; // useMemo 추가
+import { useRef, useState, useMemo } from 'react'; // useMemo 추가
 import {
   type QuotationData,
   type FetchQuotationParams,
@@ -35,7 +35,9 @@ import { Button } from '@everp/ui';
 export default function QuotationTab() {
   const t = useTranslations('production');
   const optionLabels = useOptionLabels();
-  const { openModal, removeAllModals } = useModal();
+  const { openModal, closeModal } = useModal();
+  // 연 결과 모달과 그 견적. 확정이 끝나면 그 견적을 보이는 모달만 닫는다(닫힌 id 는 closeModal 이 무시한다)
+  const resultModals = useRef<{ id: string; quotationIds: string[] }[]>([]);
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
   // 시뮬레이션과 납기 확정은 게이트웨이가 PP 와 ALL_ADMIN 만 받는다. 확정은 시뮬레이션 결과 모달에서만 열린다
@@ -104,11 +106,12 @@ export default function QuotationTab() {
         const failedIds = simulationResults
           .filter(({ simulation }) => simulation.status === 'FAIL')
           .map(({ quotationId }) => quotationId);
-        openModal(SimulationResultModal, {
+        const id = openModal(SimulationResultModal, {
           title: t('quotation.simulationTitle'),
           simulationResults,
           onConfirm: () => confirmQuotations(simulatedIds.filter((id) => !failedIds.includes(id))),
         });
+        resultModals.current.push({ id, quotationIds: simulatedIds });
       } else {
         toast.info(t('simulation.empty'));
       }
@@ -118,9 +121,12 @@ export default function QuotationTab() {
   });
 
   const { mutate: confirmQuotations } = useConfirmQuotations({
-    onSuccess: () => {
+    onSuccess: (_data, confirmedIds) => {
       toast.success(t('quotation.confirmSuccess'));
-      removeAllModals();
+      // 모두 닫으면 그 사이 연 다른 견적의 결과까지 닫힌다. 같은 견적을 다시 열어 둔 것은 닫아야 또 확정하지 않는다
+      resultModals.current
+        .filter(({ quotationIds }) => quotationIds.some((id) => confirmedIds.includes(id)))
+        .forEach(({ id }) => closeModal(id));
     },
     // 실패를 success 토스트로 알리던 버그 수정
     onError: (error) =>

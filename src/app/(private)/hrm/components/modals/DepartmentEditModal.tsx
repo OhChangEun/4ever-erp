@@ -7,7 +7,6 @@ import {
 } from '@/app/(private)/hrm/types/HrmDepartmentsApiType';
 import { useState, useId } from 'react';
 import { useTranslations } from 'next-intl';
-import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDeptMemberDropdown } from '@/app/(private)/hrm/api/hrm.api';
 import { Dropdown } from '@everp/ui';
@@ -23,11 +22,10 @@ interface DepartmentEditModalProps extends ModalProps {
   departments: DepartmentsData;
 }
 
-export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
+export function DepartmentEditModal({ departments, onClose }: DepartmentEditModalProps) {
   const t = useTranslations('hrm');
   // 라벨과 입력을 잇는 id(접근성 2 카드). 같은 모달이 두 번 떠도 겹치지 않게 useId
   const fieldId = useId();
-  const { removeAllModals } = useModal();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
@@ -44,7 +42,7 @@ export function DepartmentEditModal({ departments }: DepartmentEditModalProps) {
   const { mutate: updateDepartments, isPending } = useUpdateDepartment({
     onSuccess: () => {
       toast.success(t('departments.updated'));
-      removeAllModals();
+      onClose();
     },
     onError: (error) =>
       toast.error(t('departments.updateError', { message: errorMessageOf(error) })),

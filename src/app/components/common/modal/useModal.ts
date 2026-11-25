@@ -5,7 +5,7 @@ import type { ComponentType } from 'react';
 // openModal과 closeModal이라는 더 편리한 모달 제어 API를 제공.
 // 내부적으로 useModalContext를 사용.
 export const useModal = () => {
-  const { addModal, removeModal, removeAllModals } = useModalContext();
+  const { addModal, removeModal } = useModalContext();
 
   /**
    * 함수 오버로딩 (타입 안정성 확보)
@@ -28,5 +28,5 @@ export const useModal = () => {
 
   const closeModal = (id: string) => removeModal(id);
 
-  return { openModal, closeModal, removeAllModals };
+  return { openModal, closeModal };
 };

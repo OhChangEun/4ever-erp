@@ -12,7 +12,7 @@ import { Button } from '@everp/ui';
 /** tabButtons: 하위 탭 세그먼트. 툴바 왼쪽에 둔다(SubNavigation 이 넘긴다) */
 export default function DepartmentsTab({ tabButtons }: { tabButtons?: ReactNode }) {
   const t = useTranslations('hrm');
-  const { openModal, removeAllModals } = useModal();
+  const { openModal, closeModal } = useModal();
 
   // 부서 데이터
   const { data: departmentsData } = useQuery({
@@ -25,17 +25,19 @@ export default function DepartmentsTab({ tabButtons }: { tabButtons?: ReactNode 
 
   // 부서 상세보기 모달창
   const handleViewDepartment = (dept: DepartmentsData) => {
-    openModal(DepartmentDetailModal, {
+    const detailId = openModal(DepartmentDetailModal, {
       title: t('departments.detailTitle'),
       departments: dept,
-      onEdit: () => handleEditDepartmentDetail(dept),
+      onEdit: () => {
+        closeModal(detailId);
+        handleEditDepartmentDetail(dept);
+      },
       width: '600px',
     });
   };
 
   // 부서 수정 모달창
   const handleEditDepartmentDetail = (dept: DepartmentsData) => {
-    removeAllModals();
     openModal(DepartmentEditModal, { title: t('departments.editTitle'), departments: dept });
   };
 

@@ -32,7 +32,7 @@ export default function EmployeesTab({ tabButtons }: { tabButtons?: ReactNode })
   const pageSize = 10;
 
   // 모달창
-  const { openModal } = useModal();
+  const { openModal, closeModal } = useModal();
 
   // 부서 드롭다운
   const { options: departmentsOptions } = useDropdown(
@@ -72,15 +72,17 @@ export default function EmployeesTab({ tabButtons }: { tabButtons?: ReactNode })
     setCurrentPage(1);
   };
 
-  const handleEditEmployeeDetail = (emp: EmployeeData) => {
-    openModal(EmployeeEditModal, { title: t('employees.editTitle'), employee: emp });
-  };
-
   const handleViewEmployeeDetail = (emp: EmployeeData) => {
-    openModal(EmployeeDetailModal, {
+    const detailId = openModal(EmployeeDetailModal, {
       title: t('employees.detailTitle'),
       employee: emp,
-      onEdit: () => handleEditEmployeeDetail(emp),
+      onEdit: () =>
+        openModal(EmployeeEditModal, {
+          title: t('employees.editTitle'),
+          employee: emp,
+          // 상세는 연 순간의 직원 값을 보인다. 저장하면 옛 값이라 같이 닫는다
+          onSaved: () => closeModal(detailId),
+        }),
     });
   };
 

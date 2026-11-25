@@ -26,7 +26,6 @@ interface ModalContextValue {
     props: Omit<P, 'id' | 'onClose'>, // id와 onClose는 자동 주입
   ) => string; // 모달 고유 ID 반환
   removeModal: (id: string) => void; // 모달 닫기
-  removeAllModals: () => void;
 }
 
 // Context 생성
@@ -72,10 +71,6 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
   // 모달 제거 함수
   const removeModal = useCallback((id: string) => {
     setModals((prev) => prev.filter((m) => m.id !== id));
-  }, []);
-
-  const removeAllModals = useCallback(() => {
-    setModals([]);
   }, []);
 
   // 모달 추가 함수
@@ -125,7 +120,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <ModalContext.Provider value={{ addModal, removeModal, removeAllModals }}>
+    <ModalContext.Provider value={{ addModal, removeModal }}>
       {children}
       {mounted &&
         modals.length > 0 &&
