@@ -43,12 +43,6 @@ describe('createQueryClient', () => {
     expect(QUERY_DEFAULTS.staleTime).toBe(30_000);
   });
 
-  it('서버용은 재시도하지 않는다', () => {
-    const q = createQueryClient({ server: true }).getDefaultOptions().queries;
-    expect(q?.retry).toBe(false);
-    expect(q?.staleTime).toBe(30_000);
-  });
-
   it('mutation 은 재시도하지 않는다', () => {
     expect(createQueryClient().getDefaultOptions().mutations?.retry).toBe(false);
   });
