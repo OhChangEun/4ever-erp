@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -131,8 +132,11 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     [removeModal],
   );
 
+  // 값에 모달 목록이 없고 두 함수는 바뀌지 않는다. 매번 새 객체면 모달을 여닫을 때마다 useModal 을 쓰는 화면(표 포함)이 다시 그려진다
+  const value = useMemo(() => ({ addModal, removeModal }), [addModal, removeModal]);
+
   return (
-    <ModalContext.Provider value={{ addModal, removeModal }}>
+    <ModalContext.Provider value={value}>
       {children}
       {mounted &&
         modals.length > 0 &&
