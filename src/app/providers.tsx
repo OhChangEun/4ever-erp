@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  QueryClientProvider,
-  HydrationBoundary,
-  type DehydratedState,
-} from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect, useState } from 'react';
 import { createQueryClient } from '@/lib/queryClient';
@@ -12,14 +8,8 @@ import { redirectToLogin } from '@/lib/auth/redirectToLogin';
 import { ModalProvider } from './components/common/modal/ModalProvider';
 import { ToastProvider } from './components/common/toast/ToastProvider';
 
-export default function Providers({
-  children,
-  dehydratedState,
-}: {
-  children: React.ReactNode;
-  dehydratedState?: DehydratedState | null;
-}) {
-  // 기본값과 401 처리는 src/lib/queryClient.ts 한 곳. 서버 prefetch 용과 같은 팩토리다.
+export default function Providers({ children }: { children: React.ReactNode }) {
+  // 기본값과 401 처리는 src/lib/queryClient.ts 한 곳
   const [queryClient] = useState(() => createQueryClient({ onUnauthorized: redirectToLogin }));
 
   useEffect(() => {
@@ -32,11 +22,9 @@ export default function Providers({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <HydrationBoundary state={dehydratedState}>
-        <ToastProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </ToastProvider>
-      </HydrationBoundary>
+      <ToastProvider>
+        <ModalProvider>{children}</ModalProvider>
+      </ToastProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
