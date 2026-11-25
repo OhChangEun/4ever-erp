@@ -126,12 +126,6 @@ const ICON_HOMES: Allowance[] = [
     count: 1,
     reason: '허용 3 드롭다운 화살표',
   },
-  {
-    file: 'src/app/(public)/profile/components/AttendanceRecord.tsx',
-    rule: 'icon',
-    count: 1,
-    reason: '허용 3 휴가 신청 창 닫기(×)',
-  },
 ];
 
 const ALLOWED: Allowance[] = [
@@ -196,18 +190,6 @@ const ALLOWED: Allowance[] = [
   // 모달 안. 모달 규칙(사용자 결정 대기) 카드에서 같이 본다
   {
     file: 'src/app/components/header/ProfileInfoModal.tsx',
-    rule: 'shadow',
-    count: 1,
-    reason: '모달 상자. 모달 규칙 대기',
-  },
-  {
-    file: 'src/app/components/header/ProfileInfoModal.tsx',
-    rule: 'gradient',
-    count: 1,
-    reason: '모달 제목 띠. 모달 규칙 대기',
-  },
-  {
-    file: 'src/app/components/header/ProfileInfoModal.tsx',
     rule: 'purple',
     count: 1,
     reason: '모달 안 아이콘. 모달 규칙 대기',
@@ -249,13 +231,7 @@ const ALLOWED: Allowance[] = [
     reason: '3D 보기 모달 안 캔버스 위 라벨. 모달 규칙 대기',
   },
   {
-    file: 'src/app/(public)/profile/components/AttendanceRecord.tsx',
-    rule: 'shadow',
-    count: 1,
-    reason: '휴가 신청 창(공통 모달 틀이 아님). 모달 규칙 대기',
-  },
-  {
-    file: 'src/app/(public)/profile/components/AttendanceRecord.tsx',
+    file: 'src/app/(public)/profile/components/LeaveRequestModal.tsx',
     rule: 'purple',
     count: 8,
     reason: '휴가 신청 창의 입력 포커스 색과 제출 버튼. 모달 규칙 대기',
@@ -306,7 +282,7 @@ const ALLOWED: Allowance[] = [
     reason: '프로필 편집 입력칸. 포커스는 테두리 색과 focus:ring-2 로 보인다',
   },
   {
-    file: 'src/app/(public)/profile/components/AttendanceRecord.tsx',
+    file: 'src/app/(public)/profile/components/LeaveRequestModal.tsx',
     rule: 'outlineNone',
     count: 3,
     reason: '휴가 신청 창 입력칸. 포커스는 focus:ring-2 로 보인다. 모달 규칙 대기',
@@ -327,7 +303,7 @@ const ALLOWED: Allowance[] = [
         2,
         '닫기(×, 허용 3)와 오류 상자 아이콘',
       ],
-      ['src/app/components/header/ProfileInfoModal.tsx', 6, '닫기와 연락처 행 아이콘'],
+      ['src/app/components/header/ProfileInfoModal.tsx', 4, '연락처 행 아이콘'],
       [
         'src/app/(private)/sales/components/modals/QuoteReviewModal.tsx',
         9,
@@ -345,8 +321,6 @@ const ALLOWED: Allowance[] = [
       ['src/app/(private)/purchase/components/modals/PurchaseRequestFormModal.tsx', 1, '행 삭제'],
       ['src/app/(private)/purchase/components/modals/SupplierFormModal.tsx', 1, '행 삭제'],
       ['src/app/(private)/purchase/components/modals/SupplierDetailModal.tsx', 1, '수정 버튼'],
-      ['src/app/(private)/inventory/components/modals/InventoryMoveModal.tsx', 1, '닫기(×)'],
-      ['src/app/(private)/inventory/components/modals/InventorySafetyStockModal.tsx', 1, '닫기(×)'],
       ['src/app/(private)/warehouse/components/modals/WarehouseDetailModal.tsx', 1, '관리 버튼'],
       [
         'src/app/(private)/warehouse/components/warehouseVisualizer/components/WarehouseVisualizer.tsx',

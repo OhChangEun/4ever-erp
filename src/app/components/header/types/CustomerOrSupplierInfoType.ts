@@ -30,7 +30,3 @@ export interface ProfileInfo {
   phoneNumber: string;
   email: string;
 }
-
-export interface ProfileInfoModalProps {
-  setIsOpen: (show: boolean) => void;
-}

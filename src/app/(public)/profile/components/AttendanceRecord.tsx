@@ -1,12 +1,8 @@
 'use client';
 
-import { type FormEvent, useState } from 'react';
+import { useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import {
-  type AttendanceRecordsResponse,
-  type RequestVacation,
-  type TodayAttendResponse,
-} from '../ProfileType';
+import { type AttendanceRecordsResponse, type TodayAttendResponse } from '../ProfileType';
 import { useQuery } from '@tanstack/react-query';
 import { getAttendaceRecords, getTodayAttendance } from '../profile.api';
 import { useCheckIn, useCheckOut, useRequestVacation } from '../profile.mutations';
@@ -16,19 +12,43 @@ import { profileKeys } from '../profile.keys';
 import StatusLabel from '@/app/components/common/StatusLabel';
 import TableStatusBox from '@/app/components/common/TableStatusBox';
 import { Button } from '@everp/ui';
+import { useModal } from '@/app/components/common/modal/useModal';
+import LeaveRequestModal, { EMPTY_LEAVE } from './LeaveRequestModal';
 
 export default function AttendanceRecord() {
   const t = useTranslations('myProfile');
-  const tCommon = useTranslations('common');
   const dateLocale = useLocale() === 'ko' ? 'ko-KR' : 'en-US';
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const [leaveForm, setLeaveForm] = useState<RequestVacation>({
-    leaveType: 'ANNUAL',
-    startDate: '',
-    endDate: '',
+  const { openModal, closeModal } = useModal();
+  // 신청 창을 닫았다 열어도 쓰던 값이 남게 여기서 든다. 화면에 그리지 않아 ref 다
+  const leaveDraft = useRef(EMPTY_LEAVE);
+  const leaveModalIds = useRef<string[]>([]);
+
+  // 무효화는 PROFILE_MUTATION_EFFECTS(profile.mutations.ts) 한 곳. 훅이 여기 있어 창을 닫고 다시 열어도 같은 요청을 안다
+  const { mutate: sendVacation } = useRequestVacation({
+    onSuccess: (_data, submitted) => {
+      toast.success(t('leave.success'));
+      // 보낸 값 그대로면 닫고 비운다(또 보내지 않게). 그 사이 고쳤으면 다음 신청이라 남긴다
+      if (leaveDraft.current !== submitted) return;
+      leaveDraft.current = EMPTY_LEAVE;
+      leaveModalIds.current.forEach(closeModal);
+    },
+    onError: (error) => toast.error(t('leave.error', { message: errorMessageOf(error) })),
   });
+
+  const handleLeaveRequest = () => {
+    const id = openModal(LeaveRequestModal, {
+      title: t('leave.request'),
+      width: '448px',
+      initialForm: leaveDraft.current,
+      onFormChange: (form) => {
+        leaveDraft.current = form;
+      },
+      onSubmit: sendVacation,
+    });
+    leaveModalIds.current.push(id);
+  };
 
   const handleCheckInOut = () => {
     if (!todayAttendanceRes || isCheckedOut) return;
@@ -40,22 +60,6 @@ export default function AttendanceRecord() {
     }
   };
 
-  const handleLeaveFormChange = (key: keyof typeof leaveForm, value: string) => {
-    setLeaveForm((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  // 무효화(내 근태 + 인사 근태, 휴가 목록)는 profile.mutations.ts 한 곳.
-  const { mutate: sendVacation, isPending: isRequestingVacation } = useRequestVacation({
-    onSuccess: () => {
-      toast.success(t('leave.success'));
-      setIsLeaveModalOpen(false);
-      setLeaveForm({ leaveType: 'ANNUAL', startDate: '', endDate: '' });
-    },
-    onError: (error) => toast.error(t('leave.error', { message: errorMessageOf(error) })),
-  });
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn({
     onSuccess: () => {
       toast.success(t('attendance.checkInSuccess'));
@@ -70,12 +74,6 @@ export default function AttendanceRecord() {
     onError: (error) =>
       toast.error(t('attendance.checkOutError', { message: errorMessageOf(error) })),
   });
-
-  const handleLeaveSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (isRequestingVacation) return;
-    sendVacation(leaveForm);
-  };
 
   const {
     data: todayAttendanceRes,
@@ -113,11 +111,7 @@ export default function AttendanceRecord() {
               <p className="text-sm text-gray-500">{t('attendance.subtitle')}</p>
             </div>
             {/* 이 칸의 주 동작은 출퇴근(primary). 휴가 신청은 보조 */}
-            <Button
-              variant="secondary"
-              label={t('leave.request')}
-              onClick={() => setIsLeaveModalOpen(true)}
-            />
+            <Button variant="secondary" label={t('leave.request')} onClick={handleLeaveRequest} />
           </div>
         </div>
 
@@ -216,98 +210,6 @@ export default function AttendanceRecord() {
           </div>
         </div>
       </section>
-
-      {isLeaveModalOpen && (
-        <div className="fixed inset-0 z-overlay flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t('leave.request')}</h3>
-                <p className="text-sm text-gray-500">{t('leave.hint')}</p>
-              </div>
-              <button
-                onClick={() => setIsLeaveModalOpen(false)}
-                className="text-gray-400 transition-colors hover:text-gray-600"
-                aria-label={tCommon('close')}
-              >
-                <i className="ri-close-line text-xl"></i>
-              </button>
-            </div>
-
-            <form onSubmit={handleLeaveSubmit} className="space-y-4 px-6 py-6">
-              <div>
-                <label
-                  htmlFor="leave-type"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  {t('leave.type')}
-                </label>
-                <select
-                  id="leave-type"
-                  value={leaveForm.leaveType}
-                  onChange={(event) => handleLeaveFormChange('leaveType', event.target.value)}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                >
-                  <option value="ANNUAL">{t('leave.ANNUAL')}</option>
-                  <option value="SICK">{t('leave.SICK')}</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="leave-start"
-                    className="mb-2 block text-sm font-medium text-gray-700"
-                  >
-                    {t('leave.startDate')}
-                  </label>
-                  <input
-                    id="leave-start"
-                    type="date"
-                    value={leaveForm.startDate}
-                    onChange={(event) => handleLeaveFormChange('startDate', event.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="leave-end"
-                    className="mb-2 block text-sm font-medium text-gray-700"
-                  >
-                    {t('leave.endDate')}
-                  </label>
-                  <input
-                    id="leave-end"
-                    type="date"
-                    value={leaveForm.endDate}
-                    onChange={(event) => handleLeaveFormChange('endDate', event.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => setIsLeaveModalOpen(false)}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:w-auto"
-                >
-                  {t('leave.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isRequestingVacation}
-                  className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700 sm:w-auto"
-                >
-                  {t('leave.submit')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </>
   );
 }

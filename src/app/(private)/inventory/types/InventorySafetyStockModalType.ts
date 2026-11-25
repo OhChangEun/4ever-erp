@@ -1,5 +1,6 @@
-export interface InventorySafetyStockModalProps {
-  setShowSafetyStockModal: (show: boolean) => void;
+import { type ModalProps } from '@/app/components/common/modal/types';
+
+export interface InventorySafetyStockModalProps extends ModalProps {
   selectedStock: {
     itemId: string;
     itemName: string;

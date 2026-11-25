@@ -7,6 +7,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw-server';
 import { createTestQueryClient } from '@/test/render';
 import { PROFILE_ENDPOINTS } from '@/app/types/api';
+import { ModalProvider } from '@/app/components/common/modal/ModalProvider';
 import { ToastProvider } from '@/app/components/common/toast/ToastProvider';
 import ko from '@/i18n/messages/ko.json';
 import en from '@/i18n/messages/en.json';
@@ -23,7 +24,9 @@ function renderProfile(locale: 'ko' | 'en', training = false) {
       timeZone="Asia/Seoul"
     >
       <QueryClientProvider client={createTestQueryClient()}>
-        <ToastProvider>{training ? <TrainingStatus /> : <AttendanceRecord />}</ToastProvider>
+        <ToastProvider>
+          <ModalProvider>{training ? <TrainingStatus /> : <AttendanceRecord />}</ModalProvider>
+        </ToastProvider>
       </QueryClientProvider>
     </NextIntlClientProvider>,
   );

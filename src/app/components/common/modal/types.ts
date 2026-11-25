@@ -22,6 +22,8 @@ export interface ModalItem {
   element: React.ReactNode;
   /** 어떤 모달 컴포넌트인지. 같은 버튼에서 같은 모달을 또 여는지 비교할 때만 쓴다 */
   component: unknown;
-  /** 열 때 포커스가 있던 요소. 닫히면 여기로 돌려준다(키보드 사용자가 자리를 잃지 않게) */
-  returnFocusTo: HTMLElement | null;
+  /** 열 때 포커스가 있던 요소. 같은 버튼에서 또 여는지 비교한다 */
+  opener: HTMLElement | null;
+  /** 닫힌 뒤 포커스를 받을 후보. 앞에서부터 포커스가 실제로 가는 첫 요소로 간다(연 요소, 그 모달, 아래 모달의 후보) */
+  returnFocusTo: HTMLElement[];
 }

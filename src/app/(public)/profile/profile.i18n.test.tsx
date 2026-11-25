@@ -83,6 +83,7 @@ describe('내 프로필 화면 영어(i18n 11)', () => {
     expect(screen.getByRole('button', { name: 'Cancel editing' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Request leave' }));
+    expect(await screen.findByRole('dialog', { name: 'Request leave' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Request leave' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Annual leave' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();

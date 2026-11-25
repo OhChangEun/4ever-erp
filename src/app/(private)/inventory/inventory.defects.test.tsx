@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { http } from 'msw';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
 import { ok } from '@/mocks/utils';
 import { INVENTORY_ENDPOINTS } from '@/app/types/api';
+import { useModal } from '@/app/components/common/modal/useModal';
+import { useAuthStore } from '@/store/authStore';
 import InventoryList from './components/tabs/InventoryList';
 import InventoryDetailModal from './components/modals/InventoryDetailModal';
 import StockMovement from './components/StockMovement';
@@ -194,4 +197,43 @@ describe('재고 코드 표시 결함', () => {
       consoleError.mockRestore();
     }
   });
+});
+
+/** 상세 모달 안에서 여는 창. 예전엔 화면이 직접 그려 role 이 없고 Esc 가 아래 상세를 닫아 입력이 사라졌다 */
+describe('재고 상세에서 여는 창', () => {
+  const Opener = () => {
+    const { openModal } = useModal();
+    return (
+      <button
+        type="button"
+        onClick={() =>
+          openModal(InventoryDetailModal, { title: '재고 상세', selectedItemId: 'item-1001' })
+        }
+      >
+        열기
+      </button>
+    );
+  };
+
+  it.each(['재고 이동', '안전 재고 수정'])(
+    '%s 창은 이름 있는 dialog 이고 Esc 는 이 창만 닫는다',
+    async (name) => {
+      useAuthStore
+        .getState()
+        .setUserInfo({ id: 1, name: 'tester', email: 't@everp.local', role: 'ALL_ADMIN' });
+      const user = userEvent.setup();
+      renderWithProviders(<Opener />);
+      await user.click(screen.getByRole('button', { name: '열기' }));
+      const trigger = await screen.findByRole('button', { name });
+      await user.click(trigger);
+      const dialog = await screen.findByRole('dialog', { name });
+      await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement));
+      expect(within(dialog).getByRole('button', { name: '닫기' })).toBeInTheDocument();
+
+      await user.keyboard('{Escape}');
+      expect(await screen.findByRole('dialog', { name: '재고 상세' })).toBeInTheDocument();
+      await waitFor(() => expect(trigger).toHaveFocus());
+      useAuthStore.getState().clearUserInfo();
+    },
+  );
 });

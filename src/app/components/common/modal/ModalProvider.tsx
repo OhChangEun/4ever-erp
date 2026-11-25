@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { type ModalItem, type ModalProps } from '@/app/components/common/modal/types';
@@ -42,6 +43,11 @@ export const useModalContext = () => {
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modals, setModals] = useState<ModalItem[]>([]); // 현재 열린 모달 목록
+  // 열 때 화면에 떠 있던 모달. 앞 모달을 닫고 여는 호출도 앞 모달의 포커스 후보를 이어받게, 갱신 함수의 prev 대신 쓴다
+  const shownModals = useRef<ModalItem[]>([]);
+  useEffect(() => {
+    shownModals.current = modals;
+  }, [modals]);
   // 포털은 document 가 있어야 한다. 서버 렌더와 첫 하이드레이션은 false
   const mounted = useIsClient();
 
@@ -85,6 +91,12 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
       // 모달 열기의 단언은 이 한 줄뿐이다(예전엔 useModal 2곳과 여기 1곳에서 ModalProps 로 넓혔다).
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const fullProps = { ...props, id, onClose } as P;
+      // Radix Dialog 는 Dialog.Trigger 로 포커스를 돌린다. 코드로 여는 모달이라 연 순간의 포커스를 기억한다
+      const opener =
+        document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+          ? document.activeElement
+          : null;
+      const openerDialog = opener?.closest<HTMLElement>('[role="dialog"]');
       const newModal: ModalItem = {
         id,
         title: fullProps.title,
@@ -93,9 +105,12 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
         onClose,
         element: <Component {...fullProps} />,
         component: Component,
-        // Radix Dialog 는 Dialog.Trigger 로 포커스를 돌린다. 코드로 여는 모달이라 연 순간의 포커스를 기억한다
-        returnFocusTo:
-          document.activeElement instanceof HTMLElement ? document.activeElement : null,
+        opener,
+        returnFocusTo: [
+          ...(opener ? [opener] : []),
+          ...(openerDialog ? [openerDialog] : []),
+          ...(shownModals.current.at(-1)?.returnFocusTo ?? []),
+        ],
       };
 
       // 같은 버튼에서 같은 모달을 또 열면 무시한다. 모달 틀 청크가 오기 전에는 포커스가 버튼에 남아
@@ -105,10 +120,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
       setModals((prev) =>
         prev.some(
           (open) =>
-            open.component === Component &&
-            open.returnFocusTo === newModal.returnFocusTo &&
-            newModal.returnFocusTo !== null &&
-            newModal.returnFocusTo !== document.body,
+            open.component === Component && open.opener !== null && open.opener === newModal.opener,
         )
           ? prev
           : [...prev, newModal],

@@ -12,13 +12,13 @@ interface ModalContainerProps {
   width?: string;
   height?: string;
   onClose: () => void;
-  /** 닫힌 뒤 포커스를 돌려줄 요소(보통 모달을 연 버튼) */
-  returnFocusTo?: HTMLElement | null;
+  /** 닫힌 뒤 포커스를 돌려줄 후보(보통 첫 번째가 모달을 연 버튼) */
+  returnFocusTo?: HTMLElement[];
 }
 
 /**
  * 모달 프레임. 제목 줄과 본문을 선으로 나누고, 등장은 150ms 페이드만.
- * 크기는 내용에 맞추되 화면의 90% 를 넘지 않는다.
+ * 크기는 내용에 맞추되 높이는 화면의 90%, 폭은 화면에서 32px 뺀 값을 넘지 않는다.
  *
  * 접근성은 Radix Dialog 가 맡는다(접근성 2 카드, 결정 2): 열리면 포커스가 안으로 들어가고(data-autofocus 로 표시한 요소가 있으면 거기로) Tab 이 밖으로
  * 나가지 않는다. Esc 는 맨 위 모달만 닫는다. 닫히면 연 버튼으로 포커스가 돌아간다. 뒤 화면은 aria-hidden.
@@ -72,15 +72,19 @@ const ModalContainer = ({
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            // 모달을 연 요소가 아직 화면에 있으면 그리로(겹친 모달이면 아래 모달의 버튼)
-            if (returnFocusTo?.isConnected) returnFocusTo.focus();
+            // 연 요소가 사라졌거나 잠겼으면 focus() 가 아무 일도 안 한다. 실제로 간 요소가 나올 때까지 다음 후보로
+            returnFocusTo?.some((element) => {
+              element.focus();
+              return document.activeElement === element;
+            });
           }}
           className="flex flex-col border border-gray-200 shadow-xl bg-white rounded-xl relative pointer-events-auto animate-fadeIn focus:outline-none"
           style={{
             width: modalWidth,
             height: modalHeight,
-            minWidth: '400px',
-            maxWidth: '900px',
+            // 좁은 화면과 400% 확대에서 가로로 넘치지 않게 화면 폭에서 묶는다(WCAG 1.4.10)
+            minWidth: 'min(400px, calc(100vw - 32px))',
+            maxWidth: 'min(900px, calc(100vw - 32px))',
             maxHeight: '90vh',
           }}
           onClick={(e) => e.stopPropagation()}
