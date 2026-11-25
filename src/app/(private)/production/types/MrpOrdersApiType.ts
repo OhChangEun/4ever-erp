@@ -8,6 +8,6 @@ export type MrpOrdersListResponse = Schema<'MrpOrdersListResponse'>;
 
 export interface FetchMrpOrdersListParams extends PageRequest {
   bomId?: string;
-  quotationId: string;
+  quotationId?: string;
   availableStatusCode: string;
 }

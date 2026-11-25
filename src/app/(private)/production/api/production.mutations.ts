@@ -25,7 +25,6 @@ import {
   quotationKeys,
 } from './production.keys';
 import { createStockPurchaseRequest } from '@/app/(private)/purchase';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
 import type { BomRequestBody } from '@/app/(private)/production/types/BomType';
 import type { MrpOrdersConvertReqeustBody } from '@/app/(private)/production/types/MrpOrdersConvertApiType';
 import type { CreateStockPurchaseRequestBody } from '@/app/(private)/purchase';
@@ -34,18 +33,14 @@ import type { QuotationSimulationResponse } from '@/app/(private)/production/typ
 
 /**
  * 생산 도메인 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
- * 자재 구매 요청은 구매 도메인 데이터를 만들므로 구매 키 2개를 일부러 넣었다("다른 도메인 금지"의 예외, 표에 적음).
+ * 다른 도메인 키는 넣지 않는다. 그 화면은 들어갈 때 다시 받는다(`_RouteProviders.tsx`).
  * 충돌 시뮬레이션(테스트 전용)은 서버 버전만 올리고 화면은 옛 값이어야 409 를 볼 수 있어 아무것도 안 지운다.
  */
 export const PRODUCTION_MUTATION_EFFECTS = {
   updateBomStatus: (bomId: string): readonly QueryKey[] => [bomKeys.detail(bomId), bomKeys.lists()],
   simulateBomConflict: (): readonly QueryKey[] => [],
   createBom: (): readonly QueryKey[] => [bomKeys.lists(), productionStatsKeys.all],
-  createStockPurchaseRequest: (): readonly QueryKey[] => [
-    mrpPlannedOrderKeys.lists(),
-    purchaseRequestKeys.lists(), // 구매 도메인. 의도한 교차
-    purchaseStatsKeys.all, // 구매 도메인. 의도한 교차
-  ],
+  createStockPurchaseRequest: (): readonly QueryKey[] => [mrpPlannedOrderKeys.lists()],
   // 전환된 계획 주문은 계획 주문 탭에서 빠진다
   convertMrpOrders: (): readonly QueryKey[] => [mrpOrderKeys.lists(), mrpPlannedOrderKeys.lists()],
   // 확정한 견적은 확인됨이 되어 그 납기 주의 MPS 수요에 든다(카드 "데모 목록 재고 물류")

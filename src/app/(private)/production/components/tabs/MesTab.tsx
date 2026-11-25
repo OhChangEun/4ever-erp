@@ -49,7 +49,7 @@ export default function MesTab() {
   const t = useTranslations('production');
   const tNav = useTranslations('nav');
   const optionLabels = useOptionLabels();
-  const [selectedMesQuote, setSelectedMesQuote] = useState('');
+  const [pickedMesQuote, setSelectedMesQuote] = useState('');
   const [selectedMesStatus, setSelectedMesStatus] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,17 +61,20 @@ export default function MesTab() {
     'mrpQuotationsDropdown',
     fetchMrpQuotationsDropdown,
   );
+  // 첫 옵션이 전체(ALL)면 견적을 보내지 않아 옵션을 기다리지 않고 목록을 한 번 받는다. 실제 견적이면 Dropdown 이 그 값을 골라
+  // 예전처럼 다시 받고 첫 쪽으로 간다(서버는 견적이 없어도 된다, PpController.java:134. ALL 과 같은 결과인지는 verified=false)
+  const selectedMesQuote = pickedMesQuote || (mrpQuotationOptions[0]?.key === 'ALL' ? 'ALL' : '');
 
   const { options: mesStatusOptions } = useDropdown('mesStatusDropdown', fetchMesStatusDropdown);
 
   const queryParams = useMemo(
     (): FetchMesListParams => ({
-      quotationId: selectedMesQuote,
+      quotationId: pickedMesQuote || undefined,
       status: selectedMesStatus,
       page: currentPage - 1,
       size: pageSize,
     }),
-    [selectedMesQuote, selectedMesStatus, currentPage],
+    [pickedMesQuote, selectedMesStatus, currentPage],
   );
 
   const {
@@ -268,11 +271,11 @@ export default function MesTab() {
           placeholder={t('common.selectQuote')}
           items={optionLabels(mrpQuotationOptions, { ALL: t('common.allQuotes') })}
           value={selectedMesQuote}
+          autoSelectFirst
           onChange={(quote: string) => {
             setSelectedMesQuote(quote);
             setCurrentPage(1);
           }}
-          autoSelectFirst
         />
         <Dropdown
           placeholder={t('common.allStatuses')}

@@ -60,22 +60,38 @@ export const HRM_MUTATION_EFFECTS = {
     programKeys.lists(),
     programKeys.detail(programId),
     programKeys.dropdown(),
+    trainingKeys.details(), // 직원 교육 상세의 프로그램 이름과 상태
   ],
   createProgram: (): readonly QueryKey[] => [programKeys.lists(), programKeys.dropdown()],
   updateDepartment: (): readonly QueryKey[] => [departmentKeys.lists()],
   // 출퇴근 시각을 고치면 지각 여부가 바뀐다. 잔디(시각화 5)도 같이
   updateTimeRecord: (): readonly QueryKey[] => [attendanceKeys.lists(), attendanceKeys.summary()],
-  assignProgram: (employeeId: string): readonly QueryKey[] => [
+  assignProgram: (employeeId: string, programId: string): readonly QueryKey[] => [
     trainingKeys.lists(),
     trainingKeys.detail(employeeId),
+    programKeys.detail(programId), // 프로그램 상세의 대상자
   ],
+  // 부서 인원, 급여, 교육, 출퇴근 목록도 직원에서 나온다(새 직원이 실서버 급여와 출퇴근에 언제 드는지는 verified=false)
   registerEmployee: (departmentId: string): readonly QueryKey[] => [
     employeeKeys.lists(),
     hrmStatsKeys.all,
     departmentKeys.memberDropdown(departmentId),
+    departmentKeys.lists(),
+    payrollKeys.lists(),
+    trainingKeys.lists(),
+    attendanceKeys.lists(),
   ],
   // 옛 부서와 새 부서의 부서원 드롭다운을 둘 다 비워야 하는데 옛 부서 id 를 모른다. 부서 키 전부.
-  updateEmployee: (): readonly QueryKey[] => [employeeKeys.lists(), departmentKeys.all],
+  // 이름, 부서, 직급은 급여, 교육, 프로그램 대상자, 출퇴근, 휴가에도 나온다.
+  updateEmployee: (): readonly QueryKey[] => [
+    employeeKeys.lists(),
+    departmentKeys.all,
+    payrollKeys.all,
+    trainingKeys.all,
+    programKeys.details(),
+    attendanceKeys.lists(),
+    leaveKeys.lists(),
+  ],
   completePayroll: (payrollId: string): readonly QueryKey[] => [
     payrollKeys.lists(),
     payrollKeys.detail(payrollId),
@@ -162,7 +178,7 @@ export const useAssignProgramToEmployee = (
   useHrmMutation(
     'assignProgram',
     (params: UpdateProgramToEmployeeRequest) => postProgramToEmployee(params),
-    ({ employeeId }) => HRM_MUTATION_EFFECTS.assignProgram(employeeId),
+    ({ employeeId, programId }) => HRM_MUTATION_EFFECTS.assignProgram(employeeId, programId),
     callbacks,
   );
 

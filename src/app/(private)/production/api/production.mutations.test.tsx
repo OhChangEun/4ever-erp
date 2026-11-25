@@ -16,7 +16,7 @@ import {
   productionStatsKeys,
   quotationKeys,
 } from './production.keys';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
 import {
   PRODUCTION_MUTATION_EFFECTS,
   useCompleteMes,
@@ -114,10 +114,11 @@ const cases: Case[] = [
     keeps: [BOM_DETAIL, MES_LIST, HRM_EMPLOYEE_LIST],
   },
   {
-    name: '자재 구매 요청 → 계획 주문 목록 + 구매 요청 목록, 구매 통계(의도한 도메인 교차)',
+    // 구매 데이터를 만들지만 구매 화면은 들어갈 때 다시 받는다(카드 "화면끼리 캐시", domainCache.test.tsx)
+    name: '자재 구매 요청 → 계획 주문 목록',
     run: (qc) => runHook(qc, useCreateStockPurchaseRequest, { items: [] }),
-    invalidates: [MRP_PLANNED_LIST, PURCHASE_REQUEST_LIST, PURCHASE_STATS],
-    keeps: [MRP_ORDER_LIST, BOM_LIST, HRM_EMPLOYEE_LIST],
+    invalidates: [MRP_PLANNED_LIST],
+    keeps: [MRP_ORDER_LIST, BOM_LIST, HRM_EMPLOYEE_LIST, PURCHASE_REQUEST_LIST, PURCHASE_STATS],
   },
   {
     name: '계획 주문 전환 → MRP 주문 목록, 계획 주문 목록',

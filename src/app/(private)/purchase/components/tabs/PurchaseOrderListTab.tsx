@@ -69,7 +69,8 @@ export default function PurchaseOrderListTab() {
   const queryParams = useMemo(
     (): PurchaseOrderListParams => ({
       statusCode: selectedStatus || undefined,
-      type: selectedSearchType,
+      // 검색어가 없으면 검색 타입은 뜻이 없다. 넣으면 검색 타입이 자동으로 골라질 때 같은 목록을 한 번 더 받는다
+      type: debouncedKeyword ? selectedSearchType : undefined,
       keyword: debouncedKeyword,
       page: currentPage - 1,
       size: pageSize,

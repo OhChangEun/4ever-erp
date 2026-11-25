@@ -20,7 +20,6 @@ import {
   salesOrderKeys,
   salesStatsKeys,
 } from './sales.keys';
-import { inventoryStatsKeys, shippingKeys } from '@/app/(private)/inventory';
 import type { NewOrderRequest } from '@/app/(private)/sales/types/NewOrderModalType';
 import type {
   CustomerEditData,
@@ -36,15 +35,17 @@ import type { ApiResponseNoData } from '@/app/types/api';
 
 /**
  * 영업 도메인 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
- * 재고 확인은 읽기라 여기 없다.
+ * 재고 확인은 읽기라 여기 없다. 다른 도메인 키는 넣지 않는다. 그 화면은 들어갈 때 다시 받는다(`_RouteProviders.tsx`).
  */
 export const SALES_MUTATION_EFFECTS = {
   // 재고 확인은 버튼으로 한 번 하는 계산 요청이다. 서버 상태를 안 바꿔 무효화할 것이 없다
   checkInventory: (): readonly QueryKey[] => [],
   createCustomer: (): readonly QueryKey[] => [customerKeys.lists()],
+  // 주문 상세의 주소와 담당자가 고객에서 온다. 어느 주문인지 몰라 주문 상세는 전부
   updateCustomer: (customerId: string): readonly QueryKey[] => [
     customerKeys.lists(),
     customerKeys.detail(customerId),
+    salesOrderKeys.details(),
   ],
   createQuote: (): readonly QueryKey[] => [quoteKeys.lists(), salesStatsKeys.all],
   confirmQuotation: (quotationId: string): readonly QueryKey[] => [
@@ -64,9 +65,6 @@ export const SALES_MUTATION_EFFECTS = {
     customerKeys.lists(),
     customerKeys.details(),
     analyticsKeys.all,
-    // 새 주문은 출고 준비라 재고 출고 준비 목록과 재고 통계(출고 대기 건수)에 든다. 재고 키 둘은 의도한 교차(카드 "데모 목록 재고 물류")
-    shippingKeys.readyToShipLists(),
-    inventoryStatsKeys.all,
   ],
 } as const;
 
@@ -139,7 +137,7 @@ export interface UpdateCustomerVariables {
   data: CustomerEditData;
 }
 
-/** 고객 수정. 목록(이름, 상태)과 그 고객 상세를 다시 가져온다 */
+/** 고객 수정. 목록(이름, 상태)과 그 고객 상세, 주문 상세를 다시 가져온다 */
 export const useUpdateCustomer = (
   callbacks?: MutationCallbacks<CustomerResponse, UpdateCustomerVariables>,
 ) =>

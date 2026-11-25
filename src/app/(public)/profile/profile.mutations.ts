@@ -12,30 +12,25 @@ import {
   postVacation,
 } from './profile.api';
 import { profileKeys } from './profile.keys';
-import { attendanceKeys, leaveKeys, trainingKeys } from '@/app/(private)/hrm/api/hrm.keys';
 import type { EditUserRequest, ProfileInfoResponse, RequestVacation } from './ProfileType';
 import type { ApiResponseNoData } from '@/app/types/api';
 
 /**
  * 프로필 셀프서비스 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
- * 내 근태와 휴가, 교육은 인사 관리자 화면의 목록에도 나타나므로 인사 키를 의도적으로 교차 무효화한다.
+ * 내 근태와 휴가, 교육은 인사 화면에도 나타나지만 레이아웃이 달라 QueryClient 를 나누지 않는다. 인사 키는 넣지 않는다.
  */
 export const PROFILE_MUTATION_EFFECTS = {
   editProfile: (): readonly QueryKey[] => [profileKeys.info()],
-  requestVacation: (): readonly QueryKey[] => [profileKeys.attendanceRecords(), leaveKeys.lists()],
+  requestVacation: (): readonly QueryKey[] => [profileKeys.attendanceRecords()],
   checkIn: (): readonly QueryKey[] => [
     profileKeys.todayAttendance(),
     profileKeys.attendanceRecords(),
-    attendanceKeys.lists(),
-    attendanceKeys.summary(),
   ],
   checkOut: (): readonly QueryKey[] => [
     profileKeys.todayAttendance(),
     profileKeys.attendanceRecords(),
-    attendanceKeys.lists(),
-    attendanceKeys.summary(),
   ],
-  registerTraining: (): readonly QueryKey[] => [profileKeys.trainings(), trainingKeys.lists()],
+  registerTraining: (): readonly QueryKey[] => [profileKeys.trainings()],
 } as const;
 
 export type ProfileMutationName = keyof typeof PROFILE_MUTATION_EFFECTS;

@@ -19,10 +19,8 @@ import {
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
-import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock';
+import { lowStockKeys } from '@/app/(private)/low-stock';
 import { createStockPurchaseRequest } from '@/app/(private)/purchase';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
-import { salesOrderKeys } from '@/app/(private)/sales';
 import type {
   markAsReadyRequest,
   markAsReadyToShipResponse,
@@ -39,48 +37,31 @@ import type { Page } from '@/app/types/Page';
 
 /**
  * 재고 도메인 mutation → 다시 가져올 쿼리 키. 이 표가 동작이다.
- * 부족 재고는 화면이 셋이다. 재고 탭 위젯(`lowStockItemKeys`), 부족 재고 페이지 목록과 통계(`lowStockKeys`,
- * `lowStockStatsKeys`). 재고량이나 안전재고가 바뀌면 셋 다 다시 가져온다.
+ * 다른 도메인 키는 넣지 않는다. 그 화면은 QueryClient 가 달라 들어갈 때 다시 받는다(`_RouteProviders.tsx`).
+ * 예외 하나: 부족 재고 구매 요청 모달은 안전재고 화면에서 열려 그 화면의 목록(`lowStockKeys`)을 읽는다.
  */
-const LOW_STOCK_ALL: readonly QueryKey[] = [
-  lowStockItemKeys.all,
-  lowStockKeys.lists(),
-  lowStockStatsKeys.all,
-];
-
 export const INVENTORY_MUTATION_EFFECTS = {
-  // 출하 준비는 영업 주문 상태를 바꾼다(API 경로 sales-orders/:id/status). 영업 주문 키는 의도한 교차
-  markReadyToShip: (orderId: string): readonly QueryKey[] => [
-    shippingKeys.all,
-    inventoryStatsKeys.all,
-    salesOrderKeys.lists(),
-    salesOrderKeys.detail(orderId),
-  ],
-  // 부족 재고 페이지에서 구매 요청. 구매 키 2개는 의도한 교차(구매 데이터를 만든다).
-  requestPurchaseForLowStock: (): readonly QueryKey[] => [
-    lowStockKeys.lists(),
-    lowStockItemKeys.all,
-    purchaseRequestKeys.lists(),
-    purchaseStatsKeys.all,
-  ],
+  markReadyToShip: (): readonly QueryKey[] => [shippingKeys.all, inventoryStatsKeys.all],
+  requestPurchaseForLowStock: (): readonly QueryKey[] => [lowStockKeys.lists()],
   // 추가한 자재는 자재 선택에서 빠지고, 처음 재고가 안전재고보다 적으면 부족 재고에 든다
   addMaterial: (): readonly QueryKey[] => [
     inventoryKeys.lists(),
     inventoryStatsKeys.all,
     itemInfoKeys.all,
-    ...LOW_STOCK_ALL,
+    lowStockItemKeys.all,
   ],
   updateSafetyStock: (itemId: string): readonly QueryKey[] => [
     inventoryKeys.detail(itemId),
     inventoryKeys.lists(),
-    ...LOW_STOCK_ALL,
+    lowStockItemKeys.all,
   ],
   moveStock: (itemId: string): readonly QueryKey[] => [
     inventoryKeys.detail(itemId),
     inventoryKeys.lists(),
+    inventoryStatsKeys.all,
     stockMovementKeys.all,
     warehouseInfoKeys.all,
-    ...LOW_STOCK_ALL,
+    lowStockItemKeys.all,
   ],
 } as const;
 
@@ -168,13 +149,13 @@ export interface MarkReadyToShipVariables {
   itemIds: markAsReadyRequest;
 }
 
-/** 출하 준비 완료 처리. 생산 중과 출하 대기 목록, 재고 통계, 영업 주문을 다시 가져온다 */
+/** 출하 준비 완료 처리. 생산 중과 출하 대기 목록, 재고 통계를 다시 가져온다 */
 export const useMarkReadyToShip = (
   callbacks?: MutationCallbacks<markAsReadyToShipResponse, MarkReadyToShipVariables>,
 ) =>
   useInvalidatingMutation<markAsReadyToShipResponse, MarkReadyToShipVariables>({
     mutationKey: inventoryMutationKey('markReadyToShip'),
     mutationFn: ({ orderId, itemIds }) => patchMarkAsReadyToShip(orderId, itemIds),
-    effects: ({ orderId }) => INVENTORY_MUTATION_EFFECTS.markReadyToShip(orderId),
+    effects: () => INVENTORY_MUTATION_EFFECTS.markReadyToShip(),
     callbacks,
   });

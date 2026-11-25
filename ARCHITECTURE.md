@@ -91,67 +91,72 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 ## 5. 서버 상태 레이어
 
 - QueryClient 는 한 팩토리 `createQueryClient` 에서 나온다 (`src/lib/queryClient.ts`). 서버 컴포넌트용 `cache()` 래퍼 `getQueryClient` (retry 0) 와 클라이언트 Provider (`src/app/providers.tsx`). 기본값은 staleTime 30초, gcTime 5분, 포커스 refetch 켬, retry 는 `AppError.kind` 가 network 나 server 일 때만 2회. 401 은 QueryCache 와 MutationCache 의 onError 한 곳에서 `redirectToLogin` (`src/lib/auth/redirectToLogin.ts`) 으로 보낸다(클라이언트당 1회, 전체 새로고침). 상세 쿼리가 404 면 같은 QueryCache onError 가 그 쿼리의 `meta.listOnNotFound` 에 적은 목록 키만 무효화한다(`src/lib/queryClient.ts:65`, 2026-11-13 없는 건은 404 카드와 리뷰 A1). 그 건이 서버에서 사라졌으니 목록에 남은 행을 걷어 낸다. 키 모양에 기대지 않는다. meta 가 없는 쿼리는 404 여도 아무것도 안 한다. meta 타입은 TanStack `Register` 로 `QueryKey` 다(`src/lib/queryClient.ts:11`). 화면의 상세 쿼리 19곳이 meta 를 적고, 빠뜨리면 `src/lib/query/listOnNotFound.test.ts` 가 잡는다.
-- 서버 prefetch → `HydrationBoundary` (`src/app/providers.tsx:29`) 패턴이 15곳에 있다. 전 도메인 확대 예정.
-- 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:18`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
+- QueryClient 는 도메인마다 따로다(결정 2026-11-24 화면끼리 캐시). 도메인 레이아웃 9개가 `src/app/(private)/_RouteProviders.tsx:10` → `src/app/providers.tsx:23` 에서 만들고 `/profile` 은 자기 레이아웃에서, 사이드바는 아래 알림 1에서 만든다. 레이아웃이 내려가면 캐시도 사라져 도메인에 들어갈 때마다 서버 값을 다시 받는다(staleTime 30초는 같은 도메인의 탭과 모달 사이에서만 쓰인다). 이유는 우선순위 1이다. 합치면 무효화 표에서 빠진 칸이 30초까지 틀린 값으로 보이고, 표가 다 찼는지는 백엔드 없이 확인할 수 없다.
+  1. 다른 도메인 키를 무효화 표에 넣지 않는다. 그 클라이언트에 지울 캐시가 없다. 예외는 같은 클라이언트에서 읽는 둘이다. 창고 등록과 수정의 `warehouseInfoKeys`(창고 3D 에서 연 재고 상세의 이동 모달), 안전재고 화면에서 여는 구매 요청의 `lowStockKeys.lists()`. 다른 도메인의 쓰기가 들어갈 때 보이는지는 `e2e/domain-cache.spec.ts` 와 `src/app/(private)/domainCache.test.tsx` 가 본다.
+  2. 클라이언트를 루트 레이아웃이나 모듈 변수에 두면 안 된다. 데모 로그아웃은 전체 새로고침이 아니고(`src/app/components/sidebar/SidebarProfile.tsx:56`) 쿼리 키에 사용자가 없어 앞사람 값이 다음 사람에게 보인다. 같은 e2e 가 로그인 전환으로 본다.
+  3. 응답 전에 도메인을 옮기면 그 쓰기는 무효화로 못 잡는다. 응답을 기다려 옮기게 한다(견적 검토 모달).
+- 목록의 처음 조건은 화면이 자동으로 고르는 첫 항목과 같게 둔다. 다르면 `Dropdown` 의 자동 선택이 키를 바꿔 같은 목록을 두 번 받는다. 첫 항목이 서버 옵션이면 조건이 뜻을 가질 때만 키에 넣는다(구매의 검색 타입은 검색어가 있을 때만). `src/app/(private)/listRequestCount.test.tsx` 가 요청 수를 본다.
+- 서버 prefetch → 페이지 `HydrationBoundary` 는 4곳(dashboard, hrm, inventory, production), 쿼리 5개다. 지금은 빈 값이다. 서버의 axios 주소가 상대 경로라 실패하고 빌드 산출물 네 개가 모두 `"queries":[]` 다. `src/app/providers.tsx:35` 의 `HydrationBoundary` 에는 `dehydratedState` 를 주는 곳이 없다.
+- 드롭다운 기준 데이터는 `staleTime: Infinity` (`src/app/hooks/useDropdown.tsx:28`). 마스터 수정 mutation 이 명시적으로 무효화해야 한다.
 - 낙관적 락(version 전송)은 BOM 상태 변경에만 있다. 409 를 받으면 공통 빌더가 그 mutation 의 무효화 키를 다시 가져온다(`src/lib/query/useInvalidatingMutation.ts`, onError). 충돌 안내는 공통 `ConflictDialog`. 다른 엔티티의 version 전송은 OpenAPI 계약 카드.
 - mutation 은 도메인 `*.mutations.ts` 훅으로 모은다. 훅은 같은 파일의 `*_MUTATION_EFFECTS` 표를 읽어 무효화하므로 표가 곧 동작이다. 컴포넌트는 토스트, confirm, 모달 닫기만 맡는다. 공통 빌더는 `src/lib/query/useInvalidatingMutation.ts`. 2026-11-09 구매 8, 인사 10, 생산 10, 재고 4, 영업 4, 재무 1, 창고 2, 프로필 5, 알림 2 완료. 컴포넌트 안 `useMutation` 은 0건이다(2026-11-10, `grep -rnE "useMutation[<(]"` 기준. 제네릭 형태 2건은 PR #18 에서 정리). 견적 시뮬레이션과 재고 확인처럼 버튼으로 한 번 하는 요청도 도메인 훅으로 둔다. 읽기는 `useQuery` 로 하고 결과를 state 에 복사하지 않는다.
 
 - 처리 버튼은 서버 상태를 보고 그린다(2026-11-12 이미 처리된 건의 버튼 카드). 승인, 처리 요청, 납품 같은 상태 전이 버튼과 체크박스는 처리할 수 있는 상태 목록(허용 목록)에 든 행에만 열린다. 모르는 상태 값은 잠근다. 같은 규칙을 목록과 모달이 쓰면 도메인 service 의 함수 하나로 둔다(`canProcessInvoice` `src/app/(private)/finance/finance.service.ts:58`, `canProcessQuote` `src/app/(private)/sales/sales.service.ts:56`). 모달의 버튼은 열 때 받은 목록 값이 아니라 그 모달의 상세 쿼리 값을 본다(`PayrollDetailModal.tsx:168`, `QuoteReviewModal.tsx:249`). 처리 뒤 무효화가 상세를 다시 가져오면 같은 모달에서 버튼이 사라진다.
-- 선택은 state 에 id 만 두고 렌더 중에 지금 목록에서 처리할 수 있는 행으로 걸러 쓴다(effect 로 지우지 않는다, R01, R02). 처리 뒤 다시 받은 목록에서 상태가 바뀌면 선택에서 저절로 빠지고 버튼이 잠긴다. "전체 선택"은 처리할 수 있는 행만 넣는다. 목록 다시 받기가 실패하면(캐시에 처리 전 값이 남는다) 고를 수 있는 행이 없는 것으로 보고, 모달은 상세 조회가 오류면 처리 버튼을 숨긴다. 본보기는 `InvoiceList.tsx:89`, `SalesQuoteList.tsx:73`, 생산의 `OrdersTab.tsx:90`, `QuotationTab.tsx:93`, `PlannedOrdersTab.tsx:93`.
+- 선택은 state 에 id 만 두고 렌더 중에 지금 목록에서 처리할 수 있는 행으로 걸러 쓴다(effect 로 지우지 않는다, R01, R02). 처리 뒤 다시 받은 목록에서 상태가 바뀌면 선택에서 저절로 빠지고 버튼이 잠긴다. "전체 선택"은 처리할 수 있는 행만 넣는다. 목록 다시 받기가 실패하면(캐시에 처리 전 값이 남는다) 고를 수 있는 행이 없는 것으로 보고, 모달은 상세 조회가 오류면 처리 버튼을 숨긴다. 본보기는 `InvoiceList.tsx:89`, `SalesQuoteList.tsx:73`, 생산의 `OrdersTab.tsx:91`, `QuotationTab.tsx:93`, `PlannedOrdersTab.tsx:93`.
 
   구매 무효화 매트릭스 (코드 `PURCHASE_MUTATION_EFFECTS` 를 옮긴 것. 다르면 코드가 맞다):
 
   | mutation        | 다시 가져오는 키                                                                                                                                 |
   | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
   | 발주 승인, 반려 | `purchaseOrderKeys.lists()`, `purchaseOrderKeys.detail(id)`, `purchaseStatsKeys.all`                                                             |
-  | 발주 배송 시작  | 위 3개 + 재고 `receivingKeys.pendingLists()`, `inventoryStatsKeys.all`(배송중 발주가 입고 대기와 그 건수에 든다, 의도한 교차. 2026-11-13)        |
+  | 발주 배송 시작  | 위 3개                                                                                                                                           |
   | 구매 요청 승인  | `purchaseRequestKeys.lists()`, `.detail(id)`, `purchaseOrderKeys.lists()`(승인이 발주를 만들 수 있음, 서버 계약 미확인), `purchaseStatsKeys.all` |
   | 구매 요청 반려  | `purchaseRequestKeys.lists()`, `.detail(id)`, `purchaseStatsKeys.all`                                                                            |
   | 구매 요청 생성  | `purchaseRequestKeys.lists()`, `purchaseStatsKeys.all`                                                                                           |
   | 공급사 등록     | `supplierKeys.lists()`                                                                                                                           |
-  | 공급사 수정     | `supplierKeys.lists()`, `supplierKeys.detail(id)`                                                                                                |
+  | 공급사 수정     | `supplierKeys.lists()`, `supplierKeys.detail(id)`, `purchaseOrderKeys.details()`(발주 상세의 담당자)                                             |
 
   인사 무효화 매트릭스 (`HRM_MUTATION_EFFECTS`):
 
-  | mutation        | 다시 가져오는 키                                                                          |
-  | --------------- | ----------------------------------------------------------------------------------------- |
-  | 휴가 승인, 반려 | `leaveKeys.lists()`, `attendanceKeys.lists()`(휴가가 근태에 반영된다고 가정)              |
-  | 교육 수정       | `programKeys.lists()`, `.detail(id)`, `.dropdown()`                                       |
-  | 교육 추가       | `programKeys.lists()`, `.dropdown()`                                                      |
-  | 부서 수정       | `departmentKeys.lists()`                                                                  |
-  | 출결 수정       | `attendanceKeys.lists()`                                                                  |
-  | 교육 지정       | `trainingKeys.lists()`, `.detail(employeeId)`                                             |
-  | 직원 등록       | `employeeKeys.lists()`, `hrmStatsKeys.all`, `departmentKeys.memberDropdown(departmentId)` |
-  | 직원 수정       | `employeeKeys.lists()`, `departmentKeys.all`(옛 부서 id 를 몰라 부서 키 전부)             |
-  | 급여 완료       | `payrollKeys.lists()`, `.detail(payrollId)`                                               |
+  | mutation        | 다시 가져오는 키                                                                                                                                                                             |
+  | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | 휴가 승인, 반려 | `leaveKeys.lists()`, `attendanceKeys.lists()`(휴가가 근태에 반영된다고 가정)                                                                                                                 |
+  | 교육 수정       | `programKeys.lists()`, `.detail(id)`, `.dropdown()`, `trainingKeys.details()`                                                                                                                |
+  | 교육 추가       | `programKeys.lists()`, `.dropdown()`                                                                                                                                                         |
+  | 부서 수정       | `departmentKeys.lists()`                                                                                                                                                                     |
+  | 출결 수정       | `attendanceKeys.lists()`                                                                                                                                                                     |
+  | 교육 지정       | `trainingKeys.lists()`, `.detail(employeeId)`, `programKeys.detail(programId)`                                                                                                               |
+  | 직원 등록       | `employeeKeys.lists()`, `hrmStatsKeys.all`, `departmentKeys.memberDropdown(departmentId)`, `departmentKeys.lists()`, `payrollKeys.lists()`, `trainingKeys.lists()`, `attendanceKeys.lists()` |
+  | 직원 수정       | `employeeKeys.lists()`, `departmentKeys.all`(옛 부서 id 를 몰라 부서 키 전부), `payrollKeys.all`, `trainingKeys.all`, `programKeys.details()`, `attendanceKeys.lists()`, `leaveKeys.lists()` |
+  | 급여 완료       | `payrollKeys.lists()`, `.detail(payrollId)`                                                                                                                                                  |
 
   생산 무효화 매트릭스 (`PRODUCTION_MUTATION_EFFECTS`):
 
-  | mutation                             | 다시 가져오는 키                                                                                                                               |
-  | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-  | BOM 상태 변경                        | `bomKeys.detail(id)`, `bomKeys.lists()`                                                                                                        |
-  | BOM 충돌 시뮬레이션(테스트 전용)     | 없음(옛 값을 유지해야 409 를 볼 수 있다)                                                                                                       |
-  | BOM 생성                             | `bomKeys.lists()`, `productionStatsKeys.all`                                                                                                   |
-  | 자재 구매 요청                       | `mrpPlannedOrderKeys.lists()` + 구매 `purchaseRequestKeys.lists()`, `purchaseStatsKeys.all` (구매 데이터를 만드는 요청이라 의도한 도메인 교차) |
-  | 계획 주문 전환                       | `mrpOrderKeys.lists()`, `mrpPlannedOrderKeys.lists()`                                                                                          |
-  | 제안납기 확정                        | `quotationKeys.lists()`, `mpsKeys.lists()`(확정한 견적이 그 납기 주 MPS 수요에 든다. 2026-11-13)                                               |
-  | MES 시작, 완료, 공정 시작, 공정 완료 | `mesKeys.detail(mesId)`, `mesKeys.lists()`, `productionStatsKeys.all`                                                                          |
+  | mutation                             | 다시 가져오는 키                                                                                 |
+  | ------------------------------------ | ------------------------------------------------------------------------------------------------ |
+  | BOM 상태 변경                        | `bomKeys.detail(id)`, `bomKeys.lists()`                                                          |
+  | BOM 충돌 시뮬레이션(테스트 전용)     | 없음(옛 값을 유지해야 409 를 볼 수 있다)                                                         |
+  | BOM 생성                             | `bomKeys.lists()`, `productionStatsKeys.all`                                                     |
+  | 자재 구매 요청                       | `mrpPlannedOrderKeys.lists()`                                                                    |
+  | 계획 주문 전환                       | `mrpOrderKeys.lists()`, `mrpPlannedOrderKeys.lists()`                                            |
+  | 제안납기 확정                        | `quotationKeys.lists()`, `mpsKeys.lists()`(확정한 견적이 그 납기 주 MPS 수요에 든다. 2026-11-13) |
+  | MES 시작, 완료, 공정 시작, 공정 완료 | `mesKeys.detail(mesId)`, `mesKeys.lists()`, `productionStatsKeys.all`                            |
 
   나머지 도메인 무효화 매트릭스 (`INVENTORY_`, `WAREHOUSE_`, `SALES_`, `FINANCE_`, `PROFILE_`, `NOTIFICATION_MUTATION_EFFECTS`).
   "(낙관적)" 표시가 있는 4곳은 공통 빌더의 `optimistic` 옵션으로 응답 전에 캐시를 고친다. `setQueriesData`(prefix match)라 목록의 모든 페이지에 닿고, 실패하면 스냅샷으로 되돌리며, 성공과 실패 모두 끝나면 위 키를 무효화한다. 생성(고객, 자재, 창고 등록)은 낙관적 업데이트를 하지 않는다(결정 7, `ai/decisions.md` 2026-11-10 "낙관적 업데이트 범위").
 
-  | mutation                            | 다시 가져오는 키                                                                                                                                                                                                                                                  |
-  | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | 재고: 부족 재고 구매 요청           | `lowStockItemKeys.all` + 구매 `purchaseRequestKeys.lists()`, `purchaseStatsKeys.all`(의도한 교차)                                                                                                                                                                 |
-  | 재고: 자재 추가                     | `inventoryKeys.lists()`, `inventoryStatsKeys.all`, `itemInfoKeys.all`(추가한 자재는 선택에서 빠진다), `lowStockItemKeys.all`, `lowStockKeys.lists()`, `lowStockStatsKeys.all`                                                                                     |
-  | 영업: 견적 생성                     | `quoteKeys.lists()`, `salesStatsKeys.all`                                                                                                                                                                                                                         |
-  | 영업: 검토 요청                     | `quoteKeys.lists()`, `.detail(id)`, `.reviewDetail(id)`, `salesStatsKeys.all`                                                                                                                                                                                     |
-  | 영업: 즉시 납품                     | 위 4개 + `salesOrderKeys.lists()`, `customerKeys.lists()`, `customerKeys.details()`, `analyticsKeys.all`(주문 수, 거래 금액, 매출 분석이 바뀐다. 2026-11-13) + 재고 `shippingKeys.readyToShipLists()`, `inventoryStatsKeys.all`(새 주문은 출고 준비, 의도한 교차) |
-  | 재무: 전표 처리(ar, ap, supplierAp) | `invoiceKeys.lists(tab)`, `invoiceKeys.detail(id)`, `financeStatsKeys.all`                                                                                                                                                                                        |
-  | 프로필: 휴가 신청                   | `profileKeys.attendanceRecords()` + 인사 `leaveKeys.lists()`(교차)                                                                                                                                                                                                |
-  | 프로필: 출근, 퇴근                  | `profileKeys.todayAttendance()`, `.attendanceRecords()` + 인사 `attendanceKeys.lists()`(교차)                                                                                                                                                                     |
-  | 프로필: 교육 신청                   | `profileKeys.trainings()` + 인사 `trainingKeys.lists()`(교차)                                                                                                                                                                                                     |
-  | 알림: 전체 읽음, 하나 읽음          | `notificationKeys.lists()`, `notificationKeys.unreadCount()`(사이드바 뱃지)                                                                                                                                                                                       |
+  | mutation                            | 다시 가져오는 키                                                                                                                                             |
+  | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | 재고: 부족 재고 구매 요청           | `lowStockKeys.lists()`(안전재고 화면에서 열린다)                                                                                                             |
+  | 재고: 자재 추가                     | `inventoryKeys.lists()`, `inventoryStatsKeys.all`, `itemInfoKeys.all`(추가한 자재는 선택에서 빠진다), `lowStockItemKeys.all`                                 |
+  | 영업: 견적 생성                     | `quoteKeys.lists()`, `salesStatsKeys.all`                                                                                                                    |
+  | 영업: 검토 요청                     | `quoteKeys.lists()`, `.detail(id)`, `.reviewDetail(id)`, `salesStatsKeys.all`                                                                                |
+  | 영업: 즉시 납품                     | 위 4개 + `salesOrderKeys.lists()`, `customerKeys.lists()`, `customerKeys.details()`, `analyticsKeys.all`(주문 수, 거래 금액, 매출 분석이 바뀐다. 2026-11-13) |
+  | 재무: 전표 처리(ar, ap, supplierAp) | `invoiceKeys.lists(tab)`, `invoiceKeys.detail(id)`, `financeStatsKeys.all`                                                                                   |
+  | 프로필: 휴가 신청                   | `profileKeys.attendanceRecords()`                                                                                                                            |
+  | 프로필: 출근, 퇴근                  | `profileKeys.todayAttendance()`, `.attendanceRecords()`                                                                                                      |
+  | 프로필: 교육 신청                   | `profileKeys.trainings()`                                                                                                                                    |
+  | 알림: 전체 읽음, 하나 읽음          | `notificationKeys.lists()`, `notificationKeys.unreadCount()`(사이드바 뱃지)                                                                                  |
 
   알림(사이드바, 2026-11-12 알림 UI 연결 카드):
 
@@ -188,7 +193,7 @@ src/
 
 import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx`. 2026-11-10 부터 린트가 강제한다(`eslint-rules/index.mjs`, error).
 
-1. `everp/domain-boundary`: 다른 도메인은 공개 입구로만 가져온다. `@/app/(private)/<도메인>`(index.ts: 키, api, 타입, 상수), `@/app/(private)/<도메인>/ui`(ui.ts: 화면 컴포넌트), `@/app/(private)/<도메인>/messages`(messages.ts: 메시지 감싸개, 지금은 재고만). 나눈 이유는 키만 쓰는 도메인이 모달이나 메시지 JSON 까지 받지 않게 하려는 것이다(한 파일일 때 창고 첫 로드가 +21.7KB, 재고 index 에 메시지 감싸개가 있을 때 구매 첫 로드가 +5KB). 공통 코드(`src/lib`, `src/app/components` 등)는 도메인을 가져오지 않는다. 지금 공개 입구가 있는 도메인은 구매, 안전재고, 재고, 영업.
+1. `everp/domain-boundary`: 다른 도메인은 공개 입구로만 가져온다. `@/app/(private)/<도메인>`(index.ts: 키, api, 타입, 상수), `@/app/(private)/<도메인>/ui`(ui.ts: 화면 컴포넌트), `@/app/(private)/<도메인>/messages`(messages.ts: 메시지 감싸개, 지금은 재고만). 나눈 이유는 키만 쓰는 도메인이 모달이나 메시지 JSON 까지 받지 않게 하려는 것이다(한 파일일 때 창고 첫 로드가 +21.7KB, 재고 index 에 메시지 감싸개가 있을 때 구매 첫 로드가 +5KB). 공통 코드(`src/lib`, `src/app/components` 등)는 도메인을 가져오지 않는다. 지금 index.ts 가 있는 도메인은 구매, 안전재고, 재고이고 영업은 ui.ts 만 있다.
 2. `everp/no-component-mutation`: `useMutation` 은 `*.mutations.ts` 와 `src/lib/query/` 에서만.
 3. `everp/no-arbitrary-color`: className 의 임의 색(`bg-[#...]`) 금지. 3D 장면처럼 코드가 색을 정하면 상수를 style 로 넘긴다(`src/app/(private)/warehouse/components/warehouseVisualizer/stockColors.ts`).
 

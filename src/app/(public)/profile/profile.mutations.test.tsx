@@ -25,54 +25,41 @@ const ATTENDANCE_SUMMARY = attendanceKeys.summary();
 const TRAINING_LIST = trainingKeys.list({ page: 0, size: 10 });
 
 describe('프로필 셀프서비스 mutation 훅', () => {
-  it('휴가 신청 → 내 근태 기록 + 인사 휴가 목록(교차)', () =>
+  // 인사 화면과 레이아웃이 달라 캐시를 나누지 않는다. 인사 키는 건드리지 않는다(카드 "화면끼리 캐시", domainCache.test.tsx)
+  it('휴가 신청 → 내 근태 기록', () =>
     expectMatrix({
       name: '',
       useHook: useRequestVacation,
       variables: { leaveType: 'ANNUAL', startDate: '2026-11-10', endDate: '2026-11-11' },
-      invalidates: [profileKeys.attendanceRecords(), LEAVE_LIST],
-      keeps: [profileKeys.info(), TRAINING_LIST, FOREIGN],
+      invalidates: [profileKeys.attendanceRecords()],
+      keeps: [profileKeys.info(), LEAVE_LIST, TRAINING_LIST, FOREIGN],
     }));
 
-  it('출근 → 오늘 근태, 근태 기록 + 인사 근태 목록(교차)', () =>
+  it('출근 → 오늘 근태, 근태 기록', () =>
     expectMatrix({
       name: '',
       useHook: useCheckIn,
       variables: undefined,
-      invalidates: [
-        profileKeys.todayAttendance(),
-        profileKeys.attendanceRecords(),
-        ATTENDANCE_LIST,
-        ATTENDANCE_SUMMARY,
-      ],
-      keeps: [profileKeys.info(), LEAVE_LIST, FOREIGN],
+      invalidates: [profileKeys.todayAttendance(), profileKeys.attendanceRecords()],
+      keeps: [profileKeys.info(), LEAVE_LIST, ATTENDANCE_LIST, ATTENDANCE_SUMMARY, FOREIGN],
     }));
 
-  it('퇴근 → 오늘 근태, 근태 기록 + 인사 근태 목록(교차)', () =>
+  it('퇴근 → 오늘 근태, 근태 기록', () =>
     expectMatrix({
       name: '',
       useHook: useCheckOut,
       variables: undefined,
-      invalidates: [
-        profileKeys.todayAttendance(),
-        profileKeys.attendanceRecords(),
-        ATTENDANCE_LIST,
-        ATTENDANCE_SUMMARY,
-      ],
-      keeps: [profileKeys.info(), LEAVE_LIST, FOREIGN],
+      invalidates: [profileKeys.todayAttendance(), profileKeys.attendanceRecords()],
+      keeps: [profileKeys.info(), LEAVE_LIST, ATTENDANCE_LIST, ATTENDANCE_SUMMARY, FOREIGN],
     }));
 
-  it('교육 신청 → 내 교육 탭 전부 + 인사 교육 이력(교차)', () =>
+  it('교육 신청 → 내 교육 탭 전부', () =>
     expectMatrix({
       name: '',
       useHook: useRegisterTraining,
       variables: 'tr-1',
-      invalidates: [
-        profileKeys.training('available'),
-        profileKeys.training('progress'),
-        TRAINING_LIST,
-      ],
-      keeps: [profileKeys.info(), FOREIGN],
+      invalidates: [profileKeys.training('available'), profileKeys.training('progress')],
+      keeps: [profileKeys.info(), TRAINING_LIST, FOREIGN],
     }));
 });
 

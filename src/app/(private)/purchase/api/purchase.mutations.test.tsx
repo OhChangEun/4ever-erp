@@ -26,7 +26,11 @@ import {
   useStartPurchaseOrderDelivery,
   useUpdateSupplier,
 } from './purchase.mutations';
-import { inventoryStatsKeys, receivingKeys, shippingKeys } from '@/app/(private)/inventory';
+import {
+  inventoryStatsKeys,
+  receivingKeys,
+  shippingKeys,
+} from '@/app/(private)/inventory/inventory.keys';
 
 // 다른 도메인 키. 구매 mutation 이 여기를 건드리면 10월에 잡은 "재고가 인사 목록 무효화" 버그의 재발이다.
 const SALES_ORDER_LIST: QueryKey = ['sales', 'orders', 'list'];
@@ -65,7 +69,7 @@ const REQUEST_DETAIL = purchaseRequestKeys.detail('pr-001');
 const SUPPLIER_LIST = supplierKeys.list({ page: 0, size: 10 });
 const SUPPLIER_DETAIL = supplierKeys.detail('sup-001');
 const STATS = purchaseStatsKeys.byRole('ALL_ADMIN');
-// 재고 입고 화면의 키. 배송 시작만 입고 대기 목록과 재고 통계를 건드린다(카드 "데모 목록 재고 물류")
+// 재고 화면의 키. 도메인마다 QueryClient 가 달라 구매 mutation 은 하나도 건드리지 않는다(카드 "화면끼리 캐시", domainCache.test.tsx)
 const RECEIVING_PENDING = receivingKeys.pendingList({ page: 0, size: 10 });
 const RECEIVED = receivingKeys.receivedList({ page: 0, size: 10 });
 const INVENTORY_STATS = inventoryStatsKeys.all;
@@ -128,11 +132,19 @@ const cases: Case[] = [
     keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST],
   },
   {
-    // 배송중 발주는 재고 입고 대기 목록과 재고 통계에 든다(의도한 교차). 입고 완료와 출고 목록은 그대로
-    name: '배송 시작 → 발주, 통계 + 재고 입고 대기 목록, 재고 통계',
+    // 배송중 발주는 재고 입고 대기에도 들지만 재고 화면은 들어갈 때 다시 받는다
+    name: '배송 시작 → 발주, 통계',
     run: (qc) => runHook(qc, useStartPurchaseOrderDelivery, 'po-001'),
-    invalidates: [ORDER_LIST, ORDER_DETAIL, STATS, RECEIVING_PENDING, INVENTORY_STATS],
-    keeps: [REQUEST_LIST, SUPPLIER_LIST, SALES_ORDER_LIST, RECEIVED, READY_TO_SHIP],
+    invalidates: [ORDER_LIST, ORDER_DETAIL, STATS],
+    keeps: [
+      REQUEST_LIST,
+      SUPPLIER_LIST,
+      SALES_ORDER_LIST,
+      RECEIVED,
+      READY_TO_SHIP,
+      RECEIVING_PENDING,
+      INVENTORY_STATS,
+    ],
   },
   {
     name: '구매 요청 승인 (발주가 생길 수 있어 발주 목록도)',
@@ -160,10 +172,11 @@ const cases: Case[] = [
     keeps: [ORDER_LIST, REQUEST_LIST, STATS, SALES_ORDER_LIST],
   },
   {
-    name: '공급사 수정',
+    // 발주 상세의 담당자가 공급사에서 온다(목 쓰기 대조, 카드 "화면끼리 캐시"). 어느 발주인지 몰라 발주 상세 전부
+    name: '공급사 수정 → 공급사 목록과 상세, 발주 상세',
     run: (qc) =>
       runHook(qc, useUpdateSupplier, { supplierId: 'sup-001', body: updateSupplierBody }),
-    invalidates: [SUPPLIER_LIST, SUPPLIER_DETAIL],
+    invalidates: [SUPPLIER_LIST, SUPPLIER_DETAIL, ORDER_DETAIL],
     keeps: [ORDER_LIST, REQUEST_LIST, STATS, SALES_ORDER_LIST],
   },
 ];
