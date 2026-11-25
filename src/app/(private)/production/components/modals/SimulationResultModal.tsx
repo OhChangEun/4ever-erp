@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { useIsMutating } from '@tanstack/react-query';
+import { productionMutationKey } from '@/app/(private)/production/api/production.mutations';
 import { type QuotationSimulationData } from '@/app/(private)/production/types/QuotationSimulationApiType';
 import { Button } from '@everp/ui';
 import { Flex } from '@everp/ui';
@@ -54,6 +56,10 @@ export default function SimulationResultModal({
   );
   const failedCount = simulationResults.filter((r) => r.simulation.status === 'FAIL').length;
   const selectedResult = simulationResults.find((r) => r.quotationId === selectedQuotationId);
+
+  // 앞 결과 모달에서 보낸 확정이 아직 가는 중일 수도 있다. 그때 누르면 훅이 알림 없이 거절하므로 버튼을 잠가 보인다
+  const isConfirming =
+    useIsMutating({ mutationKey: productionMutationKey('confirmQuotations') }) > 0;
 
   return (
     <Flex direction="col" gap={4} className="h-full">
@@ -214,7 +220,12 @@ export default function SimulationResultModal({
             {t('simulation.failedExcluded', { count: failedCount })}
           </p>
         )}
-        <Button label={t('simulation.createMps')} onClick={onConfirm} disabled={!hasMpsTarget} />
+        <Button
+          label={t('simulation.createMps')}
+          onClick={onConfirm}
+          disabled={!hasMpsTarget}
+          loading={isConfirming}
+        />
       </Flex>
     </Flex>
   );

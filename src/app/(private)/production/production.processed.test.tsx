@@ -206,6 +206,91 @@ describe('생산 견적: 로그인이 만든 견적의 시뮬레이션은 지금
   });
 });
 
+describe('생산 견적: 늦게 온 확정 성공', () => {
+  const simulate = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole('button', { name: '시뮬레이션' }));
+    return screen.findByRole('button', { name: 'MPS 생성하기' });
+  };
+  const openResult = async () => {
+    server.use(
+      http.get(PRODUCTION_ENDPOINTS.QUOTATIONS, () =>
+        ok({
+          content: ['qt-007', 'qt-013'].map((quotationId) => ({
+            quotationId,
+            quotationNumber: quotationId.toUpperCase(),
+            customerName: '한빛전자',
+            productName: '모터 A',
+            requestDate: '2026-01-10',
+            dueDate: '2026-02-10',
+            availableStatus: 'UNCHECKED',
+          })),
+          page: makePage(0, 10, 2),
+        }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<QuotationTab />);
+    await user.click(await screen.findByRole('checkbox', { name: 'QT-007 선택' }));
+    return { user, create: await simulate(user) };
+  };
+
+  const confirmAndClose = async () => {
+    let release = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const confirmed = vi.fn();
+    server.use(
+      http.post(PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM, async () => {
+        confirmed();
+        await held;
+        return ok(null);
+      }),
+    );
+    const { user, create } = await openResult();
+    await user.click(create);
+    await waitFor(() => expect(confirmed).toHaveBeenCalledOnce());
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    return { user, release: () => release(), confirmed };
+  };
+
+  it('그 사이 연 다른 견적의 결과 모달은 닫지 않는다', async () => {
+    const { user, release } = await confirmAndClose();
+    await user.click(screen.getByRole('checkbox', { name: 'QT-007 선택' }));
+    await user.click(screen.getByRole('checkbox', { name: 'QT-013 선택' }));
+    // 앞 확정이 가는 중이면 잠긴다(훅이 두 번째 요청을 알림 없이 거절한다)
+    expect(await simulate(user)).toBeDisabled();
+    release();
+    expect(await screen.findByText('제안납기를 확정하였습니다.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'MPS 생성하기' })).toBeEnabled());
+  });
+
+  it('그 사이 같은 견적의 결과를 다시 열었으면 닫는다(확정한 견적을 또 보내지 않게)', async () => {
+    const { user, release, confirmed } = await confirmAndClose();
+    await simulate(user);
+    release();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(confirmed).toHaveBeenCalledOnce();
+  });
+
+  it('성공하면 자기 결과 모달을 닫는다', async () => {
+    server.use(http.post(PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM, () => ok(null)));
+    const { user, create } = await openResult();
+    await user.click(create);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('실패하면 결과 모달을 닫지 않고 다시 누를 수 있다', async () => {
+    server.use(http.post(PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM, () => error('실패')));
+    const { user, create } = await openResult();
+    await user.click(create);
+    expect(await screen.findByText(/제안납기를 확정하는데 실패했습니다/)).toBeInTheDocument();
+    expect(create).toBeInTheDocument();
+    expect(create).toBeEnabled();
+  });
+});
+
 describe('계획 주문: 상태가 바뀐 주문은 선택에서 빠진다', () => {
   const row = (mrpRunId: string, quotationNumber: string, status: string) => ({
     mrpRunId,

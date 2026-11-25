@@ -3,7 +3,6 @@ import {
   type EmployeeUpdateRequest,
 } from '@/app/(private)/hrm/types/HrmEmployeesApiType';
 import { type ModalProps } from '@/app/components/common/modal/types';
-import { useModal } from '@/app/components/common/modal/useModal';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -19,14 +18,15 @@ import { Button } from '@everp/ui';
 import { toKeyValueItems } from '@/lib/api/options';
 interface EmployeeEditModalProps extends ModalProps {
   employee: EmployeeData;
+  /** 저장이 끝난 뒤. 이 모달은 스스로 닫는다 */
+  onSaved: () => void;
 }
 
-export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
+export function EmployeeEditModal({ employee, onSaved, onClose }: EmployeeEditModalProps) {
   const t = useTranslations('hrm');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedPosition, setSelectedPosition] = useState('');
 
-  const { removeAllModals } = useModal();
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
@@ -47,7 +47,8 @@ export function EmployeeEditModal({ employee }: EmployeeEditModalProps) {
   // mutation 설정
   const mutation = useUpdateEmployee({
     onSuccess: () => {
-      removeAllModals();
+      onClose();
+      onSaved();
       toast.success(t('employees.updated'));
     },
     onError: (error) => toast.error(t('employees.updateError', { message: errorMessageOf(error) })),

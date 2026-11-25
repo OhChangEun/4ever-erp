@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
-import { HRM_BASE_PATH } from './api/hrm.endpoints';
+import { HRM_BASE_PATH, HRM_ENDPOINTS } from './api/hrm.endpoints';
+import DepartmentsTab from './components/tabs/subTab/employeeTab/DepartmentsTab';
+import EmployeesTab from './components/tabs/subTab/employeeTab/EmployeesTab';
 import AttendanceTab from './components/tabs/subTab/attendanceTab/AttendanceTab';
 import AvailableProgramTab from './components/tabs/subTab/trainingTab/AvailableProgramTab';
 import AddEmployeeTrainingModal from './components/modals/AddEmployeeTrainingModal';
@@ -114,5 +116,99 @@ describe('인사 화면 결함', () => {
     } finally {
       search.value = new URLSearchParams();
     }
+  });
+});
+
+/**
+ * 저장 요청이 가는 중에 모달을 닫고 다른 모달을 열 수 있다(Esc 는 막지 않는다).
+ * 늦게 온 성공은 자기가 연 모달만 닫아야 한다. 예전엔 removeAllModals 라 새로 연 모달과 입력까지 사라졌다.
+ */
+describe('늦게 온 저장 성공', () => {
+  const hold = (method: 'put' | 'patch', url: string) => {
+    let release = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const seen = vi.fn();
+    server.use(
+      http[method](url, async () => {
+        seen();
+        await held;
+        return ok();
+      }),
+    );
+    return { release: () => release(), seen };
+  };
+  const pick = async (
+    user: ReturnType<typeof userEvent.setup>,
+    dialog: HTMLElement,
+    at: number,
+  ) => {
+    await user.click(within(dialog).getAllByRole('combobox')[at]);
+    await user.click((await screen.findAllByRole('option'))[0]);
+  };
+  const openEmployeeEdit = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click((await screen.findAllByRole('button', { name: '상세보기' }))[0]);
+    const detail = await screen.findByRole('dialog', { name: '직원 상세보기' });
+    await user.click(within(detail).getByRole('button', { name: '수정' }));
+    const edit = await screen.findByRole('dialog', { name: '직원정보 수정' });
+    await waitFor(() => expect(within(edit).getAllByRole('combobox')).toHaveLength(1));
+    await pick(user, edit, 0);
+    await waitFor(() => expect(within(edit).getAllByRole('combobox')).toHaveLength(2));
+    await pick(user, edit, 1);
+    await user.click(within(edit).getByRole('button', { name: '저장' }));
+  };
+
+  it('직원 수정: 바로 성공하면 수정과 그 아래 상세(옛 값)를 같이 닫는다', async () => {
+    const { release, seen } = hold('patch', HRM_ENDPOINTS.EMPLOYEE_DETAIL(':employeeId'));
+    const user = userEvent.setup();
+    renderWithProviders(<EmployeesTab />);
+    await openEmployeeEdit(user);
+    await waitFor(() => expect(seen).toHaveBeenCalledOnce());
+    release();
+    await waitFor(() => expect(screen.queryAllByRole('dialog', { hidden: true })).toHaveLength(0));
+  });
+
+  it('직원 수정: 늦게 성공해도 그 사이 연 등록 모달과 입력은 남는다', async () => {
+    const { release, seen } = hold('patch', HRM_ENDPOINTS.EMPLOYEE_DETAIL(':employeeId'));
+    const user = userEvent.setup();
+    renderWithProviders(<EmployeesTab />);
+    await openEmployeeEdit(user);
+    await waitFor(() => expect(seen).toHaveBeenCalledOnce());
+
+    await user.keyboard('{Escape}');
+    await screen.findByRole('dialog', { name: '직원 상세보기' });
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: '신규 직원 등록' }));
+    const register = await screen.findByRole('dialog', { name: '신규 직원 등록' });
+    const field = within(register).getAllByRole('textbox')[0];
+    await user.type(field, '홍길동');
+
+    release();
+    expect(await screen.findByText('직원 정보가 수정되었습니다.')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '신규 직원 등록' })).toBeInTheDocument();
+    expect(field).toHaveValue('홍길동');
+  });
+
+  it('부서 수정: 늦게 성공해도 그 사이 연 상세는 남는다', async () => {
+    const { release, seen } = hold('patch', HRM_ENDPOINTS.DEPARTMENTS_DETAIL(':departmentId'));
+    const user = userEvent.setup();
+    renderWithProviders(<DepartmentsTab />);
+    await user.click((await screen.findAllByRole('button', { name: '상세' }))[0]);
+    const detail = await screen.findByRole('dialog', { name: '부서 상세보기' });
+    await user.click(within(detail).getByRole('button', { name: '수정' }));
+    const edit = await screen.findByRole('dialog', { name: '부서정보 수정' });
+    expect(screen.queryAllByRole('dialog', { hidden: true })).toHaveLength(1);
+    await user.click(within(edit).getByRole('button', { name: '저장' }));
+    await waitFor(() => expect(seen).toHaveBeenCalledOnce());
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(screen.getAllByRole('button', { name: '상세' })[0]);
+    await screen.findByRole('dialog', { name: '부서 상세보기' });
+    release();
+    expect(await screen.findByText('부서 정보가 수정되었습니다.')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '부서 상세보기' })).toBeInTheDocument();
   });
 });
