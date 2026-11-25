@@ -35,6 +35,12 @@ export const financeMonthlyPoints = (today = todayKey()) => {
  * 월은 이번 달, 분기는 최근 3달 합, 연은 12달 합. 주는 매출이면 이번 주(월요일~오늘) 주문 합(영업 통계와 같다),
  * 매입과 순이익은 월의 7/30
  */
+const SERIES = {
+  sales: 'total_sales',
+  purchases: 'total_purchases',
+  netProfit: 'net_profit',
+} as const;
+
 export const monthlyMetric = (
   key: 'sales' | 'purchases' | 'netProfit',
   today = todayKey(),
@@ -51,6 +57,7 @@ export const monthlyMetric = (
         ).amount
       : round((month * 7) / 30);
   return {
+    series: SERIES[key],
     week,
     month,
     quarter: sum(values.slice(-3)),

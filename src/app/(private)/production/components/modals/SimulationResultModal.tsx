@@ -52,6 +52,7 @@ export default function SimulationResultModal({
   const hasMpsTarget = simulationResults.some(
     (r) => r.simulation.shortageQuantity > 0 && r.simulation.status === 'PASS',
   );
+  const failedCount = simulationResults.filter((r) => r.simulation.status === 'FAIL').length;
   const selectedResult = simulationResults.find((r) => r.quotationId === selectedQuotationId);
 
   return (
@@ -207,7 +208,12 @@ export default function SimulationResultModal({
       )}
 
       {/* 액션 버튼 */}
-      <Flex justify="end" gap={3} className="pt-4">
+      <Flex justify="end" align="center" gap={3} className="pt-4">
+        {hasMpsTarget && failedCount > 0 && (
+          <p className="text-sm text-red-600">
+            {t('simulation.failedExcluded', { count: failedCount })}
+          </p>
+        )}
         <Button label={t('simulation.createMps')} onClick={onConfirm} disabled={!hasMpsTarget} />
       </Flex>
     </Flex>

@@ -4,15 +4,15 @@ import type { InvoiceAction } from '@/app/(private)/finance/finance.mutations';
 import { canProcessInvoice } from '@/app/(private)/finance/finance.service';
 import { canProcessQuote } from '@/app/(private)/sales/sales.service';
 import type { DashboardWorkflowRes } from '@/app/(private)/dashboard/types/DashboardWorkflowType';
-import { HEADCOUNT, attendanceDays } from './attendanceSummary.handlers';
+import { attendanceDays } from './attendanceSummary.handlers';
 import { apRowsOf, arRowsOf } from './finance.handlers';
 import { monthlyMetric } from './financeAnalytics.handlers';
-import { leavesOf, timeRecordsOf } from './hrm.handlers';
+import { headcountOf, leavesOf, timeRecordsOf } from './hrm.handlers';
 import { readyRows, receivingRowsOf } from './inventory.handlers';
 import { mesListOf, productionQuotesOf } from './production.handlers';
 import { purchaseOrdersOf, requisitionsOf } from './purchase.handlers';
 import { ordersOf, quotesOf } from './sales.handlers';
-import { ok, error, shouldError, level, statResponse } from './utils';
+import { ok, error, shouldError, statResponse } from './utils';
 
 /**
  * 역할 앞 글자(MM_ADMIN 의 MM)별 워크플로우 탭 코드. 게이트웨이 DashboardServiceImpl.java:56 의 switch 와 같은 코드, 같은 순서다
@@ -245,13 +245,13 @@ const workflowTab = (request: Request, role: string, tabCode: string) => {
 export const dashboardHandlers = [
   http.get(DASHBOARD_ENDPOINTS.STATS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load dashboard stats', 500);
-    // 금액은 재무 월별 손익(재무 화면과 같은 값), 직원 수는 근태 집계의 인원
+    // 금액은 재무 월별 손익(재무 화면과 같은 값), 직원 수는 인사 통계와 같은 지표
     return ok(
       statResponse({
         total_sales: monthlyMetric('sales'),
         total_purchases: monthlyMetric('purchases'),
         net_profit: monthlyMetric('netProfit'),
-        total_employees: level(HEADCOUNT),
+        total_employees: headcountOf(request),
       }),
     );
   }),

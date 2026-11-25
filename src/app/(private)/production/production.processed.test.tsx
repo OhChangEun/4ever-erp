@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { http } from 'msw';
+import { http, type PathParams } from 'msw';
 import { error, makePage, ok } from '@/mocks/utils';
 import { server } from '@/test/msw-server';
 import { renderWithProviders } from '@/test/render';
@@ -317,6 +317,58 @@ describe('생산 탭 리뷰 반영', () => {
     await user.click(screen.getByRole('checkbox', { name: 'QT-013 선택' }));
     release();
     await user.click(await screen.findByRole('button', { name: 'MPS 생성하기' }));
+
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    expect(bodies[0]).toEqual({ quotationIds: ['qt-007'] });
+  });
+
+  it('생산 불가 견적은 확정에서 빼고 몇 건이 빠지는지 알린다', async () => {
+    useQuotations();
+    const bodies: unknown[] = [];
+    const row = (quotationId: string, status: string) => ({
+      quotationId,
+      quotationNumber: quotationId.toUpperCase(),
+      customerCompanyId: 'cus-001',
+      customerCompanyName: '한빛전자',
+      productId: 'item-1001',
+      productName: '모터 A',
+      requestQuantity: 100,
+      requestDueDate: Date.UTC(2026, 11, 24, 12),
+      simulation: {
+        status,
+        availableQuantity: 10,
+        shortageQuantity: 90,
+        shortageReason: status === 'FAIL' ? 'BOM이 등록되지 않은 품목' : '',
+        suggestedDueDate: '2027-01-07',
+        generatedAt: '2026-11-25T01:00:00Z',
+      },
+    });
+    server.use(
+      http.post<PathParams, { quotationIds: string[] }>(
+        PRODUCTION_ENDPOINTS.QUOTATION_SIMULATE,
+        async ({ request }) => {
+          // 화면은 견적마다 한 번씩 보낸다
+          const [id] = (await request.json()).quotationIds;
+          return ok({
+            page: makePage(0, 1, 1),
+            content: [row(id, id === 'qt-013' ? 'FAIL' : 'PASS')],
+          });
+        },
+      ),
+      http.post(PRODUCTION_ENDPOINTS.QUOTATION_CONFIRM, async ({ request }) => {
+        bodies.push(await request.json());
+        return ok(null);
+      }),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<QuotationTab />);
+
+    await user.click(await screen.findByRole('checkbox', { name: 'QT-007 선택' }));
+    await user.click(screen.getByRole('checkbox', { name: 'QT-013 선택' }));
+    await user.click(screen.getByRole('button', { name: '시뮬레이션' }));
+    const create = await screen.findByRole('button', { name: 'MPS 생성하기' });
+    expect(screen.getByText('생산 불가 1건은 MPS를 만들지 않습니다.')).toBeInTheDocument();
+    await user.click(create);
 
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toEqual({ quotationIds: ['qt-007'] });

@@ -8,7 +8,8 @@ export const TREND_LENGTH = { week: 7, month: 5, quarter: 13, year: 12 } as cons
 
 type Period = keyof typeof TREND_LENGTH;
 /** 지표의 기간별 값 */
-export type Metric = Record<Period, number>;
+/** series 는 화면마다 이름이 다른 같은 지표(매출, 직원 수)의 공통 이름. 증감률과 추이를 이 이름으로 정한다. 없으면 지표 이름 */
+export type Metric = Record<Period, number> & { series?: string };
 
 /** 글자로 정해지는 0 이상 1 미만의 수. 같은 글자는 늘 같은 값이다(난수 대신) */
 export const hashUnit = (text: string) => {
@@ -58,7 +59,7 @@ export const statResponse = (data: Record<string, Metric>) => {
     Object.fromEntries(
       Object.entries(data).map(([name, metric]) => [
         name,
-        periodStat(period, name, metric[period]),
+        periodStat(period, metric.series ?? name, metric[period]),
       ]),
     );
   return { week: at('week'), month: at('month'), quarter: at('quarter'), year: at('year') };
