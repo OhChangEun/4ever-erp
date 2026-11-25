@@ -160,7 +160,7 @@ src/app/api/auth/   login(GET 302, POST 데모), callback, me, logout(IdP 로그
 
   알림(사이드바, 2026-11-12 알림 UI 연결 카드):
 
-  1. 알림 버튼은 사이드바의 프로필 줄 위에 있다(`src/app/components/header/Notification/NotificationBell.tsx:28`). 사이드바는 도메인 레이아웃의 Provider 밖이라 `(private)/layout.tsx:22` 가 사이드바만 감싸는 QueryClient 를 하나 더 만든다(같은 `createQueryClient`). 화면을 옮겨도 남는다. 알림 키는 사이드바만 쓴다. `/profile` 은 레이아웃이 달라 그 화면의 클라이언트를 쓴다.
+  1. 알림 버튼은 사이드바의 프로필 줄 위에 있다(`src/app/components/header/Notification/NotificationBell.tsx:28`). 사이드바는 도메인 레이아웃의 Provider 밖이라 `(private)/layout.tsx:25` 가 사이드바만 감싸는 QueryClient 를 하나 더 만든다(같은 `createQueryClient`). 사이드바가 여는 모달(거래처 프로필)을 위해 `ModalProvider` 도 하나 둔다. 화면을 옮겨도 남는다. 알림 키는 사이드바만 쓴다. `/profile` 은 레이아웃이 달라 그 화면의 클라이언트를 쓴다.
   2. 키는 `notificationKeys`(`src/app/components/header/header.keys.ts:2`). 목록 `list(page)` 와 안 읽은 수 `unreadCount()` 가 `['notifications']` 아래에 있다. 안 읽은 수는 `count?status=UNREAD` 로 받는다. 읽음 처리는 둘을 같이 무효화한다.
   3. 새 알림: `NEXT_PUBLIC_SSE_ENABLED=true` 면 SSE 로 붙고(`useNotificationSSE.ts:27`) `alarm` 이벤트와 (다시) 연결될 때마다 `notificationKeys.all` 만 무효화한다. 꺼져 있거나 끊겨 있으면 뱃지와 열린 목록이 60초마다 다시 받는다(`NotificationBell.tsx:39`). 끊기면 60초 뒤 다시 붙고 401 은 다시 붙지 않는다. 실패는 화면에 알리지 않는다.
   4. 안 읽은 수가 늘면 버튼 옆 `role=status` 가 한 번 알린다(SSE 든 폴링이든 같은 경로).
@@ -199,28 +199,31 @@ import 방향: `components/common`, `lib` ← `(private)/<domain>` ← `page.tsx
 
 타입 단언(`as`)과 non-null(`!`)은 0건이고 ESLint error 다(2026-11-10 타입 1차). 남긴 예외 1곳과 대신 쓰는 방식:
 
-1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:91`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
+1. 모달 열기 `src/app/components/common/modal/ModalProvider.tsx:94`. `Omit<P, 'id' | 'onClose'>` 에 id 와 onClose 를 더하면 P 지만 제네릭 P 에서 TS 가 증명하지 못한다. 호출부 37곳의 리터럴 타입 추론을 지키려고 단언 한 줄을 남기고 이유를 적었다.
 2. `Table<T>` 는 열 key 가 행 필드가 아닐 수 있어(`actions` 같은 가상 열) `keyof T` 로 묶지 않았다. 값은 `Reflect.get` 으로 꺼낸다 (`packages/ui/src/Table.tsx:76`).
 3. 서버 응답을 믿는 자리는 타입 가드로 읽는다. 로그인과 세션 `readUserResponse`(`src/app/(public)/callback/userInfoType.ts`), FormData `formText`(`src/lib/formData.ts`). `ApiResponse` 판별 유니온과 zod 는 타입 2차 카드.
 
 모달과 팝업 층(2026-11-10 접근성 2):
 
-1. 모달 틀은 Radix Dialog(`src/app/components/common/modal/ModalContainer.tsx`). 열릴 때 포커스는 모달이 `data-autofocus` 로 표시한 요소, 없으면 첫 tabbable(닫기 버튼)로 간다(`:60`. React 의 `autoFocus` 는 겹친 모달에서 안 먹어 쓰지 않는다). 포커스 가두기, Esc(맨 위 모달만), 닫힌 뒤 연 요소로 포커스 복귀, 뒤 화면 aria-hidden 을 맡긴다. 배경 클릭으로는 닫지 않는다. 틀은 `next/dynamic` 으로 첫 로드에서 빼고 화면이 한가할 때 미리 받는다(`ModalProvider.tsx:18`, `:51`).
+1. 모달 틀은 Radix Dialog(`src/app/components/common/modal/ModalContainer.tsx`). 열릴 때 포커스는 모달이 `data-autofocus` 로 표시한 요소, 없으면 첫 tabbable(닫기 버튼)로 간다(`:60`. React 의 `autoFocus` 는 겹친 모달에서 안 먹어 쓰지 않는다). 포커스 가두기, Esc(맨 위 모달만), 뒤 화면 aria-hidden 을 맡긴다. 닫힌 뒤 포커스는 연 요소, 그 요소가 있던 모달, 아래 모달의 후보 순서로 실제로 포커스가 가는 첫 요소로 간다(`:73`, 후보는 `ModalProvider.tsx:110`). 상세에서 수정으로 바꾸면 상세의 버튼이 사라지기 때문이다. 폭은 화면에서 32px 뺀 값을 넘지 않는다(`:86`). 배경 클릭으로는 닫지 않는다. 틀은 `next/dynamic` 으로 첫 로드에서 빼고 화면이 한가할 때 미리 받는다(`ModalProvider.tsx:20`, `:57`).
 2. Radix 모달은 열리면 body 에 `pointer-events: none` 을 건다. 그래서 드롭다운 목록, 달력 같은 팝업은 `FloatingPortal` 대신 `PopoverPortal`(`src/app/components/common/PopoverPortal.tsx`)로 붙인다. 모달 안이면 모달 틀 안에, 밖이면 body 에 붙는다. 새 팝업 컴포넌트도 이것을 쓴다.
 3. 모달 안에 팝업이나 충돌 안내(`role="alertdialog"`)가 떠 있으면 모달은 Esc 를 넘긴다. 팝업은 스스로 Esc 를 받아 닫아야 한다(`src/app/hooks/useCloseOnEscape.ts`).
 4. `Dropdown` 은 APG 의 select-only combobox(2026-11-10 접근성 3). 버튼이 combobox, 목록이 listbox, 포커스는 버튼에 남고 가리킨 항목은 `aria-activedescendant`. 키보드와 aria 는 floating-ui interaction 훅(`src/app/components/common/Dropdown.tsx:71`). Esc 는 `useDismiss` 가 받는다. Radix Select 를 안 쓴 이유는 `ai/decisions.md` 접근성 3 행.
-5. 확인 창은 `ConfirmModal`(`src/app/components/common/modal/ConfirmModal.tsx:25`) 하나다. 브라우저 `confirm()` 은 쓰지 않는다(2026-11-12, 화면 코드 0건). `openModal(ConfirmModal, { title: 질문 문장, onConfirm })` 로 열고, `onConfirm` 에는 도메인 훅의 `mutateAsync` 를 넘긴다. Promise 가 끝날 때까지 버튼을 잠그고 성공하면 닫고 실패하면 열어 둔다. 실패 문구는 훅의 `onError` 토스트가 보인다. 중복 제출은 세 겹으로 막는다: 확인 버튼 잠금, 같은 버튼에서 같은 모달을 또 열면 무시(`ModalProvider.tsx:106`, 모달 틀 청크가 오기 전 Enter 두 번), 진행 중인 `mutateAsync` 재호출 거절(`src/lib/query/useInvalidatingMutation.ts:200`). `reason` 을 주면 필수 사유 칸이 생긴다(구매 요청 반려 `comment`, 발주서 반려 `reason`. 휴가 반려는 게이트웨이가 본문을 받지 않아 없다).
+5. 확인 창은 `ConfirmModal`(`src/app/components/common/modal/ConfirmModal.tsx:25`) 하나다. 브라우저 `confirm()` 은 쓰지 않는다(2026-11-12, 화면 코드 0건). `openModal(ConfirmModal, { title: 질문 문장, onConfirm })` 로 열고, `onConfirm` 에는 도메인 훅의 `mutateAsync` 를 넘긴다. Promise 가 끝날 때까지 버튼을 잠그고 성공하면 닫고 실패하면 열어 둔다. 실패 문구는 훅의 `onError` 토스트가 보인다. 중복 제출은 세 겹으로 막는다: 확인 버튼 잠금, 같은 버튼에서 같은 모달을 또 열면 무시(`ModalProvider.tsx:117`, 모달 틀 청크가 오기 전 Enter 두 번), 진행 중인 `mutateAsync` 재호출 거절(`src/lib/query/useInvalidatingMutation.ts:200`). `reason` 을 주면 필수 사유 칸이 생긴다(구매 요청 반려 `comment`, 발주서 반려 `reason`. 휴가 반려는 게이트웨이가 본문을 받지 않아 없다).
 6. 사이드바 알림 팝오버는 예외로 portal 을 쓰지 않는다. 알림 버튼 바로 뒤 DOM 에 그리고 CSS 로 사이드바 오른쪽에 붙인다(`src/app/components/header/Notification/NotificationBell.tsx:125`). Tab 순서가 버튼, 목록, 프로필로 그대로 이어진다. floating-ui 의 `FloatingFocusManager` 를 쓰면 드롭다운이 있는 화면 7곳의 첫 로드가 2.9KB 늘었다. 폭은 `max-w` 로 화면 안에 묶는다(화면 폭에서 사이드바 224, 간격 12, 여백 8 을 뺀 값). 모달이 열려 있으면 사이드바 전체가 눌리지 않아 모달 안 팝업 문제(2번)는 생기지 않는다.
+7. 모달은 자기 `onClose` 로 닫는다(2026-11-25). 같이 닫을 다른 모달이 있으면 `openModal` 이 준 id 를 `closeModal` 에 넘긴다(`EmployeesTab.tsx`, `DepartmentsTab.tsx`). 모두 닫는 함수는 없다. 요청 중에 닫고 다른 모달을 열 수 있어, 늦게 온 성공이 남의 모달을 닫으면 입력이 사라진다.
+8. 화면이 `fixed inset-0` 로 직접 그리는 창은 남은 것이 `ModalStatusBox`(로딩, 오류)와 쓰는 곳 없는 `packages/ui` 의 `Modal` 뿐이다. 새 창은 `openModal` 로 연다. 여는 쪽과 값을 계속 주고받으면 처음 값과 바뀐 값을 알리는 함수를 넘긴다(`LeaveRequestModal.tsx`).
+9. Context 값에는 함수 둘만 있고 바뀌지 않는다(`ModalProvider.tsx:136`). 모달을 여닫아도 `useModal` 을 쓰는 화면은 다시 그려지지 않는다. 목록을 Context 에 넣지 않는다.
 
 화면 틀과 스크롤(2026-11-12 화면 아래가 잘리는 곳):
 
-1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:37` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
+1. 문서(`html`)는 스크롤하지 않는다. 비공개 화면의 바깥 스크롤 칸은 `src/app/(private)/layout.tsx:40` 의 `<main className="h-screen overflow-auto">` 다. 탭이 없는 화면(대시보드, 창고, 안전재고)은 이 칸에서 스크롤된다. `/profile` 은 레이아웃이 달라 문서가 스크롤된다.
 2. 탭이 있는 화면(영업, 생산, 구매, 재고, 재무, 인사)은 화면 높이를 꽉 채우고 `TabNavigation` 의 내용 칸 하나가 스크롤 칸이다(`src/app/components/common/TabNavigation.tsx:78`, `overflow-auto`). 제목과 탭, 통계 띠는 고정이다.
 3. 목록 탭은 최상위가 `h-full` 로 내용 칸 높이를 받고, 표가 `flex-1 min-h-0` 으로 남은 높이에 맞춰 줄어 자기 안에서 스크롤한다(`packages/ui/src/Table.tsx:92`, 표 머리 고정, 가로 스크롤도 여기). 그래서 내용 칸은 넘치지 않고 스크롤바가 둘 생기지 않는다. 행 안에 버튼이나 링크가 없는 표는 키보드로 이 칸에 못 가므로 `scrollLabel` 을 넘겨 이름 있는 region(`tabIndex=0`)으로 만든다(MES 표, 남은 접근성과 디자인 카드). 이 칸은 부모 `overflow-hidden` 을 꽉 채워 링을 안쪽(`outline-offset: -2px`)에 그린다.
 4. 표가 아닌 긴 내용(차트, 카드 격자, 폼)은 줄지 않고 내용 칸에서 스크롤된다. 탭 컴포넌트가 따로 `overflow-auto` 를 달지 않는다(재무 현황에 있던 것은 지웠다). 내용 칸과 그 조상에 `overflow-hidden` 을 다시 넣으면 넘친 내용을 볼 방법이 없어진다.
 5. 내용 칸은 `role="region"`, 이름은 활성 탭 이름, `tabIndex={0}` 이다(`?tab=` 이 없는 값이면 내용이 없어 이름과 `tabIndex` 를 빼서 빈 Tab 정지가 안 생긴다). 안에 포커스 받을 요소가 없는 탭도 키보드(방향키, PageDown, End)로 스크롤된다. 탭 화면마다 Tab 정지가 하나 는다.
 6. 하위 탭(`SubNavigation`, 인사와 생산 MRP)은 2단 탭 줄이 없다. 활성 화면에 세그먼트(`TabButtons`)를 `tabButtons` 로 넘기고 화면이 자기 툴바 왼쪽에 둔다(`src/app/components/common/SubNavigation.tsx:37`). 고른 탭은 `?subTab=`, 모르는 id 는 첫 탭. 하위 화면은 따로 스크롤 칸을 두지 않는다. 넘치면 세그먼트 줄과 같이 2번 칸에서 스크롤된다.
-7. 모달은 본문이 스크롤 칸이다(`src/app/components/common/modal/ModalContainer.tsx:101`, 높이는 화면의 90% 까지).
+7. 모달은 본문이 스크롤 칸이다(`src/app/components/common/modal/ModalContainer.tsx:105`, 높이는 화면의 90% 까지).
 8. 회귀 테스트는 `e2e/clipped-content.spec.ts`. 비공개 화면과 탭, 하위 탭 30개, 화면 안 전환 8개, 모달과 팝업 34개를 1280x720 과 1512x772 에서 열어 잘린 곳(`e2e/clipped.ts` 의 `findClipped`)과 이중 스크롤이 0 인지 본다. 허용 목록은 없다. 새 탭이나 모달을 만들면 이 스펙의 목록에 더한다.
 
 ## 7. 환경 변수
