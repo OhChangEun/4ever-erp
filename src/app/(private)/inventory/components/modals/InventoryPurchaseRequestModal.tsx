@@ -64,7 +64,7 @@ export default function InventoryPurchaseRequestModal({
   const errorMessageOf = useErrorMessage();
   const toast = useToast();
 
-  // 무효화(부족 재고 목록, 구매 요청 목록, 구매 통계)는 inventory.mutations.ts 한 곳.
+  // 무효화(부족 재고 목록)는 inventory.mutations.ts 한 곳.
   const { mutate: registerStockPurchaseReq, isPending } = useRequestPurchaseForLowStock({
     onSuccess: () => {
       toast.success(t('purchaseRequest.success'));

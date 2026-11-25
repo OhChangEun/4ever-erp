@@ -32,7 +32,7 @@ const InventoryList = () => {
   const t = useTranslations('inventory');
   const { hasCategoryLabel, categoryLabel, warehouseTypeLabel } = useInventoryLabels();
   const { openModal } = useModal();
-  const [searchType, setSearchType] = useState('warehouse');
+  const [searchType, setSearchType] = useState<string>(INVENTORY_SEARCH_KEYWORD_OPTIONS[0]);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 

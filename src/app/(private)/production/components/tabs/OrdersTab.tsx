@@ -51,7 +51,10 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
     fetchMrpAvailableStatusDropdown,
   );
 
-  const [selectedQuote, setSelectedQuote] = useState('');
+  const [pickedQuote, setSelectedQuote] = useState('');
+  // 첫 옵션이 전체(ALL)면 견적을 보내지 않아 옵션을 기다리지 않고 목록을 한 번 받는다. 실제 견적이면 Dropdown 이 그 값을 골라
+  // 예전처럼 다시 받고 첫 쪽으로 간다(서버는 견적이 없어도 된다, PpController.java:764. ALL 과 같은 결과인지는 verified=false)
+  const selectedQuote = pickedQuote || (mrpQuotationOptions[0]?.key === 'ALL' ? 'ALL' : '');
   const [selectedStockStatus, setSelectedStockStatus] = useState('');
 
   const [selectedRequirements, setSelectedRequirements] = useState<string[]>([]);
@@ -61,12 +64,12 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
 
   const queryParams = useMemo(
     (): FetchMrpOrdersListParams => ({
-      quotationId: selectedQuote,
+      quotationId: pickedQuote || undefined,
       availableStatusCode: selectedStockStatus,
       page: currentPage - 1,
       size: pageSize,
     }),
-    [selectedQuote, selectedStockStatus, currentPage],
+    [pickedQuote, selectedStockStatus, currentPage],
   );
 
   const {
@@ -230,11 +233,11 @@ export default function OrdersTab({ tabButtons }: OrdersTabProps) {
             placeholder={t('common.selectQuote')}
             items={optionLabels(mrpQuotationOptions, { ALL: t('common.allQuotes') })}
             value={selectedQuote}
+            autoSelectFirst
             onChange={(quote: string) => {
               setSelectedQuote(quote);
               setCurrentPage(1);
             }}
-            autoSelectFirst
           />
           <Dropdown
             placeholder={t('common.allStatuses')}

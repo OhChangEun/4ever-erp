@@ -43,7 +43,7 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
 
   it('성공하면 발주 번호가 표에 보인다', async () => {
     renderWithProviders(<PurchaseOrderListTab />);
-    // 옵션 로드 뒤 쿼리 키가 한 번 더 바뀌므로 로딩이 완전히 끝난 상태를 기다린다.
+    // 로딩이 완전히 끝난 상태를 기다린다.
     await waitFor(
       () => {
         // 로딩 표시(TableStatusBox). 토스트 알림 영역도 status 라 글자로 특정한다
@@ -67,8 +67,7 @@ describe('발주서 목록: 실패는 오류로 보이고 빈 목록으로 보�
 
       renderWithProviders(<PurchaseOrderListTab />);
 
-      // 옵션 드롭다운이 로드되면 SearchBar 가 검색 타입을 바꿔 쿼리 키가 한 번 더 바뀐다.
-      // 같은 DOM 노드가 로딩 → 오류로 다시 바뀌므로, 두 문구가 동시에 맞을 때까지 기다린다.
+      // 같은 DOM 노드가 로딩 → 오류로 바뀌므로, 두 문구가 동시에 맞을 때까지 기다린다.
       await waitFor(
         () => {
           const alert = screen.getByRole('alert');
@@ -130,10 +129,10 @@ describe('발주 승인 중복 제출 방지', () => {
 
     const user = userEvent.setup();
     renderWithProviders(<PurchaseOrderListTab />);
-    // 옵션 로드 뒤 검색 타입이 바뀌며 목록을 한 번 더 가져온다(두 번째 요청). 그 뒤의 표를 잡아야 한다.
+    // 목록은 한 번 받는다(카드 "화면끼리 캐시"). 로딩이 끝난 표를 잡아야 한다.
     await waitFor(
       () => {
-        expect(listCalls).toBeGreaterThanOrEqual(2);
+        expect(listCalls).toBe(1);
         expect(screen.queryByText(/불러오는 중입니다/)).not.toBeInTheDocument();
         expect(screen.getByRole('button', { name: '승인' })).toBeEnabled();
       },
@@ -203,7 +202,7 @@ describe('발주 확인 창과 반려 사유', () => {
     renderWithProviders(<PurchaseOrderListTab />, { locale });
     await waitFor(
       () => {
-        expect(listCalls).toBeGreaterThanOrEqual(2);
+        expect(listCalls).toBe(1);
         expect(screen.getByRole('button', { name: button })).toBeEnabled();
       },
       { timeout: 3000 },
@@ -320,7 +319,7 @@ describe('발주 목록 페이지 전환', () => {
     );
     const user = userEvent.setup();
     renderWithProviders(<PurchaseOrderListTab />);
-    // 옵션이 로드되면 검색 타입이 바뀌어 키가 한 번 더 바뀐다. 그것까지 끝난 안정 상태를 기다린다
+    // 검색어가 없으면 검색 타입은 키에 없어 목록은 한 번 받는다. 그것이 끝난 상태를 기다린다
     await waitFor(
       () => {
         expect(screen.queryByText(/불러오는 중입니다/)).not.toBeInTheDocument();

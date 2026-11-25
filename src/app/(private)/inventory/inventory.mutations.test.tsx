@@ -16,9 +16,9 @@ import {
   stockMovementKeys,
   warehouseInfoKeys,
 } from './inventory.keys';
-import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock';
-import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase';
-import { salesOrderKeys } from '@/app/(private)/sales';
+import { lowStockKeys, lowStockStatsKeys } from '@/app/(private)/low-stock/lowStock.keys';
+import { purchaseRequestKeys, purchaseStatsKeys } from '@/app/(private)/purchase/api/purchase.keys';
+import { salesOrderKeys } from '@/app/(private)/sales/sales.keys';
 import type { InventoryDetailResponse } from './types/InventoryDetailModalType';
 import type { InventoryResponse } from './types/InventoryListType';
 import type { Page } from '@/app/types/Page';
@@ -37,21 +37,23 @@ const LOW_STOCK_LIST = lowStockKeys.list({ page: 0, size: 10 });
 const WAREHOUSE_INFO = warehouseInfoKeys.list({ warehouseId: 'wh-1' });
 
 describe('재고 mutation 훅 무효화 범위', () => {
-  it('부족 재고 구매 요청 → 부족 재고 페이지 목록과 재고 탭 위젯 + 구매 요청 목록, 구매 통계', () =>
+  // 안전재고 화면에서만 열린다. 그 화면이 읽는 키는 목록 하나이고 나머지 화면은 들어갈 때 다시 받는다(카드 "화면끼리 캐시")
+  it('부족 재고 구매 요청 → 부족 재고 페이지 목록만', () =>
     expectMatrix({
       name: '',
       useHook: useRequestPurchaseForLowStock,
       variables: [{ productId: 'item-1001', quantity: 10 }],
-      invalidates: [
-        LOW_STOCK_LIST,
+      invalidates: [LOW_STOCK_LIST],
+      keeps: [
+        LIST_0,
         lowStockItemKeys.all,
         purchaseRequestKeys.lists(),
         purchaseStatsKeys.all,
+        FOREIGN,
       ],
-      keeps: [LIST_0, FOREIGN],
     }));
 
-  it('자재 추가(생성, 낙관적 없음) → 재고 목록, 재고 통계, 자재 선택, 부족 재고 3곳', () =>
+  it('자재 추가(생성, 낙관적 없음) → 재고 목록, 재고 통계, 자재 선택, 부족 재고 위젯', () =>
     expectMatrix({
       name: '',
       useHook: useAddMaterial,
@@ -61,33 +63,34 @@ describe('재고 mutation 훅 무효화 범위', () => {
         currentStock: 10,
         warehouseId: 'wh-003',
       },
-      invalidates: [
-        LIST_0,
-        inventoryStatsKeys.all,
-        itemInfoKeys.all,
-        lowStockItemKeys.all,
+      invalidates: [LIST_0, inventoryStatsKeys.all, itemInfoKeys.all, lowStockItemKeys.all],
+      keeps: [
+        inventoryKeys.detail('item-1'),
+        stockMovementKeys.all,
+        WAREHOUSE_INFO,
         LOW_STOCK_LIST,
         lowStockStatsKeys.all,
+        FOREIGN,
       ],
-      keeps: [inventoryKeys.detail('item-1'), stockMovementKeys.all, WAREHOUSE_INFO, FOREIGN],
     }));
 
-  it('안전재고 수정 → 상세, 재고 목록, 부족 재고 3곳', () =>
+  it('안전재고 수정 → 상세, 재고 목록, 부족 재고 위젯', () =>
     expectMatrix({
       name: '',
       useHook: useUpdateSafetyStock,
       variables: { itemId: 'item-1', safetyStock: 7 },
-      invalidates: [
-        inventoryKeys.detail('item-1'),
-        LIST_0,
-        lowStockItemKeys.all,
+      invalidates: [inventoryKeys.detail('item-1'), LIST_0, lowStockItemKeys.all],
+      keeps: [
+        inventoryKeys.detail('item-2'),
+        stockMovementKeys.all,
         LOW_STOCK_LIST,
         lowStockStatsKeys.all,
+        FOREIGN,
       ],
-      keeps: [inventoryKeys.detail('item-2'), stockMovementKeys.all, FOREIGN],
     }));
 
-  it('재고 이동 → 상세, 재고 목록, 이동 기록, 창고 토글, 부족 재고 3곳', () =>
+  // 목의 총 재고 가치는 옮긴 수량에 따라 바뀐다(카드 "화면끼리 캐시" 별도 보고 1)
+  it('재고 이동 → 상세, 재고 목록, 재고 통계, 이동 기록, 창고 토글, 부족 재고 위젯', () =>
     expectMatrix({
       name: '',
       useHook: useMoveStock,
@@ -102,13 +105,12 @@ describe('재고 mutation 훅 무효화 범위', () => {
       invalidates: [
         inventoryKeys.detail('item-1'),
         LIST_0,
+        inventoryStatsKeys.all,
         stockMovementKeys.all,
         WAREHOUSE_INFO,
         lowStockItemKeys.all,
-        LOW_STOCK_LIST,
-        lowStockStatsKeys.all,
       ],
-      keeps: [inventoryKeys.detail('item-2'), FOREIGN],
+      keeps: [inventoryKeys.detail('item-2'), LOW_STOCK_LIST, lowStockStatsKeys.all, FOREIGN],
     }));
 });
 
@@ -131,7 +133,7 @@ describe('재고 추이(시각화 2)', () => {
 });
 
 describe('출하 준비', () => {
-  it('출하 준비 → 출하 키 전부, 재고 통계 + 영업 주문 목록과 그 주문 상세(의도한 교차)', () =>
+  it('출하 준비 → 출하 키 전부, 재고 통계', () =>
     expectMatrix({
       name: '',
       useHook: useMarkReadyToShip,
@@ -142,10 +144,14 @@ describe('출하 준비', () => {
         shippingKeys.detail('producing', 'so-1'),
         shippingKeys.detail('readyToShip', 'so-1'),
         inventoryStatsKeys.all,
+      ],
+      keeps: [
+        LIST_0,
         salesOrderKeys.lists(),
         salesOrderKeys.detail('so-1'),
+        salesOrderKeys.detail('so-2'),
+        FOREIGN,
       ],
-      keeps: [LIST_0, salesOrderKeys.detail('so-2'), FOREIGN],
     }));
 });
 

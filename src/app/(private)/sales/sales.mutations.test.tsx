@@ -15,7 +15,11 @@ import {
   useCheckInventory,
   useProcessDelivery,
 } from './sales.mutations';
-import { inventoryStatsKeys, receivingKeys, shippingKeys } from '@/app/(private)/inventory';
+import {
+  inventoryStatsKeys,
+  receivingKeys,
+  shippingKeys,
+} from '@/app/(private)/inventory/inventory.keys';
 
 const FOREIGN = ['purchase', 'orders', 'list'];
 const QUOTE_LIST = quoteKeys.list({ page: 0, size: 10 });
@@ -31,7 +35,7 @@ const ORDER_LIST = salesOrderKeys.list({
 const CUSTOMER_LIST = customerKeys.list({ page: 0, size: 10 });
 const CUSTOMER_DETAIL = customerKeys.detail('cus-002');
 const ANALYTICS = analyticsKeys.byParams({ startDate: '2026-06-13', endDate: '2026-11-13' });
-// 재고 출고 화면의 키. 즉시 납품만 출고 준비 목록과 재고 통계를 건드린다(카드 "데모 목록 재고 물류")
+// 재고 화면의 키. 도메인마다 QueryClient 가 달라 영업 mutation 은 하나도 건드리지 않는다(카드 "화면끼리 캐시", domainCache.test.tsx)
 const READY_TO_SHIP = shippingKeys.readyToShipList({ page: 0, size: 10 });
 const PRODUCTION_ORDERS = shippingKeys.productionList({ page: 0, size: 10 });
 const RECEIVING_PENDING = receivingKeys.pendingList({ page: 0, size: 10 });
@@ -63,8 +67,8 @@ describe('영업 mutation 훅', () => {
 
   // 주문이 생기면 고객의 주문 수, 거래 금액, 마지막 주문일과 매출 분석이 바뀐다(데모 데이터 채우기 리뷰 A1).
   // 어느 고객인지는 견적 id 만으로 몰라 고객 상세는 전부 다시 받는다
-  // 새 주문은 출고 준비라 재고 출고 준비 목록과 재고 통계에 든다(의도한 교차). 생산중, 입고 목록은 그대로
-  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계, 고객 목록과 상세, 매출 분석 + 재고 출고 준비 목록, 재고 통계', () =>
+  // 새 주문은 재고 출고 준비에도 들지만 재고 화면은 들어갈 때 다시 받는다
+  it('즉시 납품 → 견적 목록, 상세, 검토 상세, 주문 목록, 통계, 고객 목록과 상세, 매출 분석', () =>
     expectMatrix({
       name: '',
       useHook: useProcessDelivery,
@@ -78,10 +82,8 @@ describe('영업 mutation 훅', () => {
         CUSTOMER_LIST,
         CUSTOMER_DETAIL,
         ANALYTICS,
-        READY_TO_SHIP,
-        INVENTORY_STATS,
       ],
-      keeps: [FOREIGN, PRODUCTION_ORDERS, RECEIVING_PENDING],
+      keeps: [FOREIGN, PRODUCTION_ORDERS, RECEIVING_PENDING, READY_TO_SHIP, INVENTORY_STATS],
     }));
 
   it('고객 등록(생성, 낙관적 없음) → 고객 목록만', () =>
@@ -113,7 +115,8 @@ describe('영업 mutation 훅', () => {
       keeps: [QUOTE_LIST, ORDER_LIST, CUSTOMER_LIST],
     }));
 
-  it('고객 수정 → 고객 목록과 그 고객 상세', () =>
+  // 주문 상세의 주소와 담당자가 고객에서 온다(목 쓰기 대조, 카드 "화면끼리 캐시"). 어느 주문인지 몰라 주문 상세 전부
+  it('고객 수정 → 고객 목록과 그 고객 상세, 주문 상세', () =>
     expectMatrix({
       name: '',
       useHook: useUpdateCustomer,
@@ -132,7 +135,7 @@ describe('영업 mutation 훅', () => {
           note: '',
         },
       },
-      invalidates: [CUSTOMER_LIST, customerKeys.detail('cus-1')],
-      keeps: [customerKeys.detail('cus-2'), QUOTE_LIST, FOREIGN],
+      invalidates: [CUSTOMER_LIST, customerKeys.detail('cus-1'), salesOrderKeys.detail('so-1')],
+      keeps: [customerKeys.detail('cus-2'), QUOTE_LIST, ORDER_LIST, FOREIGN],
     }));
 });

@@ -124,14 +124,15 @@ const cases: Case[] = [
     keeps: [EMPLOYEE_LIST, PURCHASE_ORDER_LIST],
   },
   {
-    name: '교육 수정 → 목록, 상세, 드롭다운',
+    // 직원 교육 상세에 프로그램 이름과 상태가 있다
+    name: '교육 수정 → 목록, 상세, 드롭다운, 직원 교육 상세',
     run: (qc) =>
       runHook(qc, useUpdateProgram, {
         programId: 'prog-1',
         programName: '새 이름',
         statusCode: 'OPEN',
       }),
-    invalidates: [PROGRAM_LIST, PROGRAM_DETAIL, PROGRAM_DROPDOWN],
+    invalidates: [PROGRAM_LIST, PROGRAM_DETAIL, PROGRAM_DROPDOWN, TRAINING_DETAIL],
     keeps: [TRAINING_LIST, PURCHASE_ORDER_LIST],
   },
   {
@@ -162,27 +163,49 @@ const cases: Case[] = [
     keeps: [LEAVE_LIST, PURCHASE_ORDER_LIST],
   },
   {
-    name: '교육 지정 → 교육 이력 목록, 직원 상세',
+    // 프로그램 상세의 대상자가 늘어난다
+    name: '교육 지정 → 교육 이력 목록, 직원 상세, 그 프로그램 상세',
     run: (qc) =>
       runHook(qc, useAssignProgramToEmployee, { employeeId: 'emp-1', programId: 'prog-1' }),
-    invalidates: [TRAINING_LIST, TRAINING_DETAIL],
+    invalidates: [TRAINING_LIST, TRAINING_DETAIL, PROGRAM_DETAIL],
     keeps: [PROGRAM_LIST, PURCHASE_ORDER_LIST],
   },
   {
-    name: '직원 등록 → 직원 목록, 통계, 해당 부서원 드롭다운',
+    // 같은 인사 화면의 다른 탭도 직원 목록에서 나온다(부서 인원, 급여, 교육, 출퇴근. 목 쓰기 대조, 카드 "화면끼리 캐시")
+    name: '직원 등록 → 직원 목록, 통계, 해당 부서원 드롭다운, 부서, 급여, 교육, 출퇴근 목록',
     run: (qc) => runHook(qc, useRegisterEmployee, employeeBody),
-    invalidates: [EMPLOYEE_LIST, STATS, MEMBER_DROPDOWN],
-    keeps: [PAYROLL_LIST, PURCHASE_ORDER_LIST],
+    invalidates: [
+      EMPLOYEE_LIST,
+      STATS,
+      MEMBER_DROPDOWN,
+      DEPARTMENT_LIST,
+      PAYROLL_LIST,
+      TRAINING_LIST,
+      ATTENDANCE_LIST,
+    ],
+    keeps: [LEAVE_LIST, ATTENDANCE_SUMMARY, PROGRAM_LIST, PURCHASE_ORDER_LIST],
   },
   {
-    name: '직원 수정 → 직원 목록, 부서 키 전부(옛 부서를 몰라서)',
+    // 이름, 부서, 직급은 급여, 교육, 프로그램 대상자, 출퇴근, 휴가에도 나온다(목 쓰기 대조, 카드 "화면끼리 캐시")
+    name: '직원 수정 → 직원 목록, 부서 키 전부(옛 부서를 몰라서), 급여, 교육, 프로그램 상세, 출퇴근, 휴가 목록',
     run: (qc) =>
       runHook(qc, useUpdateEmployee, {
         employeeId: 'emp-1',
         body: { employeeName: '김직원', departmentId: 'dept-2', positionId: 'pos-1' },
       }),
-    invalidates: [EMPLOYEE_LIST, MEMBER_DROPDOWN, DEPARTMENT_LIST],
-    keeps: [STATS, PAYROLL_LIST, PURCHASE_ORDER_LIST],
+    invalidates: [
+      EMPLOYEE_LIST,
+      MEMBER_DROPDOWN,
+      DEPARTMENT_LIST,
+      PAYROLL_LIST,
+      PAYROLL_DETAIL,
+      TRAINING_LIST,
+      TRAINING_DETAIL,
+      PROGRAM_DETAIL,
+      ATTENDANCE_LIST,
+      LEAVE_LIST,
+    ],
+    keeps: [STATS, ATTENDANCE_SUMMARY, PROGRAM_LIST, PURCHASE_ORDER_LIST],
   },
   {
     name: '급여 완료 → 급여 목록, 상세',
