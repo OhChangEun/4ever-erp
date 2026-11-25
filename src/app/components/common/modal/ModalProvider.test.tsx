@@ -414,3 +414,32 @@ describe('모달을 연 요소가 없어졌을 때의 포커스', () => {
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 });
+
+/** useModal 만 쓰는 화면. 그려질 때마다 알린다 */
+function CountingPage({ onRender }: { onRender: () => void }) {
+  const { openModal } = useModal();
+  onRender();
+  return (
+    <button type="button" onClick={() => openModal(Inner, { title: '세는 모달' })}>
+      세는 모달 열기
+    </button>
+  );
+}
+
+describe('모달을 여닫을 때의 리렌더', () => {
+  it('useModal 을 쓰는 화면은 모달이 열리고 닫혀도 다시 그려지지 않는다', async () => {
+    const onRender = vi.fn();
+    render(
+      <ModalProvider>
+        <CountingPage onRender={onRender} />
+      </ModalProvider>,
+      { wrapper: IntlTestProvider },
+    );
+    onRender.mockClear();
+    await userEvent.click(screen.getByRole('button', { name: '세는 모달 열기' }));
+    await screen.findByRole('dialog', { name: '세는 모달' });
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onRender).not.toHaveBeenCalled();
+  });
+});
