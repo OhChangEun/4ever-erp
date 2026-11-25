@@ -100,10 +100,14 @@ export default function QuotationTab() {
     // 확정은 시뮬레이션한 견적(보낸 id)을 보낸다. 시뮬레이션 중에 선택을 바꿔도 결과 모달과 확정이 같은 묶음이다
     onSuccess: (simulationResults, simulatedIds) => {
       if (simulationResults.length > 0) {
+        // 생산 불가 견적은 확정에서 뺀다. 같이 보내면 그 견적만 미확인인데 성공으로 알린다
+        const failedIds = simulationResults
+          .filter(({ simulation }) => simulation.status === 'FAIL')
+          .map(({ quotationId }) => quotationId);
         openModal(SimulationResultModal, {
           title: t('quotation.simulationTitle'),
           simulationResults,
-          onConfirm: () => confirmQuotations(simulatedIds),
+          onConfirm: () => confirmQuotations(simulatedIds.filter((id) => !failedIds.includes(id))),
         });
       } else {
         toast.info(t('simulation.empty'));

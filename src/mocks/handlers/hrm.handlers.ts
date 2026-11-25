@@ -2,7 +2,7 @@ import { http, type PathParams } from 'msw';
 import { HRM_BASE_PATH, HRM_ENDPOINTS } from '@/app/(private)/hrm/api/hrm.endpoints';
 import type { Schema } from '@/lib/api/contract';
 import { addCreated, mockState } from '../state';
-import { HEADCOUNT, attendanceBetween, attendanceDays } from './attendanceSummary.handlers';
+import { attendanceBetween, attendanceDays } from './attendanceSummary.handlers';
 import { DEPARTMENTS, EMPLOYEES, addDays, departmentIdOf, todayKey } from './seed';
 import {
   ok,
@@ -18,6 +18,7 @@ import {
   level,
   statResponse,
   type FilterRules,
+  type Metric,
 } from './utils';
 
 type Employee = Schema<'EmployeeData'>;
@@ -102,6 +103,11 @@ const employeesOf = (request: Request) => {
  */
 const staffOf = (request: Request) =>
   employeesOf(request).filter((employee) => employee.statusCode === 'ACTIVE');
+/** 총 직원 수 지표. 인사와 대시보드 통계가 같이 쓴다 */
+export const headcountOf = (request: Request): Metric => ({
+  ...level(staffOf(request).length),
+  series: 'total_employees',
+});
 /** 급여와 출퇴근 행의 직원 칸 */
 const summaryOf = (employee: Employee) => ({
   employeeId: employee.employeeId,
@@ -504,13 +510,14 @@ export const leavesOf = (request: Request) => {
 };
 
 /**
- * 직원 수는 근태 집계 목의 인원이다(카드 "목 데이터 현실성" 결정 4). 씨앗 재직자 수와 같다.
+ * 직원 수는 그 로그인의 재직자 수다(등록하면 는다). 씨앗이면 근태 집계 인원과 같다.
  * 신규 입사자는 직원 목록의 입사일로 세지 않고 한 달에 2명꼴로 둔다(verified=false)
  */
-const mockHrmStats = statResponse({
-  totalEmployeeCount: level(HEADCOUNT),
-  newEmployeeCount: { week: 0, month: 2, quarter: 5, year: 18 },
-});
+const hrmStats = (request: Request) =>
+  statResponse({
+    totalEmployeeCount: headcountOf(request),
+    newEmployeeCount: { week: 0, month: 2, quarter: 5, year: 18 },
+  });
 
 /**
  * 목록 필터(카드 "목 필터와 검색"). 이름은 게이트웨이와 같다(HrmController.java:120-125, :345-356, 출퇴근 :43-52,
@@ -539,7 +546,7 @@ const employeeOf = (row: HrmRow): Person => ({
 export const hrmHandlers = [
   http.get(HRM_ENDPOINTS.STATISTICS, ({ request }) => {
     if (shouldError(request)) return error('Failed to load HRM stats', 500);
-    return ok(mockHrmStats);
+    return ok(hrmStats(request));
   }),
   http.get(HRM_ENDPOINTS.EMPLOYEE, ({ request }) => {
     if (shouldError(request)) return error('Failed to load employees', 500);

@@ -77,6 +77,7 @@
       "PASS": "Can produce",
       "FAIL": "Can't produce"
     },
+    "failedExcluded": "{count, plural, one {# quotation} other {# quotations}} that cannot be produced will not get an MPS.",
     "createMps": "Create MPS"
   },
   "mps": {

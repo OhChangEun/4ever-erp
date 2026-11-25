@@ -255,7 +255,7 @@ const salesStats = (request: Request) => {
     year: pick(windows.year),
   });
   return statResponse({
-    sales_amount: metric((totals) => totals.amount),
+    sales_amount: { ...metric((totals) => totals.amount), series: 'total_sales' },
     new_orders_count: metric((totals) => totals.count),
   });
 };

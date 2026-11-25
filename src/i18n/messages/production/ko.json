@@ -77,6 +77,7 @@
       "PASS": "생산 가능",
       "FAIL": "생산 불가"
     },
+    "failedExcluded": "생산 불가 {count}건은 MPS를 만들지 않습니다.",
     "createMps": "MPS 생성하기"
   },
   "mps": {
